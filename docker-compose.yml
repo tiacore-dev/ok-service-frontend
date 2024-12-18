@@ -1,0 +1,16 @@
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT}:80"  # Вы можете оставить это, чтобы тестировать приложение отдельно, но Nginx будет использовать внутреннюю связь
+    restart: always
+    networks:
+      - ok_network
+
+
+networks:
+  ok_network:
+    driver: bridge
