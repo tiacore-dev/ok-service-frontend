@@ -19,14 +19,14 @@ module.exports = () => {
     entry: "./main.tsx",
     devtool: "inline-source-map",
     output: {
-      path: path.join(__dirname, "/dist"),
+      path: path.join(__dirname, "/build"),
       filename: "[name].[contenthash].bundle.js",
       publicPath: "/",
       clean: true,
     },
     devtool: "inline-source-map",
     devServer: {
-      static: "./dist",
+      static: "./build",
       historyApiFallback: true,
       port: 8082,
     },
