@@ -120,7 +120,6 @@ export const useApi = () => {
         dispatch(authlogout());
       }
 
-      console.log("refreshToken newToken", newToken);
       dispatch(
         refreshToken({
           access_token: newToken.data.access_token,

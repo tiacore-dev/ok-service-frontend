@@ -17,11 +17,11 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
 
-export interface ICreateObject extends Omit<IObject, "id"> {}
+export interface IEditableObject extends Omit<IObject, "object_id"> {}
 
 export const useObjects = () => {
   const dispatch = useDispatch();
-  const { apiGet, apiPost } = useApi();
+  const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
@@ -29,7 +29,6 @@ export const useObjects = () => {
     dispatch(getObjectsRequest());
     apiGet<{ objects: IObjectList[] }>("objects", "all")
       .then((objectsData) => {
-        console.log("getObjects", objectsData.objects);
         dispatch(getObjectsSuccess(objectsData.objects));
       })
       .catch((err) => {
@@ -39,16 +38,16 @@ export const useObjects = () => {
 
   const getObject = (objectId: string) => {
     dispatch(getObjectRequest());
-    apiGet<{ objects: IObject }>("objects", `${objectId}/view`)
+    apiGet<{ object: IObject }>("objects", `${objectId}/view`)
       .then((objectData) => {
-        dispatch(getObjectSuccess(objectData.objects));
+        dispatch(getObjectSuccess(objectData.object));
       })
       .catch((err) => {
         dispatch(getObjectFailure(err));
       });
   };
 
-  const createObject = (createbleObjectData: ICreateObject) => {
+  const createObject = (createbleObjectData: IEditableObject) => {
     dispatch(editObjectAction.sendObject());
 
     apiPost<{ object: IObject }>("objects", "add", createbleObjectData)
@@ -71,5 +70,53 @@ export const useObjects = () => {
       });
   };
 
-  return { getObjects, getObject, createObject };
+  const editObject = (
+    object_id: string,
+    editableObjectData: IEditableObject
+  ) => {
+    dispatch(editObjectAction.sendObject());
+
+    apiPatch<{}>("objects", object_id, "edit", editableObjectData)
+      .then(() => {
+        navigate("/objects");
+        getObjects();
+        notificationApi.success({
+          message: `Успешно`,
+          description: "Объект изменен",
+          placement: "bottomRight",
+        });
+      })
+      .catch((err) => {
+        dispatch(editObjectAction.saveError());
+        console.log("editObjectFailure", err);
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при изменении объекта",
+          placement: "bottomRight",
+        });
+      });
+  };
+
+  const deleteObject = (objectId: string) => {
+    apiDelete<{}>("objects", objectId, "delete/hard")
+      .then(() => {
+        notificationApi.success({
+          message: `Успешно`,
+          description: "Объект удалён",
+          placement: "bottomRight",
+        });
+        navigate("/objects");
+        getObjects();
+      })
+      .catch((err) => {
+        console.log("deleteObjectFailure", err);
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при удалении объекта",
+          placement: "bottomRight",
+        });
+      });
+  };
+
+  return { getObjects, getObject, createObject, editObject, deleteObject };
 };

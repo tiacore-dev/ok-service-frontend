@@ -36,7 +36,6 @@ const authSlice = createSlice({
       state: IAuthState,
       action: { payload: { refresh_token: string; access_token: string } }
     ) => {
-      console.log(action.payload);
       state.refresh_token = action.payload.refresh_token;
       state.access_token = action.payload.access_token;
     },

@@ -11,6 +11,7 @@ import { objectsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IObjectListColumn } from "../../interfaces/objects/IObjectList";
 import { useObjects } from "../../hooks/ApiActions/objects";
+import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -30,7 +31,15 @@ export const Objects = () => {
   ).map((doc) => ({ ...doc, key: doc.object_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.objects.loading);
+  const statusMap = useSelector(getObjectStatusesMap);
 
+  const columns = React.useMemo(
+    () =>
+      isMobile()
+        ? objectsMobileColumns(navigate, statusMap)
+        : objectsDesktopColumns(navigate, statusMap),
+    [navigate]
+  );
   return (
     <>
       <Breadcrumb
@@ -47,13 +56,7 @@ export const Objects = () => {
         }}
       >
         <Filters />
-        <Table
-          dataSource={objectsData}
-          columns={
-            isMobile() ? objectsMobileColumns : objectsDesktopColumns(navigate)
-          }
-          loading={isLoading}
-        />
+        <Table dataSource={objectsData} columns={columns} loading={isLoading} />
       </Content>
     </>
   );

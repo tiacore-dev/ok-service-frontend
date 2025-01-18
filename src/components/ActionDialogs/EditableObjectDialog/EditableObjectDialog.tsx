@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
 import { IObject } from "../../../interfaces/objects/IObject";
-// import { isMobile } from "../../../utils/isMobile";
 import { editObjectAction } from "../../../store/modules/editableEntities/editableObject";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
@@ -19,7 +18,7 @@ interface IEditableObjectDialogProps {
 
 export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   const { object, iconOnly } = props;
-  const { createObject } = useObjects();
+  const { createObject, editObject } = useObjects();
   const buttonText = object ? "Редактировать" : "Создать";
   const popoverText = object ? "Редактировать объект" : "Создать объект";
   const buttonIcon = object ? (
@@ -38,13 +37,27 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
     value: el.object_status_id,
   }));
 
-  console.log("statusMap", statusMap);
+  const { sent, ...objectData } = data;
 
-  const { sent, ...createObjectData } = data;
+  const handleConfirm = useCallback(() => {
+    if (object) {
+      editObject(object.object_id, objectData);
+    } else {
+      createObject(objectData);
+    }
+  }, [object, objectData, objectData]);
+
+  const handeOpen = useCallback(() => {
+    if (object) {
+      dispatch(editObjectAction.setObjectData(object));
+    }
+  }, [object, dispatch]);
+
   return (
     <ActionDialog
       modalOkText="Сохранить"
-      onConfirm={() => createObject(createObjectData)}
+      onConfirm={handleConfirm}
+      onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
       popoverText={iconOnly && popoverText}
       buttonType="primary"

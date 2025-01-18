@@ -20,11 +20,3 @@ export const useAuthToken = (): ITokens => {
   const { access_token, refresh_token } = useAuthData();
   return { access_token, refresh_token };
 };
-
-// export const checkPermission = (permission: string): boolean => {
-//   const { permissions } = authData();
-//   if (!permissions) {
-//     return false;
-//   }
-//   return Object.values(permissions).some((value) => value === permission);
-// };

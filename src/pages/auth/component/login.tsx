@@ -7,6 +7,7 @@ import { ILoginData } from "../../../hooks/useAuth";
 import { authlogin } from "../../../store/modules/auth";
 import Title from "antd/es/typography/Title";
 import { IUser } from "../../../interfaces/users/IUser";
+import { useloadSourse } from "../../../components/App/App";
 
 interface IAuthLoginResponse {
   access_token: string;
@@ -17,7 +18,7 @@ interface IAuthLoginResponse {
 
 export const Login = () => {
   const dispatch = useDispatch();
-  // const [load] = useloadSourse();
+  const { load } = useloadSourse();
   const navigate = useNavigate();
   const { apiPost, apiGet } = useApi();
   const [messageApi, contextHolder] = message.useMessage();
@@ -29,7 +30,6 @@ export const Login = () => {
           "login",
           loginData
         );
-        console.log(authLoginResponse);
 
         const { user: userData } = await apiGet<{
           user: IUser;
@@ -38,7 +38,6 @@ export const Login = () => {
           `${authLoginResponse.user_id}/view`,
           authLoginResponse.access_token
         );
-        console.log("userData", userData);
 
         dispatch(
           authlogin({
@@ -50,7 +49,7 @@ export const Login = () => {
             role: userData.role,
           })
         );
-        //       load(data);
+        load(authLoginResponse.access_token);
         navigate("/");
       } catch (err) {
         const errorMessage = err?.message || String(err);

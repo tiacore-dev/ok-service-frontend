@@ -9,12 +9,15 @@ import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { EditableUserDialog } from "../../components/ActionDialogs/EditableUserDialog/EditableUserDialog";
 import { IRole } from "../../interfaces/roles/IRole";
-import { getRoles } from "../../store/modules/dictionaries/selectors/roles.selector";
+import {
+  getRoles,
+  getRolesMap,
+} from "../../store/modules/dictionaries/selectors/roles.selector";
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
 
 export const User = () => {
   const { Content } = Layout;
-  const rolesMap = useSelector(getRoles);
+  const rolesMap = useSelector(getRolesMap);
   const routeParams = useParams();
   const { getUser, deleteUser } = useUsers();
 
@@ -64,13 +67,7 @@ export const User = () => {
             <p>Имя: {userData.name}</p>
             <p>ID: {userData.user_id}</p>
             <p>Логин: {userData.login}</p>
-            <p>
-              Роль:{" "}
-              {
-                rolesMap.find((item: IRole) => item.role_id === userData.role)
-                  .name
-              }
-            </p>
+            <p>Роль: {rolesMap[userData.role]?.name}</p>
           </Card>
         </Content>
       ) : (

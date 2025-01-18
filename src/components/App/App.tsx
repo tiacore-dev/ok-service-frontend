@@ -30,9 +30,10 @@ import {
 } from "../../store/modules/dictionaries/roles";
 import { IRole } from "../../interfaces/roles/IRole";
 import { User } from "../../pages/user/user";
+import { Object } from "../../pages/object/object";
 
 export const useloadSourse = (): {
-  load: () => Promise<void>;
+  load: (access_token?: string) => Promise<void>;
   clearStates: () => void;
 } => {
   const clearStates = React.useCallback(() => {}, []);
@@ -40,12 +41,12 @@ export const useloadSourse = (): {
   const dispatch = useDispatch();
   const { apiGet } = useApi();
 
-  const load = React.useCallback(async () => {
+  const load = React.useCallback(async (access_token?: string) => {
     // Загрузка справочника статусов объектов
     dispatch(getObjectStatusesRequest());
     try {
       const response: { object_statuses: IObjectStatus[]; msg: string } =
-        await apiGet("object_statuses", "all");
+        await apiGet("object_statuses", "all", access_token);
 
       dispatch(getObjectStatusesSuccess(response.object_statuses));
     } catch (err) {
@@ -57,14 +58,15 @@ export const useloadSourse = (): {
       dispatch(getObjectStatusesFailure(err));
     }
 
+    // Загрузка справочника ролей
     dispatch(getRolesRequest());
     try {
       const response: { roles: IRole[]; msg: string } = await apiGet(
         "roles",
-        "all"
+        "all",
+        access_token
       );
 
-      console.log("getRolesRequest ", response);
       dispatch(getRolesSuccess(response.roles));
     } catch (err) {
       notificationApi.error({
@@ -114,7 +116,7 @@ export const App = () => {
               <Route path="login" element={<Login />} />
               <Route path="objects">
                 <Route index={true} element={<Objects />} />
-                <Route path=":objectId" element={<Main />} />
+                <Route path=":objectId" element={<Object />} />
               </Route>
               <Route path="users">
                 <Route index={true} element={<Users />} />

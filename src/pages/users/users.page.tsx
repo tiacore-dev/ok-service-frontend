@@ -11,15 +11,7 @@ import { usersMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IUsersListColumn } from "../../interfaces/users/IUsersList";
 import { useUsers } from "../../hooks/ApiActions/users";
-
-// export interface IUsersCovertedData {
-//   key: string;
-//   number?: JSX.Element;
-//   customer?: JSX.Element;
-//   performer?: JSX.Element;
-//   summ?: JSX.Element;
-//   mobileData?: JSX.Element;
-// }
+import { getRolesMap } from "../../store/modules/dictionaries/selectors/roles.selector";
 
 export const Users = () => {
   const { Content } = Layout;
@@ -39,6 +31,15 @@ export const Users = () => {
   ).map((doc) => ({ ...doc, key: doc.user_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.users.loading);
+  const rolesMap = useSelector(getRolesMap);
+
+  const columns = React.useMemo(
+    () =>
+      isMobile()
+        ? usersMobileColumns(navigate, rolesMap)
+        : usersDesktopColumns(navigate, rolesMap),
+    [navigate]
+  );
 
   return (
     <>
@@ -56,13 +57,7 @@ export const Users = () => {
         }}
       >
         <Filters />
-        <Table
-          dataSource={usersData}
-          columns={
-            isMobile() ? usersMobileColumns : usersDesktopColumns(navigate)
-          }
-          loading={isLoading}
-        />
+        <Table dataSource={usersData} columns={columns} loading={isLoading} />
       </Content>
     </>
   );

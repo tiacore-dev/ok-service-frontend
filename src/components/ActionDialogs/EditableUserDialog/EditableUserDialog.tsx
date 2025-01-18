@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
@@ -50,21 +50,25 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
     editUserData.password = password;
   }
 
+  const handleConfirm = useCallback(() => {
+    if (user) {
+      editUser(user.user_id, editUserData);
+    } else {
+      createUser({ ...createUserData, password });
+    }
+  }, [user, editUserData, createUserData, password]);
+
+  const handeOpen = useCallback(() => {
+    if (user) {
+      dispatch(editUserAction.setUserData(user));
+    }
+  }, [user, dispatch]);
+
   return (
     <ActionDialog
       modalOkText="Сохранить"
-      onConfirm={() => {
-        if (user) {
-          editUser(user.user_id, editUserData);
-        } else {
-          createUser({ ...createUserData, password });
-        }
-      }}
-      onOpen={() => {
-        if (user) {
-          dispatch(editUserAction.setUserData(user));
-        }
-      }}
+      onConfirm={handleConfirm}
+      onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
       popoverText={iconOnly && popoverText}
       buttonType="primary"
