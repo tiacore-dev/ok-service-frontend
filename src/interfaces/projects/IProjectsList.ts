@@ -1,7 +1,7 @@
 import { IProject } from "./IProject";
 
-export interface IProjectList extends IProject {}
+export interface IProjectsList extends IProject {}
 
-export interface IProjectListColumn extends IProjectList {
+export interface IProjectsListColumn extends IProjectsList {
   key: string;
 }

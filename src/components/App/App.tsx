@@ -31,6 +31,7 @@ import {
 import { IRole } from "../../interfaces/roles/IRole";
 import { User } from "../../pages/user/user";
 import { Object } from "../../pages/object/object";
+import { Projects } from "../../pages/projects/projects.page";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -119,8 +120,8 @@ export const App = () => {
                 <Route path=":objectId" element={<Object />} />
               </Route>
               <Route path="projects">
-                <Route index={true} element={<Objects />} />
-                <Route path=":projectId" element={<Object />} />
+                <Route index={true} element={<Projects />} />
+                <Route path=":projectId" element={<Main />} />
               </Route>
               <Route path="users">
                 <Route index={true} element={<Users />} />

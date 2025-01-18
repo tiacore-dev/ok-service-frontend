@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IProjectList } from "../../../interfaces/projects/IProjectsList";
+import { IProjectsList } from "../../../interfaces/projects/IProjectsList";
 
 interface IProjectsState {
-  data: IProjectList[];
+  data: IProjectsList[];
   loading: boolean;
   loaded: boolean;
   errMsg: string;
@@ -33,7 +33,7 @@ const projectsSlice = createSlice({
     },
     getProjectsSuccess: (
       state: IProjectsState,
-      action: { payload: IProjectList[] }
+      action: { payload: IProjectsList[] }
     ) => {
       state.loading = false;
       state.loaded = true;
