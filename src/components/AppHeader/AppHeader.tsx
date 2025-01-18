@@ -33,6 +33,14 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   });
 
   desktopItems.push({
+    key: "projects",
+    label: "Спецификации",
+    onClick: () => {
+      navigate("/projects");
+    },
+  });
+
+  desktopItems.push({
     key: "users",
     label: "Пользователи",
     onClick: () => {

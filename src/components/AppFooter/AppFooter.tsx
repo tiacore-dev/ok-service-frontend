@@ -2,13 +2,12 @@ import * as React from "react";
 import { Flex, Layout, Space } from "antd";
 import { isMobile } from "../../utils/isMobile";
 import {
-  AppstoreOutlined,
+  BankOutlined,
+  FileDoneOutlined,
   IdcardOutlined,
-  InsertRowBelowOutlined,
-  MailOutlined,
-  UnorderedListOutlined,
+  ProfileOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
-// import { checkPermission } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export const AppFooter = () => {
@@ -19,6 +18,7 @@ export const AppFooter = () => {
 
   items.push(
     <Space
+      key="shifts"
       size="small"
       direction="vertical"
       style={{ textAlign: "center" }}
@@ -26,13 +26,14 @@ export const AppFooter = () => {
         navigate("/shifts");
       }}
     >
-      <MailOutlined style={{ fontSize: "20px" }} />
+      <FileDoneOutlined style={{ fontSize: "20px" }} />
       <div style={{ fontSize: "12px" }}>Смены</div>
     </Space>
   );
 
   items.push(
     <Space
+      key="users"
       size="small"
       direction="vertical"
       style={{ textAlign: "center" }}
@@ -40,13 +41,14 @@ export const AppFooter = () => {
         navigate("/users");
       }}
     >
-      <InsertRowBelowOutlined style={{ fontSize: "20px" }} />
+      <TeamOutlined style={{ fontSize: "20px" }} />
       <div style={{ fontSize: "12px" }}>Пользователи</div>
     </Space>
   );
 
   items.push(
     <Space
+      key="objects"
       size="small"
       direction="vertical"
       style={{ textAlign: "center" }}
@@ -54,13 +56,29 @@ export const AppFooter = () => {
         navigate("/objects");
       }}
     >
-      <AppstoreOutlined style={{ fontSize: "20px" }} />
+      <BankOutlined style={{ fontSize: "20px" }} />
       <div style={{ fontSize: "12px" }}>Объекты</div>
     </Space>
   );
 
   items.push(
     <Space
+      key="projects"
+      size="small"
+      direction="vertical"
+      style={{ textAlign: "center" }}
+      onClick={() => {
+        navigate("/projects");
+      }}
+    >
+      <ProfileOutlined style={{ fontSize: "20px" }} />
+      <div style={{ fontSize: "12px" }}>Спецификации</div>
+    </Space>
+  );
+
+  items.push(
+    <Space
+      key="account"
       size="small"
       direction="vertical"
       style={{ textAlign: "center" }}

@@ -118,6 +118,10 @@ export const App = () => {
                 <Route index={true} element={<Objects />} />
                 <Route path=":objectId" element={<Object />} />
               </Route>
+              <Route path="projects">
+                <Route index={true} element={<Objects />} />
+                <Route path=":projectId" element={<Object />} />
+              </Route>
               <Route path="users">
                 <Route index={true} element={<Users />} />
                 <Route path=":userId" element={<User />} />
