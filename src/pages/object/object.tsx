@@ -24,10 +24,6 @@ export const Object = () => {
   const objectData = useSelector((state: IState) => state.pages.object.data);
   const isLoaded = useSelector((state: IState) => state.pages.object.loaded);
 
-  console.log(objectData);
-  console.log(isLoaded);
-  console.log(routeParams);
-
   return (
     <>
       <Breadcrumb
