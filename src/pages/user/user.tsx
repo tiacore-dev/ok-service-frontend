@@ -14,6 +14,7 @@ import {
   getRolesMap,
 } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
+import { Link } from "react-router-dom";
 
 export const User = () => {
   const { Content } = Layout;
@@ -34,9 +35,9 @@ export const User = () => {
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
-          { title: "Главная" },
+          { title: <Link to="/">Главная</Link> },
           {
-            title: "Пользователи",
+            title: <Link to="/users">Пользователи</Link>,
           },
           { title: userData?.name },
         ]}
@@ -65,6 +66,7 @@ export const User = () => {
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Имя: {userData.name}</p>
+            <p>Разряд: {userData.category ?? "Нет разряда"}</p>
             <p>ID: {userData.user_id}</p>
             <p>Логин: {userData.login}</p>
             <p>Роль: {rolesMap[userData.role]?.name}</p>

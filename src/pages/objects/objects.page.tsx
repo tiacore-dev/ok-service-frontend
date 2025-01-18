@@ -9,9 +9,10 @@ import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { objectsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
-import { IObjectListColumn } from "../../interfaces/objects/IObjectList";
+import { IObjectsListColumn } from "../../interfaces/objects/IObjectsList";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
+import { Link } from "react-router-dom";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -26,7 +27,7 @@ export const Objects = () => {
     getObjects();
   }, [filters]);
 
-  const objectsData: IObjectListColumn[] = useSelector(
+  const objectsData: IObjectsListColumn[] = useSelector(
     (state: IState) => state.pages.objects.data
   ).map((doc) => ({ ...doc, key: doc.object_id }));
 
@@ -45,7 +46,7 @@ export const Objects = () => {
       <Breadcrumb
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
-        items={[{ title: "Главная" }, { title: "Объекты" }]}
+        items={[{ title: <Link to="/">Главная</Link> }, { title: "Объекты" }]}
       />
       <Content
         style={{

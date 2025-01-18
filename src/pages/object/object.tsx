@@ -10,6 +10,7 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { EditableObjectDialog } from "../../components/ActionDialogs/EditableObjectDialog/EditableObjectDialog";
 import { DeleteObjectDialog } from "../../components/ActionDialogs/DeleteObjectDialog";
 import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
+import { Link } from "react-router-dom";
 
 export const Object = () => {
   const { Content } = Layout;
@@ -30,9 +31,9 @@ export const Object = () => {
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
-          { title: "Главная" },
+          { title: <Link to="/">Главная</Link> },
           {
-            title: "Объекты",
+            title: <Link to="/objects">Объекты</Link>,
           },
           { title: objectData?.name },
         ]}

@@ -11,6 +11,7 @@ import {
   setAppHeaderTitle,
   setShowBackButton,
 } from "../../store/modules/settings/general";
+import { Link } from "react-router-dom";
 
 export const Auth = () => {
   const { Content } = Layout;
@@ -24,7 +25,7 @@ export const Auth = () => {
   }, []);
 
   const breadcrumbItems = React.useMemo(
-    () => [{ title: "Главная" }, { title: "Аккаунт" }],
+    () => [{ title: <Link to="/">Главная</Link> }, { title: "Аккаунт" }],
     []
   );
 

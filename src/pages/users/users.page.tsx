@@ -12,6 +12,7 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { IUsersListColumn } from "../../interfaces/users/IUsersList";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { getRolesMap } from "../../store/modules/dictionaries/selectors/roles.selector";
+import { Link } from "react-router-dom";
 
 export const Users = () => {
   const { Content } = Layout;
@@ -46,7 +47,10 @@ export const Users = () => {
       <Breadcrumb
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
-        items={[{ title: "Главная" }, { title: "Пользователи" }]}
+        items={[
+          { title: <Link to="/">Главная</Link> },
+          { title: "Пользователи" },
+        ]}
       />
       <Content
         style={{
