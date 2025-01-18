@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IObjectList } from "../../../interfaces/objects/IObjectList";
+import { IObjectsList } from "../../../interfaces/objects/IObjectsList";
 
 interface IObjectsState {
-  data: IObjectList[];
+  data: IObjectsList[];
   loading: boolean;
   loaded: boolean;
   errMsg: string;
@@ -30,7 +30,7 @@ const objectsSlice = createSlice({
     },
     getObjectsSuccess: (
       state: IObjectsState,
-      action: { payload: IObjectList[] }
+      action: { payload: IObjectsList[] }
     ) => {
       state.loading = false;
       state.loaded = true;

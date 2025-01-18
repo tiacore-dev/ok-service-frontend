@@ -12,7 +12,7 @@ export const usersDesktopColumns = (
     title: "Имя",
     dataIndex: "name",
     key: "name",
-    width: "25%",
+    width: "20%",
 
     render: (text: string, record: IUsersListColumn) => (
       <div>
@@ -29,16 +29,25 @@ export const usersDesktopColumns = (
     title: "Логин",
     dataIndex: "login",
     key: "login",
-    width: "25%",
+    width: "20%",
     render: (text: string, record: IUsersListColumn) => (
       <div>{record.login}</div>
+    ),
+  },
+  {
+    title: "Разряд",
+    dataIndex: "category",
+    key: "category",
+    width: "20%",
+    render: (text: string, record: IUsersListColumn) => (
+      <div>{record.category ?? "Нет разряда"}</div>
     ),
   },
   {
     title: "ID",
     dataIndex: "id",
     key: "id",
-    width: "25%",
+    width: "20%",
     render: (text: string, record: IUsersListColumn) => (
       <div>{record.user_id}</div>
     ),
@@ -47,7 +56,7 @@ export const usersDesktopColumns = (
     title: "Роль",
     dataIndex: "role",
     key: "role",
-    width: "25%",
+    width: "20%",
     render: (text: string, record: IUsersListColumn) => (
       <div>
         <div>{rolesMap[record.role]?.name}</div>

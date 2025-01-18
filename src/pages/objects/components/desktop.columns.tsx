@@ -1,20 +1,20 @@
 import * as React from "react";
 import { ColumnsType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
-import { IObjectListColumn } from "../../../interfaces/objects/IObjectList";
+import { IObjectsListColumn } from "../../../interfaces/objects/IObjectsList";
 import { IObjectStatus } from "../../../interfaces/objectStatuses/IObjectStatus";
 
 export const objectsDesktopColumns = (
   navigate: NavigateFunction,
   statusMap: Record<string, IObjectStatus>
-): ColumnsType<IObjectListColumn> => [
+): ColumnsType<IObjectsListColumn> => [
   {
     title: "Имя",
     dataIndex: "name",
     key: "name",
     width: "20%",
 
-    render: (text: string, record: IObjectListColumn) => (
+    render: (text: string, record: IObjectsListColumn) => (
       <div>
         <a
           className="objects__table__number"
@@ -30,7 +30,7 @@ export const objectsDesktopColumns = (
     dataIndex: "id",
     key: "id",
     width: "20%",
-    render: (text: string, record: IObjectListColumn) => (
+    render: (text: string, record: IObjectsListColumn) => (
       <div>{record.object_id}</div>
     ),
   },
@@ -39,7 +39,7 @@ export const objectsDesktopColumns = (
     dataIndex: "address",
     key: "address",
     width: "20%",
-    render: (text: string, record: IObjectListColumn) => (
+    render: (text: string, record: IObjectsListColumn) => (
       <div>
         <div>{record.address}</div>
       </div>
@@ -50,7 +50,7 @@ export const objectsDesktopColumns = (
     dataIndex: "description",
     key: "description",
     width: "20%",
-    render: (text: string, record: IObjectListColumn) => (
+    render: (text: string, record: IObjectsListColumn) => (
       <div>
         <div>{record.description}</div>
       </div>
@@ -61,7 +61,7 @@ export const objectsDesktopColumns = (
     dataIndex: "status",
     key: "status",
     width: "20%",
-    render: (text: string, record: IObjectListColumn) => (
+    render: (text: string, record: IObjectsListColumn) => (
       <div>{statusMap[record.status]?.name}</div>
     ),
   },

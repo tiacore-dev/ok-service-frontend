@@ -20,6 +20,7 @@ export const usersMobileColumns = (
         >
           {record.name}
         </a>
+        <div>Разряд: {record.category?.toString()}</div>
         <div>id: {record.user_id}</div>
         <div>Логин: {record.login}</div>
         <div>Роль: {rolesMap[record.role]?.name}</div>

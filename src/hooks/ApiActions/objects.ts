@@ -10,7 +10,7 @@ import {
   getObjectSuccess,
 } from "../../store/modules/pages/object.state";
 import { IObject } from "../../interfaces/objects/IObject";
-import { IObjectList } from "../../interfaces/objects/IObjectList";
+import { IObjectsList } from "../../interfaces/objects/IObjectsList";
 import { useDispatch } from "react-redux";
 import { editObjectAction } from "../../store/modules/editableEntities/editableObject";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +27,7 @@ export const useObjects = () => {
 
   const getObjects = () => {
     dispatch(getObjectsRequest());
-    apiGet<{ objects: IObjectList[] }>("objects", "all")
+    apiGet<{ objects: IObjectsList[] }>("objects", "all")
       .then((objectsData) => {
         dispatch(getObjectsSuccess(objectsData.objects));
       })

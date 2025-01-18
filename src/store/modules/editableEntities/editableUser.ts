@@ -10,6 +10,7 @@ const initialState: IEditableUserState = {
   sent: false,
   name: "",
   login: "",
+  category: 0,
   role: RoleId.USER,
 };
 
@@ -38,6 +39,10 @@ const editableUserSlice = createSlice({
 
     setRole: (state: IEditableUserState, action: { payload: RoleId }) => {
       state.role = action.payload;
+    },
+
+    setCategory: (state: IEditableUserState, action: { payload: number }) => {
+      state.category = action.payload;
     },
 
     sendUser: (state: IEditableUserState) => {

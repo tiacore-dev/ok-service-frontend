@@ -10,6 +10,7 @@ import "./EditableUserDialog.less";
 import { IEditableUser, useUsers } from "../../../hooks/ApiActions/users";
 import { getRoles } from "../../../store/modules/dictionaries/selectors/roles.selector";
 import { RoleId } from "../../../interfaces/roles/IRole";
+import { categoryMap } from "../../../utils/categoryMap";
 
 interface IEditableUserDialogProps {
   user?: IUser;
@@ -83,6 +84,16 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
                 onChange={(event) =>
                   dispatch(editUserAction.setName(event.target.value))
                 }
+              />
+            </Form.Item>
+
+            <Form.Item label="Разряд">
+              <Select
+                value={data.category}
+                onChange={(value: number) =>
+                  dispatch(editUserAction.setCategory(value))
+                }
+                options={categoryMap}
               />
             </Form.Item>
 

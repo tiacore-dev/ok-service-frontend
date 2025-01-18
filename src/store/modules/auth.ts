@@ -12,6 +12,7 @@ export interface IAuthLoginPayload extends Omit<IAuthState, "isAuth"> {}
 const initialState: IAuthState = {
   isAuth: false,
   name: null,
+  category: 0,
   login: null,
   user_id: null,
   access_token: null,
@@ -26,6 +27,7 @@ const authSlice = createSlice({
     authlogin: (state: IAuthState, action: { payload: IAuthLoginPayload }) => {
       state.isAuth = true;
       state.name = action.payload.name;
+      state.category = action.payload.category;
       state.login = action.payload.login;
       state.user_id = action.payload.user_id;
       state.access_token = action.payload.access_token;
@@ -42,6 +44,7 @@ const authSlice = createSlice({
     authlogout: (state) => {
       state.isAuth = initialState.isAuth;
       state.name = initialState.name;
+      state.category = initialState.category;
       state.login = initialState.login;
       state.user_id = initialState.user_id;
       state.access_token = initialState.access_token;

@@ -45,6 +45,7 @@ export const Login = () => {
             access_token: authLoginResponse.access_token,
             refresh_token: authLoginResponse.refresh_token,
             name: userData.name,
+            category: userData.category,
             login: userData.login,
             role: userData.role,
           })
