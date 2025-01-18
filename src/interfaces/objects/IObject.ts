@@ -1,4 +1,4 @@
-import { IObjectStatus, ObjectStatusId } from "../objectStatuses/IObjectStatus";
+import { ObjectStatusId } from "../objectStatuses/IObjectStatus";
 
 export interface IObject {
   object_id?: string;
