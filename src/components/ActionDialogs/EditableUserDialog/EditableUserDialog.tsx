@@ -3,7 +3,10 @@ import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
 import { IUser } from "../../../interfaces/users/IUser";
-import { editUserAction } from "../../../store/modules/editableEntities/editableUser";
+import {
+  clearCreateUserState,
+  editUserAction,
+} from "../../../store/modules/editableEntities/editableUser";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableUserDialog.less";
@@ -62,6 +65,8 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const handeOpen = useCallback(() => {
     if (user) {
       dispatch(editUserAction.setUserData(user));
+    } else {
+      dispatch(clearCreateUserState());
     }
   }, [user, dispatch]);
 

@@ -12,6 +12,8 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { IProjectsListColumn } from "../../interfaces/projects/IProjectsList";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { Link } from "react-router-dom";
+import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
+import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 
 export const Projects = () => {
   const { Content } = Layout;
@@ -30,6 +32,9 @@ export const Projects = () => {
     (state: IState) => state.pages.projects.data
   ).map((doc) => ({ ...doc, key: doc.project_id }));
 
+  const objectsMap = useSelector(getObjectsMap);
+  const usersMap = useSelector(getUsersMap);
+
   const isLoading = useSelector(
     (state: IState) => state.pages.projects.loading
   );
@@ -38,9 +43,9 @@ export const Projects = () => {
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? projectsMobileColumns(navigate)
-        : projectsDesktopColumns(navigate),
-    [navigate]
+        ? projectsMobileColumns(navigate, objectsMap, usersMap)
+        : projectsDesktopColumns(navigate, objectsMap, usersMap),
+    [navigate, objectsMap]
   );
   return (
     <>

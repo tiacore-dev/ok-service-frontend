@@ -3,7 +3,10 @@ import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
 import { IObject } from "../../../interfaces/objects/IObject";
-import { editObjectAction } from "../../../store/modules/editableEntities/editableObject";
+import {
+  clearCreateObjectState,
+  editObjectAction,
+} from "../../../store/modules/editableEntities/editableObject";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus";
@@ -50,6 +53,8 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   const handeOpen = useCallback(() => {
     if (object) {
       dispatch(editObjectAction.setObjectData(object));
+    } else {
+      dispatch(clearCreateObjectState());
     }
   }, [object, dispatch]);
 

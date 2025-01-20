@@ -16,6 +16,7 @@ import { Login } from "../../pages/auth/component/login";
 import { Account } from "../../pages/auth/component/account";
 import { Objects } from "../../pages/objects/objects.page";
 import {
+  clearObjectStatusesState,
   getObjectStatusesFailure,
   getObjectStatusesRequest,
   getObjectStatusesSuccess,
@@ -24,6 +25,7 @@ import { useApi } from "../../hooks/useApi";
 import { IObjectStatus } from "../../interfaces/objectStatuses/IObjectStatus";
 import { NotificationContext } from "../../../root";
 import {
+  clearRolesState,
   getRolesFailure,
   getRolesRequest,
   getRolesSuccess,
@@ -32,12 +34,33 @@ import { IRole } from "../../interfaces/roles/IRole";
 import { User } from "../../pages/user/user";
 import { Object } from "../../pages/object/object";
 import { Projects } from "../../pages/projects/projects.page";
+import {
+  clearObjectsState,
+  getObjectsFailure,
+  getObjectsRequest,
+  getObjectsSuccess,
+} from "../../store/modules/pages/objects.state";
+import { IObject } from "../../interfaces/objects/IObject";
+import { IObjectsList } from "../../interfaces/objects/IObjectsList";
+import {
+  clearUsersState,
+  getUsersFailure,
+  getUsersRequest,
+  getUsersSuccess,
+} from "../../store/modules/pages/users.state";
+import { IUsersList } from "../../interfaces/users/IUsersList";
+import { Project } from "../../pages/project/project";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
   clearStates: () => void;
 } => {
-  const clearStates = React.useCallback(() => {}, []);
+  const clearStates = React.useCallback(() => {
+    dispatch(clearObjectStatusesState());
+    dispatch(clearRolesState());
+    dispatch(clearObjectsState());
+    dispatch(clearUsersState());
+  }, []);
   const notificationApi = React.useContext(NotificationContext);
   const dispatch = useDispatch();
   const { apiGet } = useApi();
@@ -76,6 +99,44 @@ export const useloadSourse = (): {
       });
       console.log("getRolesFailure ", err);
       dispatch(getRolesFailure(err));
+    }
+
+    // Загрузка справочника объектов
+    dispatch(getObjectsRequest());
+    try {
+      const response: { objects: IObjectsList[]; msg: string } = await apiGet(
+        "objects",
+        "all",
+        access_token
+      );
+
+      dispatch(getObjectsSuccess(response.objects));
+    } catch (err) {
+      notificationApi.error({
+        message: "Ошибка",
+        description: "Ошибка при загрузке справочника объектов",
+      });
+      console.log("getObjectsFailure ", err);
+      dispatch(getObjectsFailure(err));
+    }
+
+    // Загрузка справочника пользователей
+    dispatch(getUsersRequest());
+    try {
+      const response: { users: IUsersList[]; msg: string } = await apiGet(
+        "users",
+        "all",
+        access_token
+      );
+
+      dispatch(getUsersSuccess(response.users));
+    } catch (err) {
+      notificationApi.error({
+        message: "Ошибка",
+        description: "Ошибка при загрузке справочника статусов объектов",
+      });
+      console.log("getUsersFailure ", err);
+      dispatch(getUsersFailure(err));
     }
   }, []);
 
@@ -121,7 +182,7 @@ export const App = () => {
               </Route>
               <Route path="projects">
                 <Route index={true} element={<Projects />} />
-                <Route path=":projectId" element={<Main />} />
+                <Route path=":projectId" element={<Project />} />
               </Route>
               <Route path="users">
                 <Route index={true} element={<Users />} />

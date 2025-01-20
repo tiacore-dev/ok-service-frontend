@@ -52,6 +52,7 @@ export const useObjects = () => {
 
     apiPost<{ object: IObject }>("objects", "add", createbleObjectData)
       .then(() => {
+        getObjects();
         navigate("/objects");
         notificationApi.success({
           message: `Успешно`,

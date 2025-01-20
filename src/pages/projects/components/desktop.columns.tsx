@@ -2,9 +2,13 @@ import * as React from "react";
 import { ColumnsType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IProjectsListColumn } from "../../../interfaces/projects/IProjectsList";
+import { IObject } from "../../../interfaces/objects/IObject";
+import { IUser } from "../../../interfaces/users/IUser";
 
 export const projectsDesktopColumns = (
-  navigate: NavigateFunction
+  navigate: NavigateFunction,
+  objectsMap: Record<string, IObject>,
+  usersMap: Record<string, IUser>
 ): ColumnsType<IProjectsListColumn> => [
   {
     title: "Имя",
@@ -39,7 +43,7 @@ export const projectsDesktopColumns = (
     width: "20%",
     render: (text: string, record: IProjectsListColumn) => (
       <div>
-        <div>{record.object}</div>
+        <div>{objectsMap[record.object]?.name}</div>
       </div>
     ),
   },
@@ -50,7 +54,7 @@ export const projectsDesktopColumns = (
     width: "20%",
     render: (text: string, record: IProjectsListColumn) => (
       <div>
-        <div>{record.project_leader}</div>
+        <div>{usersMap[record.project_leader]?.name}</div>
       </div>
     ),
   },

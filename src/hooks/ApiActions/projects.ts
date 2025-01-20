@@ -52,6 +52,7 @@ export const useProjects = () => {
 
     apiPost<{ project: IProject }>("projects", "add", createbleProjectData)
       .then(() => {
+        getProjects();
         navigate("/projects");
         notificationApi.success({
           message: `Успешно`,

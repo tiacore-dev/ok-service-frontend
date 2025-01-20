@@ -3,7 +3,10 @@ import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
 import { IProject } from "../../../interfaces/projects/IProject";
-import { editProjectAction } from "../../../store/modules/editableEntities/editableProject";
+import {
+  clearCreateProjectState,
+  editProjectAction,
+} from "../../../store/modules/editableEntities/editableProject";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableProjectDialog.less";
@@ -61,6 +64,8 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
   const handeOpen = useCallback(() => {
     if (project) {
       dispatch(editProjectAction.setProjectData(project));
+    } else {
+      dispatch(clearCreateProjectState());
     }
   }, [project, dispatch]);
 
