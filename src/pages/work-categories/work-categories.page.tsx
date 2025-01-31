@@ -43,7 +43,9 @@ export const WorkCategories = () => {
   }, []);
 
   React.useEffect(() => {
-    setDataSource(workCategoriesData);
+    if (workCategoriesData.length > 0 && dataSource.length === 0) {
+      setDataSource(workCategoriesData);
+    }
   }, [workCategoriesData]);
 
   const isEditing = (record: IWorkCategoriesListColumn) =>
@@ -71,6 +73,7 @@ export const WorkCategories = () => {
         const item = newData[index];
         if (isCreating(item)) {
           // Создание новой записи
+          console.log(row);
           await createWorkCategory(row);
           setNewRecordKey("");
         } else {
