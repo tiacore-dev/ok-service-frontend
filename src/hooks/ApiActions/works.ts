@@ -17,7 +17,9 @@ import { NotificationContext } from "../../../root";
 import { editWorkAction } from "../../store/modules/editableEntities/editableWork";
 import { useNavigate } from "react-router-dom";
 
-export interface IEditableWork extends Omit<IWork, "work_id"> {}
+export interface IEditableWork extends Omit<IWork, "work_id" | "category"> {
+  category: string;
+}
 
 export const useWorks = () => {
   const dispatch = useDispatch();

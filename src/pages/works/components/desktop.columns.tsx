@@ -29,7 +29,7 @@ export const worksDesktopColumns = (
     key: "category",
     width: "20%",
     render: (text: string, record: IWorksListColumn) => (
-      <div>{record.category}</div>
+      <div>{record.category.name}</div>
     ),
   },
   {

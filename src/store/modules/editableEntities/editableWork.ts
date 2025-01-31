@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IWork } from "../../../interfaces/works/IWork";
 
-export interface IEditableWorkState extends Omit<IWork, "work_id"> {
+export interface IEditableWorkState
+  extends Omit<IWork, "work_id" | "category"> {
   sent: boolean;
+  category: string;
 }
 
 const initialState: IEditableWorkState = {
@@ -12,7 +14,10 @@ const initialState: IEditableWorkState = {
   measurement_unit: "",
 };
 
-const setWorkData = (state: IEditableWorkState, workData: Partial<IWork>) => {
+const setWorkData = (
+  state: IEditableWorkState,
+  workData: IEditableWorkState
+) => {
   state.name = workData.name;
   state.category = workData.category;
   state.measurement_unit = workData.measurement_unit;
@@ -23,7 +28,10 @@ const editableWorkSlice = createSlice({
   name: "work",
   initialState,
   reducers: {
-    setWorkData: (state: IEditableWorkState, action: { payload: IWork }) => {
+    setWorkData: (
+      state: IEditableWorkState,
+      action: { payload: IEditableWorkState }
+    ) => {
       setWorkData(state, action.payload);
     },
 

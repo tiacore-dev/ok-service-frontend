@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Form, Input, Space } from "antd";
+import { Form, Input, Select, Space } from "antd";
 import { IWork } from "../../../interfaces/works/IWork";
 import {
   clearCreateWorkState,
@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableWorkDialog.less";
 import { IEditableWork, useWorks } from "../../../hooks/ApiActions/works";
+import { getWorkCategoriesAsArray } from "../../../store/modules/dictionaries/selectors/work-categories.selector";
+import { useWorkCategories } from "../../../hooks/ApiActions/work-categories";
 
 interface IEditableWorkDialogProps {
   work?: IWork;
@@ -27,7 +29,24 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
   ) : (
     <PlusCircleTwoTone twoToneColor="#ff1616" />
   );
+
+  const { getWorkCategories } = useWorkCategories();
+
   const modalTitle = work ? "Редактирование работы" : "Создание новой работы";
+  const categories = useSelector(getWorkCategoriesAsArray);
+
+  if (!categories.length) {
+    getWorkCategories();
+  }
+
+  const categoriesMap = useMemo(
+    () =>
+      categories.map((el) => ({
+        label: el.name,
+        value: el.work_category_id,
+      })),
+    [categories]
+  );
 
   const dispatch = useDispatch();
   const data = useSelector(
@@ -47,7 +66,13 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
 
   const handeOpen = useCallback(() => {
     if (work) {
-      dispatch(editWorkAction.setWorkData(work));
+      dispatch(
+        editWorkAction.setWorkData({
+          ...work,
+          category: work.category.work_category_id,
+          sent: false,
+        })
+      );
     } else {
       dispatch(clearCreateWorkState());
     }
@@ -76,11 +101,12 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
             </Form.Item>
 
             <Form.Item label="Категория">
-              <Input
+              <Select
                 value={data.category}
-                onChange={(event) =>
-                  dispatch(editWorkAction.setCategory(event.target.value))
+                onChange={(value: string) =>
+                  dispatch(editWorkAction.setCategory(value))
                 }
+                options={categoriesMap}
               />
             </Form.Item>
 

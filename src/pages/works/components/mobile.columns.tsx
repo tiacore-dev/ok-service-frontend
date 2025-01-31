@@ -20,7 +20,7 @@ export const worksMobileColumns = (
           {record.name}
         </a>
         <div>id: {record.work_id}</div>
-        <div>Категория: {record.category}</div>
+        <div>Категория: {record.category.name}</div>
         <div>Единицы измерения: {record.measurement_unit}</div>
       </div>
     ),
