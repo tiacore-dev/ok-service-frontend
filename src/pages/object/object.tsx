@@ -67,7 +67,7 @@ export const Object = () => {
             <p>ID: {objectData.object_id}</p>
             <p>Адрес: {objectData.address}</p>
             <p>Описание: {objectData.description}</p>
-            <p>Статус: {objectStatusesMap[objectData.status].name}</p>
+            <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>
           </Card>
         </Content>
       ) : (
