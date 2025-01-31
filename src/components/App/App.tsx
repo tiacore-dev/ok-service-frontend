@@ -50,6 +50,8 @@ import {
 } from "../../store/modules/pages/users.state";
 import { IUsersList } from "../../interfaces/users/IUsersList";
 import { Project } from "../../pages/project/project";
+import { Works } from "../../pages/works/works.page";
+import { Work } from "../../pages/work/work";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -189,8 +191,8 @@ export const App = () => {
                 <Route path=":userId" element={<User />} />
               </Route>
               <Route path="works">
-                <Route index={true} element={<Main />} />
-                <Route path=":workId" element={<Main />} />
+                <Route index={true} element={<Works />} />
+                <Route path=":workId" element={<Work />} />
               </Route>
               <Route path="shifts">
                 <Route index={true} element={<Main />} />

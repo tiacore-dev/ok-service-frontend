@@ -36,7 +36,7 @@ export const Project = () => {
         items={[
           { title: <Link to="/">Главная</Link> },
           {
-            title: <Link to="/projects">Объекты</Link>,
+            title: <Link to="/projects">Спецификации</Link>,
           },
           { title: projectData?.name },
         ]}

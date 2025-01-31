@@ -6,6 +6,8 @@ import { user } from "./user.state";
 import { object } from "./object.state";
 import { projects } from "./projects.state";
 import { project } from "./project.state";
+import { works } from "./works.state";
+import { work } from "./work.state";
 
 export const pages = combineReducers({
   projects,
@@ -14,4 +16,6 @@ export const pages = combineReducers({
   object,
   users,
   user,
+  works,
+  work,
 });
