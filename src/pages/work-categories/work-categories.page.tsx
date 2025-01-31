@@ -20,12 +20,18 @@ import { EditableCell } from "./components/editableCell";
 export const WorkCategories = () => {
   const { Content } = Layout;
   const [form] = Form.useForm();
-  const workCategoriesData: IWorkCategoriesListColumn[] = useSelector(
+  const workCategories = useSelector(
     (state: IState) => state.pages.workCategories.data
-  ).map((doc) => ({ ...doc, key: doc.work_category_id }));
+  );
+
+  const workCategoriesData: IWorkCategoriesListColumn[] = React.useMemo(
+    () => workCategories.map((doc) => ({ ...doc, key: doc.work_category_id })),
+    [workCategories]
+  );
 
   const [editingKey, setEditingKey] = React.useState("");
   const [newRecordKey, setNewRecordKey] = React.useState("");
+  const [actualData, setActualData] = React.useState<boolean>(false);
 
   const [dataSource, setDataSource] = React.useState<
     IWorkCategoriesListColumn[]
@@ -43,8 +49,9 @@ export const WorkCategories = () => {
   }, []);
 
   React.useEffect(() => {
-    if (workCategoriesData.length > 0 && dataSource.length === 0) {
+    if (!actualData) {
       setDataSource(workCategoriesData);
+      setActualData(true);
     }
   }, [workCategoriesData]);
 
@@ -61,6 +68,7 @@ export const WorkCategories = () => {
   const cancel = () => {
     setEditingKey("");
     setNewRecordKey("");
+    setDataSource(workCategoriesData);
   };
 
   const save = async (key: string) => {
@@ -73,15 +81,15 @@ export const WorkCategories = () => {
         const item = newData[index];
         if (isCreating(item)) {
           // Создание новой записи
-          console.log(row);
-          await createWorkCategory(row);
+          setActualData(false);
           setNewRecordKey("");
+          createWorkCategory(row);
         } else {
           // Редактирование существующей записи
-          await editWorkCategory(item.work_category_id, row);
+          setActualData(false);
           setEditingKey("");
+          editWorkCategory(item.work_category_id, row);
         }
-        getWorkCategories();
       }
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
@@ -91,18 +99,19 @@ export const WorkCategories = () => {
   const isLoading = useSelector((state: IState) => state.pages.works.loading);
 
   const handleAdd = () => {
-    const newData = {
-      key: "new",
-      name: "",
-    };
-    setDataSource([newData, ...dataSource]);
-    setNewRecordKey("new");
-    form.setFieldsValue({ ...newData });
+    if (!newRecordKey) {
+      const newData = {
+        key: "new",
+        name: "",
+      };
+      setDataSource([newData, ...dataSource]);
+      setNewRecordKey("new");
+      form.setFieldsValue({ ...newData });
+    }
   };
 
   const handleDelete = (key: string) => {
-    const newData = dataSource.filter((item) => item.key !== key);
-    setDataSource(newData);
+    setActualData(false);
     deleteWorkCategory(key);
   };
 
@@ -196,16 +205,18 @@ export const WorkCategories = () => {
           </Button>
         </Space>
 
-        <Table
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
-          dataSource={dataSource}
-          columns={mergedColumns}
-          loading={isLoading}
-        />
+        <Form form={form} component={false}>
+          <Table
+            components={{
+              body: {
+                cell: EditableCell,
+              },
+            }}
+            dataSource={dataSource}
+            columns={mergedColumns}
+            loading={isLoading || !actualData}
+          />
+        </Form>
       </Content>
     </>
   );

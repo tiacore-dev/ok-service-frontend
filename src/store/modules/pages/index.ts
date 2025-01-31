@@ -8,6 +8,7 @@ import { projects } from "./projects.state";
 import { project } from "./project.state";
 import { works } from "./works.state";
 import { work } from "./work.state";
+import { workCategories } from "./work-categories.state";
 
 export const pages = combineReducers({
   projects,
@@ -18,4 +19,5 @@ export const pages = combineReducers({
   user,
   works,
   work,
+  workCategories,
 });
