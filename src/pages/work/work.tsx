@@ -279,7 +279,7 @@ export const Work = () => {
               }}
               dataSource={dataSource}
               columns={mergedColumns}
-              loading={isLoading || !actualData}
+              loading={isLoading}
             />
           </Form>
         </Content>
