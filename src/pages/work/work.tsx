@@ -37,11 +37,6 @@ export const Work = () => {
     (state: IState) => state.pages.workPrices.data
   );
 
-  const workPricesData: IWorkPricesListColumn[] = React.useMemo(
-    () => workPrices.map((doc) => ({ ...doc, key: doc.work_price_id })),
-    [workPrices]
-  );
-
   const routeParams = useParams();
   const { getWork, deleteWork } = useWorks();
 
@@ -55,6 +50,11 @@ export const Work = () => {
 
   const workData = useSelector((state: IState) => state.pages.work.data);
   const isLoaded = useSelector((state: IState) => state.pages.work.loaded);
+
+  const workPricesData: IWorkPricesListColumn[] = workPrices.map((doc) => ({
+    ...doc,
+    key: doc.work_price_id,
+  }));
 
   React.useEffect(() => {
     if (!actualData) {
@@ -117,7 +117,7 @@ export const Work = () => {
   const handleAdd = () => {
     if (!newRecordKey) {
       const newData = {
-        name: "test",
+        name: workData.name,
         key: "new",
         work: workData.work_id,
         price: 0,
