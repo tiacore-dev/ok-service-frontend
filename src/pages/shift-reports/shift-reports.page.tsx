@@ -1,50 +1,50 @@
 import { Breadcrumb, Layout, Table } from "antd";
 import * as React from "react";
-import { projectsDesktopColumns } from "./components/desktop.columns";
+import { shiftReportsDesktopColumns } from "./components/desktop.columns";
 import { useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { Filters } from "./components/filters";
-import "./projects.page.less";
+import "./shift-reports.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
-import { projectsMobileColumns } from "./components/mobile.columns";
+import { shiftReportsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
-import { IProjectsListColumn } from "../../interfaces/projects/IProjectsList";
-import { useProjects } from "../../hooks/ApiActions/projects";
+import { IShiftReportsListColumn } from "../../interfaces/shiftReports/IShiftReportsList";
+import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
 import { Link } from "react-router-dom";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 
-export const Projects = () => {
+export const ShiftReports = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.projectsSettings.filters
+    (state: IState) => state.settings.shiftReportsSettings.filters
   );
 
-  const { getProjects } = useProjects();
+  const { getShiftReports } = useShiftReports();
 
   React.useEffect(() => {
-    getProjects();
+    getShiftReports();
   }, [filters]);
 
-  const projectsData: IProjectsListColumn[] = useSelector(
-    (state: IState) => state.pages.projects.data
-  ).map((doc) => ({ ...doc, key: doc.project_id }));
+  const shiftReportsData: IShiftReportsListColumn[] = useSelector(
+    (state: IState) => state.pages.shiftReports.data
+  ).map((doc) => ({ ...doc, key: doc.shift_report_id }));
 
-  const objectsMap = useSelector(getObjectsMap);
+  const projectsMap = useSelector(getProjectsMap);
   const usersMap = useSelector(getUsersMap);
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.projects.loading
+    (state: IState) => state.pages.shiftReports.loading
   );
 
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? projectsMobileColumns(navigate, objectsMap, usersMap)
-        : projectsDesktopColumns(navigate, objectsMap, usersMap),
-    [navigate, objectsMap, usersMap]
+        ? shiftReportsMobileColumns(navigate, projectsMap, usersMap)
+        : shiftReportsDesktopColumns(navigate, projectsMap, usersMap),
+    [navigate, projectsMap, usersMap]
   );
   return (
     <>
@@ -53,7 +53,7 @@ export const Projects = () => {
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/">Главная</Link> },
-          { title: "Спецификации" },
+          { title: "Отчеты по сменам" },
         ]}
       />
       <Content
@@ -66,7 +66,7 @@ export const Projects = () => {
       >
         <Filters />
         <Table
-          dataSource={projectsData}
+          dataSource={shiftReportsData}
           columns={columns}
           loading={isLoading}
         />

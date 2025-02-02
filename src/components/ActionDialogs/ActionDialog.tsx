@@ -74,7 +74,6 @@ export const ActionDialog = (props: IActionDialogProps) => {
 
   const button = (
     <Button
-      size="large"
       type={buttonType}
       onClick={showModal}
       icon={buttonIcon}

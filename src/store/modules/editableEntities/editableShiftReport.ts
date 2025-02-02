@@ -1,0 +1,90 @@
+import { createSlice } from "@reduxjs/toolkit";
+import { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
+
+export interface IEditableShiftReportState
+  extends Omit<IShiftReport, "shift_report_id"> {
+  sent: boolean;
+}
+
+const initialState: IEditableShiftReportState = {
+  sent: false,
+  user: "",
+  date: 0,
+  project: "",
+  project_leader: "",
+  signed: false,
+};
+
+const setShiftReportData = (
+  state: IEditableShiftReportState,
+  shiftReportData: IEditableShiftReportState | IShiftReport
+) => {
+  state.user = shiftReportData.user;
+  state.date = shiftReportData.date;
+  state.project = shiftReportData.project;
+  state.project_leader = shiftReportData.project_leader;
+  state.signed = shiftReportData.signed;
+  state.sent = false;
+};
+
+const editableShiftReportSlice = createSlice({
+  name: "shiftReport",
+  initialState,
+  reducers: {
+    setShiftReportData: (
+      state: IEditableShiftReportState,
+      action: { payload: IShiftReport }
+    ) => {
+      setShiftReportData(state, action.payload);
+    },
+
+    setUser: (
+      state: IEditableShiftReportState,
+      action: { payload: string }
+    ) => {
+      state.user = action.payload;
+    },
+
+    setDate: (
+      state: IEditableShiftReportState,
+      action: { payload: number }
+    ) => {
+      state.date = action.payload;
+    },
+
+    setProject: (
+      state: IEditableShiftReportState,
+      action: { payload: string }
+    ) => {
+      state.project = action.payload;
+    },
+
+    setProjectLeader: (
+      state: IEditableShiftReportState,
+      action: { payload: string }
+    ) => {
+      state.project_leader = action.payload;
+    },
+
+    toggleSigned: (state: IEditableShiftReportState) => {
+      state.signed = !state.signed;
+    },
+
+    sendShiftReport: (state: IEditableShiftReportState) => {
+      state.sent = true;
+    },
+
+    saveError: (state: IEditableShiftReportState) => {
+      state.sent = false;
+    },
+
+    clearCreateShiftReportState: (state: IEditableShiftReportState) => {
+      setShiftReportData(state, initialState);
+    },
+  },
+});
+
+export const { clearCreateShiftReportState, ...editShiftReportAction } =
+  editableShiftReportSlice.actions;
+
+export const editableShiftReport = editableShiftReportSlice.reducer;

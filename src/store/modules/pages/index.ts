@@ -9,6 +9,8 @@ import { project } from "./project.state";
 import { works } from "./works.state";
 import { work } from "./work.state";
 import { workCategories } from "./work-categories.state";
+import { shiftReport } from "./shift-report.state";
+import { shiftReports } from "./shift-reports.state";
 
 export const pages = combineReducers({
   projects,
@@ -20,4 +22,6 @@ export const pages = combineReducers({
   works,
   work,
   workCategories,
+  shiftReport,
+  shiftReports,
 });

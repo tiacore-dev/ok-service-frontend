@@ -5,7 +5,6 @@ import { AppFooter } from "../AppFooter/AppFooter";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
-import { IauthToken } from "../../hooks/useAuth";
 import "./App.less";
 import { Route, Routes } from "react-router-dom";
 import { Main } from "../../pages/main/main";
@@ -53,6 +52,8 @@ import { Project } from "../../pages/project/project";
 import { Works } from "../../pages/works/works.page";
 import { Work } from "../../pages/work/work";
 import { WorkCategories } from "../../pages/work-categories/work-categories.page";
+import { ShiftReports } from "../../pages/shift-reports/shift-reports.page";
+import { ShiftReport } from "../../pages/shift-report/shift-report";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -197,8 +198,8 @@ export const App = () => {
                 <Route path=":workId" element={<Work />} />
               </Route>
               <Route path="shifts">
-                <Route index={true} element={<Main />} />
-                <Route path=":shiftId" element={<Main />} />
+                <Route index={true} element={<ShiftReports />} />
+                <Route path=":shiftId" element={<ShiftReport />} />
               </Route>
 
               <Route path="reports" element={<Main />} />

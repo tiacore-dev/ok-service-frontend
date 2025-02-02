@@ -10,6 +10,11 @@ export const dateToLocalString = (string: string) => {
   }
 };
 
+export const dateTimestampToLocalString = (timestamp: number) => {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString("ru");
+};
+
 export const timeToLocalString = (string: string) => {
   const timestamp = Date.parse(string);
   if (timestamp > 0) {

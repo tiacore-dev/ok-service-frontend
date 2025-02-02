@@ -4,6 +4,7 @@ import { usersSettings } from "./users";
 import { generalSettings } from "./general";
 import { projectsSettings } from "./projects";
 import { worksSettings } from "./works";
+import { shiftReportsSettings } from "./shift-reports";
 
 export const settings = combineReducers({
   objectsSettings,
@@ -11,4 +12,5 @@ export const settings = combineReducers({
   usersSettings,
   generalSettings,
   worksSettings,
+  shiftReportsSettings,
 });
