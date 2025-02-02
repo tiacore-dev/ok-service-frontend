@@ -35,6 +35,11 @@ export const useWorks = () => {
       })
       .catch((err) => {
         dispatch(getWorksFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении списка работ",
+          placement: "bottomRight",
+        });
       });
   };
 
@@ -46,6 +51,11 @@ export const useWorks = () => {
       })
       .catch((err) => {
         dispatch(getWorkFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении работы",
+          placement: "bottomRight",
+        });
       });
   };
 

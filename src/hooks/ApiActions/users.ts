@@ -35,6 +35,11 @@ export const useUsers = () => {
       })
       .catch((err) => {
         dispatch(getUsersFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении списка пользователей",
+          placement: "bottomRight",
+        });
       });
   };
 
@@ -46,6 +51,11 @@ export const useUsers = () => {
       })
       .catch((err) => {
         dispatch(getUserFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении пользователя",
+          placement: "bottomRight",
+        });
       });
   };
 

@@ -26,6 +26,11 @@ export const useWorkCategories = () => {
       })
       .catch((err) => {
         dispatch(getWorkCategoriesFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении списка категорий работ",
+          placement: "bottomRight",
+        });
       });
   };
 

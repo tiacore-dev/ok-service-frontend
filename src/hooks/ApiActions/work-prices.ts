@@ -30,6 +30,11 @@ export const useWorkPrices = () => {
       })
       .catch((err) => {
         dispatch(getWorkPricesFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении списка цен работы",
+          placement: "bottomRight",
+        });
       });
   };
 

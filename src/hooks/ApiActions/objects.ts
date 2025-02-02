@@ -33,6 +33,11 @@ export const useObjects = () => {
       })
       .catch((err) => {
         dispatch(getObjectsFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении списка объектов",
+          placement: "bottomRight",
+        });
       });
   };
 
@@ -44,6 +49,11 @@ export const useObjects = () => {
       })
       .catch((err) => {
         dispatch(getObjectFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении объекта",
+          placement: "bottomRight",
+        });
       });
   };
 

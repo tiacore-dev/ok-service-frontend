@@ -33,6 +33,11 @@ export const useProjects = () => {
       })
       .catch((err) => {
         dispatch(getProjectsFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении списка спецификаций",
+          placement: "bottomRight",
+        });
       });
   };
 
@@ -44,6 +49,11 @@ export const useProjects = () => {
       })
       .catch((err) => {
         dispatch(getProjectFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении спецификации",
+          placement: "bottomRight",
+        });
       });
   };
 
