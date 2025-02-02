@@ -5,7 +5,8 @@ interface IEditableCellProps {
   editing: boolean;
   dataIndex: string;
   title: string;
-  inputType?: string;
+  inputType?: "text" | "number";
+  required?: boolean;
   record: any;
   index: number;
   children: React.ReactNode;
@@ -17,12 +18,22 @@ export const EditableCell = ({
   dataIndex,
   title,
   inputType,
+  required,
   record,
   index,
   children,
   ...restProps
 }: IEditableCellProps) => {
-  const inputNode = <Input />;
+  const handleChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      // Преобразуем значение в число перед сохранением
+      const value = event.target.value;
+      record[dataIndex] = inputType === "number" ? Number(value) : value;
+    },
+    [record, dataIndex, inputType]
+  );
+
+  const inputNode = <Input onChange={handleChange} type={inputType} />;
   return (
     <td {...restProps}>
       {editing ? (
@@ -31,8 +42,8 @@ export const EditableCell = ({
           style={{ margin: 0 }}
           rules={[
             {
-              required: true,
-              message: `Пожалуйста, введите ${title}!`,
+              required,
+              message: `Поле '${title}' обязательно для заполнения!`,
             },
           ]}
         >

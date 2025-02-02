@@ -15,7 +15,7 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { Link } from "react-router-dom";
 import { IWorkCategoriesListColumn } from "../../interfaces/workCategories/IWorkCategoriesList";
 import { useWorkCategories } from "../../hooks/ApiActions/work-categories";
-import { EditableCell } from "./components/editableCell";
+import { EditableCell } from "../components/editableCell";
 
 export const WorkCategories = () => {
   const { Content } = Layout;
@@ -96,7 +96,9 @@ export const WorkCategories = () => {
     }
   };
 
-  const isLoading = useSelector((state: IState) => state.pages.works.loading);
+  const isLoading = useSelector(
+    (state: IState) => state.pages.workCategories.loading
+  );
 
   const handleAdd = () => {
     if (!newRecordKey) {

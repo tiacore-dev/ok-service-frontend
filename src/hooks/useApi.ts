@@ -85,7 +85,8 @@ export const useApi = () => {
   const apiGet = async <R>(
     templateName: string,
     methodName: string,
-    access_token?: string
+    access_token?: string,
+    params?: Record<string, string>
   ): Promise<R> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -99,6 +100,7 @@ export const useApi = () => {
     let response = await axios
       .get(url, {
         withCredentials: false,
+        // params,
         headers,
       })
       .catch((err) => {
