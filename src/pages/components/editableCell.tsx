@@ -11,7 +11,7 @@ interface IEditableCellProps {
   required?: boolean;
   record: any;
   index: number;
-  children: React.ReactNode;
+  children: Array<React.ReactNode>;
   [key: string]: any;
 }
 
@@ -46,6 +46,7 @@ export const EditableCell = ({
   } else if (type === "select") {
     inputNode = <Select onChange={handleSelectChange} options={options} />;
   }
+
   return (
     <td {...restProps}>
       {editing ? (
@@ -61,6 +62,8 @@ export const EditableCell = ({
         >
           {inputNode}
         </Form.Item>
+      ) : options ? (
+        options.find((el) => el.value === children[1].toString())?.label
       ) : (
         children
       )}

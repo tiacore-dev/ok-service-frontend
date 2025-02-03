@@ -54,6 +54,7 @@ export const ShiftReport = () => {
 
   React.useEffect(() => {
     getShiftReport(routeParams.shiftId);
+    getShiftReportDetails({ shift_report: routeParams.shiftId });
   }, []);
 
   const shiftReportData = useSelector(
@@ -264,7 +265,7 @@ export const ShiftReport = () => {
           {
             title: <Link to="/shifts">Смены</Link>,
           },
-          { title: shiftReportData?.shift_report_id },
+          { title: shiftReportData?.number.toString().padStart(5, "0") },
         ]}
       />
       {isLoaded &&
@@ -280,7 +281,7 @@ export const ShiftReport = () => {
         >
           <Title
             level={3}
-          >{`Отчет по смене № ${shiftReportData.number} за ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
+          >{`Отчет по смене № ${shiftReportData.number.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
@@ -294,8 +295,9 @@ export const ShiftReport = () => {
             /> */}
           </Space>
           <Card style={{ margin: "8px 0" }}>
-            <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
+            <p>Номер: {shiftReportData.number.toString().padStart(5, "0")}</p>
             <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
+            <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
             <p>ID: {shiftReportData.shift_report_id}</p>
             <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
             <p>

@@ -164,7 +164,6 @@ export const Project = () => {
   const columns = [
     {
       title: "Работа",
-      // inputType: "number",
       dataIndex: "work",
       type: "select",
       options: worksOptions,

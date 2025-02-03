@@ -24,7 +24,7 @@ export const shiftReportsDesktopColumns = (
           className="shift-reports__table__number"
           onClick={() => navigate && navigate(`/shifts/${record.key}`)}
         >
-          {`${record.number} от ${dateTimestampToLocalString(record.date)}`}
+          {`${record.number.toString().padStart(5, "0")} от ${dateTimestampToLocalString(record.date)}`}
         </a>
       </div>
     ),
@@ -68,6 +68,15 @@ export const shiftReportsDesktopColumns = (
       <div>
         <div>{usersMap[projectMap[record.project]?.project_leader]?.name}</div>
       </div>
+    ),
+  },
+  {
+    title: "Сумма",
+    dataIndex: "summ",
+    key: "summ",
+    width: "20%",
+    render: (text: string, record: IShiftReportsListColumn) => (
+      <div>{record.shift_report_details_sum}</div>
     ),
   },
   {
