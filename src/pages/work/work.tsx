@@ -221,7 +221,6 @@ export const Work = () => {
     (state: IState) => state.pages.workPrices.loading
   );
 
-  console.log(dataSource);
   return (
     <>
       <Breadcrumb
