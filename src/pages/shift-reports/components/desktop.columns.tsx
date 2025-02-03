@@ -13,9 +13,9 @@ export const shiftReportsDesktopColumns = (
   usersMap: Record<string, IUser>
 ): ColumnsType<IShiftReportsListColumn> => [
   {
-    title: "Исполнитель",
-    dataIndex: "user",
-    key: "user",
+    title: "Номер",
+    dataIndex: "number",
+    key: "number",
     width: "20%",
 
     render: (text: string, record: IShiftReportsListColumn) => (
@@ -24,9 +24,19 @@ export const shiftReportsDesktopColumns = (
           className="shift-reports__table__number"
           onClick={() => navigate && navigate(`/shifts/${record.key}`)}
         >
-          {`${usersMap[record.user]?.name} ${dateTimestampToLocalString(record.date)}`}
+          {`${record.number} от ${dateTimestampToLocalString(record.date)}`}
         </a>
       </div>
+    ),
+  },
+  {
+    title: "Исполнитель",
+    dataIndex: "user",
+    key: "user",
+    width: "20%",
+
+    render: (text: string, record: IShiftReportsListColumn) => (
+      <div>{usersMap[record.user]?.name}</div>
     ),
   },
   {

@@ -1,10 +1,12 @@
-import { Form, Input } from "antd";
+import { Form, Input, Select } from "antd";
 import * as React from "react";
 
 interface IEditableCellProps {
   editing: boolean;
   dataIndex: string;
   title: string;
+  type?: "input" | "select";
+  options?: { label: string; value: string }[];
   inputType?: "text" | "number";
   required?: boolean;
   record: any;
@@ -17,6 +19,8 @@ export const EditableCell = ({
   editing,
   dataIndex,
   title,
+  type = "input",
+  options,
   inputType,
   required,
   record,
@@ -24,16 +28,24 @@ export const EditableCell = ({
   children,
   ...restProps
 }: IEditableCellProps) => {
-  const handleChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      // Преобразуем значение в число перед сохранением
-      const value = event.target.value;
-      record[dataIndex] = inputType === "number" ? Number(value) : value;
-    },
-    [record, dataIndex, inputType]
-  );
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Преобразуем значение в число перед сохранением
+    const value = event.target.value;
+    record[dataIndex] = inputType === "number" ? Number(value) : value;
+  };
 
-  const inputNode = <Input onChange={handleChange} type={inputType} />;
+  const handleSelectChange = (value: string) => {
+    // Для Select значение передается напрямую
+    record[dataIndex] = value;
+  };
+
+  let inputNode;
+
+  if (type === "input") {
+    inputNode = <Input onChange={handleInputChange} type={inputType} />;
+  } else if (type === "select") {
+    inputNode = <Select onChange={handleSelectChange} options={options} />;
+  }
   return (
     <td {...restProps}>
       {editing ? (

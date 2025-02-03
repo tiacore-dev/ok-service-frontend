@@ -18,7 +18,7 @@ import { editShiftReportAction } from "../../store/modules/editableEntities/edit
 import { useNavigate } from "react-router-dom";
 
 export interface IEditableShiftReport
-  extends Omit<IShiftReport, "shiftReport_id"> {}
+  extends Omit<IShiftReport, "shiftReport_id" | "number"> {}
 
 export const useShiftReports = () => {
   const dispatch = useDispatch();

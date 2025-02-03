@@ -22,7 +22,7 @@ import { DeleteWorkDialog } from "../../components/ActionDialogs/DeleteWorkDialo
 import { EditableCell } from "../components/editableCell";
 import { IWorkPricesListColumn } from "../../interfaces/workPrices/IWorkPricesList";
 import { useWorkPrices } from "../../hooks/ApiActions/work-prices";
-import { getworkPricesByWorkId } from "../../store/modules/pages/selectors/work-prices.selector";
+import { getWorkPricesByWorkId } from "../../store/modules/pages/selectors/work-prices.selector";
 import { SortOrder } from "../../utils/sortOrder";
 
 export const Work = () => {
@@ -61,7 +61,7 @@ export const Work = () => {
   );
 
   const workPrices = useSelector((state: IState) =>
-    getworkPricesByWorkId(state, workData?.work_id)
+    getWorkPricesByWorkId(state, workData?.work_id)
   );
 
   const workPricesData: IWorkPricesListColumn[] = React.useMemo(

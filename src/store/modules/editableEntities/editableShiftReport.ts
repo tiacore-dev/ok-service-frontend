@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 
 export interface IEditableShiftReportState
-  extends Omit<IShiftReport, "shift_report_id"> {
+  extends Omit<IShiftReport, "shift_report_id" | "number"> {
   sent: boolean;
 }
 

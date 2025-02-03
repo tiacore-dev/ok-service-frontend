@@ -1,5 +1,15 @@
 import * as React from "react";
-import { Breadcrumb, Button, Card, Checkbox, Layout, Space } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Card,
+  Checkbox,
+  Form,
+  Layout,
+  Popconfirm,
+  Space,
+  Table,
+} from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -13,8 +23,28 @@ import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
+import { EditableCell } from "../components/editableCell";
+import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
+import { getshiftReportDetailsByShiftReportId } from "../../store/modules/pages/selectors/shift-report-details.selector";
+import { useShiftReportDetails } from "../../hooks/ApiActions/shift-report-detail";
+import { getWorksByProjectId } from "../../store/modules/pages/selectors/works.selector";
 
 export const ShiftReport = () => {
+  const [form] = Form.useForm<IShiftReportDetailsListColumn>();
+  const [dataSource, setDataSource] = React.useState<
+    IShiftReportDetailsListColumn[]
+  >([]);
+
+  const {
+    getShiftReportDetails,
+    createShiftReportDetail,
+    editShiftReportDetail,
+    deleteShiftReportDetail,
+  } = useShiftReportDetails();
+
+  const [actualData, setActualData] = React.useState<boolean>(false);
+  const [editingKey, setEditingKey] = React.useState("");
+  const [newRecordKey, setNewRecordKey] = React.useState("");
   const { Content } = Layout;
   const usersMap = useSelector(getUsersMap);
   const projectsMap = useSelector(getProjectsMap);
@@ -29,8 +59,199 @@ export const ShiftReport = () => {
   const shiftReportData = useSelector(
     (state: IState) => state.pages.shiftReport.data
   );
+
+  const worksData = useSelector((state: IState) =>
+    getWorksByProjectId(state, shiftReportData?.project)
+  );
+
+  const worksOptions = worksData.map((el) => ({
+    label: el.name,
+    value: el.work_id,
+  }));
+
+  const shiftReportDetails = useSelector((state: IState) =>
+    getshiftReportDetailsByShiftReportId(
+      state,
+      shiftReportData?.shift_report_id
+    )
+  );
+
+  const shiftReportDetailsData: IShiftReportDetailsListColumn[] = React.useMemo(
+    () =>
+      shiftReportDetails.map((doc) => ({
+        ...doc,
+        key: doc.shift_report_detail_id,
+      })),
+    [shiftReportDetails]
+  );
+
+  const shiftReportDetailsIsLoaded = useSelector(
+    (state: IState) => state.pages.shiftReportDetails.loaded
+  );
+
+  React.useEffect(() => {
+    if (shiftReportDetailsIsLoaded) {
+      setDataSource(shiftReportDetailsData);
+      if (!actualData) {
+        setActualData(true);
+      }
+    }
+  }, [shiftReportDetailsData]);
+
   const isLoaded = useSelector(
     (state: IState) => state.pages.shiftReport.loaded
+  );
+
+  const isEditing = (record: IShiftReportDetailsListColumn) =>
+    record.key === editingKey;
+
+  const isCreating = (record: IShiftReportDetailsListColumn) =>
+    record.key === newRecordKey;
+
+  const edit = (record: IShiftReportDetailsListColumn) => {
+    form.setFieldsValue({ ...record });
+    setEditingKey(record.key);
+  };
+
+  const cancel = () => {
+    setEditingKey("");
+    setNewRecordKey("");
+    setDataSource(shiftReportDetailsData);
+  };
+
+  const save = async (key: string) => {
+    try {
+      const rowData = await form.validateFields();
+      const newData = [...dataSource];
+      const index = newData.findIndex((item) => key === item.key);
+
+      if (index > -1) {
+        const item = newData[index];
+        const row = {
+          ...rowData,
+          quantity: Number(rowData.quantity),
+          shift_report: shiftReportData.shift_report_id,
+          summ: Number(rowData.summ),
+        };
+
+        if (isCreating(item)) {
+          // Создание новой записи
+          setActualData(false);
+          setNewRecordKey("");
+          createShiftReportDetail(row);
+        } else {
+          // Редактирование существующей записи
+          setActualData(false);
+          setEditingKey("");
+          editShiftReportDetail(item.shift_report_detail_id, row);
+        }
+      }
+    } catch (errInfo) {
+      console.log("Validate Failed:", errInfo);
+    }
+  };
+
+  const handleAdd = () => {
+    if (!newRecordKey) {
+      const newData = {
+        key: "new",
+        shift_report: shiftReportData.shift_report_id,
+        work: "",
+        quantity: 0,
+        summ: 0,
+      };
+      setDataSource([newData, ...dataSource]);
+      setNewRecordKey("new");
+      form.setFieldsValue({ ...newData });
+    }
+  };
+
+  const handleDelete = (key: string) => {
+    setActualData(false);
+    deleteShiftReportDetail(key, routeParams.workId);
+  };
+
+  const columns = [
+    {
+      title: "Работа",
+      type: "select",
+      options: worksOptions,
+      dataIndex: "work",
+      key: "work",
+      editable: true,
+      required: true,
+    },
+    {
+      title: "Количество",
+      inputType: "number",
+      dataIndex: "quantity",
+      key: "quantity",
+      editable: true,
+      required: true,
+    },
+    {
+      title: "Сумма",
+      inputType: "number",
+      dataIndex: "summ",
+      key: "summ",
+      editable: true,
+      required: true,
+    },
+    {
+      title: "Действия",
+      dataIndex: "operation",
+      render: (_: string, record: IShiftReportDetailsListColumn) => {
+        const editable = isEditing(record) || isCreating(record);
+        return editable ? (
+          <span>
+            <Button
+              onClick={() => save(record.key)}
+              style={{ marginRight: 8 }}
+              type="primary"
+            >
+              Сохранить
+            </Button>
+            <Popconfirm title="Отменить?" onConfirm={cancel}>
+              <Button>Отменить</Button>
+            </Popconfirm>
+          </span>
+        ) : (
+          <Space>
+            <Button type="link" onClick={() => edit(record)}>
+              Редактировать
+            </Button>
+            <Popconfirm
+              title="Удалить?"
+              onConfirm={() => handleDelete(record.key)}
+            >
+              <Button type="link">Удалить</Button>
+            </Popconfirm>
+          </Space>
+        );
+      },
+    },
+  ];
+
+  const mergedColumns = columns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record: IShiftReportDetailsListColumn) => ({
+        type: col.type,
+        options: col.options,
+        record,
+        inputType: col.inputType,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record) || isCreating(record),
+      }),
+    };
+  });
+
+  const isLoading = useSelector(
+    (state: IState) => state.pages.shiftReportDetails.loading
   );
 
   return (
@@ -41,7 +262,7 @@ export const ShiftReport = () => {
         items={[
           { title: <Link to="/">Главная</Link> },
           {
-            title: <Link to="/shifts">Спецификации</Link>,
+            title: <Link to="/shifts">Смены</Link>,
           },
           { title: shiftReportData?.shift_report_id },
         ]}
@@ -59,7 +280,7 @@ export const ShiftReport = () => {
         >
           <Title
             level={3}
-          >{`Отчет по смене за ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
+          >{`Отчет по смене № ${shiftReportData.number} за ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
@@ -92,6 +313,32 @@ export const ShiftReport = () => {
               </div>
             )}
           </Card>
+
+          <Space
+            direction={isMobile() ? "vertical" : "horizontal"}
+            className="shift-reports_filters"
+          >
+            <Button
+              onClick={handleAdd}
+              type="primary"
+              style={{ marginBottom: 16 }}
+            >
+              Добавить запись отчета по смене
+            </Button>
+          </Space>
+
+          <Form form={form} component={false}>
+            <Table
+              components={{
+                body: {
+                  cell: EditableCell,
+                },
+              }}
+              dataSource={dataSource}
+              columns={mergedColumns}
+              loading={isLoading}
+            />
+          </Form>
         </Content>
       ) : (
         <></>

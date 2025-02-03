@@ -12,10 +12,13 @@ import { workCategories } from "./work-categories.state";
 import { shiftReport } from "./shift-report.state";
 import { shiftReports } from "./shift-reports.state";
 import { workPrices } from "./work-prices.state";
+import { shiftReportDetails } from "./shift-report-details.state";
+import { projectWorks } from "./project-works.state";
 
 export const pages = combineReducers({
   projects,
   project,
+  projectWorks,
   objects,
   object,
   users,
@@ -26,4 +29,5 @@ export const pages = combineReducers({
   workPrices,
   shiftReport,
   shiftReports,
+  shiftReportDetails,
 });
