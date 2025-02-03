@@ -11,7 +11,6 @@ const initialState: IEditableShiftReportState = {
   user: "",
   date: 0,
   project: "",
-  project_leader: "",
   signed: false,
 };
 
@@ -22,7 +21,6 @@ const setShiftReportData = (
   state.user = shiftReportData.user;
   state.date = shiftReportData.date;
   state.project = shiftReportData.project;
-  state.project_leader = shiftReportData.project_leader;
   state.signed = shiftReportData.signed;
   state.sent = false;
 };
@@ -57,13 +55,6 @@ const editableShiftReportSlice = createSlice({
       action: { payload: string }
     ) => {
       state.project = action.payload;
-    },
-
-    setProjectLeader: (
-      state: IEditableShiftReportState,
-      action: { payload: string }
-    ) => {
-      state.project_leader = action.payload;
     },
 
     toggleSigned: (state: IEditableShiftReportState) => {

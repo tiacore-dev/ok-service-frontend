@@ -17,7 +17,7 @@ export const useWorkPrices = () => {
   const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
   const notificationApi = useContext(NotificationContext);
 
-  const getWorkPrices = (params: { work: string }) => {
+  const getWorkPrices = (params: Record<string, string>) => {
     dispatch(getWorkPricesRequest());
     apiGet<{ work_prices: IWorkPricesList[] }>(
       "work_prices",

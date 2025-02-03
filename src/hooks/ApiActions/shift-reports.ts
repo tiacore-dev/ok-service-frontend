@@ -44,12 +44,12 @@ export const useShiftReports = () => {
 
   const getShiftReport = (shiftReportId: string) => {
     dispatch(getShiftReportRequest());
-    apiGet<{ shift_reports: IShiftReport }>(
+    apiGet<{ shift_report: IShiftReport }>(
       "shift_reports",
       `${shiftReportId}/view`
     )
       .then((shiftReportData) => {
-        dispatch(getShiftReportSuccess(shiftReportData.shift_reports));
+        dispatch(getShiftReportSuccess(shiftReportData.shift_report));
       })
       .catch((err) => {
         dispatch(getShiftReportFailure(err));

@@ -100,7 +100,7 @@ export const useApi = () => {
     let response = await axios
       .get(url, {
         withCredentials: false,
-        // params,
+        params,
         headers,
       })
       .catch((err) => {

@@ -22,6 +22,8 @@ import { DeleteWorkDialog } from "../../components/ActionDialogs/DeleteWorkDialo
 import { EditableCell } from "../components/editableCell";
 import { IWorkPricesListColumn } from "../../interfaces/workPrices/IWorkPricesList";
 import { useWorkPrices } from "../../hooks/ApiActions/work-prices";
+import { getworkPricesByWorkId } from "../../store/modules/pages/selectors/work-prices.selector";
+import { SortOrder } from "../../utils/sortOrder";
 
 export const Work = () => {
   const { Content } = Layout;
@@ -33,10 +35,6 @@ export const Work = () => {
     []
   );
 
-  const workPrices = useSelector(
-    (state: IState) => state.pages.workPrices.data
-  );
-
   const routeParams = useParams();
   const { getWork, deleteWork } = useWorks();
 
@@ -45,24 +43,42 @@ export const Work = () => {
 
   React.useEffect(() => {
     getWork(routeParams.workId);
-    getWorkPrices({ work: routeParams.workId });
+    getWorkPrices({
+      work: routeParams.workId,
+      sort_by: "category",
+      sort_order: SortOrder.ASC,
+    });
+
+    return () => {
+      setDataSource([]);
+    };
   }, []);
 
   const workData = useSelector((state: IState) => state.pages.work.data);
   const isLoaded = useSelector((state: IState) => state.pages.work.loaded);
+  const workPricesIsLoaded = useSelector(
+    (state: IState) => state.pages.workPrices.loaded
+  );
 
-  const workPricesData: IWorkPricesListColumn[] = workPrices.map((doc) => ({
-    ...doc,
-    key: doc.work_price_id,
-  }));
+  const workPrices = useSelector((state: IState) =>
+    getworkPricesByWorkId(state, workData?.work_id)
+  );
+
+  const workPricesData: IWorkPricesListColumn[] = React.useMemo(
+    () =>
+      workPrices.map((doc) => ({
+        ...doc,
+        key: doc.work_price_id,
+      })),
+    [workPrices]
+  );
 
   React.useEffect(() => {
-    if (!actualData) {
-      console.log(workPricesData);
-      setDataSource(
-        workPricesData.filter((el) => el.work === workData.work_id)
-      );
-      setActualData(true);
+    if (workPricesIsLoaded) {
+      setDataSource(workPricesData);
+      if (!actualData) {
+        setActualData(true);
+      }
     }
   }, [workPricesData]);
 
@@ -117,7 +133,6 @@ export const Work = () => {
   const handleAdd = () => {
     if (!newRecordKey) {
       const newData = {
-        name: workData.name,
         key: "new",
         work: workData.work_id,
         price: 0,
@@ -135,14 +150,6 @@ export const Work = () => {
   };
 
   const columns = [
-    {
-      title: "Наименование",
-      inputType: "text",
-      dataIndex: "name",
-      key: "name",
-      editable: true,
-      required: true,
-    },
     {
       title: "Разряд",
       inputType: "number",

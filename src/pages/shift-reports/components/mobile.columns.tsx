@@ -25,7 +25,9 @@ export const shiftReportsMobileColumns = (
         </a>
         <div>id: {record.shift_report_id}</div>
         <div>Спецификация: {projectMap[record.project]?.name}</div>
-        <div>Прораб: {usersMap[record.project_leader]?.name}</div>
+        <div>
+          Прораб: {usersMap[projectMap[record.project]?.project_leader]?.name}
+        </div>
       </div>
     ),
   },

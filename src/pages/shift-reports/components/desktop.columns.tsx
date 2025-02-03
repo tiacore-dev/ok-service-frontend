@@ -22,7 +22,7 @@ export const shiftReportsDesktopColumns = (
       <div>
         <a
           className="shift-reports__table__number"
-          onClick={() => navigate && navigate(`/shiftReports/${record.key}`)}
+          onClick={() => navigate && navigate(`/shifts/${record.key}`)}
         >
           {`${usersMap[record.user]?.name} ${dateTimestampToLocalString(record.date)}`}
         </a>
@@ -56,7 +56,7 @@ export const shiftReportsDesktopColumns = (
     width: "20%",
     render: (text: string, record: IShiftReportsListColumn) => (
       <div>
-        <div>{usersMap[record.project_leader]?.name}</div>
+        <div>{usersMap[projectMap[record.project]?.project_leader]?.name}</div>
       </div>
     ),
   },

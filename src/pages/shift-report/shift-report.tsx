@@ -23,7 +23,7 @@ export const ShiftReport = () => {
   const { getShiftReport, deleteShiftReport } = useShiftReports();
 
   React.useEffect(() => {
-    getShiftReport(routeParams.shiftReportId);
+    getShiftReport(routeParams.shiftId);
   }, []);
 
   const shiftReportData = useSelector(
@@ -41,14 +41,14 @@ export const ShiftReport = () => {
         items={[
           { title: <Link to="/">Главная</Link> },
           {
-            title: <Link to="/shiftReports">Спецификации</Link>,
+            title: <Link to="/shifts">Спецификации</Link>,
           },
           { title: shiftReportData?.shift_report_id },
         ]}
       />
       {isLoaded &&
       shiftReportData &&
-      routeParams.shiftReportId === shiftReportData.shift_report_id ? (
+      routeParams.shiftId === shiftReportData.shift_report_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -77,11 +77,19 @@ export const ShiftReport = () => {
             <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
             <p>ID: {shiftReportData.shift_report_id}</p>
             <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
-            <p>Прораб: {usersMap[shiftReportData.project_leader]?.name}</p>
+            <p>
+              Прораб:{" "}
+              {
+                usersMap[projectsMap[shiftReportData.project]?.project_leader]
+                  ?.name
+              }
+            </p>
             <Checkbox checked={shiftReportData.signed} />
 
             {!shiftReportData.signed && (
-              <Button type="primary">Согласовано</Button>
+              <div>
+                <Button type="primary">Согласовано</Button>
+              </div>
             )}
           </Card>
         </Content>

@@ -122,17 +122,6 @@ export const EditableShiftReportDialog = (
                 disabled={sent}
               />
             </Form.Item>
-
-            <Form.Item label="Прораб">
-              <Select
-                value={data.project_leader}
-                onChange={(value: string) =>
-                  dispatch(editShiftReportAction.setProjectLeader(value))
-                }
-                options={userMap}
-                disabled={sent}
-              />
-            </Form.Item>
           </Form>
         </Space>
       }

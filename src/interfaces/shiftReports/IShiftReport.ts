@@ -3,7 +3,6 @@ export interface IShiftReport {
   user: string;
   date: number;
   project: string;
-  project_leader: string;
   signed: boolean;
   deleted?: boolean;
 }
