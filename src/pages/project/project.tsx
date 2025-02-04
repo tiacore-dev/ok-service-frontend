@@ -29,6 +29,7 @@ import { getWorksData } from "../../store/modules/pages/selectors/works.selector
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { clearProjectState } from "../../store/modules/pages/project.state";
+import { useWorks } from "../../hooks/ApiActions/works";
 
 export const Project = () => {
   const { Content } = Layout;
@@ -58,10 +59,12 @@ export const Project = () => {
 
   const routeParams = useParams();
   const { getProject, deleteProject } = useProjects();
+  const { getWorks } = useWorks();
 
   React.useEffect(() => {
     getUsers()
     getObjects()
+    getWorks()
     getProject(routeParams.projectId);
     getProjectWorks(routeParams.projectId);
 
