@@ -54,6 +54,18 @@ import { Work } from "../../pages/work/work";
 import { WorkCategories } from "../../pages/work-categories/work-categories.page";
 import { ShiftReports } from "../../pages/shift-reports/shift-reports.page";
 import { ShiftReport } from "../../pages/shift-report/shift-report";
+import { clearWorksState } from "../../store/modules/pages/works.state";
+import { clearProjectsState } from "../../store/modules/pages/projects.state";
+import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
+import { clearWorkCategoriesState } from "../../store/modules/pages/work-categories.state";
+import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
+import { clearShiftReportDetailsState } from "../../store/modules/pages/shift-report-details.state";
+import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
+import { clearObjectState } from "../../store/modules/pages/object.state";
+import { clearUserState } from "../../store/modules/pages/user.state";
+import { clearWorkState } from "../../store/modules/pages/work.state";
+import { clearProjectState } from "../../store/modules/pages/project.state";
+import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -63,7 +75,19 @@ export const useloadSourse = (): {
     dispatch(clearObjectStatusesState());
     dispatch(clearRolesState());
     dispatch(clearObjectsState());
+    dispatch(clearObjectState());
     dispatch(clearUsersState());
+    dispatch(clearUserState());
+    dispatch(clearWorksState());
+    dispatch(clearWorkState());
+    dispatch(clearProjectsState());
+    dispatch(clearProjectState());
+    dispatch(clearWorkPricesState());
+    dispatch(clearWorkCategoriesState());
+    dispatch(clearShiftReportsState());
+    dispatch(clearShiftReportState());
+    dispatch(clearShiftReportDetailsState());
+    dispatch(clearProjectWorksState());
   }, []);
   const notificationApi = React.useContext(NotificationContext);
   const dispatch = useDispatch();
