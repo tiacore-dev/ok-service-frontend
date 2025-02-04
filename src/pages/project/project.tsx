@@ -30,6 +30,9 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { clearProjectState } from "../../store/modules/pages/project.state";
 import { useWorks } from "../../hooks/ApiActions/works";
+import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import { ColumnsType } from "antd/es/table";
+
 
 export const Project = () => {
   const { Content } = Layout;
@@ -200,6 +203,7 @@ export const Project = () => {
     {
       title: "Действия",
       dataIndex: "operation",
+      width: "116px",
       render: (_: string, record: IProjectWorksListColumn) => {
         const editable = isEditing(record) || isCreating(record);
         return editable ? (
@@ -207,24 +211,18 @@ export const Project = () => {
             <Button
               onClick={() => save(record.key)}
               style={{ marginRight: 8 }}
-              type="primary"
-            >
-              Сохранить
-            </Button>
-            <Popconfirm title="Отменить?" onConfirm={cancel}>
-              <Button>Отменить</Button>
-            </Popconfirm>
+              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
+            />
+            <Button icon={<CloseCircleTwoTone twoToneColor="#e40808" />} onClick={cancel}></Button>
           </span>
         ) : (
           <Space>
-            <Button type="link" onClick={() => edit(record)}>
-              Редактировать
-            </Button>
+            <Button icon={<EditTwoTone twoToneColor="#e40808" />} type="link" onClick={() => edit(record)} />
             <Popconfirm
               title="Удалить?"
               onConfirm={() => handleDelete(record.key)}
             >
-              <Button type="link">Удалить</Button>
+              <Button icon={<DeleteTwoTone twoToneColor="#e40808" />} type="link" />
             </Popconfirm>
           </Space>
         );

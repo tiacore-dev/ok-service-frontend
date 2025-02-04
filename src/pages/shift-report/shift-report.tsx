@@ -36,6 +36,7 @@ import { useProjects } from "../../hooks/ApiActions/projects";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
+import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 
 export const ShiftReport = () => {
   const [form] = Form.useForm<IShiftReportDetailsListColumn>();
@@ -226,6 +227,7 @@ export const ShiftReport = () => {
     {
       title: "Действия",
       dataIndex: "operation",
+      width: "116px",
       render: (_: string, record: IShiftReportDetailsListColumn) => {
         const editable = isEditing(record) || isCreating(record);
         return editable ? (
@@ -233,24 +235,18 @@ export const ShiftReport = () => {
             <Button
               onClick={() => save(record.key)}
               style={{ marginRight: 8 }}
-              type="primary"
-            >
-              Сохранить
-            </Button>
-            <Popconfirm title="Отменить?" onConfirm={cancel}>
-              <Button>Отменить</Button>
-            </Popconfirm>
+              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
+            />
+            <Button icon={<CloseCircleTwoTone twoToneColor="#e40808" />} onClick={cancel}></Button>
           </span>
         ) : (
           <Space>
-            <Button type="link" onClick={() => edit(record)}>
-              Редактировать
-            </Button>
+            <Button icon={<EditTwoTone twoToneColor="#e40808" />} type="link" onClick={() => edit(record)} />
             <Popconfirm
               title="Удалить?"
               onConfirm={() => handleDelete(record.key)}
             >
-              <Button type="link">Удалить</Button>
+              <Button icon={<DeleteTwoTone twoToneColor="#e40808" />} type="link" />
             </Popconfirm>
           </Space>
         );

@@ -26,6 +26,7 @@ import { getWorkPricesByWorkId } from "../../store/modules/pages/selectors/work-
 import { SortOrder } from "../../utils/sortOrder";
 import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
 import { clearWorkState } from "../../store/modules/pages/work.state";
+import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 
 export const Work = () => {
   const { Content } = Layout;
@@ -174,6 +175,7 @@ export const Work = () => {
     {
       title: "Действия",
       dataIndex: "operation",
+      width: "116px",
       render: (_: string, record: IWorkPricesListColumn) => {
         const editable = isEditing(record) || isCreating(record);
         return editable ? (
@@ -181,24 +183,18 @@ export const Work = () => {
             <Button
               onClick={() => save(record.key)}
               style={{ marginRight: 8 }}
-              type="primary"
-            >
-              Сохранить
-            </Button>
-            <Popconfirm title="Отменить?" onConfirm={cancel}>
-              <Button>Отменить</Button>
-            </Popconfirm>
+              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
+            />
+            <Button icon={<CloseCircleTwoTone twoToneColor="#e40808" />} onClick={cancel}></Button>
           </span>
         ) : (
           <Space>
-            <Button type="link" onClick={() => edit(record)}>
-              Редактировать
-            </Button>
+            <Button icon={<EditTwoTone twoToneColor="#e40808" />} type="link" onClick={() => edit(record)} />
             <Popconfirm
               title="Удалить?"
               onConfirm={() => handleDelete(record.key)}
             >
-              <Button type="link">Удалить</Button>
+              <Button icon={<DeleteTwoTone twoToneColor="#e40808" />} type="link" />
             </Popconfirm>
           </Space>
         );
