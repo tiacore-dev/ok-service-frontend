@@ -75,7 +75,6 @@ export const User = () => {
           <Card style={{ margin: "8px 0" }}>
             <p>Имя: {userData.name}</p>
             <p>Разряд: {userData.category ?? "Нет разряда"}</p>
-            <p>ID: {userData.user_id}</p>
             <p>Логин: {userData.login}</p>
             <p>Роль: {rolesMap[userData.role]?.name}</p>
           </Card>

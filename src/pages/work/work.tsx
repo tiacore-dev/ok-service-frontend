@@ -264,7 +264,6 @@ export const Work = () => {
           <Card style={{ margin: "8px 0" }}>
             <p>Имя: {workData.name}</p>
             <p>Категория: {workData.category.name}</p>
-            <p>ID: {workData.work_id}</p>
             <p>Единица измерения: {workData.measurement_unit}</p>
           </Card>
 

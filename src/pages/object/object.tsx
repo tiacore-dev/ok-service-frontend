@@ -66,7 +66,6 @@ export const Object = () => {
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {objectData.name}</p>
-            <p>ID: {objectData.object_id}</p>
             <p>Адрес: {objectData.address}</p>
             <p>Описание: {objectData.description}</p>
             <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>

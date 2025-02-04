@@ -312,10 +312,10 @@ export const ShiftReport = () => {
             level={3}
           >{`Отчет по смене № ${shiftReportData.number.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
           <Space
-            direction={isMobile() ? "vertical" : "horizontal"}
+            direction={"horizontal"}
             size="small"
           >
-            {canEdit && <EditableShiftReportDialog shiftReport={shiftReportData} />},
+            {canEdit && <EditableShiftReportDialog shiftReport={shiftReportData} />}
             {canEdit && <DeleteShiftReportDialog
               onDelete={() => {
                 deleteShiftReport(shiftReportData.shift_report_id);
@@ -327,7 +327,6 @@ export const ShiftReport = () => {
             <p>Номер: {shiftReportData.number.toString().padStart(5, "0")}</p>
             <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
             <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
-            <p>ID: {shiftReportData.shift_report_id}</p>
             <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
             <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
             <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>

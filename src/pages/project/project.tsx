@@ -295,7 +295,6 @@ export const Project = () => {
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {projectData.name}</p>
-            <p>ID: {projectData.project_id}</p>
             <p>Объект: {objectsMap[projectData.object]?.name}</p>
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
           </Card>
