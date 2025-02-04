@@ -8,59 +8,50 @@ export const usersDesktopColumns = (
   navigate: NavigateFunction,
   rolesMap: Record<string, IRole>
 ): ColumnsType<IUsersListColumn> => [
-  {
-    title: "Имя",
-    dataIndex: "name",
-    key: "name",
-    width: "20%",
+    {
+      title: "Имя",
+      dataIndex: "name",
+      key: "name",
+      width: "20%",
 
-    render: (text: string, record: IUsersListColumn) => (
-      <div>
-        <a
-          className="users__table__number"
-          onClick={() => navigate && navigate(`/users/${record.key}`)}
-        >
-          {record.name}
-        </a>
-      </div>
-    ),
-  },
-  {
-    title: "Логин",
-    dataIndex: "login",
-    key: "login",
-    width: "20%",
-    render: (text: string, record: IUsersListColumn) => (
-      <div>{record.login}</div>
-    ),
-  },
-  {
-    title: "Разряд",
-    dataIndex: "category",
-    key: "category",
-    width: "20%",
-    render: (text: string, record: IUsersListColumn) => (
-      <div>{record.category ?? "Нет разряда"}</div>
-    ),
-  },
-  {
-    title: "ID",
-    dataIndex: "id",
-    key: "id",
-    width: "20%",
-    render: (text: string, record: IUsersListColumn) => (
-      <div>{record.user_id}</div>
-    ),
-  },
-  {
-    title: "Роль",
-    dataIndex: "role",
-    key: "role",
-    width: "20%",
-    render: (text: string, record: IUsersListColumn) => (
-      <div>
-        <div>{rolesMap[record.role]?.name}</div>
-      </div>
-    ),
-  },
-];
+      render: (text: string, record: IUsersListColumn) => (
+        <div>
+          <a
+            className="users__table__number"
+            onClick={() => navigate && navigate(`/users/${record.key}`)}
+          >
+            {record.name}
+          </a>
+        </div>
+      ),
+    },
+    {
+      title: "Логин",
+      dataIndex: "login",
+      key: "login",
+      width: "20%",
+      render: (text: string, record: IUsersListColumn) => (
+        <div>{record.login}</div>
+      ),
+    },
+    {
+      title: "Разряд",
+      dataIndex: "category",
+      key: "category",
+      width: "20%",
+      render: (text: string, record: IUsersListColumn) => (
+        <div>{record.category ?? "Нет разряда"}</div>
+      ),
+    },
+    {
+      title: "Роль",
+      dataIndex: "role",
+      key: "role",
+      width: "20%",
+      render: (text: string, record: IUsersListColumn) => (
+        <div>
+          <div>{rolesMap[record.role]?.name}</div>
+        </div>
+      ),
+    },
+  ];

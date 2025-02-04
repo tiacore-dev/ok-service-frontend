@@ -1,5 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { IUser } from "../../interfaces/users/IUser";
+import { IState } from ".";
 
 export interface IAuthState extends IUser {
   access_token?: string;
@@ -7,7 +8,7 @@ export interface IAuthState extends IUser {
   isAuth: boolean;
 }
 
-export interface IAuthLoginPayload extends Omit<IAuthState, "isAuth"> {}
+export interface IAuthLoginPayload extends Omit<IAuthState, "isAuth"> { }
 
 const initialState: IAuthState = {
   isAuth: false,
@@ -57,3 +58,9 @@ const authSlice = createSlice({
 export const { authlogin, authlogout, refreshToken } = authSlice.actions;
 
 export const auth = authSlice.reducer;
+
+export const getCurrentUserId = createSelector([(state: IState) => state.auth.user_id],
+  (user_id) => user_id)
+
+export const getCurrentRole = createSelector([(state: IState) => state.auth.role],
+  (role) => role)

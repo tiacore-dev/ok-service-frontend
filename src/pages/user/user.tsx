@@ -14,6 +14,8 @@ import {
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
 import { Link } from "react-router-dom";
 import { clearUserState } from "../../store/modules/pages/user.state";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 export const User = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,7 @@ export const User = () => {
   const rolesMap = useSelector(getRolesMap);
   const routeParams = useParams();
   const { getUser, deleteUser } = useUsers();
+  const currentRole = useSelector(getCurrentRole)
 
   React.useEffect(() => {
     getUser(routeParams.userId);
@@ -61,13 +64,13 @@ export const User = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            <EditableUserDialog user={userData} />
-            <DeleteUserDialog
+            {currentRole === RoleId.ADMIN && <EditableUserDialog user={userData} />}
+            {currentRole === RoleId.ADMIN && <DeleteUserDialog
               onDelete={() => {
                 deleteUser(userData.user_id);
               }}
               name={userData.name}
-            />
+            />}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Имя: {userData.name}</p>

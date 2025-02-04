@@ -37,6 +37,7 @@ import { useWorks } from "../../hooks/ApiActions/works";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
 import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 
 export const ShiftReport = () => {
   const [form] = Form.useForm<IShiftReportDetailsListColumn>();
@@ -276,7 +277,7 @@ export const ShiftReport = () => {
     (state: IState) => state.pages.shiftReportDetails.loading
   );
 
-  const footer = React.useCallback(() => { return `Итого по отчету: ${shiftReportDetailsData.reduce((acc: number, val) => { return acc = val.summ }, 0)} руб.` }, [shiftReportDetailsData])
+  const footer = React.useCallback(() => { return `Итого по отчету: ${shiftReportDetailsData.reduce((acc: number, val) => { return acc = acc + val.summ }, 0)} руб.` }, [shiftReportDetailsData])
   return (
     <>
       <Breadcrumb
@@ -309,12 +310,12 @@ export const ShiftReport = () => {
             size="small"
           >
             <EditableShiftReportDialog shiftReport={shiftReportData} />,
-            {/* <DeleteShiftReportDialog
+            <DeleteShiftReportDialog
               onDelete={() => {
-                deleteShiftReport(shiftReportData.shiftReport_id);
+                deleteShiftReport(shiftReportData.shift_report_id);
               }}
-              name={shiftReportData.name}
-            /> */}
+              number={shiftReportData.number}
+            />
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Номер: {shiftReportData.number.toString().padStart(5, "0")}</p>

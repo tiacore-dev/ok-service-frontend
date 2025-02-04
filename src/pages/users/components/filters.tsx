@@ -6,6 +6,8 @@ import { setUsersFiltersName } from "../../../store/modules/settings/users";
 import Search from "antd/es/input/Search";
 import { isMobile } from "../../../utils/isMobile";
 import { EditableUserDialog } from "../../../components/ActionDialogs/EditableUserDialog/EditableUserDialog";
+import { getCurrentRole } from "../../../store/modules/auth";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 export const Filters = () => {
   const filters = useSelector(
@@ -16,6 +18,7 @@ export const Filters = () => {
   const numberChangeHandler = (name: string) => {
     dispatch(setUsersFiltersName(name));
   };
+  const currentRole = useSelector(getCurrentRole)
 
   return (
     <Space
@@ -23,7 +26,7 @@ export const Filters = () => {
       className="users_filters"
     >
       <Search placeholder="Поиск по имени" onSearch={numberChangeHandler} />
-      <EditableUserDialog />
+      {currentRole === RoleId.ADMIN && <EditableUserDialog />}
     </Space>
   );
 };

@@ -9,7 +9,7 @@ export interface IEditableShiftReportState
 const initialState: IEditableShiftReportState = {
   sent: false,
   user: "",
-  date: 0,
+  date: new Date().valueOf(),
   project: "",
   signed: false,
 };

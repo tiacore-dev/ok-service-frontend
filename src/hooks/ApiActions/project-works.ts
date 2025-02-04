@@ -19,7 +19,6 @@ export const useProjectWorks = () => {
   const notificationApi = useContext(NotificationContext);
 
   const getProjectWorks = (project_id?: string) => {
-    console.log(project_id)
     if (project_id) {
       dispatch(getProjectWorksRequest());
       apiGet<{ project_works: IProjectWorksList[] }>("project_works", "all", undefined, { project: project_id })

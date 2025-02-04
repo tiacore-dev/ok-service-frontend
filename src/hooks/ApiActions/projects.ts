@@ -29,7 +29,6 @@ export const useProjects = () => {
   const projectsState = useSelector(getProjectsState)
 
   const getProjects = () => {
-    console.log(projectsState)
     if (!projectsState.loaded && !projectsState.loading) {
       dispatch(getProjectsRequest());
       apiGet<{ projects: IProjectsList[] }>("projects", "all")

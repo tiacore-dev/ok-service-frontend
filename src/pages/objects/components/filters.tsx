@@ -7,6 +7,8 @@ import Search from "antd/es/input/Search";
 import { isMobile } from "../../../utils/isMobile";
 import { PlusCircleTwoTone } from "@ant-design/icons";
 import { EditableObjectDialog } from "../../../components/ActionDialogs/EditableObjectDialog/EditableObjectDialog";
+import { getCurrentRole } from "../../../store/modules/auth";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 export const Filters = () => {
   const filters = useSelector(
@@ -17,6 +19,7 @@ export const Filters = () => {
   const numberChangeHandler = (name: string) => {
     dispatch(setObjectsFiltersName(name));
   };
+  const currentRole = useSelector(getCurrentRole)
 
   return (
     <div className="objects_filters">
@@ -26,9 +29,9 @@ export const Filters = () => {
           onSearch={numberChangeHandler}
         />
       </Space>
-      <Space>
+      {currentRole === RoleId.ADMIN && <Space>
         <EditableObjectDialog />
-      </Space>
+      </Space>}
     </div>
   );
 };

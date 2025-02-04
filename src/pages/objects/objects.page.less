@@ -5,21 +5,30 @@
             font-size: 28px;
             cursor: pointer;
 
-            &__row{
+            &__row {
                 margin: -16px;
                 padding: 16px;
                 background-color: #e4dada;
             }
         }
 
-        &__number{
+        &__number {
             font-weight: 600;
             color: #e40808;
         }
     }
 
+    @media all and (max-width:1000px) {
+        &_filters {
+            margin-left: 12px;
+        }
+    }
+
     &_filters {
-        margin-bottom: 24px;
+        margin-bottom: 12px;
+
+
+
         position: relative;
         display: flex;
         flex-direction: row;

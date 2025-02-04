@@ -23,7 +23,6 @@ export const shiftReportsMobileColumns = (
           >
             {`${usersMap[record.user]?.name} ${dateTimestampToLocalString(record.date)}`}
           </a>
-          <div>id: {record.shift_report_id}</div>
           <div>Спецификация: {projectMap[record.project]?.name}</div>
           <div>
             Прораб: {usersMap[projectMap[record.project]?.project_leader]?.name}

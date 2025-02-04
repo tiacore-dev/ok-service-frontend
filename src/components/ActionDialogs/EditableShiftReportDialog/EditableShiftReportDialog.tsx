@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { DatePicker, Form, Select, Space } from "antd";
@@ -13,6 +13,8 @@ import "./EditableShiftReportDialog.less";
 import { useShiftReports } from "../../../hooks/ApiActions/shift-reports";
 import dayjs, { Dayjs } from "dayjs";
 import { dateFormat } from "../../../utils/dateConverter";
+import { getCurrentRole, getCurrentUserId } from "../../../store/modules/auth";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 interface IEditableShiftReportDialogProps {
   shiftReport?: IShiftReport;
@@ -22,6 +24,8 @@ interface IEditableShiftReportDialogProps {
 export const EditableShiftReportDialog = (
   props: IEditableShiftReportDialogProps
 ) => {
+
+
   const { shiftReport, iconOnly } = props;
   const { createShiftReport, editShiftReport } = useShiftReports();
   const buttonText = shiftReport ? "Редактировать" : "Создать";
@@ -37,7 +41,15 @@ export const EditableShiftReportDialog = (
     ? "Редактирование отчета по смене"
     : "Создание отчета по смене";
 
+  const userId = useSelector(getCurrentUserId)
+  const role = useSelector(getCurrentRole)
+
   const dispatch = useDispatch();
+  useEffect(() => {
+    if (shiftReport && userId) {
+      dispatch(editShiftReportAction.setUser(userId))
+    }
+  }, [])
   const data = useSelector(
     (state: IState) => state.editableEntities.editableShiftReport
   );
@@ -99,7 +111,7 @@ export const EditableShiftReportDialog = (
                   dispatch(editShiftReportAction.setUser(value))
                 }
                 options={userMap}
-                disabled={sent}
+                disabled={role === RoleId.USER || sent}
               />
             </Form.Item>
 

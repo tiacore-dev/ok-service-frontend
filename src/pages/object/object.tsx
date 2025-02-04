@@ -11,6 +11,8 @@ import { EditableObjectDialog } from "../../components/ActionDialogs/EditableObj
 import { DeleteObjectDialog } from "../../components/ActionDialogs/DeleteObjectDialog";
 import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import { Link } from "react-router-dom";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 export const Object = () => {
   const { Content } = Layout;
@@ -21,7 +23,7 @@ export const Object = () => {
   React.useEffect(() => {
     getObject(routeParams.objectId);
   }, []);
-
+  const currentRole = useSelector(getCurrentRole)
   const objectData = useSelector((state: IState) => state.pages.object.data);
   const isLoaded = useSelector((state: IState) => state.pages.object.loaded);
 
@@ -39,8 +41,8 @@ export const Object = () => {
         ]}
       />
       {isLoaded &&
-      objectData &&
-      routeParams.objectId === objectData.object_id ? (
+        objectData &&
+        routeParams.objectId === objectData.object_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -54,13 +56,13 @@ export const Object = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            <EditableObjectDialog object={objectData} />
-            <DeleteObjectDialog
+            {currentRole === RoleId.ADMIN && <EditableObjectDialog object={objectData} />}
+            {currentRole === RoleId.ADMIN && <DeleteObjectDialog
               onDelete={() => {
                 deleteObject(objectData.object_id);
               }}
               name={objectData.name}
-            />
+            />}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {objectData.name}</p>

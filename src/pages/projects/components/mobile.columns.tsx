@@ -10,22 +10,21 @@ export const projectsMobileColumns = (
   objectsMap: Record<string, IObject>,
   usersMap: Record<string, IUser>
 ): ColumnsType<IProjectsListColumn> => [
-  {
-    dataIndex: "mobileData",
-    key: "mobileData",
-    width: "100%",
-    render: (text: string, record: IProjectsListColumn) => (
-      <div>
-        <a
-          className="projects__table__number"
-          onClick={() => navigate && navigate(`/projects/${record.key}`)}
-        >
-          {record.name}
-        </a>
-        <div>id: {record.project_id}</div>
-        <div>Объект: {objectsMap[record.object]?.name}</div>
-        <div>Прораб: {usersMap[record.project_leader]?.name}</div>
-      </div>
-    ),
-  },
-];
+    {
+      dataIndex: "mobileData",
+      key: "mobileData",
+      width: "100%",
+      render: (text: string, record: IProjectsListColumn) => (
+        <div>
+          <a
+            className="projects__table__number"
+            onClick={() => navigate && navigate(`/projects/${record.key}`)}
+          >
+            {record.name}
+          </a>
+          <div>Объект: {objectsMap[record.object]?.name}</div>
+          <div>Прораб: {usersMap[record.project_leader]?.name}</div>
+        </div>
+      ),
+    },
+  ];

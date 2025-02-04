@@ -8,23 +8,22 @@ export const usersMobileColumns = (
   navigate: NavigateFunction,
   rolesMap: Record<string, IRole>
 ): ColumnsType<IUsersListColumn> => [
-  {
-    dataIndex: "mobileData",
-    key: "mobileData",
-    width: "100%",
-    render: (text: string, record: IUsersListColumn) => (
-      <div>
-        <a
-          className="users__table__number"
-          onClick={() => navigate && navigate(`/users/${record.key}`)}
-        >
-          {record.name}
-        </a>
-        <div>Разряд: {record.category?.toString()}</div>
-        <div>id: {record.user_id}</div>
-        <div>Логин: {record.login}</div>
-        <div>Роль: {rolesMap[record.role]?.name}</div>
-      </div>
-    ),
-  },
-];
+    {
+      dataIndex: "mobileData",
+      key: "mobileData",
+      width: "100%",
+      render: (text: string, record: IUsersListColumn) => (
+        <div>
+          <a
+            className="users__table__number"
+            onClick={() => navigate && navigate(`/users/${record.key}`)}
+          >
+            {record.name}
+          </a>
+          <div>Разряд: {record.category?.toString()}</div>
+          <div>Логин: {record.login}</div>
+          <div>Роль: {rolesMap[record.role]?.name}</div>
+        </div>
+      ),
+    },
+  ];
