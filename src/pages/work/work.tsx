@@ -27,6 +27,8 @@ import { SortOrder } from "../../utils/sortOrder";
 import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
 import { clearWorkState } from "../../store/modules/pages/work.state";
 import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 export const Work = () => {
   const { Content } = Layout;
@@ -41,6 +43,7 @@ export const Work = () => {
   const routeParams = useParams();
   const { getWork, deleteWork } = useWorks();
   const dispatch = useDispatch();
+  const currentRole = useSelector(getCurrentRole);
 
   const { getWorkPrices, createWorkPrice, editWorkPrice, deleteWorkPrice } =
     useWorkPrices();
@@ -175,6 +178,7 @@ export const Work = () => {
     {
       title: "Действия",
       dataIndex: "operation",
+      hidden: currentRole !== RoleId.ADMIN,
       width: "116px",
       render: (_: string, record: IWorkPricesListColumn) => {
         const editable = isEditing(record) || isCreating(record);

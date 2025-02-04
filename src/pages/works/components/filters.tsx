@@ -7,6 +7,8 @@ import Search from "antd/es/input/Search";
 import { isMobile } from "../../../utils/isMobile";
 import { EditableWorkDialog } from "../../../components/ActionDialogs/EditableWorkDialog/EditableWorkDialog";
 import { useNavigate } from "react-router-dom";
+import { getCurrentRole } from "../../../store/modules/auth";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 export const Filters = () => {
   const filters = useSelector(
@@ -14,6 +16,7 @@ export const Filters = () => {
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const currentRole = useSelector(getCurrentRole)
 
   const numberChangeHandler = (name: string) => {
     dispatch(setWorksFiltersName(name));
@@ -33,7 +36,7 @@ export const Filters = () => {
         {" "}
         Категории{" "}
       </Button>
-      <EditableWorkDialog />
+      {currentRole === RoleId.ADMIN && <EditableWorkDialog />}
     </Space>
   );
 };

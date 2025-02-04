@@ -38,6 +38,8 @@ import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
 import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
+import { RoleId } from "../../interfaces/roles/IRole";
+import { getCurrentRole } from "../../store/modules/auth";
 
 export const ShiftReport = () => {
   const [form] = Form.useForm<IShiftReportDetailsListColumn>();
@@ -45,6 +47,7 @@ export const ShiftReport = () => {
     IShiftReportDetailsListColumn[]
   >([]);
   const dispatch = useDispatch();
+  const currentRole = useSelector(getCurrentRole);
 
   const {
     getShiftReportDetails,
@@ -83,6 +86,8 @@ export const ShiftReport = () => {
   }, []);
 
   const shiftReportData = useSelector(getShiftReportData);
+
+  const canEdit: boolean = currentRole !== RoleId.USER || !shiftReportData?.signed
 
   React.useEffect(() => {
     getProjectWorks(shiftReportData?.project)
@@ -229,6 +234,7 @@ export const ShiftReport = () => {
       title: "Действия",
       dataIndex: "operation",
       width: "116px",
+      hidden: !canEdit,
       render: (_: string, record: IShiftReportDetailsListColumn) => {
         const editable = isEditing(record) || isCreating(record);
         return editable ? (
@@ -309,13 +315,13 @@ export const ShiftReport = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            <EditableShiftReportDialog shiftReport={shiftReportData} />,
-            <DeleteShiftReportDialog
+            {canEdit && <EditableShiftReportDialog shiftReport={shiftReportData} />},
+            {canEdit && <DeleteShiftReportDialog
               onDelete={() => {
                 deleteShiftReport(shiftReportData.shift_report_id);
               }}
               number={shiftReportData.number}
-            />
+            />}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Номер: {shiftReportData.number.toString().padStart(5, "0")}</p>
@@ -323,23 +329,16 @@ export const ShiftReport = () => {
             <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
             <p>ID: {shiftReportData.shift_report_id}</p>
             <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
-            <p>
-              Прораб:{" "}
-              {
-                usersMap[projectsMap[shiftReportData.project]?.project_leader]
-                  ?.name
-              }
-            </p>
-            <Checkbox checked={shiftReportData.signed} />
-
-            {!shiftReportData.signed && (
+            <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
+            <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
+            {!shiftReportData?.signed && currentRole !== RoleId.USER && (
               <div>
                 <Button type="primary">Согласовано</Button>
               </div>
             )}
           </Card>
 
-          <Space
+          {canEdit && <Space
             direction={isMobile() ? "vertical" : "horizontal"}
             className="shift-reports_filters"
           >
@@ -350,7 +349,7 @@ export const ShiftReport = () => {
             >
               Добавить запись отчета по смене
             </Button>
-          </Space>
+          </Space>}
 
           <Form form={form} component={false}>
             <Table

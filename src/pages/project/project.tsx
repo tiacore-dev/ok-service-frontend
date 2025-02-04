@@ -32,6 +32,8 @@ import { clearProjectState } from "../../store/modules/pages/project.state";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 
 export const Project = () => {
@@ -44,6 +46,7 @@ export const Project = () => {
   const [dataSource, setDataSource] = React.useState<IProjectWorksListColumn[]>(
     []
   );
+  const currentRole = useSelector(getCurrentRole)
 
   const dispatch = useDispatch();
 
@@ -204,6 +207,7 @@ export const Project = () => {
       title: "Действия",
       dataIndex: "operation",
       width: "116px",
+      hidden: currentRole === RoleId.USER,
       render: (_: string, record: IProjectWorksListColumn) => {
         const editable = isEditing(record) || isCreating(record);
         return editable ? (
@@ -281,13 +285,13 @@ export const Project = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            <EditableProjectDialog project={projectData} />
-            <DeleteProjectDialog
+            {currentRole !== RoleId.USER && <EditableProjectDialog project={projectData} />}
+            {currentRole !== RoleId.USER && <DeleteProjectDialog
               onDelete={() => {
                 deleteProject(projectData.project_id);
               }}
               name={projectData.name}
-            />
+            />}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {projectData.name}</p>
@@ -296,7 +300,7 @@ export const Project = () => {
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
           </Card>
 
-          <Space
+          {currentRole !== RoleId.USER && <Space
             direction={isMobile() ? "vertical" : "horizontal"}
             className="works_filters"
           >
@@ -307,7 +311,7 @@ export const Project = () => {
             >
               Добавить запись в спецификацию
             </Button>
-          </Space>
+          </Space>}
 
           <Form form={form} component={false}>
             <Table

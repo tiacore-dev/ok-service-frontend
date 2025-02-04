@@ -17,6 +17,8 @@ import { IWorkCategoriesListColumn } from "../../interfaces/workCategories/IWork
 import { useWorkCategories } from "../../hooks/ApiActions/work-categories";
 import { EditableCell } from "../components/editableCell";
 import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 export const WorkCategories = () => {
   const { Content } = Layout;
@@ -33,6 +35,7 @@ export const WorkCategories = () => {
   const [editingKey, setEditingKey] = React.useState("");
   const [newRecordKey, setNewRecordKey] = React.useState("");
   const [actualData, setActualData] = React.useState<boolean>(false);
+  const currentRole = useSelector(getCurrentRole);
 
   const [dataSource, setDataSource] = React.useState<
     IWorkCategoriesListColumn[]
@@ -129,6 +132,7 @@ export const WorkCategories = () => {
       title: "Действия",
       dataIndex: "operation",
       width: "116px",
+      hidden: currentRole !== RoleId.ADMIN,
       render: (_: string, record: IWorkCategoriesListColumn) => {
         const editable = isEditing(record) || isCreating(record);
         return editable ? (
@@ -190,7 +194,7 @@ export const WorkCategories = () => {
           background: "#FFF",
         }}
       >
-        <Space
+        {currentRole === RoleId.ADMIN && <Space
           direction={isMobile() ? "vertical" : "horizontal"}
           className="works_filters"
         >
@@ -201,7 +205,7 @@ export const WorkCategories = () => {
           >
             Добавить категорию работ
           </Button>
-        </Space>
+        </Space>}
 
         <Form form={form} component={false}>
           <Table
