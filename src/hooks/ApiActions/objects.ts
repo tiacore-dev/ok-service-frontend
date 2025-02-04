@@ -11,13 +11,14 @@ import {
 } from "../../store/modules/pages/object.state";
 import { IObject } from "../../interfaces/objects/IObject";
 import { IObjectsList } from "../../interfaces/objects/IObjectsList";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { editObjectAction } from "../../store/modules/editableEntities/editableObject";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
+import { getObjectsState } from "../../store/modules/pages/selectors/objects.selector";
 
-export interface IEditableObject extends Omit<IObject, "object_id"> {}
+export interface IEditableObject extends Omit<IObject, "object_id"> { }
 
 export const useObjects = () => {
   const dispatch = useDispatch();
@@ -25,20 +26,24 @@ export const useObjects = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
+  const objectsState = useSelector(getObjectsState);
+
   const getObjects = () => {
-    dispatch(getObjectsRequest());
-    apiGet<{ objects: IObjectsList[] }>("objects", "all")
-      .then((objectsData) => {
-        dispatch(getObjectsSuccess(objectsData.objects));
-      })
-      .catch((err) => {
-        dispatch(getObjectsFailure(err));
-        notificationApi.error({
-          message: `Ошибка`,
-          description: "Возникла ошибка при получении списка объектов",
-          placement: "bottomRight",
+    if (!objectsState.loaded && !objectsState.loading) {
+      dispatch(getObjectsRequest());
+      apiGet<{ objects: IObjectsList[] }>("objects", "all")
+        .then((objectsData) => {
+          dispatch(getObjectsSuccess(objectsData.objects));
+        })
+        .catch((err) => {
+          dispatch(getObjectsFailure(err));
+          notificationApi.error({
+            message: `Ошибка`,
+            description: "Возникла ошибка при получении списка объектов",
+            placement: "bottomRight",
+          });
         });
-      });
+    }
   };
 
   const getObject = (objectId: string) => {

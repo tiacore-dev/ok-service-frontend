@@ -11,7 +11,7 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
@@ -24,6 +24,8 @@ import { IWorkPricesListColumn } from "../../interfaces/workPrices/IWorkPricesLi
 import { useWorkPrices } from "../../hooks/ApiActions/work-prices";
 import { getWorkPricesByWorkId } from "../../store/modules/pages/selectors/work-prices.selector";
 import { SortOrder } from "../../utils/sortOrder";
+import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
+import { clearWorkState } from "../../store/modules/pages/work.state";
 
 export const Work = () => {
   const { Content } = Layout;
@@ -37,6 +39,7 @@ export const Work = () => {
 
   const routeParams = useParams();
   const { getWork, deleteWork } = useWorks();
+  const dispatch = useDispatch();
 
   const { getWorkPrices, createWorkPrice, editWorkPrice, deleteWorkPrice } =
     useWorkPrices();
@@ -50,6 +53,8 @@ export const Work = () => {
     });
 
     return () => {
+      dispatch(clearWorkPricesState())
+      dispatch(clearWorkState())
       setDataSource([]);
     };
   }, []);

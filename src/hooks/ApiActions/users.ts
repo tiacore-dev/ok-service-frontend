@@ -11,11 +11,12 @@ import {
 } from "../../store/modules/pages/user.state";
 import { IUser } from "../../interfaces/users/IUser";
 import { IUsersList } from "../../interfaces/users/IUsersList";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
 import { editUserAction } from "../../store/modules/editableEntities/editableUser";
 import { useNavigate } from "react-router-dom";
+import { getUsersState } from "../../store/modules/pages/selectors/users.selector";
 
 export interface IEditableUser extends Omit<IUser, "user_id"> {
   password?: string;
@@ -27,20 +28,25 @@ export const useUsers = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
+  const usersState = useSelector(getUsersState);
+
+
   const getUsers = () => {
-    dispatch(getUsersRequest());
-    apiGet<{ users: IUsersList[] }>("users", "all")
-      .then((usersData) => {
-        dispatch(getUsersSuccess(usersData.users));
-      })
-      .catch((err) => {
-        dispatch(getUsersFailure(err));
-        notificationApi.error({
-          message: `Ошибка`,
-          description: "Возникла ошибка при получении списка пользователей",
-          placement: "bottomRight",
+    if (!usersState.loaded && !usersState.loading) {
+      dispatch(getUsersRequest());
+      apiGet<{ users: IUsersList[] }>("users", "all")
+        .then((usersData) => {
+          dispatch(getUsersSuccess(usersData.users));
+        })
+        .catch((err) => {
+          dispatch(getUsersFailure(err));
+          notificationApi.error({
+            message: `Ошибка`,
+            description: "Возникла ошибка при получении списка пользователей",
+            placement: "bottomRight",
+          });
         });
-      });
+    }
   };
 
   const getUser = (userId: string) => {

@@ -11,24 +11,24 @@ export const shiftReportsMobileColumns = (
   projectMap: Record<string, IProject>,
   usersMap: Record<string, IUser>
 ): ColumnsType<IShiftReportsListColumn> => [
-  {
-    dataIndex: "mobileData",
-    key: "mobileData",
-    width: "100%",
-    render: (text: string, record: IShiftReportsListColumn) => (
-      <div>
-        <a
-          className="shift-reports__table__number"
-          onClick={() => navigate && navigate(`/shiftReports/${record.key}`)}
-        >
-          {`${usersMap[record.user]?.name} ${dateTimestampToLocalString(record.date)}`}
-        </a>
-        <div>id: {record.shift_report_id}</div>
-        <div>Спецификация: {projectMap[record.project]?.name}</div>
+    {
+      dataIndex: "mobileData",
+      key: "mobileData",
+      width: "100%",
+      render: (text: string, record: IShiftReportsListColumn) => (
         <div>
-          Прораб: {usersMap[projectMap[record.project]?.project_leader]?.name}
+          <a
+            className="shift-reports__table__number"
+            onClick={() => navigate && navigate(`/shifts/${record.key}`)}
+          >
+            {`${usersMap[record.user]?.name} ${dateTimestampToLocalString(record.date)}`}
+          </a>
+          <div>id: {record.shift_report_id}</div>
+          <div>Спецификация: {projectMap[record.project]?.name}</div>
+          <div>
+            Прораб: {usersMap[projectMap[record.project]?.project_leader]?.name}
+          </div>
         </div>
-      </div>
-    ),
-  },
-];
+      ),
+    },
+  ];

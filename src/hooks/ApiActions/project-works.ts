@@ -11,28 +11,31 @@ import { IProjectWork } from "../../interfaces/projectWorks/IProjectWork";
 import { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
 
 export interface IEditableProjectWork
-  extends Omit<IProjectWork, "project_work_id"> {}
+  extends Omit<IProjectWork, "project_work_id"> { }
 
 export const useProjectWorks = () => {
   const dispatch = useDispatch();
   const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
   const notificationApi = useContext(NotificationContext);
 
-  const getProjectWorks = () => {
-    dispatch(getProjectWorksRequest());
-    apiGet<{ project_works: IProjectWorksList[] }>("project_works", "all")
-      .then((projectWorksData) => {
-        dispatch(getProjectWorksSuccess(projectWorksData.project_works));
-      })
-      .catch((err) => {
-        dispatch(getProjectWorksFailure(err));
-        notificationApi.error({
-          message: `Ошибка`,
-          description:
-            "Возникла ошибка при получении списка работ по спецификации",
-          placement: "bottomRight",
+  const getProjectWorks = (project_id?: string) => {
+    console.log(project_id)
+    if (project_id) {
+      dispatch(getProjectWorksRequest());
+      apiGet<{ project_works: IProjectWorksList[] }>("project_works", "all", undefined, { project: project_id })
+        .then((projectWorksData) => {
+          dispatch(getProjectWorksSuccess(projectWorksData.project_works));
+        })
+        .catch((err) => {
+          dispatch(getProjectWorksFailure(err));
+          notificationApi.error({
+            message: `Ошибка`,
+            description:
+              "Возникла ошибка при получении списка работ по спецификации",
+            placement: "bottomRight",
+          });
         });
-      });
+    }
   };
 
   const createProjectWork = (
@@ -44,7 +47,7 @@ export const useProjectWorks = () => {
       createbleProjectWorkData
     )
       .then(() => {
-        getProjectWorks();
+        getProjectWorks(createbleProjectWorkData.project);
         notificationApi.success({
           message: `Успешно`,
           description: "Работа добавлена в спецификацию",
@@ -72,7 +75,7 @@ export const useProjectWorks = () => {
       editableProjectWorkData
     )
       .then(() => {
-        getProjectWorks();
+        getProjectWorks(editableProjectWorkData.project);
         notificationApi.success({
           message: `Успешно`,
           description: "Работ в спецификации изменена",
@@ -89,7 +92,7 @@ export const useProjectWorks = () => {
       });
   };
 
-  const deleteProjectWork = (project_work_id: string) => {
+  const deleteProjectWork = (project_work_id: string, project_id: string) => {
     apiDelete<{}>("project_works", project_work_id, "delete/hard")
       .then(() => {
         notificationApi.success({
@@ -97,7 +100,7 @@ export const useProjectWorks = () => {
           description: "Работа удалена из спецификации",
           placement: "bottomRight",
         });
-        getProjectWorks();
+        getProjectWorks(project_id);
       })
       .catch((err) => {
         console.log("deleteWorkFailure", err);

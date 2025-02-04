@@ -11,7 +11,7 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
@@ -25,7 +25,10 @@ import { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectW
 import { EditableCell } from "../components/editableCell";
 import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
-import { getAllWorks } from "../../store/modules/pages/selectors/works.selector";
+import { getWorksData } from "../../store/modules/pages/selectors/works.selector";
+import { useObjects } from "../../hooks/ApiActions/objects";
+import { useUsers } from "../../hooks/ApiActions/users";
+import { clearProjectState } from "../../store/modules/pages/project.state";
 
 export const Project = () => {
   const { Content } = Layout;
@@ -38,12 +41,17 @@ export const Project = () => {
     []
   );
 
+  const dispatch = useDispatch();
+
   const {
     getProjectWorks,
     createProjectWork,
     editProjectWork,
     deleteProjectWork,
   } = useProjectWorks();
+
+  const { getObjects } = useObjects();
+  const { getUsers } = useUsers();
 
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
@@ -52,14 +60,20 @@ export const Project = () => {
   const { getProject, deleteProject } = useProjects();
 
   React.useEffect(() => {
+    getUsers()
+    getObjects()
     getProject(routeParams.projectId);
-    getProjectWorks();
+    getProjectWorks(routeParams.projectId);
+
+    return () => {
+      dispatch(clearProjectState())
+    }
   }, []);
 
   const projectData = useSelector((state: IState) => state.pages.project.data);
   const isLoaded = useSelector((state: IState) => state.pages.project.loaded);
 
-  const worksData = useSelector(getAllWorks);
+  const worksData = useSelector(getWorksData);
 
   const worksOptions = worksData.map((el) => ({
     label: el.name,
@@ -157,8 +171,7 @@ export const Project = () => {
 
   const handleDelete = (key: string) => {
     setActualData(false);
-    // deleteProjectWork(key, routeParams.projectId);
-    deleteProjectWork(key);
+    deleteProjectWork(key, routeParams.projectId);
   };
 
   const columns = [
@@ -252,8 +265,8 @@ export const Project = () => {
         ]}
       />
       {isLoaded &&
-      projectData &&
-      routeParams.projectId === projectData.project_id ? (
+        projectData &&
+        routeParams.projectId === projectData.project_id ? (
         <Content
           style={{
             padding: "0 24px",

@@ -78,6 +78,17 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     }
   }, [work, dispatch]);
 
+  const handleNameChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => { dispatch(editWorkAction.setName(event.target.value)) }, [])
+
+  const handleCategoryChange = useCallback((value: string) => { dispatch(editWorkAction.setCategory(value)) }, [])
+
+  const handleMeasurementUnitChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(
+      editWorkAction.setMeasurementUnit(event.target.value)
+    )
+  }, [])
+
+
   return (
     <ActionDialog
       modalOkText="Сохранить"
@@ -94,18 +105,14 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
             <Form.Item label="Наименование">
               <Input
                 value={data.name}
-                onChange={(event) =>
-                  dispatch(editWorkAction.setName(event.target.value))
-                }
+                onChange={handleNameChange}
               />
             </Form.Item>
 
             <Form.Item label="Категория">
               <Select
                 value={data.category}
-                onChange={(value: string) =>
-                  dispatch(editWorkAction.setCategory(value))
-                }
+                onChange={handleCategoryChange}
                 options={categoriesMap}
               />
             </Form.Item>
@@ -113,11 +120,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
             <Form.Item label="Единица измерения">
               <Input
                 value={data.measurement_unit}
-                onChange={(event) =>
-                  dispatch(
-                    editWorkAction.setMeasurementUnit(event.target.value)
-                  )
-                }
+                onChange={handleMeasurementUnitChange}
               />
             </Form.Item>
           </Form>

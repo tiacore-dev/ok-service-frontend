@@ -12,7 +12,7 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
@@ -28,12 +28,21 @@ import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetai
 import { getshiftReportDetailsByShiftReportId } from "../../store/modules/pages/selectors/shift-report-details.selector";
 import { useShiftReportDetails } from "../../hooks/ApiActions/shift-report-detail";
 import { getWorksByProjectId } from "../../store/modules/pages/selectors/works.selector";
+import { getShiftReportData } from "../../store/modules/pages/selectors/shift-report.selector";
+import { clearShiftReportDetailsState } from "../../store/modules/pages/shift-report-details.state";
+import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
+import { useUsers } from "../../hooks/ApiActions/users";
+import { useProjects } from "../../hooks/ApiActions/projects";
+import { useWorks } from "../../hooks/ApiActions/works";
+import { useProjectWorks } from "../../hooks/ApiActions/project-works";
+import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
 
 export const ShiftReport = () => {
   const [form] = Form.useForm<IShiftReportDetailsListColumn>();
   const [dataSource, setDataSource] = React.useState<
     IShiftReportDetailsListColumn[]
   >([]);
+  const dispatch = useDispatch();
 
   const {
     getShiftReportDetails,
@@ -46,6 +55,11 @@ export const ShiftReport = () => {
   const [editingKey, setEditingKey] = React.useState("");
   const [newRecordKey, setNewRecordKey] = React.useState("");
   const { Content } = Layout;
+  const { getUsers } = useUsers();
+  const { getProjects } = useProjects();
+  const { getWorks } = useWorks();
+  const { getProjectWorks } = useProjectWorks();
+
   const usersMap = useSelector(getUsersMap);
   const projectsMap = useSelector(getProjectsMap);
 
@@ -53,13 +67,24 @@ export const ShiftReport = () => {
   const { getShiftReport, deleteShiftReport } = useShiftReports();
 
   React.useEffect(() => {
+    getProjects()
+    getUsers()
+    getWorks()
     getShiftReport(routeParams.shiftId);
     getShiftReportDetails({ shift_report: routeParams.shiftId });
+
+    return () => {
+      dispatch(clearShiftReportDetailsState())
+      dispatch(clearShiftReportState())
+      dispatch(clearProjectWorksState())
+    }
   }, []);
 
-  const shiftReportData = useSelector(
-    (state: IState) => state.pages.shiftReport.data
-  );
+  const shiftReportData = useSelector(getShiftReportData);
+
+  React.useEffect(() => {
+    getProjectWorks(shiftReportData?.project)
+  }, [shiftReportData?.project]);
 
   const worksData = useSelector((state: IState) =>
     getWorksByProjectId(state, shiftReportData?.project)
@@ -255,6 +280,7 @@ export const ShiftReport = () => {
     (state: IState) => state.pages.shiftReportDetails.loading
   );
 
+  const footer = React.useCallback(() => { return `Итого по отчету: ${shiftReportDetailsData.reduce((acc: number, val) => { return acc = val.summ }, 0)} руб.` }, [shiftReportDetailsData])
   return (
     <>
       <Breadcrumb
@@ -265,12 +291,12 @@ export const ShiftReport = () => {
           {
             title: <Link to="/shifts">Смены</Link>,
           },
-          { title: shiftReportData?.number.toString().padStart(5, "0") },
+          { title: `Смена № ${shiftReportData?.number.toString().padStart(5, "0")}` },
         ]}
       />
       {isLoaded &&
-      shiftReportData &&
-      routeParams.shiftId === shiftReportData.shift_report_id ? (
+        shiftReportData &&
+        routeParams.shiftId === shiftReportData.shift_report_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -331,6 +357,7 @@ export const ShiftReport = () => {
 
           <Form form={form} component={false}>
             <Table
+              bordered
               components={{
                 body: {
                   cell: EditableCell,
@@ -339,6 +366,7 @@ export const ShiftReport = () => {
               dataSource={dataSource}
               columns={mergedColumns}
               loading={isLoading}
+              footer={footer}
             />
           </Form>
         </Content>

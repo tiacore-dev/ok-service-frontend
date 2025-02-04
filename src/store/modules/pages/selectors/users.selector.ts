@@ -10,3 +10,8 @@ export const getUsersMap = createSelector(
     return map;
   }
 );
+
+export const getUsersState = createSelector(
+  [(state: IState) => state.pages.users],
+  (users) => users
+);

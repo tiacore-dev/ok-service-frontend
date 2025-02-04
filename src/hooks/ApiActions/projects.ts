@@ -11,13 +11,14 @@ import {
 } from "../../store/modules/pages/project.state";
 import { IProject } from "../../interfaces/projects/IProject";
 import { IProjectsList } from "../../interfaces/projects/IProjectsList";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { editProjectAction } from "../../store/modules/editableEntities/editableProject";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
+import { getProjectsState } from "../../store/modules/pages/selectors/projects.selector";
 
-export interface IEditableProject extends Omit<IProject, "project_id"> {}
+export interface IEditableProject extends Omit<IProject, "project_id"> { }
 
 export const useProjects = () => {
   const dispatch = useDispatch();
@@ -25,20 +26,25 @@ export const useProjects = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
+  const projectsState = useSelector(getProjectsState)
+
   const getProjects = () => {
-    dispatch(getProjectsRequest());
-    apiGet<{ projects: IProjectsList[] }>("projects", "all")
-      .then((projectsData) => {
-        dispatch(getProjectsSuccess(projectsData.projects));
-      })
-      .catch((err) => {
-        dispatch(getProjectsFailure(err));
-        notificationApi.error({
-          message: `Ошибка`,
-          description: "Возникла ошибка при получении списка спецификаций",
-          placement: "bottomRight",
+    console.log(projectsState)
+    if (!projectsState.loaded && !projectsState.loading) {
+      dispatch(getProjectsRequest());
+      apiGet<{ projects: IProjectsList[] }>("projects", "all")
+        .then((projectsData) => {
+          dispatch(getProjectsSuccess(projectsData.projects));
+        })
+        .catch((err) => {
+          dispatch(getProjectsFailure(err));
+          notificationApi.error({
+            message: `Ошибка`,
+            description: "Возникла ошибка при получении списка спецификаций",
+            placement: "bottomRight",
+          });
         });
-      });
+    }
   };
 
   const getProject = (projectId: string) => {

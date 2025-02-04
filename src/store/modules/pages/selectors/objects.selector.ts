@@ -10,3 +10,8 @@ export const getObjectsMap = createSelector(
     return map;
   }
 );
+
+export const getObjectsState = createSelector(
+  [(state: IState) => state.pages.objects],
+  (objects) => objects
+);

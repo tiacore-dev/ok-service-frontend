@@ -18,7 +18,13 @@ export const getWorksByProjectId = createSelector(
   }
 );
 
-export const getAllWorks = createSelector(
+
+export const getWorksState = createSelector(
+  [(state: IState) => state.pages.works],
+  (works) => works
+);
+
+export const getWorksData = createSelector(
   [(state: IState) => state.pages.works.data],
   (works) => works
 );

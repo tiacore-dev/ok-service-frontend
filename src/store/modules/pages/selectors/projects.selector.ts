@@ -10,3 +10,8 @@ export const getProjectsMap = createSelector(
     return map;
   }
 );
+
+export const getProjectsState = createSelector(
+  [(state: IState) => state.pages.projects],
+  (projects) => projects
+);

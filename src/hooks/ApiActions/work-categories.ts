@@ -4,34 +4,40 @@ import {
   getWorkCategoriesSuccess,
 } from "../../store/modules/pages/work-categories.state";
 import { useApi } from "../useApi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
 import { IWorkCategory } from "../../interfaces/workCategories/IWorkCategory";
 import { IWorkCategoriesList } from "../../interfaces/workCategories/IWorkCategoriesList";
+import { getWorkCategoriesState } from "../../store/modules/pages/selectors/work-categories.selector";
 
 export interface IEditableWorkCategory
-  extends Omit<IWorkCategory, "work_category_id"> {}
+  extends Omit<IWorkCategory, "work_category_id"> { }
 
 export const useWorkCategories = () => {
   const dispatch = useDispatch();
   const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
   const notificationApi = useContext(NotificationContext);
 
+  const workCategoriesState = useSelector(getWorkCategoriesState)
+
   const getWorkCategories = () => {
-    dispatch(getWorkCategoriesRequest());
-    apiGet<{ work_categories: IWorkCategoriesList[] }>("work_categories", "all")
-      .then((workCategoriesData) => {
-        dispatch(getWorkCategoriesSuccess(workCategoriesData.work_categories));
-      })
-      .catch((err) => {
-        dispatch(getWorkCategoriesFailure(err));
-        notificationApi.error({
-          message: `Ошибка`,
-          description: "Возникла ошибка при получении списка категорий работ",
-          placement: "bottomRight",
+    if (!workCategoriesState.loaded && !workCategoriesState.loading) {
+
+      dispatch(getWorkCategoriesRequest());
+      apiGet<{ work_categories: IWorkCategoriesList[] }>("work_categories", "all")
+        .then((workCategoriesData) => {
+          dispatch(getWorkCategoriesSuccess(workCategoriesData.work_categories));
+        })
+        .catch((err) => {
+          dispatch(getWorkCategoriesFailure(err));
+          notificationApi.error({
+            message: `Ошибка`,
+            description: "Возникла ошибка при получении списка категорий работ",
+            placement: "bottomRight",
+          });
         });
-      });
+    }
   };
 
   const createWorkCategory = (

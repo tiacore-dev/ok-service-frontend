@@ -11,11 +11,12 @@ import {
 } from "../../store/modules/pages/work.state";
 import { IWork } from "../../interfaces/works/IWork";
 import { IWorksList } from "../../interfaces/works/IWorksList";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
 import { editWorkAction } from "../../store/modules/editableEntities/editableWork";
 import { useNavigate } from "react-router-dom";
+import { getWorksState } from "../../store/modules/pages/selectors/works.selector";
 
 export interface IEditableWork extends Omit<IWork, "work_id" | "category"> {
   category: string;
@@ -27,20 +28,25 @@ export const useWorks = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
+  const worksState = useSelector(getWorksState)
+
   const getWorks = () => {
-    dispatch(getWorksRequest());
-    apiGet<{ works: IWorksList[] }>("works", "all")
-      .then((worksData) => {
-        dispatch(getWorksSuccess(worksData.works));
-      })
-      .catch((err) => {
-        dispatch(getWorksFailure(err));
-        notificationApi.error({
-          message: `Ошибка`,
-          description: "Возникла ошибка при получении списка работ",
-          placement: "bottomRight",
+    if (!worksState.loaded && !worksState.loading) {
+
+      dispatch(getWorksRequest());
+      apiGet<{ works: IWorksList[] }>("works", "all")
+        .then((worksData) => {
+          dispatch(getWorksSuccess(worksData.works));
+        })
+        .catch((err) => {
+          dispatch(getWorksFailure(err));
+          notificationApi.error({
+            message: `Ошибка`,
+            description: "Возникла ошибка при получении списка работ",
+            placement: "bottomRight",
+          });
         });
-      });
+    }
   };
 
   const getWork = (workId: string) => {

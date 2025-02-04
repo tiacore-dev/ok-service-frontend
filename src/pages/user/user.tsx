@@ -8,15 +8,16 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { EditableUserDialog } from "../../components/ActionDialogs/EditableUserDialog/EditableUserDialog";
-import { IRole } from "../../interfaces/roles/IRole";
 import {
-  getRoles,
   getRolesMap,
 } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
 import { Link } from "react-router-dom";
+import { clearUserState } from "../../store/modules/pages/user.state";
 
 export const User = () => {
+  const dispatch = useDispatch();
+
   const { Content } = Layout;
   const rolesMap = useSelector(getRolesMap);
   const routeParams = useParams();
@@ -24,6 +25,10 @@ export const User = () => {
 
   React.useEffect(() => {
     getUser(routeParams.userId);
+
+    return () => {
+      dispatch(clearUserState())
+    }
   }, []);
 
   const userData = useSelector((state: IState) => state.pages.user.data);

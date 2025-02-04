@@ -1,7 +1,7 @@
 import { Breadcrumb, Layout, Table } from "antd";
 import * as React from "react";
 import { shiftReportsDesktopColumns } from "./components/desktop.columns";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { Filters } from "./components/filters";
 import "./shift-reports.page.less";
@@ -14,6 +14,10 @@ import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
+import { useUsers } from "../../hooks/ApiActions/users";
+import { useProjects } from "../../hooks/ApiActions/projects";
+import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
+import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
@@ -21,12 +25,20 @@ export const ShiftReports = () => {
   const filters = useSelector(
     (state: IState) => state.settings.shiftReportsSettings.filters
   );
+  const dispatch = useDispatch();
 
+  const { getUsers } = useUsers();
+  const { getProjects } = useProjects();
   const { getShiftReports } = useShiftReports();
 
   React.useEffect(() => {
+    getUsers()
+    getProjects()
     getShiftReports();
-  }, [filters]);
+    return () => {
+      dispatch(clearShiftReportsState())
+    }
+  }, []);
 
   const shiftReportsData: IShiftReportsListColumn[] = useSelector(
     (state: IState) => state.pages.shiftReports.data
