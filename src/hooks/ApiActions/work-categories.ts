@@ -12,22 +12,26 @@ import { IWorkCategoriesList } from "../../interfaces/workCategories/IWorkCatego
 import { getWorkCategoriesState } from "../../store/modules/pages/selectors/work-categories.selector";
 
 export interface IEditableWorkCategory
-  extends Omit<IWorkCategory, "work_category_id"> { }
+  extends Omit<IWorkCategory, "work_category_id"> {}
 
 export const useWorkCategories = () => {
   const dispatch = useDispatch();
   const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
   const notificationApi = useContext(NotificationContext);
 
-  const workCategoriesState = useSelector(getWorkCategoriesState)
+  const workCategoriesState = useSelector(getWorkCategoriesState);
 
   const getWorkCategories = () => {
     if (!workCategoriesState.loaded && !workCategoriesState.loading) {
-
       dispatch(getWorkCategoriesRequest());
-      apiGet<{ work_categories: IWorkCategoriesList[] }>("work_categories", "all")
+      apiGet<{ work_categories: IWorkCategoriesList[] }>(
+        "work_categories",
+        "all"
+      )
         .then((workCategoriesData) => {
-          dispatch(getWorkCategoriesSuccess(workCategoriesData.work_categories));
+          dispatch(
+            getWorkCategoriesSuccess(workCategoriesData.work_categories)
+          );
         })
         .catch((err) => {
           dispatch(getWorkCategoriesFailure(err));
@@ -35,6 +39,7 @@ export const useWorkCategories = () => {
             message: `Ошибка`,
             description: "Возникла ошибка при получении списка категорий работ",
             placement: "bottomRight",
+            duration: 2,
           });
         });
     }
@@ -54,6 +59,7 @@ export const useWorkCategories = () => {
           message: `Успешно`,
           description: "Категория работ создана",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -62,6 +68,7 @@ export const useWorkCategories = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании категории работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -82,6 +89,7 @@ export const useWorkCategories = () => {
           message: `Успешно`,
           description: "Категория работ изменена",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -90,6 +98,7 @@ export const useWorkCategories = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении категории работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -101,6 +110,7 @@ export const useWorkCategories = () => {
           message: `Успешно`,
           description: "Категория работ удалена",
           placement: "bottomRight",
+          duration: 2,
         });
         getWorkCategories();
       })
@@ -110,6 +120,7 @@ export const useWorkCategories = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении категории работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };

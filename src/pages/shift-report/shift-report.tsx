@@ -18,7 +18,6 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
 import { EditableShiftReportDialog } from "../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
-// import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
@@ -36,10 +35,16 @@ import { useProjects } from "../../hooks/ApiActions/projects";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
-import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import {
+  CheckCircleTwoTone,
+  CloseCircleTwoTone,
+  DeleteTwoTone,
+  EditTwoTone,
+} from "@ant-design/icons";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { RoleId } from "../../interfaces/roles/IRole";
-import { getCurrentRole } from "../../store/modules/auth";
+import { getCurrentCategory, getCurrentRole } from "../../store/modules/auth";
+import { useWorkPrices } from "../../hooks/ApiActions/work-prices";
 
 export const ShiftReport = () => {
   const [form] = Form.useForm<IShiftReportDetailsListColumn>();
@@ -64,33 +69,36 @@ export const ShiftReport = () => {
   const { getProjects } = useProjects();
   const { getWorks } = useWorks();
   const { getProjectWorks } = useProjectWorks();
-
+  const { calculateWorkPrice } = useWorkPrices();
+  const currentCategory = useSelector(getCurrentCategory);
   const usersMap = useSelector(getUsersMap);
   const projectsMap = useSelector(getProjectsMap);
 
   const routeParams = useParams();
-  const { getShiftReport, deleteShiftReport } = useShiftReports();
+  const { getShiftReport, editShiftReport, deleteShiftReport } =
+    useShiftReports();
 
   React.useEffect(() => {
-    getProjects()
-    getUsers()
-    getWorks()
+    getProjects();
+    getUsers();
+    getWorks();
     getShiftReport(routeParams.shiftId);
     getShiftReportDetails({ shift_report: routeParams.shiftId });
 
     return () => {
-      dispatch(clearShiftReportDetailsState())
-      dispatch(clearShiftReportState())
-      dispatch(clearProjectWorksState())
-    }
+      dispatch(clearShiftReportDetailsState());
+      dispatch(clearShiftReportState());
+      dispatch(clearProjectWorksState());
+    };
   }, []);
 
   const shiftReportData = useSelector(getShiftReportData);
 
-  const canEdit: boolean = currentRole !== RoleId.USER || !shiftReportData?.signed
+  const canEdit: boolean =
+    currentRole !== RoleId.USER || !shiftReportData?.signed;
 
   React.useEffect(() => {
-    getProjectWorks(shiftReportData?.project)
+    getProjectWorks(shiftReportData?.project);
   }, [shiftReportData?.project]);
 
   const worksData = useSelector((state: IState) =>
@@ -160,11 +168,15 @@ export const ShiftReport = () => {
 
       if (index > -1) {
         const item = newData[index];
+        const price = await calculateWorkPrice({
+          work: rowData.work,
+          category: currentCategory,
+        });
         const row = {
           ...rowData,
           quantity: Number(rowData.quantity),
           shift_report: shiftReportData.shift_report_id,
-          summ: Number(rowData.summ),
+          summ: price * Number(rowData.quantity),
         };
 
         if (isCreating(item)) {
@@ -227,8 +239,7 @@ export const ShiftReport = () => {
       inputType: "number",
       dataIndex: "summ",
       key: "summ",
-      editable: true,
-      required: true,
+      editable: false,
     },
     {
       title: "Действия",
@@ -244,16 +255,26 @@ export const ShiftReport = () => {
               style={{ marginRight: 8 }}
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
-            <Button icon={<CloseCircleTwoTone twoToneColor="#e40808" />} onClick={cancel}></Button>
+            <Button
+              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
+              onClick={cancel}
+            ></Button>
           </span>
         ) : (
           <Space>
-            <Button icon={<EditTwoTone twoToneColor="#e40808" />} type="link" onClick={() => edit(record)} />
+            <Button
+              icon={<EditTwoTone twoToneColor="#e40808" />}
+              type="link"
+              onClick={() => edit(record)}
+            />
             <Popconfirm
               title="Удалить?"
               onConfirm={() => handleDelete(record.key)}
             >
-              <Button icon={<DeleteTwoTone twoToneColor="#e40808" />} type="link" />
+              <Button
+                icon={<DeleteTwoTone twoToneColor="#e40808" />}
+                type="link"
+              />
             </Popconfirm>
           </Space>
         );
@@ -283,7 +304,22 @@ export const ShiftReport = () => {
     (state: IState) => state.pages.shiftReportDetails.loading
   );
 
-  const footer = React.useCallback(() => { return `Итого по отчету: ${shiftReportDetailsData.reduce((acc: number, val) => { return acc = acc + val.summ }, 0)} руб.` }, [shiftReportDetailsData])
+  const footer = React.useCallback(() => {
+    return `Итого по отчету: ${shiftReportDetailsData.reduce(
+      (acc: number, val) => {
+        return (acc = acc + val.summ);
+      },
+      0
+    )} руб.`;
+  }, [shiftReportDetailsData]);
+
+  const handleOnSign = React.useCallback(() => {
+    editShiftReport(shiftReportData.shift_report_id, {
+      ...shiftReportData,
+      signed: true,
+    });
+  }, [shiftReportData]);
+
   return (
     <>
       <Breadcrumb
@@ -294,12 +330,14 @@ export const ShiftReport = () => {
           {
             title: <Link to="/shifts">Смены</Link>,
           },
-          { title: `Смена № ${shiftReportData?.number.toString().padStart(5, "0")}` },
+          {
+            title: `Смена № ${shiftReportData?.number?.toString().padStart(5, "0")}`,
+          },
         ]}
       />
       {isLoaded &&
-        shiftReportData &&
-        routeParams.shiftId === shiftReportData.shift_report_id ? (
+      shiftReportData &&
+      routeParams.shiftId === shiftReportData.shift_report_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -310,21 +348,22 @@ export const ShiftReport = () => {
         >
           <Title
             level={3}
-          >{`Отчет по смене № ${shiftReportData.number.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
-          <Space
-            direction={"horizontal"}
-            size="small"
-          >
-            {canEdit && <EditableShiftReportDialog shiftReport={shiftReportData} />}
-            {canEdit && <DeleteShiftReportDialog
-              onDelete={() => {
-                deleteShiftReport(shiftReportData.shift_report_id);
-              }}
-              number={shiftReportData.number}
-            />}
+          >{`Отчет по смене № ${shiftReportData.number?.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
+          <Space direction={"horizontal"} size="small">
+            {canEdit && (
+              <EditableShiftReportDialog shiftReport={shiftReportData} />
+            )}
+            {canEdit && (
+              <DeleteShiftReportDialog
+                onDelete={() => {
+                  deleteShiftReport(shiftReportData.shift_report_id);
+                }}
+                number={shiftReportData.number}
+              />
+            )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
-            <p>Номер: {shiftReportData.number.toString().padStart(5, "0")}</p>
+            <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
             <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
             <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
             <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
@@ -332,23 +371,27 @@ export const ShiftReport = () => {
             <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
             {!shiftReportData?.signed && currentRole !== RoleId.USER && (
               <div>
-                <Button type="primary">Согласовано</Button>
+                <Button onClick={handleOnSign} type="primary">
+                  Согласовано
+                </Button>
               </div>
             )}
           </Card>
 
-          {canEdit && <Space
-            direction={isMobile() ? "vertical" : "horizontal"}
-            className="shift-reports_filters"
-          >
-            <Button
-              onClick={handleAdd}
-              type="primary"
-              style={{ marginBottom: 16 }}
+          {canEdit && (
+            <Space
+              direction={isMobile() ? "vertical" : "horizontal"}
+              className="shift-reports_filters"
             >
-              Добавить запись отчета по смене
-            </Button>
-          </Space>}
+              <Button
+                onClick={handleAdd}
+                type="primary"
+                style={{ marginBottom: 16 }}
+              >
+                Добавить запись отчета по смене
+              </Button>
+            </Space>
+          )}
 
           <Form form={form} component={false}>
             <Table

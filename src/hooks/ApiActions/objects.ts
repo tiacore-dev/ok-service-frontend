@@ -18,7 +18,7 @@ import { useContext } from "react";
 import { NotificationContext } from "../../../root";
 import { getObjectsState } from "../../store/modules/pages/selectors/objects.selector";
 
-export interface IEditableObject extends Omit<IObject, "object_id"> { }
+export interface IEditableObject extends Omit<IObject, "object_id"> {}
 
 export const useObjects = () => {
   const dispatch = useDispatch();
@@ -41,6 +41,7 @@ export const useObjects = () => {
             message: `Ошибка`,
             description: "Возникла ошибка при получении списка объектов",
             placement: "bottomRight",
+            duration: 2,
           });
         });
     }
@@ -58,6 +59,7 @@ export const useObjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при получении объекта",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -73,6 +75,7 @@ export const useObjects = () => {
           message: `Успешно`,
           description: "Объект создан",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -82,6 +85,7 @@ export const useObjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании объекта",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -100,6 +104,7 @@ export const useObjects = () => {
           message: `Успешно`,
           description: "Объект изменен",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -109,6 +114,7 @@ export const useObjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении объекта",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -120,6 +126,7 @@ export const useObjects = () => {
           message: `Успешно`,
           description: "Объект удалён",
           placement: "bottomRight",
+          duration: 2,
         });
         navigate("/objects");
         getObjects();
@@ -130,6 +137,7 @@ export const useObjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении объекта",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };

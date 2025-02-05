@@ -30,7 +30,6 @@ export const useUsers = () => {
 
   const usersState = useSelector(getUsersState);
 
-
   const getUsers = () => {
     if (!usersState.loaded && !usersState.loading) {
       dispatch(getUsersRequest());
@@ -44,6 +43,7 @@ export const useUsers = () => {
             message: `Ошибка`,
             description: "Возникла ошибка при получении списка пользователей",
             placement: "bottomRight",
+            duration: 2,
           });
         });
     }
@@ -61,6 +61,7 @@ export const useUsers = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при получении пользователя",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -76,6 +77,7 @@ export const useUsers = () => {
           message: `Успешно`,
           description: "Объект создан",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -85,6 +87,7 @@ export const useUsers = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании объекта",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -100,6 +103,7 @@ export const useUsers = () => {
           message: `Успешно`,
           description: "Пользователь изменен",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -109,6 +113,7 @@ export const useUsers = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении пользователя",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -120,6 +125,7 @@ export const useUsers = () => {
           message: `Успешно`,
           description: "Пользователь удалён",
           placement: "bottomRight",
+          duration: 2,
         });
         navigate("/users");
         getUsers();
@@ -130,6 +136,7 @@ export const useUsers = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении пользователя",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };

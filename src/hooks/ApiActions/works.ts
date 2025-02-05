@@ -28,11 +28,10 @@ export const useWorks = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
-  const worksState = useSelector(getWorksState)
+  const worksState = useSelector(getWorksState);
 
   const getWorks = () => {
     if (!worksState.loaded && !worksState.loading) {
-
       dispatch(getWorksRequest());
       apiGet<{ works: IWorksList[] }>("works", "all")
         .then((worksData) => {
@@ -44,6 +43,7 @@ export const useWorks = () => {
             message: `Ошибка`,
             description: "Возникла ошибка при получении списка работ",
             placement: "bottomRight",
+            duration: 2,
           });
         });
     }
@@ -61,6 +61,7 @@ export const useWorks = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при получении работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -76,6 +77,7 @@ export const useWorks = () => {
           message: `Успешно`,
           description: "Работа создана",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -85,6 +87,7 @@ export const useWorks = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -100,6 +103,7 @@ export const useWorks = () => {
           message: `Успешно`,
           description: "Работа изменена",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -109,6 +113,7 @@ export const useWorks = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -120,6 +125,7 @@ export const useWorks = () => {
           message: `Успешно`,
           description: "Работа удалена",
           placement: "bottomRight",
+          duration: 2,
         });
         navigate("/works");
         getWorks();
@@ -130,6 +136,7 @@ export const useWorks = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };

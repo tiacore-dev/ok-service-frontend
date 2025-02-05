@@ -11,14 +11,17 @@ import {
 } from "../../store/modules/pages/project.state";
 import { IProject } from "../../interfaces/projects/IProject";
 import { IProjectsList } from "../../interfaces/projects/IProjectsList";
-import { useDispatch, useSelector } from "react-redux";
+import {
+  useDispatch,
+  // , useSelector
+} from "react-redux";
 import { editProjectAction } from "../../store/modules/editableEntities/editableProject";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
-import { getProjectsState } from "../../store/modules/pages/selectors/projects.selector";
+// import { getProjectsState } from "../../store/modules/pages/selectors/projects.selector";
 
-export interface IEditableProject extends Omit<IProject, "project_id"> { }
+export interface IEditableProject extends Omit<IProject, "project_id"> {}
 
 export const useProjects = () => {
   const dispatch = useDispatch();
@@ -26,24 +29,25 @@ export const useProjects = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
-  const projectsState = useSelector(getProjectsState)
+  // const projectsState = useSelector(getProjectsState);
 
   const getProjects = () => {
-    if (!projectsState.loaded && !projectsState.loading) {
-      dispatch(getProjectsRequest());
-      apiGet<{ projects: IProjectsList[] }>("projects", "all")
-        .then((projectsData) => {
-          dispatch(getProjectsSuccess(projectsData.projects));
-        })
-        .catch((err) => {
-          dispatch(getProjectsFailure(err));
-          notificationApi.error({
-            message: `Ошибка`,
-            description: "Возникла ошибка при получении списка спецификаций",
-            placement: "bottomRight",
-          });
+    // if (!projectsState.loaded && !projectsState.loading) {
+    dispatch(getProjectsRequest());
+    apiGet<{ projects: IProjectsList[] }>("projects", "all")
+      .then((projectsData) => {
+        dispatch(getProjectsSuccess(projectsData.projects));
+      })
+      .catch((err) => {
+        dispatch(getProjectsFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении списка спецификаций",
+          placement: "bottomRight",
+          duration: 2,
         });
-    }
+      });
+    // }
   };
 
   const getProject = (projectId: string) => {
@@ -58,6 +62,7 @@ export const useProjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при получении спецификации",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -73,6 +78,7 @@ export const useProjects = () => {
           message: `Успешно`,
           description: "Спецификация создана",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -82,6 +88,7 @@ export const useProjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании спецификации",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -100,6 +107,7 @@ export const useProjects = () => {
           message: `Успешно`,
           description: "Спецификация изменена",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -109,6 +117,7 @@ export const useProjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении спецификации",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -120,6 +129,7 @@ export const useProjects = () => {
           message: `Успешно`,
           description: "Спецификация удалена",
           placement: "bottomRight",
+          duration: 2,
         });
         navigate("/projects");
         getProjects();
@@ -130,6 +140,7 @@ export const useProjects = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении спецификации",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };

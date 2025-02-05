@@ -34,8 +34,44 @@ export const useWorkPrices = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при получении списка цен работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
+  };
+
+  const calculateWorkPrice = async ({
+    work,
+    category,
+  }: {
+    work: string;
+    category: number;
+  }) => {
+    try {
+      const workPricesData = await apiGet<{ work_prices: IWorkPricesList[] }>(
+        "work_prices",
+        "all",
+        undefined,
+        { work, category }
+      );
+
+      if (
+        workPricesData &&
+        workPricesData.work_prices &&
+        workPricesData.work_prices.length
+      ) {
+        return workPricesData.work_prices[0].price;
+      } else {
+        return 0;
+      }
+    } catch (err) {
+      notificationApi.error({
+        message: `Ошибка`,
+        description: "Возникла ошибка при расчете цены работы",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      return 0;
+    }
   };
 
   const createWorkPrice = (createbleWorkPriceData: IEditableWorkPrice) => {
@@ -46,6 +82,7 @@ export const useWorkPrices = () => {
           message: `Успешно`,
           description: "Цена работ создана",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -54,6 +91,7 @@ export const useWorkPrices = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании цены работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -69,6 +107,7 @@ export const useWorkPrices = () => {
           message: `Успешно`,
           description: "Цена работ изменена",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -77,6 +116,7 @@ export const useWorkPrices = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении цены работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -88,6 +128,7 @@ export const useWorkPrices = () => {
           message: `Успешно`,
           description: "Цена работ удалена",
           placement: "bottomRight",
+          duration: 2,
         });
         getWorkPrices({ work: work_id });
       })
@@ -97,6 +138,7 @@ export const useWorkPrices = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении цены работы",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -106,5 +148,6 @@ export const useWorkPrices = () => {
     createWorkPrice,
     editWorkPrice,
     deleteWorkPrice,
+    calculateWorkPrice,
   };
 };

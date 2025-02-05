@@ -38,6 +38,7 @@ export const useShiftReports = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при получении списка отчетов по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -57,6 +58,7 @@ export const useShiftReports = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при получении отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -74,6 +76,7 @@ export const useShiftReports = () => {
           message: `Успешно`,
           description: "Отчет по смене создан",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -83,29 +86,30 @@ export const useShiftReports = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
 
   const editShiftReport = (
-    shiftReport_id: string,
+    shift_report_id: string,
     editableShiftReportData: IEditableShiftReport
   ) => {
     dispatch(editShiftReportAction.sendShiftReport());
 
     apiPatch<{}>(
       "shift_reports",
-      shiftReport_id,
+      shift_report_id,
       "edit",
       editableShiftReportData
     )
-      .then(() => {
-        navigate("/shiftReports");
-        getShiftReports();
+      .then((response: { shift_report_id: string }) => {
+        getShiftReport(response.shift_report_id);
         notificationApi.success({
           message: `Успешно`,
           description: "Отчет по смене изменён",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -115,6 +119,7 @@ export const useShiftReports = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -126,6 +131,7 @@ export const useShiftReports = () => {
           message: `Успешно`,
           description: "Отчет по смене удалён",
           placement: "bottomRight",
+          duration: 2,
         });
         navigate("/shifts");
         getShiftReports();
@@ -136,6 +142,7 @@ export const useShiftReports = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };

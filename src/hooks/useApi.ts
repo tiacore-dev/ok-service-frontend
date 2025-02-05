@@ -86,7 +86,7 @@ export const useApi = () => {
     templateName: string,
     methodName: string,
     access_token?: string,
-    params?: Record<string, string>
+    params?: Record<string, string | number>
   ): Promise<R> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",

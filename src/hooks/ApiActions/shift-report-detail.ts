@@ -40,6 +40,7 @@ export const useShiftReportDetails = () => {
           description:
             "Возникла ошибка при получении списка записей отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -58,6 +59,7 @@ export const useShiftReportDetails = () => {
           message: `Успешно`,
           description: "Запись отчета по смене создана",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -66,6 +68,7 @@ export const useShiftReportDetails = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при создании записи отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -86,6 +89,7 @@ export const useShiftReportDetails = () => {
           message: `Успешно`,
           description: "Запись отчета по смене изменена",
           placement: "bottomRight",
+          duration: 2,
         });
       })
       .catch((err) => {
@@ -94,6 +98,7 @@ export const useShiftReportDetails = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при изменении записи отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };
@@ -108,6 +113,7 @@ export const useShiftReportDetails = () => {
           message: `Успешно`,
           description: "Запись отчета по смене удалена",
           placement: "bottomRight",
+          duration: 2,
         });
         getShiftReportDetails({ work: work_id });
       })
@@ -117,6 +123,7 @@ export const useShiftReportDetails = () => {
           message: `Ошибка`,
           description: "Возникла ошибка при удалении записи отчета по смене",
           placement: "bottomRight",
+          duration: 2,
         });
       });
   };

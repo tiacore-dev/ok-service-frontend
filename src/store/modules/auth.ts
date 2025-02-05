@@ -8,7 +8,7 @@ export interface IAuthState extends IUser {
   isAuth: boolean;
 }
 
-export interface IAuthLoginPayload extends Omit<IAuthState, "isAuth"> { }
+export interface IAuthLoginPayload extends Omit<IAuthState, "isAuth"> {}
 
 const initialState: IAuthState = {
   isAuth: false,
@@ -59,8 +59,17 @@ export const { authlogin, authlogout, refreshToken } = authSlice.actions;
 
 export const auth = authSlice.reducer;
 
-export const getCurrentUserId = createSelector([(state: IState) => state.auth.user_id],
-  (user_id) => user_id)
+export const getCurrentUserId = createSelector(
+  [(state: IState) => state.auth.user_id],
+  (user_id) => user_id
+);
 
-export const getCurrentRole = createSelector([(state: IState) => state.auth.role],
-  (role) => role)
+export const getCurrentRole = createSelector(
+  [(state: IState) => state.auth.role],
+  (role) => role
+);
+
+export const getCurrentCategory = createSelector(
+  [(state: IState) => state.auth.category],
+  (category) => category
+);
