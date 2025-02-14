@@ -13,4 +13,4 @@ services:
 
 networks:
   ok_network:
-    exteral: true
+    external: true
