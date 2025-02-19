@@ -110,7 +110,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
 
             <Form.Item label="Менеджер">
               <Select
-                value={data.status}
+                value={data.manager}
                 onChange={(value: string) =>
                   dispatch(editObjectAction.setManager(value))
                 }
