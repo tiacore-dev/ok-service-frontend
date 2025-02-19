@@ -58,6 +58,13 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
     }
   }, [object, dispatch]);
 
+  const userMap = useSelector((state: IState) => state.pages.users.data).map(
+    (el) => ({
+      label: el.name,
+      value: el.user_id,
+    })
+  );
+
   return (
     <ActionDialog
       modalOkText="Сохранить"
@@ -97,6 +104,17 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 onChange={(event) =>
                   dispatch(editObjectAction.setDescription(event.target.value))
                 }
+                disabled={sent}
+              />
+            </Form.Item>
+
+            <Form.Item label="Менеджер">
+              <Select
+                value={data.status}
+                onChange={(value: string) =>
+                  dispatch(editObjectAction.setManager(value))
+                }
+                options={userMap}
                 disabled={sent}
               />
             </Form.Item>

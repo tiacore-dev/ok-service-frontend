@@ -6,5 +6,6 @@ export interface IObject {
   address: string;
   description: string;
   status: ObjectStatusId;
+  manager: string;
   deleted?: boolean;
 }

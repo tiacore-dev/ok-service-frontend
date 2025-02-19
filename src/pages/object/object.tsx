@@ -13,17 +13,19 @@ import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors
 import { Link } from "react-router-dom";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 
 export const Object = () => {
   const { Content } = Layout;
   const objectStatusesMap = useSelector(getObjectStatusesMap);
   const routeParams = useParams();
   const { getObject, deleteObject } = useObjects();
+  const usersMap = useSelector(getUsersMap);
 
   React.useEffect(() => {
     getObject(routeParams.objectId);
   }, []);
-  const currentRole = useSelector(getCurrentRole)
+  const currentRole = useSelector(getCurrentRole);
   const objectData = useSelector((state: IState) => state.pages.object.data);
   const isLoaded = useSelector((state: IState) => state.pages.object.loaded);
 
@@ -41,8 +43,8 @@ export const Object = () => {
         ]}
       />
       {isLoaded &&
-        objectData &&
-        routeParams.objectId === objectData.object_id ? (
+      objectData &&
+      routeParams.objectId === objectData.object_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -56,18 +58,23 @@ export const Object = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            {currentRole === RoleId.ADMIN && <EditableObjectDialog object={objectData} />}
-            {currentRole === RoleId.ADMIN && <DeleteObjectDialog
-              onDelete={() => {
-                deleteObject(objectData.object_id);
-              }}
-              name={objectData.name}
-            />}
+            {currentRole === RoleId.ADMIN && (
+              <EditableObjectDialog object={objectData} />
+            )}
+            {currentRole === RoleId.ADMIN && (
+              <DeleteObjectDialog
+                onDelete={() => {
+                  deleteObject(objectData.object_id);
+                }}
+                name={objectData.name}
+              />
+            )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {objectData.name}</p>
             <p>Адрес: {objectData.address}</p>
             <p>Описание: {objectData.description}</p>
+            <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
             <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>
           </Card>
         </Content>

@@ -13,6 +13,7 @@ import { IObjectsListColumn } from "../../interfaces/objects/IObjectsList";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import { Link } from "react-router-dom";
+import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -33,12 +34,13 @@ export const Objects = () => {
 
   const isLoading = useSelector((state: IState) => state.pages.objects.loading);
   const statusMap = useSelector(getObjectStatusesMap);
+  const usersMap = useSelector(getUsersMap);
 
   const columns = React.useMemo(
     () =>
       isMobile()
         ? objectsMobileColumns(navigate, statusMap)
-        : objectsDesktopColumns(navigate, statusMap),
+        : objectsDesktopColumns(navigate, statusMap, usersMap),
     [navigate]
   );
   return (

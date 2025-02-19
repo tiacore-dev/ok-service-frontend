@@ -12,6 +12,7 @@ const initialState: IEditableObjectState = {
   name: "",
   address: "",
   description: "",
+  manager: "",
   status: ObjectStatusId.EXPIRED,
 };
 
@@ -24,6 +25,7 @@ const setObjectData = (
   state.address = objectData.address;
   state.description = objectData.description;
   state.status = objectData.status;
+  state.manager = objectData.manager;
   state.sent = false;
 };
 
@@ -58,6 +60,10 @@ const editableObjectSlice = createSlice({
       action: { payload: ObjectStatusId }
     ) => {
       state.status = action.payload;
+    },
+
+    setManager: (state: IEditableObjectState, action: { payload: string }) => {
+      state.manager = action.payload;
     },
 
     sendObject: (state: IEditableObjectState) => {
