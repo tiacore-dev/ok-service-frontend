@@ -58,12 +58,12 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
     }
   }, [object, dispatch]);
 
-  const userMap = useSelector((state: IState) => state.pages.users.data).map(
-    (el) => ({
+  const userMap = useSelector((state: IState) => state.pages.users.data)
+    .filter((user) => user.role === "manager")
+    .map((el) => ({
       label: el.name,
       value: el.user_id,
-    })
-  );
+    }));
 
   return (
     <ActionDialog

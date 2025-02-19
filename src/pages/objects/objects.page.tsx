@@ -14,6 +14,7 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { useUsers } from "../../hooks/ApiActions/users";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -23,9 +24,11 @@ export const Objects = () => {
   );
 
   const { getObjects } = useObjects();
+  const { getUsers } = useUsers();
 
   React.useEffect(() => {
     getObjects();
+    getUsers();
   }, [filters]);
 
   const objectsData: IObjectsListColumn[] = useSelector(
