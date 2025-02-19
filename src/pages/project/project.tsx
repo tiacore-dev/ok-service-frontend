@@ -30,11 +30,14 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { clearProjectState } from "../../store/modules/pages/project.state";
 import { useWorks } from "../../hooks/ApiActions/works";
-import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
-import { ColumnsType } from "antd/es/table";
+import {
+  CheckCircleTwoTone,
+  CloseCircleTwoTone,
+  DeleteTwoTone,
+  EditTwoTone,
+} from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
-
 
 export const Project = () => {
   const { Content } = Layout;
@@ -46,7 +49,7 @@ export const Project = () => {
   const [dataSource, setDataSource] = React.useState<IProjectWorksListColumn[]>(
     []
   );
-  const currentRole = useSelector(getCurrentRole)
+  const currentRole = useSelector(getCurrentRole);
 
   const dispatch = useDispatch();
 
@@ -68,15 +71,15 @@ export const Project = () => {
   const { getWorks } = useWorks();
 
   React.useEffect(() => {
-    getUsers()
-    getObjects()
-    getWorks()
+    getUsers();
+    getObjects();
+    getWorks();
     getProject(routeParams.projectId);
     getProjectWorks(routeParams.projectId);
 
     return () => {
-      dispatch(clearProjectState())
-    }
+      dispatch(clearProjectState());
+    };
   }, []);
 
   const projectData = useSelector((state: IState) => state.pages.project.data);
@@ -204,6 +207,15 @@ export const Project = () => {
     },
 
     {
+      title: "Согласовано",
+      inputType: "checkbox",
+      dataIndex: "signed",
+      key: "signed",
+      editable: currentRole === RoleId.MANAGER || currentRole === RoleId.ADMIN,
+      required: false,
+    },
+
+    {
       title: "Действия",
       dataIndex: "operation",
       width: "116px",
@@ -217,16 +229,26 @@ export const Project = () => {
               style={{ marginRight: 8 }}
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
-            <Button icon={<CloseCircleTwoTone twoToneColor="#e40808" />} onClick={cancel}></Button>
+            <Button
+              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
+              onClick={cancel}
+            ></Button>
           </span>
         ) : (
           <Space>
-            <Button icon={<EditTwoTone twoToneColor="#e40808" />} type="link" onClick={() => edit(record)} />
+            <Button
+              icon={<EditTwoTone twoToneColor="#e40808" />}
+              type="link"
+              onClick={() => edit(record)}
+            />
             <Popconfirm
               title="Удалить?"
               onConfirm={() => handleDelete(record.key)}
             >
-              <Button icon={<DeleteTwoTone twoToneColor="#e40808" />} type="link" />
+              <Button
+                icon={<DeleteTwoTone twoToneColor="#e40808" />}
+                type="link"
+              />
             </Popconfirm>
           </Space>
         );
@@ -256,6 +278,24 @@ export const Project = () => {
     (state: IState) => state.pages.workPrices.loading
   );
 
+  const table = React.useMemo(
+    () => (
+      <Form form={form} component={false}>
+        <Table
+          components={{
+            body: {
+              cell: EditableCell,
+            },
+          }}
+          dataSource={dataSource}
+          columns={mergedColumns}
+          loading={isLoading}
+        />
+      </Form>
+    ),
+    [dataSource, mergedColumns, isLoading]
+  );
+
   return (
     <>
       <Breadcrumb
@@ -270,8 +310,8 @@ export const Project = () => {
         ]}
       />
       {isLoaded &&
-        projectData &&
-        routeParams.projectId === projectData.project_id ? (
+      projectData &&
+      routeParams.projectId === projectData.project_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -285,13 +325,17 @@ export const Project = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            {currentRole !== RoleId.USER && <EditableProjectDialog project={projectData} />}
-            {currentRole !== RoleId.USER && <DeleteProjectDialog
-              onDelete={() => {
-                deleteProject(projectData.project_id);
-              }}
-              name={projectData.name}
-            />}
+            {currentRole !== RoleId.USER && (
+              <EditableProjectDialog project={projectData} />
+            )}
+            {currentRole !== RoleId.USER && (
+              <DeleteProjectDialog
+                onDelete={() => {
+                  deleteProject(projectData.project_id);
+                }}
+                name={projectData.name}
+              />
+            )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {projectData.name}</p>
@@ -299,31 +343,22 @@ export const Project = () => {
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
           </Card>
 
-          {currentRole !== RoleId.USER && <Space
-            direction={isMobile() ? "vertical" : "horizontal"}
-            className="works_filters"
-          >
-            <Button
-              onClick={handleAdd}
-              type="primary"
-              style={{ marginBottom: 16 }}
+          {currentRole !== RoleId.USER && (
+            <Space
+              direction={isMobile() ? "vertical" : "horizontal"}
+              className="works_filters"
             >
-              Добавить запись в спецификацию
-            </Button>
-          </Space>}
+              <Button
+                onClick={handleAdd}
+                type="primary"
+                style={{ marginBottom: 16 }}
+              >
+                Добавить запись в спецификацию
+              </Button>
+            </Space>
+          )}
 
-          <Form form={form} component={false}>
-            <Table
-              components={{
-                body: {
-                  cell: EditableCell,
-                },
-              }}
-              dataSource={dataSource}
-              columns={mergedColumns}
-              loading={isLoading}
-            />
-          </Form>
+          {table}
         </Content>
       ) : (
         <></>

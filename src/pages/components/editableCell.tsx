@@ -1,4 +1,5 @@
-import { Form, Input, Select } from "antd";
+import { Checkbox, Form, Input, Select } from "antd";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 import * as React from "react";
 
 interface IEditableCellProps {
@@ -7,11 +8,11 @@ interface IEditableCellProps {
   title: string;
   type?: "input" | "select";
   options?: { label: string; value: string }[];
-  inputType?: "text" | "number";
+  inputType?: "text" | "number" | "checkbox";
   required?: boolean;
   record: any;
   index: number;
-  children: Array<React.ReactNode>;
+  children: Array<string | number | boolean | undefined>;
   [key: string]: any;
 }
 
@@ -30,8 +31,24 @@ export const EditableCell = ({
 }: IEditableCellProps) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Преобразуем значение в число перед сохранением
-    const value = event.target.value;
-    record[dataIndex] = inputType === "number" ? Number(value) : value;
+
+    let value;
+
+    if (inputType === "number") {
+      value = Number(event.target.value);
+    } else {
+      value = event.target.value;
+    }
+
+    record[dataIndex] = value;
+  };
+
+  const handleCheckboxChange = (event: CheckboxChangeEvent) => {
+    // Преобразуем значение в число перед сохранением
+
+    let value = event.target.checked;
+
+    record[dataIndex] = value;
   };
 
   const handleSelectChange = (value: string) => {
@@ -42,7 +59,13 @@ export const EditableCell = ({
   let inputNode;
 
   if (type === "input") {
-    inputNode = <Input onChange={handleInputChange} type={inputType} />;
+    if (inputType === "checkbox") {
+      inputNode = (
+        <Checkbox checked={record[dataIndex]} onChange={handleCheckboxChange} />
+      );
+    } else {
+      inputNode = <Input onChange={handleInputChange} type={inputType} />;
+    }
   } else if (type === "select") {
     inputNode = <Select onChange={handleSelectChange} options={options} />;
   }
@@ -53,6 +76,7 @@ export const EditableCell = ({
         <Form.Item
           name={dataIndex}
           style={{ margin: 0 }}
+          valuePropName={inputType === "checkbox" && "checked"}
           rules={[
             {
               required,
@@ -64,8 +88,10 @@ export const EditableCell = ({
         </Form.Item>
       ) : options ? (
         options.find((el) => el.value === children[1].toString())?.label
+      ) : inputType === "checkbox" ? (
+        <Checkbox checked={!!children[1]} />
       ) : (
-        children
+        children[1]
       )}
     </td>
   );
