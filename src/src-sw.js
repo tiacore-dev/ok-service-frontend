@@ -102,9 +102,20 @@ registerRoute(
 self.addEventListener("push", (event) => {
   const jsonData = JSON.parse(event.data.text());
 
-  const { header, text } = jsonData;
+  const { header, text, link } = jsonData;
   const options = {
     body: text,
   };
   event.waitUntil(self.registration.showNotification(header, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  const jsonData = JSON.parse(event.data.text());
+
+  console.log(event);
+  console.log(jsonData);
+
+  const { link } = jsonData;
+
+  console.log(link);
 });
