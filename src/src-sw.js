@@ -110,12 +110,10 @@ self.addEventListener("push", (event) => {
 });
 
 self.addEventListener("notificationclick", (event) => {
-  const jsonData = JSON.parse(event.data.text());
+  event.notification.close();
 
-  console.log(event);
-  console.log(jsonData);
-
-  const { link } = jsonData;
-
-  console.log(link);
+  // Открываем ссылку, которая была сохранена в данных уведомления
+  if (event.notification.data && event.notification.data.link) {
+    event.waitUntil(clients.openWindow(event.notification.data.link));
+  }
 });
