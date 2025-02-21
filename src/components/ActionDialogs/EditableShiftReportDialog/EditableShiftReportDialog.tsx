@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Checkbox, DatePicker, Form, Select, Space } from "antd";
@@ -25,6 +25,8 @@ export const EditableShiftReportDialog = (
   props: IEditableShiftReportDialogProps
 ) => {
   const { shiftReport, iconOnly } = props;
+  const [object, setObject] = React.useState("");
+
   const { createShiftReport, editShiftReport } = useShiftReports();
   const buttonText = shiftReport ? "Редактировать" : "Создать";
   const popoverText = shiftReport
@@ -48,12 +50,29 @@ export const EditableShiftReportDialog = (
     (state: IState) => state.editableEntities.editableShiftReport
   );
 
-  const projectMap = useSelector(
-    (state: IState) => state.pages.projects.data
+  const objectMap = useSelector(
+    (state: IState) => state.pages.objects.data
   ).map((el) => ({
     label: el.name,
-    value: el.project_id,
+    value: el.object_id,
   }));
+
+  const projectMapData = useSelector(
+    (state: IState) => state.pages.projects.data
+  );
+  const filteredProjectMapData = useMemo(
+    () => projectMapData.filter((el) => !object || el.object === object),
+    [projectMapData, object]
+  );
+
+  const projectMap = useMemo(
+    () =>
+      filteredProjectMapData.map((el) => ({
+        label: el.name,
+        value: el.project_id,
+      })),
+    [filteredProjectMapData]
+  );
 
   const userMap = useSelector((state: IState) => state.pages.users.data).map(
     (el) => ({
@@ -88,6 +107,14 @@ export const EditableShiftReportDialog = (
     dispatch(editShiftReportAction.setDate(value.valueOf()));
   }, []);
 
+  React.useEffect(() => {
+    if (filteredProjectMapData.length === 1) {
+      dispatch(
+        editShiftReportAction.setProject(filteredProjectMapData[0].project_id)
+      );
+    }
+  }, [filteredProjectMapData]);
+
   return (
     <ActionDialog
       modalOkText="Сохранить"
@@ -120,6 +147,15 @@ export const EditableShiftReportDialog = (
                 onChange={handleDateChange}
                 format={dateFormat}
                 onFocus={(e) => e.target.blur()}
+              />
+            </Form.Item>
+
+            <Form.Item label="Объект">
+              <Select
+                value={object}
+                onChange={setObject}
+                options={objectMap}
+                disabled={sent}
               />
             </Form.Item>
 

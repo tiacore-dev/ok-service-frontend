@@ -17,7 +17,7 @@ import { getProjectsMap } from "../../store/modules/pages/selectors/projects.sel
 import { useUsers } from "../../hooks/ApiActions/users";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
-import { useProjectWorks } from "../../hooks/ApiActions/project-works";
+import { useObjects } from "../../hooks/ApiActions/objects";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
@@ -29,15 +29,17 @@ export const ShiftReports = () => {
 
   const { getUsers } = useUsers();
   const { getProjects } = useProjects();
+  const { getObjects } = useObjects();
   const { getShiftReports } = useShiftReports();
 
   React.useEffect(() => {
-    getUsers()
-    getProjects()
+    getUsers();
+    getProjects();
     getShiftReports();
+    getObjects();
     return () => {
-      dispatch(clearShiftReportsState())
-    }
+      dispatch(clearShiftReportsState());
+    };
   }, []);
 
   const shiftReportsData: IShiftReportsListColumn[] = useSelector(
