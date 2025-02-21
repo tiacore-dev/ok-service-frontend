@@ -1,4 +1,4 @@
-import { Checkbox, Form, Input, Select } from "antd";
+import { Checkbox, Form, Input, InputNumber, Select } from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import * as React from "react";
 
@@ -30,25 +30,15 @@ export const EditableCell = ({
   ...restProps
 }: IEditableCellProps) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Преобразуем значение в число перед сохранением
+    record[dataIndex] = event.target.value;
+  };
 
-    let value;
-
-    if (inputType === "number") {
-      value = Number(event.target.value);
-    } else {
-      value = event.target.value;
-    }
-
+  const handleInputNumberChange = (value: number) => {
     record[dataIndex] = value;
   };
 
   const handleCheckboxChange = (event: CheckboxChangeEvent) => {
-    // Преобразуем значение в число перед сохранением
-
-    let value = event.target.checked;
-
-    record[dataIndex] = value;
+    record[dataIndex] = event.target.checked;
   };
 
   const handleSelectChange = (value: string) => {
@@ -57,18 +47,42 @@ export const EditableCell = ({
   };
 
   let inputNode;
-
-  if (type === "input") {
-    if (inputType === "checkbox") {
+  if (record) {
+    if (type === "input") {
+      if (inputType === "checkbox") {
+        inputNode = (
+          <Checkbox
+            checked={record[dataIndex]}
+            onChange={handleCheckboxChange}
+          />
+        );
+      } else if (inputType === "number") {
+        inputNode = (
+          <InputNumber
+            onChange={handleInputNumberChange}
+            value={record[dataIndex]}
+          />
+        );
+      } else {
+        inputNode = (
+          <Input onChange={handleInputChange} value={record[dataIndex]} />
+        );
+      }
+    } else if (type === "select") {
       inputNode = (
-        <Checkbox checked={record[dataIndex]} onChange={handleCheckboxChange} />
+        <Select
+          onChange={handleSelectChange}
+          value={record[dataIndex]}
+          options={options}
+        />
       );
-    } else {
-      inputNode = <Input onChange={handleInputChange} type={inputType} />;
     }
-  } else if (type === "select") {
-    inputNode = <Select onChange={handleSelectChange} options={options} />;
   }
+
+  // console.log("Editing:", editing);
+  // console.log("DataIndex:", dataIndex);
+  // console.log("Record:", record);
+  // console.log("Children:", children);
 
   return (
     <td {...restProps}>

@@ -124,6 +124,7 @@ export const Project = () => {
     record.key === newRecordKey;
 
   const edit = (record: IProjectWorksListColumn) => {
+    console.log(record);
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
@@ -278,22 +279,19 @@ export const Project = () => {
     (state: IState) => state.pages.workPrices.loading
   );
 
-  const table = React.useMemo(
-    () => (
-      <Form form={form} component={false}>
-        <Table
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
-          dataSource={dataSource}
-          columns={mergedColumns}
-          loading={isLoading}
-        />
-      </Form>
-    ),
-    [dataSource, mergedColumns, isLoading]
+  const table = (
+    <Form form={form} component={false}>
+      <Table
+        components={{
+          body: {
+            cell: EditableCell,
+          },
+        }}
+        dataSource={dataSource}
+        columns={mergedColumns}
+        loading={isLoading}
+      />
+    </Form>
   );
 
   return (

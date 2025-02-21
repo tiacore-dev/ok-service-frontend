@@ -102,7 +102,7 @@ registerRoute(
 self.addEventListener("push", (event) => {
   const jsonData = JSON.parse(event.data.text());
 
-  const { header, text, link } = jsonData;
+  const { header, text } = jsonData;
   const options = {
     body: text,
   };
