@@ -112,6 +112,8 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
+  console.log(event);
+
   // Открываем ссылку, которая была сохранена в данных уведомления
   if (event.notification.data && event.notification.data.link) {
     event.waitUntil(clients.openWindow(event.notification.data.link));
