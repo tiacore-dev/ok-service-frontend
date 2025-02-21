@@ -25,10 +25,39 @@ export const useApi = () => {
       headers["Authorization"] = `Bearer ${tokens.access_token}`;
     }
     const url = `${process.env.REACT_APP_API_URL}/${templateName}/${intityId}/${methodName}`;
-    const response = await axios.patch(url, JSON.stringify(data), {
+    let response = await axios.patch(url, JSON.stringify(data), {
       withCredentials: false,
       headers,
     });
+
+    if (response.status === 401) {
+      const newToken = await axios
+        .post(
+          `${process.env.REACT_APP_API_URL}/auth/refresh`,
+          { refresh_token: tokens.refresh_token },
+          { withCredentials: false, headers }
+        )
+        .catch((err) => {
+          return err.response;
+        });
+
+      if (newToken.status !== 200) {
+        dispatch(authlogout());
+      }
+
+      dispatch(
+        refreshToken({
+          access_token: newToken.data.access_token,
+          refresh_token: newToken.data.refresh_token,
+        })
+      );
+      headers["Authorization"] = `Bearer ${newToken.data.access_token}`;
+
+      response = await axios.patch(url, JSON.stringify(data), {
+        withCredentials: false,
+        headers,
+      });
+    }
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error(response.statusText);
@@ -48,10 +77,39 @@ export const useApi = () => {
       headers["Authorization"] = `Bearer ${tokens.access_token}`;
     }
     const url = `${process.env.REACT_APP_API_URL}/${templateName}/${intityId}/${methodName}`;
-    const response = await axios.delete(url, {
+    let response = await axios.delete(url, {
       withCredentials: false,
       headers,
     });
+
+    if (response.status === 401) {
+      const newToken = await axios
+        .post(
+          `${process.env.REACT_APP_API_URL}/auth/refresh`,
+          { refresh_token: tokens.refresh_token },
+          { withCredentials: false, headers }
+        )
+        .catch((err) => {
+          return err.response;
+        });
+
+      if (newToken.status !== 200) {
+        dispatch(authlogout());
+      }
+
+      dispatch(
+        refreshToken({
+          access_token: newToken.data.access_token,
+          refresh_token: newToken.data.refresh_token,
+        })
+      );
+      headers["Authorization"] = `Bearer ${newToken.data.access_token}`;
+
+      response = await axios.delete(url, {
+        withCredentials: false,
+        headers,
+      });
+    }
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error(response.statusText);
@@ -71,10 +129,39 @@ export const useApi = () => {
       headers["Authorization"] = `Bearer ${tokens.access_token}`;
     }
     const url = `${process.env.REACT_APP_API_URL}/${templateName}/${methodName}`;
-    const response = await axios.post(url, JSON.stringify(data), {
+    let response = await axios.post(url, JSON.stringify(data), {
       withCredentials: false,
       headers,
     });
+
+    if (response.status === 401) {
+      const newToken = await axios
+        .post(
+          `${process.env.REACT_APP_API_URL}/auth/refresh`,
+          { refresh_token: tokens.refresh_token },
+          { withCredentials: false, headers }
+        )
+        .catch((err) => {
+          return err.response;
+        });
+
+      if (newToken.status !== 200) {
+        dispatch(authlogout());
+      }
+
+      dispatch(
+        refreshToken({
+          access_token: newToken.data.access_token,
+          refresh_token: newToken.data.refresh_token,
+        })
+      );
+      headers["Authorization"] = `Bearer ${newToken.data.access_token}`;
+
+      response = await axios.post(url, JSON.stringify(data), {
+        withCredentials: false,
+        headers,
+      });
+    }
 
     if (response.status !== 200 && response.status !== 201) {
       throw new Error(response.statusText);
