@@ -105,6 +105,7 @@ self.addEventListener("push", (event) => {
   const { header, text } = jsonData;
   const options = {
     body: text,
+    data: { link: url },
   };
   event.waitUntil(self.registration.showNotification(header, options));
 });
@@ -112,8 +113,22 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  // Открываем ссылку, которая была сохранена в данных уведомления
-  if (event.notification.data && event.notification.data.link) {
-    event.waitUntil(clients.openWindow(event.notification.data.link));
+  const link = event.notification.data?.link; // Получаем ссылку
+
+  if (link) {
+    event.waitUntil(
+      clients
+        .matchAll({ type: "window", includeUncontrolled: true })
+        .then((clientList) => {
+          for (const client of clientList) {
+            if (client.url === link && "focus" in client) {
+              return client.focus(); // Фокусируем уже открытое окно
+            }
+          }
+          if (clients.openWindow) {
+            return clients.openWindow(link); // Открываем новое окно, если вкладка не найдена
+          }
+        })
+    );
   }
 });
