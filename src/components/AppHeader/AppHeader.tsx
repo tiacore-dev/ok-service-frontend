@@ -6,11 +6,14 @@ import { useSelector } from "react-redux";
 import logo from "./logo.png";
 import { IState } from "../../store/modules";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 const { Header } = Layout;
 
 export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const desktopItems: ItemType[] = [];
+  const role = useSelector(getCurrentRole);
   const navigate = useNavigate();
   const { Title } = Typography;
   const showBackButton = useSelector(
@@ -47,13 +50,15 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
     },
   });
 
-  desktopItems.push({
-    key: "users",
-    label: "Пользователи",
-    onClick: () => {
-      navigate("/users");
-    },
-  });
+  if (role !== RoleId.USER) {
+    desktopItems.push({
+      key: "users",
+      label: "Пользователи",
+      onClick: () => {
+        navigate("/users");
+      },
+    });
+  }
 
   desktopItems.push({
     key: "works",

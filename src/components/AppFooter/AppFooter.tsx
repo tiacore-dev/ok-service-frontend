@@ -9,10 +9,14 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 export const AppFooter = () => {
   const { Footer } = Layout;
   const navigate = useNavigate();
+  const role = useSelector(getCurrentRole);
 
   const items: React.JSX.Element[] = [];
 
@@ -30,21 +34,22 @@ export const AppFooter = () => {
       <div style={{ fontSize: "12px" }}>Смены</div>
     </Space>
   );
-
-  items.push(
-    <Space
-      key="users"
-      size="small"
-      direction="vertical"
-      style={{ textAlign: "center" }}
-      onClick={() => {
-        navigate("/users");
-      }}
-    >
-      <TeamOutlined style={{ fontSize: "20px" }} />
-      <div style={{ fontSize: "12px" }}>Пользователи</div>
-    </Space>
-  );
+  if (role !== RoleId.USER) {
+    items.push(
+      <Space
+        key="users"
+        size="small"
+        direction="vertical"
+        style={{ textAlign: "center" }}
+        onClick={() => {
+          navigate("/users");
+        }}
+      >
+        <TeamOutlined style={{ fontSize: "20px" }} />
+        <div style={{ fontSize: "12px" }}>Пользователи</div>
+      </Space>
+    );
+  }
 
   items.push(
     <Space

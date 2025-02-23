@@ -51,10 +51,7 @@ export const ShiftReports = () => {
   );
 
   const columns = React.useMemo(
-    () =>
-      isMobile()
-        ? shiftReportsMobileColumns(navigate, projectsMap, usersMap)
-        : shiftReportsDesktopColumns(navigate, projectsMap, usersMap),
+    () => shiftReportsDesktopColumns(navigate, projectsMap, usersMap),
     [navigate, projectsMap, usersMap]
   );
   return (
@@ -69,7 +66,7 @@ export const ShiftReports = () => {
       />
       <Content
         style={{
-          padding: isMobile() ? 0 : 8,
+          padding: isMobile() ? 4 : 8,
           margin: 0,
           minHeight: minPageHeight(),
           background: "#FFF",

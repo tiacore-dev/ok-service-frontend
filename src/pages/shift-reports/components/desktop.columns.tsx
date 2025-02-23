@@ -22,7 +22,6 @@ export const shiftReportsDesktopColumns = (
       title: "Номер",
       dataIndex: "number",
       key: "number",
-      width: "20%",
       filterDropdown: filterDropdown,
       onFilter: (value, record) =>
         record.number.toString().padStart(5, "0").includes(value.toString()),
@@ -43,7 +42,6 @@ export const shiftReportsDesktopColumns = (
       title: "Дата",
       dataIndex: "date",
       key: "date",
-      width: "20%",
       filterDropdown: dateFilterDropdown, // Используем компонент для фильтрации по датам
       onFilter: (value, record) => {
         return value === formatDate(new Date(record.date));
@@ -56,7 +54,6 @@ export const shiftReportsDesktopColumns = (
       title: "Исполнитель",
       dataIndex: "user",
       key: "user",
-      width: "20%",
       filterDropdown: filterDropdown,
       onFilter: (value, record) =>
         usersMap[record.user]?.name
@@ -73,7 +70,6 @@ export const shiftReportsDesktopColumns = (
       title: "Спецификация",
       dataIndex: "project",
       key: "project",
-      width: "20%",
       filterDropdown: filterDropdown,
       onFilter: (value, record) =>
         projectMap[record.project]?.name
@@ -92,7 +88,6 @@ export const shiftReportsDesktopColumns = (
       title: "Прораб",
       dataIndex: "project_leader",
       key: "project_leader",
-      width: "20%",
       filterDropdown: filterDropdown,
       onFilter: (value, record) =>
         usersMap[projectMap[record.project]?.project_leader]?.name
@@ -116,7 +111,6 @@ export const shiftReportsDesktopColumns = (
       title: "Сумма",
       dataIndex: "summ",
       key: "summ",
-      width: "20%",
       sorter: (a, b) => a.shift_report_details_sum - b.shift_report_details_sum,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{record.shift_report_details_sum}</div>
@@ -126,7 +120,6 @@ export const shiftReportsDesktopColumns = (
       title: "Согласовано",
       dataIndex: "signed",
       key: "signed",
-      width: "20%",
       sorter: (a, b) => (a.signed ? 1 : 0) - (b.signed ? 1 : 0),
       filters: [
         { text: "Да", value: true },

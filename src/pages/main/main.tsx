@@ -126,7 +126,7 @@ export const Main = () => {
       />
       <Content
         style={{
-          padding: isMobile() ? 0 : 8,
+          padding: isMobile() ? 4 : 8,
           margin: 0,
           minHeight: minPageHeight(),
           background: "#FFF",
