@@ -11,7 +11,10 @@ import { objectsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IObjectsListColumn } from "../../interfaces/objects/IObjectsList";
 import { useObjects } from "../../hooks/ApiActions/objects";
-import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
+import {
+  getObjectStatusesMap,
+  getObjectStatusesOptions,
+} from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { useUsers } from "../../hooks/ApiActions/users";
@@ -38,13 +41,14 @@ export const Objects = () => {
   const isLoading = useSelector((state: IState) => state.pages.objects.loading);
   const statusMap = useSelector(getObjectStatusesMap);
   const usersMap = useSelector(getUsersMap);
+  const statusOptions = useSelector(getObjectStatusesOptions);
 
   const columns = React.useMemo(
     () =>
       isMobile()
         ? objectsMobileColumns(navigate, statusMap)
-        : objectsDesktopColumns(navigate, statusMap, usersMap),
-    [navigate]
+        : objectsDesktopColumns(navigate, statusMap, usersMap, statusOptions),
+    [navigate, statusMap, usersMap, statusOptions]
   );
   return (
     <>

@@ -22,9 +22,6 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 export const ShiftReports = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
-  const filters = useSelector(
-    (state: IState) => state.settings.shiftReportsSettings.filters
-  );
   const dispatch = useDispatch();
 
   const { getUsers } = useUsers();

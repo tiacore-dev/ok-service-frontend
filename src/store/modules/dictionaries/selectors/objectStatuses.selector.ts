@@ -17,3 +17,9 @@ export const getObjectStatusesMap = createSelector(
     return map;
   }
 );
+
+export const getObjectStatusesOptions = createSelector(
+  [(state: IState) => state.dictionaries.objectStatuses.data],
+  (objectStatuses) =>
+    objectStatuses.map((el) => ({ text: el.name, value: el.object_status_id }))
+);

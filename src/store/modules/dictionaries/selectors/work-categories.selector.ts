@@ -22,3 +22,9 @@ export const getWorkCategoriesMap = createSelector(
     return map;
   }
 );
+
+export const getWorkCategoriesOptions = createSelector(
+  [(state: IState) => state.pages.workCategories.data],
+  (workCategories) =>
+    workCategories.map((el) => ({ text: el.name, value: el.work_category_id }))
+);

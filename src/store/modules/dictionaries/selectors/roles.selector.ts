@@ -15,3 +15,8 @@ export const getRolesMap = createSelector(
     return map;
   }
 );
+
+export const getRolesOptions = createSelector(
+  [(state: IState) => state.dictionaries.roles.data],
+  (roles) => roles.map((el) => ({ text: el.name, value: el.role_id }))
+);

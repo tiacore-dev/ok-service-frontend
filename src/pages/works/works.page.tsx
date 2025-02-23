@@ -13,6 +13,7 @@ import { IWorksListColumn } from "../../interfaces/works/IWorksList";
 import { Link } from "react-router-dom";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { getCurrentRole } from "../../store/modules/auth";
+import { getWorkCategoriesOptions } from "../../store/modules/dictionaries/selectors/work-categories.selector";
 
 export const Works = () => {
   const { Content } = Layout;
@@ -32,12 +33,14 @@ export const Works = () => {
   ).map((doc) => ({ ...doc, key: doc.work_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.works.loading);
-  const currentRole = useSelector(getCurrentRole)
-
+  const currentRole = useSelector(getCurrentRole);
+  const workCategoriesOptions = useSelector(getWorkCategoriesOptions);
   const columns = React.useMemo(
     () =>
-      isMobile() ? worksMobileColumns(navigate, currentRole) : worksDesktopColumns(navigate, currentRole),
-    [navigate]
+      isMobile()
+        ? worksMobileColumns(navigate, currentRole)
+        : worksDesktopColumns(navigate, currentRole, workCategoriesOptions),
+    [navigate, workCategoriesOptions, currentRole]
   );
 
   return (

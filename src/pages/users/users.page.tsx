@@ -11,7 +11,10 @@ import { usersMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IUsersListColumn } from "../../interfaces/users/IUsersList";
 import { useUsers } from "../../hooks/ApiActions/users";
-import { getRolesMap } from "../../store/modules/dictionaries/selectors/roles.selector";
+import {
+  getRolesMap,
+  getRolesOptions,
+} from "../../store/modules/dictionaries/selectors/roles.selector";
 import { Link } from "react-router-dom";
 
 export const Users = () => {
@@ -33,12 +36,13 @@ export const Users = () => {
 
   const isLoading = useSelector((state: IState) => state.pages.users.loading);
   const rolesMap = useSelector(getRolesMap);
+  const rolesOptions = useSelector(getRolesOptions);
 
   const columns = React.useMemo(
     () =>
       isMobile()
         ? usersMobileColumns(navigate, rolesMap)
-        : usersDesktopColumns(navigate, rolesMap),
+        : usersDesktopColumns(navigate, rolesMap, rolesOptions),
     [navigate]
   );
 
