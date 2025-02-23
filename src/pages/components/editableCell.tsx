@@ -30,21 +30,32 @@ export const EditableCell = ({
   children,
   ...restProps
 }: IEditableCellProps) => {
+  const form = Form.useFormInstance();
+  const defaultValue = form.getFieldValue(dataIndex);
+  const [value, setValue] = React.useState(defaultValue);
+
+  React.useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    record[dataIndex] = event.target.value;
+    setValue(value);
+    form.setFieldsValue({ [dataIndex]: event.target.value });
   };
 
   const handleInputNumberChange = (value: number) => {
-    record[dataIndex] = value;
+    setValue(value);
+    form.setFieldsValue({ [dataIndex]: value });
   };
 
   const handleCheckboxChange = (event: CheckboxChangeEvent) => {
-    record[dataIndex] = event.target.checked;
+    setValue(value);
+    form.setFieldsValue({ [dataIndex]: event.target.checked });
   };
 
   const handleSelectChange = (value: string) => {
-    // Для Select значение передается напрямую
-    record[dataIndex] = value;
+    setValue(value);
+    form.setFieldsValue({ [dataIndex]: value });
   };
 
   let inputNode;
@@ -52,22 +63,14 @@ export const EditableCell = ({
     if (type === "input") {
       if (inputType === "checkbox") {
         inputNode = (
-          <Checkbox
-            checked={record[dataIndex]}
-            onChange={handleCheckboxChange}
-          />
+          <Checkbox checked={value} onChange={handleCheckboxChange} />
         );
       } else if (inputType === "number") {
         inputNode = (
-          <InputNumber
-            onChange={handleInputNumberChange}
-            value={record[dataIndex]}
-          />
+          <InputNumber onChange={handleInputNumberChange} value={value} />
         );
       } else {
-        inputNode = (
-          <Input onChange={handleInputChange} value={record[dataIndex]} />
-        );
+        inputNode = <Input onChange={handleInputChange} value={value} />;
       }
     } else if (type === "select") {
       inputNode = (
@@ -75,7 +78,7 @@ export const EditableCell = ({
           showSearch
           filterOption={selectFilterHandler}
           onChange={handleSelectChange}
-          value={record[dataIndex]}
+          value={value}
           options={options}
         />
       );
