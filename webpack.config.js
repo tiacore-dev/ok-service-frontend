@@ -21,7 +21,7 @@ module.exports = () => {
     output: {
       path: path.join(__dirname, "/build"),
       filename: "[name].[contenthash].bundle.js",
-      publicPath: "/",
+      publicPath: "/home",
       clean: true,
     },
     devtool: "inline-source-map",

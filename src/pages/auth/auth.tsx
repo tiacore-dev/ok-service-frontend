@@ -25,7 +25,7 @@ export const Auth = () => {
   }, []);
 
   const breadcrumbItems = React.useMemo(
-    () => [{ title: <Link to="/">Главная</Link> }, { title: "Аккаунт" }],
+    () => [{ title: <Link to="/home">Главная</Link> }, { title: "Аккаунт" }],
     []
   );
 

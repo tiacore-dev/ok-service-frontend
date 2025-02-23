@@ -202,6 +202,7 @@ export const App = () => {
           <Routes>
             <Route path="/">
               <Route index={true} element={<Main />} />
+              <Route path="home" element={<Main />} />
               <Route path="account" element={<Account />} />
               <Route path="login" element={<Login />} />
               <Route path="objects">
@@ -225,8 +226,6 @@ export const App = () => {
                 <Route index={true} element={<ShiftReports />} />
                 <Route path=":shiftId" element={<ShiftReport />} />
               </Route>
-
-              <Route path="reports" element={<Main />} />
             </Route>
           </Routes>
         </Layout>

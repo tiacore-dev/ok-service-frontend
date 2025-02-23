@@ -47,11 +47,8 @@
     "workbox-webpack-plugin": "^7.0.0"
   },
   "dependencies": {
+    "@ant-design/charts": "^2.2.6",
     "@ant-design/icons": "^4.8.0",
-    "@dnd-kit/core": "^6.0.8",
-    "@dnd-kit/modifiers": "^6.0.1",
-    "@dnd-kit/sortable": "^7.0.2",
-    "@dnd-kit/utilities": "^3.2.1",
     "@reduxjs/toolkit": "^1.9.1",
     "@types/antd": "^1.0.0",
     "@types/react": "^18.0.0",

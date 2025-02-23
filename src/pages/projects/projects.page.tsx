@@ -30,19 +30,21 @@ export const Projects = () => {
   const { getObjects } = useObjects();
   const { getUsers } = useUsers();
 
-
   React.useEffect(() => {
-    getObjects()
-    getUsers()
+    getObjects();
+    getUsers();
     getProjects();
 
     return () => {
-      dispatch(clearProjectsState())
-    }
+      dispatch(clearProjectsState());
+    };
   }, []);
 
-  const projectsState = useSelector(getProjectsState)
-  const projectsData = React.useMemo(() => projectsState.data.map((doc) => ({ ...doc, key: doc.project_id })), [projectsState]);
+  const projectsState = useSelector(getProjectsState);
+  const projectsData = React.useMemo(
+    () => projectsState.data.map((doc) => ({ ...doc, key: doc.project_id })),
+    [projectsState]
+  );
 
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
@@ -64,7 +66,7 @@ export const Projects = () => {
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
-          { title: <Link to="/">Главная</Link> },
+          { title: <Link to="/home">Главная</Link> },
           { title: "Спецификации" },
         ]}
       />

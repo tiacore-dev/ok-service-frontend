@@ -55,7 +55,10 @@ export const Objects = () => {
       <Breadcrumb
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
-        items={[{ title: <Link to="/">Главная</Link> }, { title: "Объекты" }]}
+        items={[
+          { title: <Link to="/home">Главная</Link> },
+          { title: "Объекты" },
+        ]}
       />
       <Content
         style={{

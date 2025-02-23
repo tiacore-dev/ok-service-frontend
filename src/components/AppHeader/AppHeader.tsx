@@ -6,15 +6,12 @@ import { useSelector } from "react-redux";
 import logo from "./logo.png";
 import { IState } from "../../store/modules";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { getCurrentRole } from "../../store/modules/auth";
-import { RoleId } from "../../interfaces/roles/IRole";
 
 const { Header } = Layout;
 
 export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const desktopItems: ItemType[] = [];
   const navigate = useNavigate();
-  const currentRole = useSelector(getCurrentRole)
   const { Title } = Typography;
   const showBackButton = useSelector(
     (state: IState) => state.settings.generalSettings?.showBackButton
@@ -25,6 +22,14 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const appHeaderTitle = useSelector(
     (state: IState) => state.settings.generalSettings?.appHeaderTitle
   );
+
+  desktopItems.push({
+    key: "main",
+    label: "Главная",
+    onClick: () => {
+      navigate("/home");
+    },
+  });
 
   desktopItems.push({
     key: "objects",
@@ -65,16 +70,6 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       navigate("/shifts");
     },
   });
-
-  if (currentRole !== RoleId.USER) {
-    desktopItems.push({
-      key: "reports",
-      label: "Отчеты",
-      onClick: () => {
-        navigate("/reports");
-      },
-    });
-  }
 
   desktopItems.push({
     key: "account",

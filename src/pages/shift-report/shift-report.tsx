@@ -6,7 +6,6 @@ import {
   Form,
   Layout,
   Popconfirm,
-  Skeleton,
   Space,
   Spin,
   Table,
@@ -28,10 +27,7 @@ import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetai
 import { getshiftReportDetailsByShiftReportId } from "../../store/modules/pages/selectors/shift-report-details.selector";
 import { useShiftReportDetails } from "../../hooks/ApiActions/shift-report-detail";
 import { getWorksByProjectId } from "../../store/modules/pages/selectors/works.selector";
-import {
-  getShiftReportData,
-  getShiftReportLoading,
-} from "../../store/modules/pages/selectors/shift-report.selector";
+import { getShiftReportData } from "../../store/modules/pages/selectors/shift-report.selector";
 import { clearShiftReportDetailsState } from "../../store/modules/pages/shift-report-details.state";
 import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
 import { useUsers } from "../../hooks/ApiActions/users";
@@ -333,7 +329,7 @@ export const ShiftReport = () => {
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
-          { title: <Link to="/">Главная</Link> },
+          { title: <Link to="/home">Главная</Link> },
           {
             title: <Link to="/shifts">Смены</Link>,
           },

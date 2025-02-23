@@ -35,7 +35,7 @@ export const Object = () => {
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
-          { title: <Link to="/">Главная</Link> },
+          { title: <Link to="/home">Главная</Link> },
           {
             title: <Link to="/objects">Объекты</Link>,
           },

@@ -51,7 +51,7 @@ export const Login = () => {
           })
         );
         load(authLoginResponse.access_token);
-        navigate("/");
+        navigate("/home");
       } catch (err) {
         const errorMessage = err?.message || String(err);
         messageApi.error(errorMessage);

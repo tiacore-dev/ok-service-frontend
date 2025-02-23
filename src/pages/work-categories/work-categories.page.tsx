@@ -16,7 +16,12 @@ import { Link } from "react-router-dom";
 import { IWorkCategoriesListColumn } from "../../interfaces/workCategories/IWorkCategoriesList";
 import { useWorkCategories } from "../../hooks/ApiActions/work-categories";
 import { EditableCell } from "../components/editableCell";
-import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import {
+  CheckCircleTwoTone,
+  CloseCircleTwoTone,
+  DeleteTwoTone,
+  EditTwoTone,
+} from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 
@@ -142,16 +147,26 @@ export const WorkCategories = () => {
               style={{ marginRight: 8 }}
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
-            <Button icon={<CloseCircleTwoTone twoToneColor="#e40808" />} onClick={cancel}></Button>
+            <Button
+              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
+              onClick={cancel}
+            ></Button>
           </span>
         ) : (
           <Space>
-            <Button icon={<EditTwoTone twoToneColor="#e40808" />} type="link" onClick={() => edit(record)} />
+            <Button
+              icon={<EditTwoTone twoToneColor="#e40808" />}
+              type="link"
+              onClick={() => edit(record)}
+            />
             <Popconfirm
               title="Удалить?"
               onConfirm={() => handleDelete(record.key)}
             >
-              <Button icon={<DeleteTwoTone twoToneColor="#e40808" />} type="link" />
+              <Button
+                icon={<DeleteTwoTone twoToneColor="#e40808" />}
+                type="link"
+              />
             </Popconfirm>
           </Space>
         );
@@ -181,7 +196,7 @@ export const WorkCategories = () => {
         className="breadcrumb"
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
-          { title: <Link to="/">Главная</Link> },
+          { title: <Link to="/home">Главная</Link> },
           { title: <Link to="/works">Работы</Link> },
           { title: "Категории работ" },
         ]}
@@ -194,18 +209,20 @@ export const WorkCategories = () => {
           background: "#FFF",
         }}
       >
-        {currentRole === RoleId.ADMIN && <Space
-          direction={isMobile() ? "vertical" : "horizontal"}
-          className="works_filters"
-        >
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            style={{ marginBottom: 16 }}
+        {currentRole === RoleId.ADMIN && (
+          <Space
+            direction={isMobile() ? "vertical" : "horizontal"}
+            className="works_filters"
           >
-            Добавить категорию работ
-          </Button>
-        </Space>}
+            <Button
+              onClick={handleAdd}
+              type="primary"
+              style={{ marginBottom: 16 }}
+            >
+              Добавить категорию работ
+            </Button>
+          </Space>
+        )}
 
         <Form form={form} component={false}>
           <Table
