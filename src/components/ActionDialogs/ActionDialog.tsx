@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal, Popconfirm, Popover } from "antd";
+import { getModalWidth } from "../../utils/pageSettings";
 
 interface IActionDialogProps {
   buttonText?: string;
@@ -11,7 +12,6 @@ interface IActionDialogProps {
   modalOkText?: string;
   modalOkLoading?: boolean;
   footerDisable?: boolean;
-  width?: string;
   withPopConfirm?: boolean;
   popConfirmHeader?: string;
   popConfirmText?: string;
@@ -20,6 +20,8 @@ interface IActionDialogProps {
   onConfirm?: () => void;
   beforeConfirm?: () => { reject?: boolean };
 }
+
+const modalWidth = getModalWidth();
 
 export const ActionDialog = (props: IActionDialogProps) => {
   const {
@@ -32,7 +34,6 @@ export const ActionDialog = (props: IActionDialogProps) => {
     modalOkLoading,
     modalOkText,
     footerDisable,
-    width,
     withPopConfirm,
     popConfirmHeader,
     popConfirmText,
@@ -123,7 +124,7 @@ export const ActionDialog = (props: IActionDialogProps) => {
     <>
       {popover}
       <Modal
-        width={width}
+        width={modalWidth}
         title={modalTitle}
         open={open}
         onOk={handleOk}

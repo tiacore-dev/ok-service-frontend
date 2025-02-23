@@ -6,7 +6,9 @@ import {
   Form,
   Layout,
   Popconfirm,
+  Skeleton,
   Space,
+  Spin,
   Table,
 } from "antd";
 import Title from "antd/es/typography/Title";
@@ -26,7 +28,10 @@ import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetai
 import { getshiftReportDetailsByShiftReportId } from "../../store/modules/pages/selectors/shift-report-details.selector";
 import { useShiftReportDetails } from "../../hooks/ApiActions/shift-report-detail";
 import { getWorksByProjectId } from "../../store/modules/pages/selectors/works.selector";
-import { getShiftReportData } from "../../store/modules/pages/selectors/shift-report.selector";
+import {
+  getShiftReportData,
+  getShiftReportLoading,
+} from "../../store/modules/pages/selectors/shift-report.selector";
 import { clearShiftReportDetailsState } from "../../store/modules/pages/shift-report-details.state";
 import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
 import { useUsers } from "../../hooks/ApiActions/users";
@@ -44,6 +49,7 @@ import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteSh
 import { RoleId } from "../../interfaces/roles/IRole";
 import { getCurrentCategory, getCurrentRole } from "../../store/modules/auth";
 import { useWorkPrices } from "../../hooks/ApiActions/work-prices";
+import { useObjects } from "../../hooks/ApiActions/objects";
 
 export const ShiftReport = () => {
   const [form] = Form.useForm<IShiftReportDetailsListColumn>();
@@ -67,6 +73,7 @@ export const ShiftReport = () => {
   const { getUsers } = useUsers();
   const { getProjects } = useProjects();
   const { getWorks } = useWorks();
+  const { getObjects } = useObjects();
   const { getProjectWorks } = useProjectWorks();
   const { calculateWorkPrice } = useWorkPrices();
   const currentCategory = useSelector(getCurrentCategory);
@@ -81,6 +88,7 @@ export const ShiftReport = () => {
     getProjects();
     getUsers();
     getWorks();
+    getObjects();
     getShiftReport(routeParams.shiftId);
     getShiftReportDetails({ shift_report: routeParams.shiftId });
 
@@ -330,7 +338,7 @@ export const ShiftReport = () => {
             title: <Link to="/shifts">Смены</Link>,
           },
           {
-            title: `Смена № ${shiftReportData?.number?.toString().padStart(5, "0")}`,
+            title: `Смена № ${shiftReportData?.number?.toString().padStart(5, "0") ?? ""}`,
           },
         ]}
       />
@@ -347,7 +355,7 @@ export const ShiftReport = () => {
         >
           <Title
             level={3}
-          >{`Отчет по смене № ${shiftReportData.number?.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name}`}</Title>
+          >{`Отчет по смене № ${shiftReportData.number?.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name ?? ""}`}</Title>
           <Space direction={"horizontal"} size="small">
             {canEdit && (
               <EditableShiftReportDialog shiftReport={shiftReportData} />
@@ -408,7 +416,7 @@ export const ShiftReport = () => {
           </Form>
         </Content>
       ) : (
-        <></>
+        <Spin />
       )}
     </>
   );

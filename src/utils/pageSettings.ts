@@ -17,3 +17,15 @@ export const minLeftMenuHeight = () => {
 
   return `${clientHeight - 161}px`;
 };
+
+export const pageWidth = () => {
+  return document.documentElement.scrollWidth;
+};
+
+export const getModalWidth = () => {
+  return `${Math.min(pageWidth() - 16, 500)}px`;
+};
+
+export const getModalContentWidth = () => {
+  return `${Math.min(pageWidth() - 16, 500) - 48}px`;
+};

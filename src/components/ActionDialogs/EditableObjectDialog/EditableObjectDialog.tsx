@@ -13,6 +13,9 @@ import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus
 import { getObjectStatuses } from "../../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import "./EditableObjectDialog.less";
 import { useObjects } from "../../../hooks/ApiActions/objects";
+import { getModalContentWidth } from "../../../utils/pageSettings";
+
+const modalContentWidth = getModalContentWidth();
 
 interface IEditableObjectDialogProps {
   object?: IObject;
@@ -77,18 +80,27 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_object_dialog">
-          <Form layout="horizontal">
-            <Form.Item label="Наименование">
+          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Наименование"
+            >
               <Input
                 value={data.name}
                 onChange={(event) =>
                   dispatch(editObjectAction.setName(event.target.value))
                 }
                 disabled={sent}
+                style={{ width: "100%" }}
               />
             </Form.Item>
 
-            <Form.Item label="Адрес">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Адрес"
+            >
               <Input
                 value={data.address}
                 onChange={(event) =>
@@ -98,7 +110,11 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Описание">
+            <Form.Item
+              label="Описание"
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+            >
               <Input
                 value={data.description}
                 onChange={(event) =>
@@ -108,7 +124,11 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Менеджер">
+            <Form.Item
+              label="Менеджер"
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+            >
               <Select
                 value={data.manager}
                 onChange={(value: string) =>
@@ -119,7 +139,11 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Статус">
+            <Form.Item
+              label="Статус"
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+            >
               <Select
                 value={data.status}
                 onChange={(value: ObjectStatusId) =>

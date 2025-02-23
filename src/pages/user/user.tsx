@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Breadcrumb, Card, Layout, Space } from "antd";
+import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,9 +8,7 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { EditableUserDialog } from "../../components/ActionDialogs/EditableUserDialog/EditableUserDialog";
-import {
-  getRolesMap,
-} from "../../store/modules/dictionaries/selectors/roles.selector";
+import { getRolesMap } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
 import { Link } from "react-router-dom";
 import { clearUserState } from "../../store/modules/pages/user.state";
@@ -24,14 +22,14 @@ export const User = () => {
   const rolesMap = useSelector(getRolesMap);
   const routeParams = useParams();
   const { getUser, deleteUser } = useUsers();
-  const currentRole = useSelector(getCurrentRole)
+  const currentRole = useSelector(getCurrentRole);
 
   React.useEffect(() => {
     getUser(routeParams.userId);
 
     return () => {
-      dispatch(clearUserState())
-    }
+      dispatch(clearUserState());
+    };
   }, []);
 
   const userData = useSelector((state: IState) => state.pages.user.data);
@@ -64,13 +62,17 @@ export const User = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            {currentRole === RoleId.ADMIN && <EditableUserDialog user={userData} />}
-            {currentRole === RoleId.ADMIN && <DeleteUserDialog
-              onDelete={() => {
-                deleteUser(userData.user_id);
-              }}
-              name={userData.name}
-            />}
+            {currentRole === RoleId.ADMIN && (
+              <EditableUserDialog user={userData} />
+            )}
+            {currentRole === RoleId.ADMIN && (
+              <DeleteUserDialog
+                onDelete={() => {
+                  deleteUser(userData.user_id);
+                }}
+                name={userData.name}
+              />
+            )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Имя: {userData.name}</p>
@@ -80,7 +82,7 @@ export const User = () => {
           </Card>
         </Content>
       ) : (
-        <></>
+        <Spin />
       )}
     </>
   );

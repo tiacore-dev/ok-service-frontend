@@ -7,6 +7,7 @@ import {
   Layout,
   Popconfirm,
   Space,
+  Spin,
   Table,
 } from "antd";
 import Title from "antd/es/typography/Title";
@@ -359,7 +360,7 @@ export const Project = () => {
           {table}
         </Content>
       ) : (
-        <></>
+        <Spin />
       )}
     </>
   );

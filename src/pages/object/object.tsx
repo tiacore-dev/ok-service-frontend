@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Breadcrumb, Card, Layout, Space } from "antd";
+import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -79,7 +79,7 @@ export const Object = () => {
           </Card>
         </Content>
       ) : (
-        <></>
+        <Spin />
       )}
     </>
   );

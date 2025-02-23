@@ -15,7 +15,10 @@ import dayjs, { Dayjs } from "dayjs";
 import { dateFormat } from "../../../utils/dateConverter";
 import { getCurrentRole, getCurrentUserId } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
+import { getModalContentWidth } from "../../../utils/pageSettings";
+import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
 
+const modalContentWidth = getModalContentWidth();
 interface IEditableShiftReportDialogProps {
   shiftReport?: IShiftReport;
   iconOnly?: boolean;
@@ -57,12 +60,15 @@ export const EditableShiftReportDialog = (
     value: el.object_id,
   }));
 
-  const projectMapData = useSelector(
+  const projectsData = useSelector(
     (state: IState) => state.pages.projects.data
   );
+
+  const projectsMap = useSelector(getProjectsMap);
+
   const filteredProjectMapData = useMemo(
-    () => projectMapData.filter((el) => !object || el.object === object),
-    [projectMapData, object]
+    () => projectsData.filter((el) => !object || el.object === object),
+    [projectsData, object]
   );
 
   const projectMap = useMemo(
@@ -97,6 +103,9 @@ export const EditableShiftReportDialog = (
   const handeOpen = useCallback(() => {
     if (shiftReport) {
       dispatch(editShiftReportAction.setShiftReportData(shiftReport));
+      if (projectsMap) {
+        setObject(projectsMap[shiftReport.project]?.object);
+      }
     } else {
       dispatch(clearCreateShiftReportState());
     }
@@ -113,6 +122,7 @@ export const EditableShiftReportDialog = (
         editShiftReportAction.setProject(filteredProjectMapData[0].project_id)
       );
     }
+    dispatch(editShiftReportAction.setProject(null));
   }, [filteredProjectMapData]);
 
   return (
@@ -127,9 +137,13 @@ export const EditableShiftReportDialog = (
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_shiftReport_dialog">
-          <Form layout="horizontal">
+          <Form layout="horizontal" style={{ width: modalContentWidth }}>
             {role !== RoleId.USER && (
-              <Form.Item label="Исполнитель">
+              <Form.Item
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                label="Исполнитель"
+              >
                 <Select
                   value={data.user}
                   onChange={(value: string) =>
@@ -141,7 +155,11 @@ export const EditableShiftReportDialog = (
               </Form.Item>
             )}
 
-            <Form.Item label="Дата">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Дата"
+            >
               <DatePicker
                 value={date}
                 onChange={handleDateChange}
@@ -150,7 +168,11 @@ export const EditableShiftReportDialog = (
               />
             </Form.Item>
 
-            <Form.Item label="Объект">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Объект"
+            >
               <Select
                 value={object}
                 onChange={setObject}
@@ -159,7 +181,11 @@ export const EditableShiftReportDialog = (
               />
             </Form.Item>
 
-            <Form.Item label="Спецификация">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Спецификация"
+            >
               <Select
                 value={data.project}
                 onChange={(value: string) =>
@@ -170,7 +196,11 @@ export const EditableShiftReportDialog = (
               />
             </Form.Item>
             {role !== RoleId.USER && (
-              <Form.Item label="Согласовано">
+              <Form.Item
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                label="Согласовано"
+              >
                 <Checkbox
                   checked={data.signed}
                   onChange={() =>

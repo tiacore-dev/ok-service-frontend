@@ -7,6 +7,7 @@ import {
   Layout,
   Popconfirm,
   Space,
+  Spin,
   Table,
 } from "antd";
 import Title from "antd/es/typography/Title";
@@ -26,7 +27,12 @@ import { getWorkPricesByWorkId } from "../../store/modules/pages/selectors/work-
 import { SortOrder } from "../../utils/sortOrder";
 import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
 import { clearWorkState } from "../../store/modules/pages/work.state";
-import { CheckCircleTwoTone, CloseCircleTwoTone, DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import {
+  CheckCircleTwoTone,
+  CloseCircleTwoTone,
+  DeleteTwoTone,
+  EditTwoTone,
+} from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 
@@ -57,8 +63,8 @@ export const Work = () => {
     });
 
     return () => {
-      dispatch(clearWorkPricesState())
-      dispatch(clearWorkState())
+      dispatch(clearWorkPricesState());
+      dispatch(clearWorkState());
       setDataSource([]);
     };
   }, []);
@@ -189,16 +195,26 @@ export const Work = () => {
               style={{ marginRight: 8 }}
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
-            <Button icon={<CloseCircleTwoTone twoToneColor="#e40808" />} onClick={cancel}></Button>
+            <Button
+              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
+              onClick={cancel}
+            ></Button>
           </span>
         ) : (
           <Space>
-            <Button icon={<EditTwoTone twoToneColor="#e40808" />} type="link" onClick={() => edit(record)} />
+            <Button
+              icon={<EditTwoTone twoToneColor="#e40808" />}
+              type="link"
+              onClick={() => edit(record)}
+            />
             <Popconfirm
               title="Удалить?"
               onConfirm={() => handleDelete(record.key)}
             >
-              <Button icon={<DeleteTwoTone twoToneColor="#e40808" />} type="link" />
+              <Button
+                icon={<DeleteTwoTone twoToneColor="#e40808" />}
+                type="link"
+              />
             </Popconfirm>
           </Space>
         );
@@ -294,7 +310,7 @@ export const Work = () => {
           </Form>
         </Content>
       ) : (
-        <></>
+        <Spin />
       )}
     </>
   );

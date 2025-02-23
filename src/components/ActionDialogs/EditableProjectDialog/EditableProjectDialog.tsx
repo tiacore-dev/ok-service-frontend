@@ -11,7 +11,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableProjectDialog.less";
 import { useProjects } from "../../../hooks/ApiActions/projects";
+import { getModalContentWidth } from "../../../utils/pageSettings";
 
+const modalContentWidth = getModalContentWidth();
 interface IEditableProjectDialogProps {
   project?: IProject;
   iconOnly?: boolean;
@@ -81,8 +83,12 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_project_dialog">
-          <Form layout="horizontal">
-            <Form.Item label="Наименование">
+          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Наименование"
+            >
               <Input
                 value={data.name}
                 onChange={(event) =>
@@ -92,7 +98,11 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Объект">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Объект"
+            >
               <Select
                 value={data.object}
                 onChange={(value: string) =>
@@ -103,7 +113,11 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Прораб">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Прораб"
+            >
               <Select
                 value={data.project_leader}
                 onChange={(value: string) =>

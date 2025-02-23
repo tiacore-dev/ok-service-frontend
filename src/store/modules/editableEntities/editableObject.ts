@@ -13,7 +13,7 @@ const initialState: IEditableObjectState = {
   address: "",
   description: "",
   manager: "",
-  status: ObjectStatusId.EXPIRED,
+  status: ObjectStatusId.WAITING,
 };
 
 const setObjectData = (

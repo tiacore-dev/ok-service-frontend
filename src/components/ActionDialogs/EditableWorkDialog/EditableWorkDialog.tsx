@@ -13,7 +13,9 @@ import "./EditableWorkDialog.less";
 import { IEditableWork, useWorks } from "../../../hooks/ApiActions/works";
 import { getWorkCategoriesAsArray } from "../../../store/modules/dictionaries/selectors/work-categories.selector";
 import { useWorkCategories } from "../../../hooks/ApiActions/work-categories";
+import { getModalContentWidth } from "../../../utils/pageSettings";
 
+const modalContentWidth = getModalContentWidth();
 interface IEditableWorkDialogProps {
   work?: IWork;
   iconOnly?: boolean;
@@ -78,16 +80,23 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     }
   }, [work, dispatch]);
 
-  const handleNameChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => { dispatch(editWorkAction.setName(event.target.value)) }, [])
+  const handleNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(editWorkAction.setName(event.target.value));
+    },
+    []
+  );
 
-  const handleCategoryChange = useCallback((value: string) => { dispatch(editWorkAction.setCategory(value)) }, [])
+  const handleCategoryChange = useCallback((value: string) => {
+    dispatch(editWorkAction.setCategory(value));
+  }, []);
 
-  const handleMeasurementUnitChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(
-      editWorkAction.setMeasurementUnit(event.target.value)
-    )
-  }, [])
-
+  const handleMeasurementUnitChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(editWorkAction.setMeasurementUnit(event.target.value));
+    },
+    []
+  );
 
   return (
     <ActionDialog
@@ -101,15 +110,20 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_work_dialog">
-          <Form layout="horizontal">
-            <Form.Item label="Наименование">
-              <Input
-                value={data.name}
-                onChange={handleNameChange}
-              />
+          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Наименование"
+            >
+              <Input value={data.name} onChange={handleNameChange} />
             </Form.Item>
 
-            <Form.Item label="Категория">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Категория"
+            >
               <Select
                 value={data.category}
                 onChange={handleCategoryChange}
@@ -117,7 +131,11 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Единица измерения">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Ед. измерения"
+            >
               <Input
                 value={data.measurement_unit}
                 onChange={handleMeasurementUnitChange}

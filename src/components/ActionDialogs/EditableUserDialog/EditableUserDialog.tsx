@@ -14,7 +14,9 @@ import { IEditableUser, useUsers } from "../../../hooks/ApiActions/users";
 import { getRoles } from "../../../store/modules/dictionaries/selectors/roles.selector";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { categoryMap } from "../../../utils/categoryMap";
+import { getModalContentWidth } from "../../../utils/pageSettings";
 
+const modalContentWidth = getModalContentWidth();
 interface IEditableUserDialogProps {
   user?: IUser;
   iconOnly?: boolean;
@@ -82,8 +84,12 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_user_dialog">
-          <Form layout="horizontal">
-            <Form.Item label="Имя пользователя">
+          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Имя"
+            >
               <Input
                 value={data.name}
                 onChange={(event) =>
@@ -92,7 +98,11 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Разряд">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Разряд"
+            >
               <Select
                 value={data.category}
                 onChange={(value: number) =>
@@ -102,7 +112,11 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Логин">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Логин"
+            >
               <Input
                 value={data.login}
                 onChange={(event) =>
@@ -111,14 +125,22 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item label="Пароль">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Пароль"
+            >
               <Input
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
             </Form.Item>
 
-            <Form.Item label="Роль">
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Роль"
+            >
               <Select
                 value={data.role}
                 onChange={(value: RoleId) =>

@@ -1,8 +1,7 @@
 export enum ObjectStatusId {
-  EXPIRED = "in_progress",
   WAITING = "waiting",
-  HANDLING = "handling",
-  VERIFICATION = "verification",
+  ACTIVE = "active",
+  COMPLITED = "complided",
 }
 
 export interface IObjectStatus {
