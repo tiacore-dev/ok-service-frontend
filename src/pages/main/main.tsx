@@ -93,7 +93,7 @@ export const Main = () => {
   const clientData = React.useMemo(() => {
     if (projectsMap && objectsMap) {
       const reportsWithObject = filteredShiftReportsData.map((el) => {
-        const object = objectsMap[projectsMap[el.project]?.object].name;
+        const object = objectsMap[projectsMap[el.project]?.object]?.name;
         return { ...el, object };
       });
 

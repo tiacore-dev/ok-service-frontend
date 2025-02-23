@@ -82,11 +82,6 @@ export const EditableCell = ({
     }
   }
 
-  // console.log("Editing:", editing);
-  // console.log("DataIndex:", dataIndex);
-  // console.log("Record:", record);
-  // console.log("Children:", children);
-
   return (
     <td {...restProps}>
       {editing ? (
