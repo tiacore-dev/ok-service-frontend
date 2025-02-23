@@ -2,9 +2,9 @@ import * as React from "react";
 import { Flex, Layout, Space } from "antd";
 import { isMobile } from "../../utils/isMobile";
 import {
-  BankOutlined,
   FileDoneOutlined,
   IdcardOutlined,
+  LineChartOutlined,
   ProfileOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
@@ -34,6 +34,22 @@ export const AppFooter = () => {
       <div style={{ fontSize: "12px" }}>Смены</div>
     </Space>
   );
+
+  items.push(
+    <Space
+      key="home"
+      size="small"
+      direction="vertical"
+      style={{ textAlign: "center" }}
+      onClick={() => {
+        navigate("/home");
+      }}
+    >
+      <LineChartOutlined  style={{ fontSize: "20px" }} />
+      <div style={{ fontSize: "12px" }}>Главная</div>
+    </Space>
+  ); 
+
   if (role !== RoleId.USER) {
     items.push(
       <Space
@@ -49,22 +65,6 @@ export const AppFooter = () => {
         <div style={{ fontSize: "12px" }}>Пользователи</div>
       </Space>
     );
-  }
-
-  items.push(
-    <Space
-      key="objects"
-      size="small"
-      direction="vertical"
-      style={{ textAlign: "center" }}
-      onClick={() => {
-        navigate("/objects");
-      }}
-    >
-      <BankOutlined style={{ fontSize: "20px" }} />
-      <div style={{ fontSize: "12px" }}>Объекты</div>
-    </Space>
-  );
 
   items.push(
     <Space
@@ -80,6 +80,8 @@ export const AppFooter = () => {
       <div style={{ fontSize: "12px" }}>Спецификации</div>
     </Space>
   );
+}
+
 
   items.push(
     <Space
