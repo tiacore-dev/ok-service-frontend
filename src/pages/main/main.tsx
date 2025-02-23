@@ -15,6 +15,8 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 const filterDate = tenDaysAgo();
 
@@ -33,10 +35,8 @@ export const Main = () => {
 
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
-
+  const role = useSelector(getCurrentRole);
   const shiftReportsData = useSelector(getShiftReportsData);
-
-  // Переходим на 10 дней назад
 
   const filteredShiftReportsData = React.useMemo(
     () => shiftReportsData.filter((el) => el.date >= filterDate),
@@ -150,6 +150,7 @@ export const Main = () => {
               </Card>
             </Col>
 
+            {role !== RoleId.USER && 
             <Col key={1} xs={24} sm={12}>
               <Card hoverable>
                 <Meta
@@ -164,8 +165,9 @@ export const Main = () => {
                   color="#1f78b4"
                 />
               </Card>
-            </Col>
+            </Col> }
 
+            {role !== RoleId.USER && 
             <Col key={2} xs={24} sm={12}>
               <Card hoverable>
                 <Meta
@@ -180,7 +182,7 @@ export const Main = () => {
                   color="#1f78b4"
                 />
               </Card>
-            </Col>
+            </Col>}
 
             <Col key={3} xs={24} sm={12}>
               <Card hoverable>
