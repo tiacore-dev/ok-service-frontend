@@ -68,10 +68,14 @@ export const useShiftReports = () => {
   ) => {
     dispatch(editShiftReportAction.sendShiftReport());
 
-    apiPost<{}>("shift_reports", "add", createbleShiftReportData)
-      .then(() => {
-        navigate("/shifts");
-        getShiftReports();
+    apiPost<{ shift_report_id: string }>(
+      "shift_reports",
+      "add",
+      createbleShiftReportData
+    )
+      .then((data) => {
+        console.log(data);
+        navigate(`/shifts/${data.shift_report_id}`);
         notificationApi.success({
           message: `Успешно`,
           description: "Отчет по смене создан",

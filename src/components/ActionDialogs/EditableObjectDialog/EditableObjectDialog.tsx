@@ -14,6 +14,7 @@ import { getObjectStatuses } from "../../../store/modules/dictionaries/selectors
 import "./EditableObjectDialog.less";
 import { useObjects } from "../../../hooks/ApiActions/objects";
 import { getModalContentWidth } from "../../../utils/pageSettings";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 const modalContentWidth = getModalContentWidth();
 
@@ -62,7 +63,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   }, [object, dispatch]);
 
   const userMap = useSelector((state: IState) => state.pages.users.data)
-    .filter((user) => user.role === "manager")
+    .filter((user) => user.role === RoleId.MANAGER)
     .map((el) => ({
       label: el.name,
       value: el.user_id,

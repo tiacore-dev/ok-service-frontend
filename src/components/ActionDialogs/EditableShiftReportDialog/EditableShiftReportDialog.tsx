@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Checkbox, DatePicker, Form, Select, Space } from "antd";
+import { Checkbox, DatePicker, Form, Select, SelectProps, Space } from "antd";
 import { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import {
   clearCreateShiftReportState,
@@ -17,6 +17,7 @@ import { getCurrentRole, getCurrentUserId } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { getModalContentWidth } from "../../../utils/pageSettings";
 import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
+import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableShiftReportDialogProps {
@@ -80,12 +81,12 @@ export const EditableShiftReportDialog = (
     [filteredProjectMapData]
   );
 
-  const userMap = useSelector((state: IState) => state.pages.users.data).map(
-    (el) => ({
+  const userMap = useSelector((state: IState) => state.pages.users.data)
+    .filter((user) => user.role === RoleId.USER)
+    .map((el) => ({
       label: el.name,
       value: el.user_id,
-    })
-  );
+    }));
 
   const { sent, ...shiftReportData } = data;
 
@@ -145,6 +146,8 @@ export const EditableShiftReportDialog = (
                 label="Исполнитель"
               >
                 <Select
+                  showSearch
+                  filterOption={selectFilterHandler}
                   value={data.user}
                   onChange={(value: string) =>
                     dispatch(editShiftReportAction.setUser(value))
@@ -174,6 +177,8 @@ export const EditableShiftReportDialog = (
               label="Объект"
             >
               <Select
+                showSearch
+                filterOption={selectFilterHandler}
                 value={object}
                 onChange={setObject}
                 options={objectMap}
@@ -187,6 +192,8 @@ export const EditableShiftReportDialog = (
               label="Спецификация"
             >
               <Select
+                showSearch
+                filterOption={selectFilterHandler}
                 value={data.project}
                 onChange={(value: string) =>
                   dispatch(editShiftReportAction.setProject(value))

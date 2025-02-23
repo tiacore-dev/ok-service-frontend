@@ -1,6 +1,7 @@
 import { Checkbox, Form, Input, InputNumber, Select } from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import * as React from "react";
+import { selectFilterHandler } from "../../utils/selectFilterHandler";
 
 interface IEditableCellProps {
   editing: boolean;
@@ -71,6 +72,8 @@ export const EditableCell = ({
     } else if (type === "select") {
       inputNode = (
         <Select
+          showSearch
+          filterOption={selectFilterHandler}
           onChange={handleSelectChange}
           value={record[dataIndex]}
           options={options}

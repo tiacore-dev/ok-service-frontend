@@ -165,6 +165,7 @@ export const ShiftReport = () => {
 
   const save = async (key: string) => {
     try {
+      setActualData(false);
       const rowData = await form.validateFields();
       const newData = [...dataSource];
       const index = newData.findIndex((item) => key === item.key);
@@ -184,12 +185,10 @@ export const ShiftReport = () => {
 
         if (isCreating(item)) {
           // Создание новой записи
-          setActualData(false);
           setNewRecordKey("");
           createShiftReportDetail(row);
         } else {
           // Редактирование существующей записи
-          setActualData(false);
           setEditingKey("");
           editShiftReportDetail(item.shift_report_detail_id, row);
         }
@@ -216,7 +215,7 @@ export const ShiftReport = () => {
 
   const handleDelete = (key: string) => {
     setActualData(false);
-    deleteShiftReportDetail(key, routeParams.workId);
+    deleteShiftReportDetail(key, routeParams.shiftId);
   };
 
   const columns = [
@@ -247,7 +246,7 @@ export const ShiftReport = () => {
     {
       title: "Действия",
       dataIndex: "operation",
-      width: "116px",
+      width: !isMobile() && "116px",
       hidden: !canEdit,
       render: (_: string, record: IShiftReportDetailsListColumn) => {
         const editable = isEditing(record) || isCreating(record);
@@ -298,6 +297,7 @@ export const ShiftReport = () => {
         inputType: col.inputType,
         dataIndex: col.dataIndex,
         title: col.title,
+        "data-label": col.title,
         editing: isEditing(record) || isCreating(record),
       }),
     };
@@ -398,7 +398,7 @@ export const ShiftReport = () => {
 
           <Form form={form} component={false}>
             <Table
-              bordered
+              bordered={!isMobile()}
               components={{
                 body: {
                   cell: EditableCell,

@@ -24,7 +24,7 @@ export const useShiftReportDetails = () => {
       "shift_report_details",
       "all",
       undefined,
-      params
+      { ...params, sort_by: "created_at" }
     )
       .then((shiftReportDetailsData) => {
         dispatch(
@@ -54,7 +54,9 @@ export const useShiftReportDetails = () => {
       createbleShiftReportDetailData
     )
       .then(() => {
-        getShiftReportDetails({ work: createbleShiftReportDetailData.work });
+        getShiftReportDetails({
+          shift_report: createbleShiftReportDetailData.shift_report,
+        });
         notificationApi.success({
           message: `Успешно`,
           description: "Запись отчета по смене создана",
@@ -84,7 +86,9 @@ export const useShiftReportDetails = () => {
       editableShiftReportDetailData
     )
       .then(() => {
-        getShiftReportDetails({ work: editableShiftReportDetailData.work });
+        getShiftReportDetails({
+          shift_report: editableShiftReportDetailData.shift_report,
+        });
         notificationApi.success({
           message: `Успешно`,
           description: "Запись отчета по смене изменена",
@@ -105,7 +109,7 @@ export const useShiftReportDetails = () => {
 
   const deleteShiftReportDetail = (
     shift_report_detail_id: string,
-    work_id: string
+    shift_report_id: string
   ) => {
     apiDelete<{}>("shift_report_details", shift_report_detail_id, "delete/hard")
       .then(() => {
@@ -115,7 +119,7 @@ export const useShiftReportDetails = () => {
           placement: "bottomRight",
           duration: 2,
         });
-        getShiftReportDetails({ work: work_id });
+        getShiftReportDetails({ shift_report: shift_report_id });
       })
       .catch((err) => {
         console.log("deleteWorkFailure", err);

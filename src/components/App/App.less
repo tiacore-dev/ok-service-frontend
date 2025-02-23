@@ -34,3 +34,40 @@
 .ant-table-cell{
     padding: 8px 12px !important;
 }
+
+@media (max-width: 768px) {
+    .ant-table {
+      width: 100%;
+    }
+  
+    .ant-table-thead {
+      display: none;
+    }
+  
+    .ant-table-tbody tr {
+      display: block;
+      margin-bottom: 16px;
+      border: 1px solid #e1e1e1;
+      border-radius: 6px;
+    }
+  
+    .ant-table-tbody td {
+      display: block;
+      text-align: right;
+      border-bottom: none;
+    }
+  
+    .ant-table-row {
+        margin-bottom: 4px;
+    }
+
+    .ant-form-item-control-input {
+        padding-left: 5px;
+    }
+
+    .ant-table-tbody td::before {
+      content: attr(data-label);
+      float: left;
+      font-weight: 500;
+    }
+  }

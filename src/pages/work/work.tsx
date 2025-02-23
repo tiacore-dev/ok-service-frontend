@@ -185,7 +185,7 @@ export const Work = () => {
       title: "Действия",
       dataIndex: "operation",
       hidden: currentRole !== RoleId.ADMIN,
-      width: "116px",
+      width: !isMobile() && "116px",
       render: (_: string, record: IWorkPricesListColumn) => {
         const editable = isEditing(record) || isCreating(record);
         return editable ? (
@@ -233,6 +233,7 @@ export const Work = () => {
         inputType: col.inputType,
         dataIndex: col.dataIndex,
         title: col.title,
+        "data-label": col.title,
         editing: isEditing(record) || isCreating(record),
       }),
     };
@@ -298,6 +299,7 @@ export const Work = () => {
 
           <Form form={form} component={false}>
             <Table
+              bordered={!isMobile()}
               components={{
                 body: {
                   cell: EditableCell,

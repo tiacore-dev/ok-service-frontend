@@ -14,6 +14,7 @@ import { IEditableWork, useWorks } from "../../../hooks/ApiActions/works";
 import { getWorkCategoriesAsArray } from "../../../store/modules/dictionaries/selectors/work-categories.selector";
 import { useWorkCategories } from "../../../hooks/ApiActions/work-categories";
 import { getModalContentWidth } from "../../../utils/pageSettings";
+import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableWorkDialogProps {
@@ -125,6 +126,8 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
               label="Категория"
             >
               <Select
+                showSearch
+                filterOption={selectFilterHandler}
                 value={data.category}
                 onChange={handleCategoryChange}
                 options={categoriesMap}
