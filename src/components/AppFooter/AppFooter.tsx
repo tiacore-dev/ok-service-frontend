@@ -109,7 +109,7 @@ export const AppFooter = () => {
   ) : (
     <Footer
       style={{
-        padding: "25px 50px",
+        padding: "24px 50px",
         textAlign: "center",
       }}
     >

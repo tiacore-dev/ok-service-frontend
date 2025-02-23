@@ -228,6 +228,7 @@ export const WorkCategories = () => {
         <Form form={form} component={false}>
           <Table
             bordered={!isMobile()}
+            pagination={false}
             components={{
               body: {
                 cell: EditableCell,

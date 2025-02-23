@@ -299,6 +299,7 @@ export const Work = () => {
 
           <Form form={form} component={false}>
             <Table
+              pagination={false}
               bordered={!isMobile()}
               components={{
                 body: {

@@ -3,7 +3,7 @@ import { isMobile } from "./isMobile";
 export const minPageHeight = () => {
   const clientHeight = document.documentElement.clientHeight;
 
-  return isMobile() ? `${clientHeight - 110}px` : `${clientHeight - 171}px`;
+  return isMobile() ? `${clientHeight - 110}px` : `${clientHeight - 172}px`;
 };
 
 export const pageHeight = () => {

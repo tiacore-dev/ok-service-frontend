@@ -23,7 +23,7 @@ export const useWorkPrices = () => {
       "work_prices",
       "all",
       undefined,
-      params
+      {...params, sort_by: "category", sort_order: "asc" }
     )
       .then((workPricesData) => {
         dispatch(getWorkPricesSuccess(workPricesData.work_prices));
