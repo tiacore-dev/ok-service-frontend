@@ -111,31 +111,19 @@ self.addEventListener("push", (event) => {
 });
 
 self.addEventListener("notificationclick", (event) => {
-
-  console.log('event', event)
   event.notification.close();
-  console.log('data', event.notification.data)
-
   const link = event.notification.data?.link; // Получаем ссылку
-  console.log('link', link)
-
   if (link) {
     event.waitUntil(
       clients
         .matchAll({ type: "window", includeUncontrolled: true })
         .then((clientList) => {
           for (const client of clientList) {
-            console.log('client', client)
-
             if (client.url === link && "focus" in client) {
-              
-              console.log('return client.focus()')
               return client.focus(); // Фокусируем уже открытое окно
-              
             }
           }
           if (clients.openWindow) {
-            console.log('clients.openWindow', clients.openWindow)
             return clients.openWindow(link); // Открываем новое окно, если вкладка не найдена
           }
         })
