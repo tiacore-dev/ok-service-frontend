@@ -155,6 +155,10 @@ export const ShiftReport = () => {
   const edit = (record: IShiftReportDetailsListColumn) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
+    if (newRecordKey) {
+      setDataSource(shiftReportDetailsData);
+      setNewRecordKey("");
+    }
   };
 
   const cancel = () => {
@@ -211,6 +215,7 @@ export const ShiftReport = () => {
       };
       setDataSource([newData, ...dataSource]);
       setNewRecordKey("new");
+      setEditingKey("");
       form.setFieldsValue({ ...newData });
     }
   };

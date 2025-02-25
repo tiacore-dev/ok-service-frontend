@@ -91,7 +91,7 @@ export const Main = () => {
     () =>
       Object.entries(totalCostData).map(([date, value]) => ({
         date,
-        value: (value / totalCountData[date]).toFixed(2),
+        value: Math.round(value / totalCountData[date]),
       })),
     [totalCostData, totalCountData]
   );

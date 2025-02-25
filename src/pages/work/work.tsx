@@ -105,7 +105,11 @@ export const Work = () => {
   const edit = (record: IWorkPricesListColumn) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
-  };
+    if (newRecordKey) {
+      setDataSource(workPricesData);
+      setNewRecordKey("");
+    }
+  };;
 
   const cancel = () => {
     setEditingKey("");
@@ -155,6 +159,7 @@ export const Work = () => {
       };
       setDataSource([newData, ...dataSource]);
       setNewRecordKey("new");
+      setEditingKey("");
       form.setFieldsValue({ ...newData });
     }
   };
