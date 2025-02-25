@@ -39,7 +39,7 @@ export const Main = () => {
 
       const interval = setInterval(() => {
         getShiftReports(); 
-      }, 1 * 60 * 1000); 
+      }, 10 * 60 * 1000); 
   
       return () => clearInterval(interval);
     }
