@@ -36,16 +36,23 @@ export const Main = () => {
       getShiftReports();
       getObjects();
       getProjects();
+
+      const interval = setInterval(() => {
+        getShiftReports(); 
+      }, 1 * 60 * 1000); 
+  
+      return () => clearInterval(interval);
     }
   }, []);
 
+  
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
   const role = useSelector(getCurrentRole);
   const shiftReportsData = useSelector(getShiftReportsData);
 
   const filteredShiftReportsData = React.useMemo(
-    () => shiftReportsData.filter((el) => el.date >= filterDate),
+    () => shiftReportsData.slice().sort((a, b) => a.date - b.date).filter((el) => el.date >= filterDate),
     [shiftReportsData]
   );
 

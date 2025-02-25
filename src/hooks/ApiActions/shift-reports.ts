@@ -28,7 +28,7 @@ export const useShiftReports = () => {
 
   const getShiftReports = () => {
     dispatch(getShiftReportsRequest());
-    apiGet<{ shift_reports: IShiftReportsList[] }>("shift_reports", "all", undefined, {sort_by: 'date'})
+    apiGet<{ shift_reports: IShiftReportsList[] }>("shift_reports", "all", undefined, {sort_by: 'date', sort_order: "desc"})
       .then((shiftReportsData) => {
         dispatch(getShiftReportsSuccess(shiftReportsData.shift_reports));
       })
