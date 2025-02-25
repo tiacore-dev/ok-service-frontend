@@ -1,4 +1,4 @@
-import { Breadcrumb, Layout, Table } from "antd";
+import { Breadcrumb, Layout, Table, TablePaginationConfig } from "antd";
 import * as React from "react";
 import { shiftReportsDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +18,8 @@ import { useUsers } from "../../hooks/ApiActions/users";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
 import { useObjects } from "../../hooks/ApiActions/objects";
+import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
@@ -28,6 +30,13 @@ export const ShiftReports = () => {
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getShiftReports } = useShiftReports();
+
+  const tableState = useSelector((state: IState) => state.settings.shiftReportsSettings);
+
+  const handleTableChange = React.useCallback((pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>, sorter: SorterResult<IShiftReportsListColumn>) => {
+    const currentState = { pagination, filters, sorter };
+    dispatch(saveShiftReportsTableState(currentState));
+  }, []);
 
   React.useEffect(() => {
     getUsers();
@@ -51,8 +60,8 @@ export const ShiftReports = () => {
   );
 
   const columns = React.useMemo(
-    () => shiftReportsDesktopColumns(navigate, projectsMap, usersMap),
-    [navigate, projectsMap, usersMap]
+    () => shiftReportsDesktopColumns(navigate, projectsMap, usersMap, tableState),
+    [navigate, projectsMap, usersMap, tableState]
   );
   return (
     <>
@@ -74,6 +83,7 @@ export const ShiftReports = () => {
       >
         <Filters />
         <Table
+          onChange={handleTableChange}
           dataSource={shiftReportsData}
           columns={columns}
           loading={isLoading}

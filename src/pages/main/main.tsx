@@ -17,20 +17,26 @@ import { getProjectsMap } from "../../store/modules/pages/selectors/projects.sel
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { IState } from "../../store/modules";
 
 const filterDate = tenDaysAgo();
 
 export const Main = () => {
   const { Content } = Layout;
 
+  const authData = useSelector((state: IState) => state.auth);
+  const isAuth = authData.isAuth;
+
   const { getShiftReports } = useShiftReports();
   const { getObjects } = useObjects();
   const { getProjects } = useProjects();
 
   React.useEffect(() => {
-    getShiftReports();
-    getObjects();
-    getProjects();
+    if (isAuth) {
+      getShiftReports();
+      getObjects();
+      getProjects();
+    }
   }, []);
 
   const projectsMap = useSelector(getProjectsMap);

@@ -1,16 +1,23 @@
 import * as React from "react";
-import { ColumnsType } from "antd/es/table";
+import { ColumnsType, ColumnType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IProjectsListColumn } from "../../../interfaces/projects/IProjectsList";
 import { IObject } from "../../../interfaces/objects/IObject";
 import { IUser } from "../../../interfaces/users/IUser";
 import { filterDropdown } from "../../../components/Table/filterDropdown";
+import { IProjectsSettingsState } from "../../../store/modules/settings/projects";
+
+interface IProjectsListColumns extends ColumnType<IProjectsListColumn> {
+  key: string
+}
 
 export const projectsDesktopColumns = (
   navigate: NavigateFunction,
   objectsMap: Record<string, IObject>,
-  usersMap: Record<string, IUser>
-): ColumnsType<IProjectsListColumn> => [
+  usersMap: Record<string, IUser>,
+  tableState: IProjectsSettingsState
+): ColumnsType<IProjectsListColumn> => {
+  const collumns: ColumnsType<IProjectsListColumn> = [
   {
     title: "Имя",
     dataIndex: "name",
@@ -74,4 +81,8 @@ export const projectsDesktopColumns = (
       </div>
     ),
   },
-];
+]
+
+return collumns.map((collumn: IProjectsListColumns) => ({...collumn, filteredValue: tableState?.filters && tableState.filters[collumn.key],
+  sortOrder: tableState?.sorter?.field === collumn.key ? tableState.sorter.order : null}))}
+

@@ -1,38 +1,41 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-interface IWorksFilter {
-  name: string;
-}
+import { TablePaginationConfig } from "antd";
+import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { IWorksListColumn } from "../../../interfaces/works/IWorksList";
 
 export interface IWorksSettingsState {
-  filters: IWorksFilter;
-  sort?: Record<string, 1 | -1>;
+  pagination: TablePaginationConfig, 
+      filters: Record<string, FilterValue | null>, 
+      sorter: SorterResult<IWorksListColumn>
 }
 
 const initialState: IWorksSettingsState = {
-  filters: {
-    name: "",
-  },
-  sort: { date: 1 },
+  pagination: {},
+  filters: {},
+  sorter: {},
 };
 
 const worksSettingsSlice = createSlice({
   name: "worksSettings",
   initialState,
   reducers: {
-    setWorksFiltersName: (
-      state: IWorksSettingsState,
-      action: { payload: string }
-    ) => {
-      state.filters.name = action.payload;
-    },
-    clearWorksSettingsState: (state: IWorksSettingsState) => {
-      state.filters = initialState.filters;
-    },
+     saveWorksTableState: (
+              state: IWorksSettingsState,
+              action: { payload: IWorksSettingsState }
+            ) => {
+              state.pagination = action.payload.pagination;
+              state.filters = action.payload.filters;
+              state.sorter = action.payload.sorter;
+            },
+            clearWorksTableState: (state: IWorksSettingsState) => {
+              state.pagination = initialState.pagination;
+              state.filters = initialState.filters;
+              state.sorter = initialState.sorter;
+            },
   },
 });
 
-export const { setWorksFiltersName, clearWorksSettingsState } =
+export const { saveWorksTableState, clearWorksTableState } =
   worksSettingsSlice.actions;
 
 export const worksSettings = worksSettingsSlice.reducer;
