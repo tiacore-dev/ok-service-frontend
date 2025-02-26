@@ -37,22 +37,28 @@ export const Main = () => {
       getObjects();
       getProjects();
 
-      const interval = setInterval(() => {
-        getShiftReports(); 
-      }, 10 * 60 * 1000); 
-  
+      const interval = setInterval(
+        () => {
+          getShiftReports();
+        },
+        10 * 60 * 1000
+      );
+
       return () => clearInterval(interval);
     }
   }, []);
 
-  
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
   const role = useSelector(getCurrentRole);
   const shiftReportsData = useSelector(getShiftReportsData);
 
   const filteredShiftReportsData = React.useMemo(
-    () => shiftReportsData.slice().sort((a, b) => a.date - b.date).filter((el) => el.date >= filterDate),
+    () =>
+      shiftReportsData
+        .slice()
+        .sort((a, b) => a.date - b.date)
+        .filter((el) => el.date >= filterDate),
     [shiftReportsData]
   );
 
@@ -159,43 +165,66 @@ export const Main = () => {
                   xField="date"
                   yField="value"
                   color="#1f78b4"
+                  tooltip={false}
+                  label={{
+                    text: (originData: { date: string; value: number }) =>
+                      originData.value,
+                    style: {
+                      fill: "#FFFFFF",
+                      fontSize: 12,
+                    },
+                    position: "top",
+                  }}
                 />
               </Card>
             </Col>
 
-            {role !== RoleId.USER && 
-            <Col key={1} xs={24} sm={12}>
-              <Card hoverable>
-                <Meta
-                  title="Количество смен"
-                  description="за последние 10 дней"
-                />
-                <Column
-                  height={400}
-                  data={totalCountArray}
-                  xField="date"
-                  yField="value"
-                  color="#1f78b4"
-                />
-              </Card>
-            </Col> }
+            {role !== RoleId.USER && (
+              <Col key={1} xs={24} sm={12}>
+                <Card hoverable>
+                  <Meta
+                    title="Количество смен"
+                    description="за последние 10 дней"
+                  />
+                  <Column
+                    height={400}
+                    data={totalCountArray}
+                    xField="date"
+                    yField="value"
+                    color="#1f78b4"
+                    tooltip={false}
+                    label={{
+                      text: (originData: { date: string; value: number }) =>
+                        originData.value,
+                      style: {
+                        fill: "#FFFFFF",
+                        fontSize: 12,
+                      },
+                      position: "top",
+                    }}
+                  />
+                </Card>
+              </Col>
+            )}
 
-            {role !== RoleId.USER && 
-            <Col key={2} xs={24} sm={12}>
-              <Card hoverable>
-                <Meta
-                  title="Средняя стоимость смены"
-                  description="за последние 10 дней"
-                />
-                <Line
-                  height={400}
-                  data={averageCostArray}
-                  xField="date"
-                  yField="value"
-                  color="#1f78b4"
-                />
-              </Card>
-            </Col>}
+            {role !== RoleId.USER && (
+              <Col key={2} xs={24} sm={12}>
+                <Card hoverable>
+                  <Meta
+                    title="Средняя стоимость смены"
+                    description="за последние 10 дней"
+                  />
+                  <Line
+                    height={400}
+                    data={averageCostArray}
+                    xField="date"
+                    yField="value"
+                    color="#1f78b4"
+                    tooltip={false}
+                  />
+                </Card>
+              </Col>
+            )}
 
             <Col key={3} xs={24} sm={12}>
               <Card hoverable>
@@ -209,6 +238,16 @@ export const Main = () => {
                   angleField={"value"}
                   colorField={"client"}
                   radius={0.8}
+                  tooltip={false}
+                  label={{
+                    text: (originData: { date: string; value: number }) =>
+                      originData.value,
+                    style: {
+                      fill: "#FFFFFF",
+                      fontSize: 12,
+                    },
+                    position: "top",
+                  }}
                 />
               </Card>
             </Col>
