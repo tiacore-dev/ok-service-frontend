@@ -1,4 +1,4 @@
-import { Breadcrumb, Layout, Table } from "antd";
+import { Breadcrumb, Layout, Table, TablePaginationConfig } from "antd";
 import * as React from "react";
 import { projectsDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,9 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { clearProjectsState } from "../../store/modules/pages/projects.state";
 import { getProjectsState } from "../../store/modules/pages/selectors/projects.selector";
+import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { IProjectsListColumn } from "../../interfaces/projects/IProjectsList";
+import { saveProjectsTableState } from "../../store/modules/settings/projects";
 
 export const Projects = () => {
   const { Content } = Layout;
@@ -29,6 +32,13 @@ export const Projects = () => {
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getUsers } = useUsers();
+
+  const tableState = useSelector((state: IState) => state.settings.projectsSettings);
+
+  const handleTableChange = React.useCallback((pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>, sorter: SorterResult<IProjectsListColumn>) => {
+    const currentState = { pagination, filters, sorter };
+    dispatch(saveProjectsTableState(currentState));
+  }, []);
 
   React.useEffect(() => {
     getObjects();
@@ -57,8 +67,8 @@ export const Projects = () => {
     () =>
       isMobile()
         ? projectsMobileColumns(navigate, objectsMap, usersMap)
-        : projectsDesktopColumns(navigate, objectsMap, usersMap),
-    [navigate, objectsMap, usersMap]
+        : projectsDesktopColumns(navigate, objectsMap, usersMap, tableState),
+    [navigate, objectsMap, usersMap, tableState]
   );
   return (
     <>
@@ -80,6 +90,7 @@ export const Projects = () => {
       >
         <Filters />
         <Table
+          onChange={handleTableChange}
           dataSource={projectsData}
           columns={columns}
           loading={isLoading}

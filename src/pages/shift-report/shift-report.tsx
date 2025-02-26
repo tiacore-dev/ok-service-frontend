@@ -155,6 +155,10 @@ export const ShiftReport = () => {
   const edit = (record: IShiftReportDetailsListColumn) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
+    if (newRecordKey) {
+      setDataSource(shiftReportDetailsData);
+      setNewRecordKey("");
+    }
   };
 
   const cancel = () => {
@@ -175,6 +179,8 @@ export const ShiftReport = () => {
         const price = await calculateWorkPrice({
           work: rowData.work,
           category: currentCategory,
+          nightShift: shiftReportData.night_shift,
+          extremeConditions: shiftReportData.extreme_conditions
         });
         const row = {
           ...rowData,
@@ -209,6 +215,7 @@ export const ShiftReport = () => {
       };
       setDataSource([newData, ...dataSource]);
       setNewRecordKey("new");
+      setEditingKey("");
       form.setFieldsValue({ ...newData });
     }
   };
@@ -372,6 +379,8 @@ export const ShiftReport = () => {
             <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
             <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
             <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
+           {shiftReportData.night_shift &&  <p>"Ночная смена (+25%)"</p>}
+           {shiftReportData.extreme_conditions &&  <p>"Особые условия (+25%)"</p>}
             {!shiftReportData?.signed && currentRole !== RoleId.USER && (
               <div>
                 <Button onClick={handleOnSign} type="primary">
@@ -398,6 +407,7 @@ export const ShiftReport = () => {
 
           <Form form={form} component={false}>
             <Table
+              pagination={false}
               bordered={!isMobile()}
               components={{
                 body: {

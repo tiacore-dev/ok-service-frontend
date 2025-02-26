@@ -1,36 +1,41 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-interface IShiftReportsFilter {
-  name?: string;
-}
+import { TablePaginationConfig } from "antd";
+import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
 
 export interface IShiftReportsSettingsState {
-  filters: IShiftReportsFilter;
-  sort?: Record<string, 1 | -1>;
+  pagination: TablePaginationConfig, 
+  filters: Record<string, FilterValue | null>, 
+  sorter: SorterResult<IShiftReportsListColumn>
 }
 
 const initialState: IShiftReportsSettingsState = {
+  pagination: {},
   filters: {},
-  sort: { date: 1 },
+  sorter: {},
 };
 
 const shiftReportsSettingsSlice = createSlice({
   name: "shiftReportsSettings",
   initialState,
   reducers: {
-    setShiftReportsFiltersName: (
+    saveShiftReportsTableState: (
       state: IShiftReportsSettingsState,
-      action: { payload: string }
+      action: { payload: IShiftReportsSettingsState }
     ) => {
-      state.filters.name = action.payload;
+      state.pagination = action.payload.pagination;
+      state.filters = action.payload.filters;
+      state.sorter = action.payload.sorter;
     },
-    clearShiftReportsSettingsState: (state: IShiftReportsSettingsState) => {
+    clearShiftReportsTableState: (state: IShiftReportsSettingsState) => {
+      state.pagination = initialState.pagination;
       state.filters = initialState.filters;
+      state.sorter = initialState.sorter;
     },
   },
 });
 
-export const { setShiftReportsFiltersName, clearShiftReportsSettingsState } =
+export const { saveShiftReportsTableState, clearShiftReportsTableState } =
   shiftReportsSettingsSlice.actions;
 
 export const shiftReportsSettings = shiftReportsSettingsSlice.reducer;

@@ -1,4 +1,4 @@
-import { Breadcrumb, Layout, Table } from "antd";
+import { Breadcrumb, Layout, Table, TablePaginationConfig } from "antd";
 import * as React from "react";
 import { shiftReportsDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +7,6 @@ import { Filters } from "./components/filters";
 import "./shift-reports.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
-import { shiftReportsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IShiftReportsListColumn } from "../../interfaces/shiftReports/IShiftReportsList";
 import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
@@ -19,6 +18,8 @@ import { useProjects } from "../../hooks/ApiActions/projects";
 import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { useWorks } from "../../hooks/ApiActions/works";
+import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
@@ -30,6 +31,22 @@ export const ShiftReports = () => {
   const { getObjects } = useObjects();
   const { getShiftReports } = useShiftReports();
   const { getWorks } = useWorks();
+
+  const tableState = useSelector(
+    (state: IState) => state.settings.shiftReportsSettings
+  );
+
+  const handleTableChange = React.useCallback(
+    (
+      pagination: TablePaginationConfig,
+      filters: Record<string, FilterValue | null>,
+      sorter: SorterResult<IShiftReportsListColumn>
+    ) => {
+      const currentState = { pagination, filters, sorter };
+      dispatch(saveShiftReportsTableState(currentState));
+    },
+    []
+  );
 
   React.useEffect(() => {
     getUsers();
@@ -54,8 +71,9 @@ export const ShiftReports = () => {
   );
 
   const columns = React.useMemo(
-    () => shiftReportsDesktopColumns(navigate, projectsMap, usersMap),
-    [navigate, projectsMap, usersMap]
+    () =>
+      shiftReportsDesktopColumns(navigate, projectsMap, usersMap, tableState),
+    [navigate, projectsMap, usersMap, tableState]
   );
   return (
     <>
@@ -77,6 +95,7 @@ export const ShiftReports = () => {
       >
         <Filters />
         <Table
+          onChange={handleTableChange}
           dataSource={shiftReportsData}
           columns={columns}
           loading={isLoading}

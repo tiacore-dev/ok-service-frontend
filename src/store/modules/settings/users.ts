@@ -1,38 +1,42 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { TablePaginationConfig } from "antd";
+import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { IUsersListColumn } from "../../../interfaces/users/IUsersList";
 
-interface IUsersFilter {
-  name: string;
-}
 
 export interface IUsersSettingsState {
-  filters: IUsersFilter;
-  sort?: Record<string, 1 | -1>;
+  pagination: TablePaginationConfig, 
+    filters: Record<string, FilterValue | null>, 
+    sorter: SorterResult<IUsersListColumn>
 }
 
 const initialState: IUsersSettingsState = {
-  filters: {
-    name: "",
-  },
-  sort: { date: 1 },
+  pagination: {},
+  filters: {},
+  sorter: {},
 };
 
 const usersSettingsSlice = createSlice({
   name: "usersSettings",
   initialState,
   reducers: {
-    setUsersFiltersName: (
-      state: IUsersSettingsState,
-      action: { payload: string }
-    ) => {
-      state.filters.name = action.payload;
-    },
-    clearUsersSettingsState: (state: IUsersSettingsState) => {
-      state.filters = initialState.filters;
-    },
+     saveUsersTableState: (
+              state: IUsersSettingsState,
+              action: { payload: IUsersSettingsState }
+            ) => {
+              state.pagination = action.payload.pagination;
+              state.filters = action.payload.filters;
+              state.sorter = action.payload.sorter;
+            },
+            clearUsersTableState: (state: IUsersSettingsState) => {
+              state.pagination = initialState.pagination;
+              state.filters = initialState.filters;
+              state.sorter = initialState.sorter;
+            },
   },
 });
 
-export const { setUsersFiltersName, clearUsersSettingsState } =
+export const { saveUsersTableState, clearUsersTableState } =
   usersSettingsSlice.actions;
 
 export const usersSettings = usersSettingsSlice.reducer;

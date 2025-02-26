@@ -15,31 +15,44 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
+import { IState } from "../../store/modules";
 
 const filterDate = tenDaysAgo();
 
 export const Main = () => {
   const { Content } = Layout;
 
+  const authData = useSelector((state: IState) => state.auth);
+  const isAuth = authData.isAuth;
+
   const { getShiftReports } = useShiftReports();
   const { getObjects } = useObjects();
   const { getProjects } = useProjects();
 
   React.useEffect(() => {
-    getShiftReports();
-    getObjects();
-    getProjects();
+    if (isAuth) {
+      getShiftReports();
+      getObjects();
+      getProjects();
+
+      const interval = setInterval(() => {
+        getShiftReports(); 
+      }, 10 * 60 * 1000); 
+  
+      return () => clearInterval(interval);
+    }
   }, []);
 
+  
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
-
+  const role = useSelector(getCurrentRole);
   const shiftReportsData = useSelector(getShiftReportsData);
 
-  // Переходим на 10 дней назад
-
   const filteredShiftReportsData = React.useMemo(
-    () => shiftReportsData.filter((el) => el.date >= filterDate),
+    () => shiftReportsData.slice().sort((a, b) => a.date - b.date).filter((el) => el.date >= filterDate),
     [shiftReportsData]
   );
 
@@ -85,7 +98,7 @@ export const Main = () => {
     () =>
       Object.entries(totalCostData).map(([date, value]) => ({
         date,
-        value: (value / totalCountData[date]).toFixed(2),
+        value: Math.round(value / totalCountData[date]),
       })),
     [totalCostData, totalCountData]
   );
@@ -150,6 +163,7 @@ export const Main = () => {
               </Card>
             </Col>
 
+            {role !== RoleId.USER && 
             <Col key={1} xs={24} sm={12}>
               <Card hoverable>
                 <Meta
@@ -164,8 +178,9 @@ export const Main = () => {
                   color="#1f78b4"
                 />
               </Card>
-            </Col>
+            </Col> }
 
+            {role !== RoleId.USER && 
             <Col key={2} xs={24} sm={12}>
               <Card hoverable>
                 <Meta
@@ -180,7 +195,7 @@ export const Main = () => {
                   color="#1f78b4"
                 />
               </Card>
-            </Col>
+            </Col>}
 
             <Col key={3} xs={24} sm={12}>
               <Card hoverable>

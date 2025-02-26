@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ColumnsType } from "antd/es/table";
+import { ColumnsType, ColumnType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
 import { IUser } from "../../../interfaces/users/IUser";
@@ -11,13 +11,19 @@ import { Checkbox } from "antd";
 import { IProject } from "../../../interfaces/projects/IProject";
 import { filterDropdown } from "../../../components/Table/filterDropdown";
 import { dateFilterDropdown } from "../../../components/Table/dateFilterDropdown";
+import { IShiftReportsSettingsState } from "../../../store/modules/settings/shift-reports";
+
+interface IShiftReportsListColumns extends ColumnType<IShiftReportsListColumn> {
+  key: string
+}
 
 export const shiftReportsDesktopColumns = (
   navigate: NavigateFunction,
   projectMap: Record<string, IProject>,
-  usersMap: Record<string, IUser>
+  usersMap: Record<string, IUser>,
+  tableState: IShiftReportsSettingsState
 ): ColumnsType<IShiftReportsListColumn> => {
-  return [
+  const collumns: ColumnsType<IShiftReportsListColumn> = [
     {
       title: "Номер",
       dataIndex: "number",
@@ -133,4 +139,7 @@ export const shiftReportsDesktopColumns = (
       ),
     },
   ];
+
+  return collumns.map((collumn: IShiftReportsListColumns) => ({...collumn, filteredValue: tableState?.filters && tableState.filters[collumn.key],
+    sortOrder: tableState?.sorter?.field === collumn.key ? tableState.sorter.order : null}))
 };

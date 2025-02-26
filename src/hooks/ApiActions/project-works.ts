@@ -25,7 +25,7 @@ export const useProjectWorks = () => {
         "project_works",
         "all",
         undefined,
-        { project: project_id }
+        { project: project_id, sort_by: "created_at"  }
       )
         .then((projectWorksData) => {
           dispatch(getProjectWorksSuccess(projectWorksData.project_works));

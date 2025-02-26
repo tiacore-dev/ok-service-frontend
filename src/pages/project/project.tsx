@@ -128,7 +128,11 @@ export const Project = () => {
     console.log(record);
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
-  };
+    if (newRecordKey) {
+      setDataSource(projectWorksData);
+      setNewRecordKey("");
+    }
+  };;
 
   const cancel = () => {
     setEditingKey("");
@@ -179,6 +183,7 @@ export const Project = () => {
       };
       setDataSource([newData, ...dataSource]);
       setNewRecordKey("new");
+      setEditingKey("");
       form.setFieldsValue({ ...newData });
     }
   };
@@ -285,6 +290,7 @@ export const Project = () => {
     <Form form={form} component={false}>
       <Table
         bordered={!isMobile()}
+        pagination={false}
         components={{
           body: {
             cell: EditableCell,

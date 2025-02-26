@@ -177,8 +177,13 @@ export const App = () => {
   const authData = useSelector((state: IState) => state.auth);
   const isAuth = authData.isAuth;
   React.useEffect(() => {
-    if (!isAuth && location.pathname !== "/login") {
-      navigate("/login");
+    
+    if (location.pathname !== "/login") {
+      if (!isAuth) {
+        navigate("/login");
+      } else if (location.pathname === "/") {
+        navigate("/home");
+      }
     }
   }, [isAuth, location]);
 
@@ -201,7 +206,7 @@ export const App = () => {
         >
           <Routes>
             <Route path="/">
-              <Route index={true} element={<Main />} />
+              <Route index={true} element={<></>} />
               <Route path="home" element={<Main />} />
               <Route path="account" element={<Account />} />
               <Route path="login" element={<Login />} />

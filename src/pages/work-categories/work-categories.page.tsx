@@ -72,7 +72,11 @@ export const WorkCategories = () => {
   const edit = (record: IWorkCategoriesListColumn) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
-  };
+    if (newRecordKey) {
+      setDataSource(workCategoriesData);
+      setNewRecordKey("");
+    }
+  };;
 
   const cancel = () => {
     setEditingKey("");
@@ -117,6 +121,7 @@ export const WorkCategories = () => {
       };
       setDataSource([newData, ...dataSource]);
       setNewRecordKey("new");
+      setEditingKey("");
       form.setFieldsValue({ ...newData });
     }
   };
@@ -228,6 +233,7 @@ export const WorkCategories = () => {
         <Form form={form} component={false}>
           <Table
             bordered={!isMobile()}
+            pagination={false}
             components={{
               body: {
                 cell: EditableCell,

@@ -33,6 +33,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       navigate("/home");
     },
   });
+  if (role !== RoleId.USER) {
 
   desktopItems.push({
     key: "objects",
@@ -50,7 +51,6 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
     },
   });
 
-  if (role !== RoleId.USER) {
     desktopItems.push({
       key: "users",
       label: "Пользователи",
@@ -58,7 +58,6 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
         navigate("/users");
       },
     });
-  }
 
   desktopItems.push({
     key: "works",
@@ -67,6 +66,8 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       navigate("/works");
     },
   });
+}
+
 
   desktopItems.push({
     key: "shifts",
