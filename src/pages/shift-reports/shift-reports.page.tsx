@@ -18,6 +18,7 @@ import { useUsers } from "../../hooks/ApiActions/users";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
 import { useObjects } from "../../hooks/ApiActions/objects";
+import { useWorks } from "../../hooks/ApiActions/works";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
@@ -28,12 +29,14 @@ export const ShiftReports = () => {
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getShiftReports } = useShiftReports();
+  const { getWorks } = useWorks();
 
   React.useEffect(() => {
     getUsers();
     getProjects();
     getShiftReports();
     getObjects();
+    getWorks();
     return () => {
       dispatch(clearShiftReportsState());
     };
