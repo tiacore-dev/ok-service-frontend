@@ -43,8 +43,7 @@ import {
 } from "@ant-design/icons";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { RoleId } from "../../interfaces/roles/IRole";
-import { getCurrentCategory, getCurrentRole } from "../../store/modules/auth";
-import { useWorkPrices } from "../../hooks/ApiActions/work-prices";
+import { getCurrentRole } from "../../store/modules/auth";
 import { useObjects } from "../../hooks/ApiActions/objects";
 
 export const ShiftReport = () => {
@@ -71,8 +70,6 @@ export const ShiftReport = () => {
   const { getWorks } = useWorks();
   const { getObjects } = useObjects();
   const { getProjectWorks } = useProjectWorks();
-  const { calculateWorkPrice } = useWorkPrices();
-  const currentCategory = useSelector(getCurrentCategory);
   const usersMap = useSelector(getUsersMap);
   const projectsMap = useSelector(getProjectsMap);
 
@@ -176,17 +173,10 @@ export const ShiftReport = () => {
 
       if (index > -1) {
         const item = newData[index];
-        const price = await calculateWorkPrice({
-          work: rowData.work,
-          category: currentCategory,
-          nightShift: shiftReportData.night_shift,
-          extremeConditions: shiftReportData.extreme_conditions
-        });
         const row = {
           ...rowData,
           quantity: Number(rowData.quantity),
           shift_report: shiftReportData.shift_report_id,
-          summ: price * Number(rowData.quantity),
         };
 
         if (isCreating(item)) {
@@ -379,8 +369,10 @@ export const ShiftReport = () => {
             <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
             <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
             <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
-           {shiftReportData.night_shift &&  <p>"Ночная смена (+25%)"</p>}
-           {shiftReportData.extreme_conditions &&  <p>"Особые условия (+25%)"</p>}
+            {shiftReportData.night_shift && <p>"Ночная смена (+25%)"</p>}
+            {shiftReportData.extreme_conditions && (
+              <p>"Особые условия (+25%)"</p>
+            )}
             {!shiftReportData?.signed && currentRole !== RoleId.USER && (
               <div>
                 <Button onClick={handleOnSign} type="primary">

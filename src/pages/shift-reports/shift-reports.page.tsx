@@ -7,7 +7,6 @@ import { Filters } from "./components/filters";
 import "./shift-reports.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
-import { shiftReportsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IShiftReportsListColumn } from "../../interfaces/shiftReports/IShiftReportsList";
 import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
@@ -18,6 +17,7 @@ import { useUsers } from "../../hooks/ApiActions/users";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
 import { useObjects } from "../../hooks/ApiActions/objects";
+import { useWorks } from "../../hooks/ApiActions/works";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
 
@@ -30,19 +30,30 @@ export const ShiftReports = () => {
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getShiftReports } = useShiftReports();
+  const { getWorks } = useWorks();
 
-  const tableState = useSelector((state: IState) => state.settings.shiftReportsSettings);
+  const tableState = useSelector(
+    (state: IState) => state.settings.shiftReportsSettings
+  );
 
-  const handleTableChange = React.useCallback((pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>, sorter: SorterResult<IShiftReportsListColumn>) => {
-    const currentState = { pagination, filters, sorter };
-    dispatch(saveShiftReportsTableState(currentState));
-  }, []);
+  const handleTableChange = React.useCallback(
+    (
+      pagination: TablePaginationConfig,
+      filters: Record<string, FilterValue | null>,
+      sorter: SorterResult<IShiftReportsListColumn>
+    ) => {
+      const currentState = { pagination, filters, sorter };
+      dispatch(saveShiftReportsTableState(currentState));
+    },
+    []
+  );
 
   React.useEffect(() => {
     getUsers();
     getProjects();
     getShiftReports();
     getObjects();
+    getWorks();
     return () => {
       dispatch(clearShiftReportsState());
     };
@@ -60,7 +71,8 @@ export const ShiftReports = () => {
   );
 
   const columns = React.useMemo(
-    () => shiftReportsDesktopColumns(navigate, projectsMap, usersMap, tableState),
+    () =>
+      shiftReportsDesktopColumns(navigate, projectsMap, usersMap, tableState),
     [navigate, projectsMap, usersMap, tableState]
   );
   return (
