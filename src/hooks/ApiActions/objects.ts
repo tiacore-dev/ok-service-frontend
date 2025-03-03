@@ -1,4 +1,5 @@
 import {
+  clearObjectsState,
   getObjectsFailure,
   getObjectsRequest,
   getObjectsSuccess,
@@ -23,6 +24,7 @@ export interface IEditableObject extends Omit<IObject, "object_id"> {}
 export const useObjects = () => {
   const dispatch = useDispatch();
   const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
+  
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
@@ -69,6 +71,7 @@ export const useObjects = () => {
 
     apiPost<{ object: IObject }>("objects", "add", createbleObjectData)
       .then(() => {
+        dispatch(clearObjectsState())
         getObjects();
         navigate("/objects");
         notificationApi.success({
@@ -99,6 +102,7 @@ export const useObjects = () => {
     apiPatch<{}>("objects", object_id, "edit", editableObjectData)
       .then(() => {
         navigate("/objects");
+        dispatch(clearObjectsState())
         getObjects();
         notificationApi.success({
           message: `Успешно`,
