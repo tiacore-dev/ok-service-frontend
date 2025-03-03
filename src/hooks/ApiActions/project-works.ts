@@ -71,6 +71,34 @@ export const useProjectWorks = () => {
       });
   };
 
+  const createProjectWorks = (
+    createbleProjectWorksData: IEditableProjectWork[], project_id: string
+  ) => {
+    apiPost(
+      "project_works",
+      "add/many",
+      createbleProjectWorksData
+    )
+      .then(() => {
+        getProjectWorks(project_id);
+        notificationApi.success({
+          message: `Успешно`,
+          description: "Работы добавлены в спецификацию",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      })
+      .catch((err) => {
+        console.log("getObjectFailure", err);
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при добавлении работ в спецификацию",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      });
+  };
+
   const editProjectWork = (
     project_work_id: string,
     editableProjectWorkData: IEditableProjectWork
@@ -126,6 +154,7 @@ export const useProjectWorks = () => {
   return {
     getProjectWorks,
     createProjectWork,
+    createProjectWorks,
     editProjectWork,
     deleteProjectWork,
   };

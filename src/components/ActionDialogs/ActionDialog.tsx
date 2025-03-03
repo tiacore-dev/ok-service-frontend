@@ -16,6 +16,7 @@ interface IActionDialogProps {
   popConfirmHeader?: string;
   popConfirmText?: string;
   popoverText?: string;
+  customModalWidth?: number;
   onOpen?: () => void;
   onConfirm?: () => void;
   beforeConfirm?: () => { reject?: boolean };
@@ -38,6 +39,7 @@ export const ActionDialog = (props: IActionDialogProps) => {
     popConfirmHeader,
     popConfirmText,
     popoverText,
+    customModalWidth,
     beforeConfirm,
     onOpen,
     onConfirm,
@@ -124,7 +126,7 @@ export const ActionDialog = (props: IActionDialogProps) => {
     <>
       {popover}
       <Modal
-        width={modalWidth}
+        width={customModalWidth ?? modalWidth}
         title={modalTitle}
         open={open}
         onOk={handleOk}

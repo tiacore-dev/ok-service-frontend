@@ -37,7 +37,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableObject
+    (state: IState) => state.editableEntities.editableObject,
   );
   const statusMap = useSelector(getObjectStatuses).map((el) => ({
     label: el.name,
@@ -63,7 +63,9 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   }, [object, dispatch]);
 
   const userMap = useSelector((state: IState) => state.pages.users.data)
-    .filter((user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN)
+    .filter(
+      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN,
+    )
     .map((el) => ({
       label: el.name,
       value: el.user_id,

@@ -35,7 +35,7 @@ export const useShiftReports = () => {
       "shift_reports",
       "all",
       undefined,
-      { sort_by: "date", sort_order: "desc" }
+      { sort_by: "date", sort_order: "desc" },
     )
       .then((shiftReportsData) => {
         dispatch(getShiftReportsSuccess(shiftReportsData.shift_reports));
@@ -55,7 +55,7 @@ export const useShiftReports = () => {
     dispatch(getShiftReportRequest());
     apiGet<{ shift_report: IShiftReport }>(
       "shift_reports",
-      `${shiftReportId}/view`
+      `${shiftReportId}/view`,
     )
       .then((shiftReportData) => {
         dispatch(getShiftReportSuccess(shiftReportData.shift_report));
@@ -72,14 +72,14 @@ export const useShiftReports = () => {
   };
 
   const createShiftReport = (
-    createbleShiftReportData: IEditableShiftReport
+    createbleShiftReportData: IEditableShiftReport,
   ) => {
     dispatch(editShiftReportAction.sendShiftReport());
 
     apiPost<{ shift_report_id: string }>(
       "shift_reports",
       "add",
-      createbleShiftReportData
+      createbleShiftReportData,
     )
       .then((data) => {
         console.log(data);
@@ -105,16 +105,11 @@ export const useShiftReports = () => {
 
   const editShiftReport = (
     shift_report_id: string,
-    editableShiftReportData: IEditableShiftReport
+    editableShiftReportData: IEditableShiftReport,
   ) => {
     dispatch(editShiftReportAction.sendShiftReport());
 
-    apiPatch<{}>(
-      "shift_reports",
-      shift_report_id,
-      "edit",
-      editableShiftReportData
-    )
+    apiPatch("shift_reports", shift_report_id, "edit", editableShiftReportData)
       .then((response: { shift_report_id: string }) => {
         getShiftReport(response.shift_report_id);
         getShiftReportDetails({ shift_report: shift_report_id });
@@ -138,7 +133,7 @@ export const useShiftReports = () => {
   };
 
   const deleteShiftReport = (shiftReportId: string) => {
-    apiDelete<{}>("shift_reports", shiftReportId, "delete/hard")
+    apiDelete("shift_reports", shiftReportId, "delete/hard")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,
