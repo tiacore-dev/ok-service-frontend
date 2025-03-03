@@ -39,6 +39,7 @@ import {
 } from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { ImportProjectWorksDialog } from "../../components/ActionDialogs/ImportProjectWorksDialog/ImportProjectWorksDialog";
 
 export const Project = () => {
   const { Content } = Layout;
@@ -48,7 +49,7 @@ export const Project = () => {
   const [newRecordKey, setNewRecordKey] = React.useState("");
   const [actualData, setActualData] = React.useState<boolean>(false);
   const [dataSource, setDataSource] = React.useState<IProjectWorksListColumn[]>(
-    []
+    [],
   );
   const currentRole = useSelector(getCurrentRole);
 
@@ -94,11 +95,11 @@ export const Project = () => {
   }));
 
   const projectWorksIsLoaded = useSelector(
-    (state: IState) => state.pages.projectWorks.loaded
+    (state: IState) => state.pages.projectWorks.loaded,
   );
 
   const projectWorks = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, projectData?.project_id)
+    getProjectWorksByProjectId(state, projectData?.project_id),
   );
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
@@ -107,7 +108,7 @@ export const Project = () => {
         ...doc,
         key: doc.project_work_id,
       })),
-    [projectWorks]
+    [projectWorks],
   );
 
   React.useEffect(() => {
@@ -132,7 +133,7 @@ export const Project = () => {
       setDataSource(projectWorksData);
       setNewRecordKey("");
     }
-  };;
+  };
 
   const cancel = () => {
     setEditingKey("");
@@ -283,7 +284,7 @@ export const Project = () => {
   });
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading
+    (state: IState) => state.pages.workPrices.loading,
   );
 
   const table = (
@@ -354,14 +355,12 @@ export const Project = () => {
             <Space
               direction={isMobile() ? "vertical" : "horizontal"}
               className="works_filters"
+              style={{ marginBottom: 16 }}
             >
-              <Button
-                onClick={handleAdd}
-                type="primary"
-                style={{ marginBottom: 16 }}
-              >
+              <Button onClick={handleAdd} type="primary">
                 Добавить запись в спецификацию
               </Button>
+              <ImportProjectWorksDialog project={projectData} />
             </Space>
           )}
 

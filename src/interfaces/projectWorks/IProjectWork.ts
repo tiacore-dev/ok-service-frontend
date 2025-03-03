@@ -3,6 +3,6 @@ export interface IProjectWork {
   work: string;
   project: string;
   quantity: number;
-  summ: number;
+  summ?: number;
   signed: boolean;
 }
