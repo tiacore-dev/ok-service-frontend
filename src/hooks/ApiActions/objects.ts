@@ -30,8 +30,8 @@ export const useObjects = () => {
 
   const objectsState = useSelector(getObjectsState);
 
-  const getObjects = () => {
-    if (!objectsState.loaded && !objectsState.loading) {
+  const getObjects = (force?: boolean) => {
+    if ((!objectsState.loaded && !objectsState.loading) || force) {
       dispatch(getObjectsRequest());
       apiGet<{ objects: IObjectsList[] }>("objects", "all")
         .then((objectsData) => {
@@ -71,8 +71,7 @@ export const useObjects = () => {
 
     apiPost<{ object: IObject }>("objects", "add", createbleObjectData)
       .then(() => {
-        dispatch(clearObjectsState())
-        getObjects();
+        getObjects(true);
         navigate("/objects");
         notificationApi.success({
           message: `Успешно`,
@@ -133,7 +132,7 @@ export const useObjects = () => {
           duration: 2,
         });
         navigate("/objects");
-        getObjects();
+        getObjects(true);
       })
       .catch((err) => {
         console.log("deleteObjectFailure", err);
