@@ -23,7 +23,7 @@ export const useWorkPrices = () => {
       "work_prices",
       "all",
       undefined,
-      {...params, sort_by: "category", sort_order: "asc" }
+      { ...params, sort_by: "category", sort_order: "asc" }
     )
       .then((workPricesData) => {
         dispatch(getWorkPricesSuccess(workPricesData.work_prices));
@@ -37,48 +37,6 @@ export const useWorkPrices = () => {
           duration: 2,
         });
       });
-  };
-
-  const calculateWorkPrice = async ({
-    work,
-    category,
-    nightShift,
-    extremeConditions
-  }: {
-    work: string;
-    category: number;
-    nightShift: boolean;
-    extremeConditions: boolean;
-  }) => {
-    try {
-      const workPricesData = await apiGet<{ work_prices: IWorkPricesList[] }>(
-        "work_prices",
-        "all",
-        undefined,
-        { work, category }
-      );
-
-      if (
-        workPricesData &&
-        workPricesData.work_prices &&
-        workPricesData.work_prices.length
-      ) {
-        const  price = workPricesData.work_prices[0].price
-        const nightShiftPrice = nightShift ? price*0.25 : 0;
-        const extremeConditionsPrice = extremeConditions ? price*0.25 : 0;
-        return price + nightShiftPrice + extremeConditionsPrice;
-      } else {
-        return 0;
-      }
-    } catch (err) {
-      notificationApi.error({
-        message: `Ошибка`,
-        description: "Возникла ошибка при расчете цены работы",
-        placement: "bottomRight",
-        duration: 2,
-      });
-      return 0;
-    }
   };
 
   const createWorkPrice = (createbleWorkPriceData: IEditableWorkPrice) => {
@@ -155,6 +113,5 @@ export const useWorkPrices = () => {
     createWorkPrice,
     editWorkPrice,
     deleteWorkPrice,
-    calculateWorkPrice,
   };
 };
