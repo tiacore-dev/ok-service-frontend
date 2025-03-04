@@ -228,7 +228,7 @@ export const EditableShiftReportDialog = (
               />
             </Form.Item>
 
-            {role !== RoleId.USER && (
+            {role !== RoleId.USER && shiftReport?.signed && (
               <Form.Item
                 labelCol={{ span: 10 }}
                 wrapperCol={{ span: 14 }}
