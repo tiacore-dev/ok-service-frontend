@@ -13,12 +13,12 @@ const initialState: IEditableShiftReportState = {
   project: "",
   signed: false,
   night_shift: false,
-  extreme_conditions: false
+  extreme_conditions: false,
 };
 
 const setShiftReportData = (
   state: IEditableShiftReportState,
-  shiftReportData: IEditableShiftReportState | IShiftReport
+  shiftReportData: IEditableShiftReportState | IShiftReport,
 ) => {
   state.user = shiftReportData.user;
   state.date = shiftReportData.date;
@@ -35,28 +35,28 @@ const editableShiftReportSlice = createSlice({
   reducers: {
     setShiftReportData: (
       state: IEditableShiftReportState,
-      action: { payload: IShiftReport }
+      action: { payload: IShiftReport },
     ) => {
       setShiftReportData(state, action.payload);
     },
 
     setUser: (
       state: IEditableShiftReportState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.user = action.payload;
     },
 
     setDate: (
       state: IEditableShiftReportState,
-      action: { payload: number }
+      action: { payload: number },
     ) => {
       state.date = action.payload;
     },
 
     setProject: (
       state: IEditableShiftReportState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.project = action.payload;
     },

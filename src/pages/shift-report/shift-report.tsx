@@ -353,7 +353,6 @@ export const ShiftReport = () => {
       dataSource.map((el) => {
         if (stat && stat[el.work]) {
           const statEl = stat[el.work];
-          console.log(stat);
           const check: string =
             statEl &&
             `Завершено: ${statEl.shift_report_details_quantity} из ${statEl.project_work_quantity} Доступно: ${Math.max(statEl.project_work_quantity - statEl.shift_report_details_quantity, 0)}`;

@@ -24,7 +24,7 @@ export interface IEditableObject extends Omit<IObject, "object_id"> {}
 export const useObjects = () => {
   const dispatch = useDispatch();
   const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
-  
+
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
@@ -94,14 +94,14 @@ export const useObjects = () => {
 
   const editObject = (
     object_id: string,
-    editableObjectData: IEditableObject
+    editableObjectData: IEditableObject,
   ) => {
     dispatch(editObjectAction.sendObject());
 
-    apiPatch<{}>("objects", object_id, "edit", editableObjectData)
+    apiPatch("objects", object_id, "edit", editableObjectData)
       .then(() => {
         navigate("/objects");
-        dispatch(clearObjectsState())
+        dispatch(clearObjectsState());
         getObjects();
         notificationApi.success({
           message: `Успешно`,
@@ -123,7 +123,7 @@ export const useObjects = () => {
   };
 
   const deleteObject = (objectId: string) => {
-    apiDelete<{}>("objects", objectId, "delete/hard")
+    apiDelete("objects", objectId, "delete/hard")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,

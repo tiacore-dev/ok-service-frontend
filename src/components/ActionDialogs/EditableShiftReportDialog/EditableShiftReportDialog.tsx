@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Checkbox, DatePicker, Form, Select, SelectProps, Space } from "antd";
+import { Checkbox, DatePicker, Form, Select, Space } from "antd";
 import { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import {
   clearCreateShiftReportState,
@@ -26,7 +26,7 @@ interface IEditableShiftReportDialogProps {
 }
 
 export const EditableShiftReportDialog = (
-  props: IEditableShiftReportDialogProps
+  props: IEditableShiftReportDialogProps,
 ) => {
   const { shiftReport, iconOnly } = props;
   const [object, setObject] = React.useState("");
@@ -51,25 +51,25 @@ export const EditableShiftReportDialog = (
   const dispatch = useDispatch();
 
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableShiftReport
+    (state: IState) => state.editableEntities.editableShiftReport,
   );
 
   const objectMap = useSelector(
-    (state: IState) => state.pages.objects.data
+    (state: IState) => state.pages.objects.data,
   ).map((el) => ({
     label: el.name,
     value: el.object_id,
   }));
 
   const projectsData = useSelector(
-    (state: IState) => state.pages.projects.data
+    (state: IState) => state.pages.projects.data,
   );
 
   const projectsMap = useSelector(getProjectsMap);
 
   const filteredProjectMapData = useMemo(
     () => projectsData.filter((el) => !object || el.object === object),
-    [projectsData, object]
+    [projectsData, object],
   );
 
   const projectMap = useMemo(
@@ -78,7 +78,7 @@ export const EditableShiftReportDialog = (
         label: el.name,
         value: el.project_id,
       })),
-    [filteredProjectMapData]
+    [filteredProjectMapData],
   );
 
   const userMap = useSelector((state: IState) => state.pages.users.data)
@@ -120,10 +120,9 @@ export const EditableShiftReportDialog = (
   React.useEffect(() => {
     if (filteredProjectMapData.length === 1) {
       dispatch(
-        editShiftReportAction.setProject(filteredProjectMapData[0].project_id)
+        editShiftReportAction.setProject(filteredProjectMapData[0].project_id),
       );
     }
-    dispatch(editShiftReportAction.setProject(null));
   }, [filteredProjectMapData]);
 
   return (
@@ -201,34 +200,34 @@ export const EditableShiftReportDialog = (
                 options={projectMap}
                 disabled={sent}
               />
-              </Form.Item>
-              <Form.Item
-                labelCol={{ span: 10 }}
-                wrapperCol={{ span: 14 }}
-                label="Ночная смена (+25%)"
-              >
-                <Checkbox
-                  checked={data.night_shift}
-                  onChange={() =>
-                    dispatch(editShiftReportAction.toggleNightShift())
-                  }
-                  disabled={sent}
-                />
-              </Form.Item>
-              <Form.Item
-                labelCol={{ span: 10 }}
-                wrapperCol={{ span: 14 }}
-                label="Особые условия (+25%)"
-              >
-                <Checkbox
-                  checked={data.extreme_conditions}
-                  onChange={() =>
-                    dispatch(editShiftReportAction.toggleExtremeConditions())
-                  }
-                  disabled={sent}
-                />
-              </Form.Item>
-            
+            </Form.Item>
+            <Form.Item
+              labelCol={{ span: 10 }}
+              wrapperCol={{ span: 14 }}
+              label="Ночная смена (+25%)"
+            >
+              <Checkbox
+                checked={data.night_shift}
+                onChange={() =>
+                  dispatch(editShiftReportAction.toggleNightShift())
+                }
+                disabled={sent}
+              />
+            </Form.Item>
+            <Form.Item
+              labelCol={{ span: 10 }}
+              wrapperCol={{ span: 14 }}
+              label="Особые условия (+25%)"
+            >
+              <Checkbox
+                checked={data.extreme_conditions}
+                onChange={() =>
+                  dispatch(editShiftReportAction.toggleExtremeConditions())
+                }
+                disabled={sent}
+              />
+            </Form.Item>
+
             {role !== RoleId.USER && (
               <Form.Item
                 labelCol={{ span: 10 }}

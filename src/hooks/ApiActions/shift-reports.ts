@@ -17,6 +17,7 @@ import { NotificationContext } from "../../../root";
 import { editShiftReportAction } from "../../store/modules/editableEntities/editableShiftReport";
 import { useNavigate } from "react-router-dom";
 import { useShiftReportDetails } from "./shift-report-detail";
+import { useProjects } from "./projects";
 
 export interface IEditableShiftReport
   extends Omit<IShiftReport, "shiftReport_id" | "number"> {}
@@ -28,6 +29,7 @@ export const useShiftReports = () => {
   const notificationApi = useContext(NotificationContext);
 
   const { getShiftReportDetails } = useShiftReportDetails();
+  const { getProjectStat } = useProjects();
 
   const getShiftReports = () => {
     dispatch(getShiftReportsRequest());
@@ -113,6 +115,9 @@ export const useShiftReports = () => {
       .then((response: { shift_report_id: string }) => {
         getShiftReport(response.shift_report_id);
         getShiftReportDetails({ shift_report: shift_report_id });
+        if (!editableShiftReportData.signed) {
+          getProjectStat(editableShiftReportData.project);
+        }
         notificationApi.success({
           message: `Успешно`,
           description: "Отчет по смене изменён",
