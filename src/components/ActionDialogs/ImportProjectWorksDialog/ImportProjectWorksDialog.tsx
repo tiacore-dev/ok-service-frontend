@@ -69,7 +69,7 @@ export const ImportProjectWorksDialog = (
       key: "isCorrect",
 
       render: (text: string, record: IUploadData) => (
-        <div>{record.isCorrect ? "Готов к загрузе" : "Ошибка"}</div>
+        <div>{record.isCorrect ? "Готов к загрузке" : "Ошибка"}</div>
       ),
     },
   ];
