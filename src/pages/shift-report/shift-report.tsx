@@ -9,6 +9,7 @@ import {
   Space,
   Spin,
   Table,
+  Typography,
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
@@ -45,6 +46,9 @@ import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteSh
 import { RoleId } from "../../interfaces/roles/IRole";
 import { getCurrentRole } from "../../store/modules/auth";
 import { useObjects } from "../../hooks/ApiActions/objects";
+import { selectProjectStat } from "../../store/modules/pages/selectors/project.selector";
+
+const { Text } = Typography;
 
 export const ShiftReport = () => {
   const [form] = Form.useForm<IShiftReportDetailsListColumn>();
@@ -66,10 +70,11 @@ export const ShiftReport = () => {
   const [newRecordKey, setNewRecordKey] = React.useState("");
   const { Content } = Layout;
   const { getUsers } = useUsers();
-  const { getProjects } = useProjects();
+  const { getProjects, getProjectStat } = useProjects();
   const { getWorks } = useWorks();
   const { getObjects } = useObjects();
   const { getProjectWorks } = useProjectWorks();
+
   const usersMap = useSelector(getUsersMap);
   const projectsMap = useSelector(getProjectsMap);
 
@@ -98,12 +103,19 @@ export const ShiftReport = () => {
     currentRole !== RoleId.USER || !shiftReportData?.signed;
 
   React.useEffect(() => {
-    getProjectWorks(shiftReportData?.project);
+    if (shiftReportData?.project) {
+      getProjectWorks(shiftReportData?.project);
+      if (currentRole !== RoleId.USER && !shiftReportData.signed) {
+        getProjectStat(shiftReportData?.project);
+      }
+    }
   }, [shiftReportData?.project]);
 
   const worksData = useSelector((state: IState) =>
-    getWorksByProjectId(state, shiftReportData?.project)
+    getWorksByProjectId(state, shiftReportData?.project),
   );
+
+  const stat = useSelector(selectProjectStat);
 
   const worksOptions = worksData.map((el) => ({
     label: el.name,
@@ -113,8 +125,8 @@ export const ShiftReport = () => {
   const shiftReportDetails = useSelector((state: IState) =>
     getshiftReportDetailsByShiftReportId(
       state,
-      shiftReportData?.shift_report_id
-    )
+      shiftReportData?.shift_report_id,
+    ),
   );
 
   const shiftReportDetailsData: IShiftReportDetailsListColumn[] = React.useMemo(
@@ -123,11 +135,11 @@ export const ShiftReport = () => {
         ...doc,
         key: doc.shift_report_detail_id,
       })),
-    [shiftReportDetails]
+    [shiftReportDetails],
   );
 
   const shiftReportDetailsIsLoaded = useSelector(
-    (state: IState) => state.pages.shiftReportDetails.loaded
+    (state: IState) => state.pages.shiftReportDetails.loaded,
   );
 
   React.useEffect(() => {
@@ -140,7 +152,7 @@ export const ShiftReport = () => {
   }, [shiftReportDetailsData]);
 
   const isLoaded = useSelector(
-    (state: IState) => state.pages.shiftReport.loaded
+    (state: IState) => state.pages.shiftReport.loaded,
   );
 
   const isEditing = (record: IShiftReportDetailsListColumn) =>
@@ -241,6 +253,22 @@ export const ShiftReport = () => {
       editable: false,
     },
     {
+      title: "Проверка",
+      inputType: "string",
+      dataIndex: "check",
+      key: "check",
+      editable: false,
+      hidden:
+        currentRole === RoleId.USER ||
+        !shiftReportData ||
+        shiftReportData.signed,
+      render: (text: string, record: IShiftReportDetailsListColumn) => (
+        <span style={{ color: record.blocked ? "red" : "inherit" }}>
+          {text}
+        </span>
+      ),
+    },
+    {
       title: "Действия",
       dataIndex: "operation",
       width: !isMobile() && "116px",
@@ -301,7 +329,7 @@ export const ShiftReport = () => {
   });
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.shiftReportDetails.loading
+    (state: IState) => state.pages.shiftReportDetails.loading,
   );
 
   const footer = React.useCallback(() => {
@@ -309,7 +337,7 @@ export const ShiftReport = () => {
       (acc: number, val) => {
         return (acc = acc + val.summ);
       },
-      0
+      0,
     )} руб.`;
   }, [shiftReportDetailsData]);
 
@@ -319,6 +347,35 @@ export const ShiftReport = () => {
       signed: true,
     });
   }, [shiftReportData]);
+
+  const checedData = React.useMemo(
+    () =>
+      dataSource.map((el) => {
+        if (stat && stat[el.work]) {
+          const statEl = stat[el.work];
+          console.log(stat);
+          const check: string =
+            statEl &&
+            `Завершено: ${statEl.shift_report_details_quantity} из ${statEl.project_work_quantity} Доступно: ${Math.max(statEl.project_work_quantity - statEl.shift_report_details_quantity, 0)}`;
+          return {
+            ...el,
+            check,
+            blocked:
+              statEl.project_work_quantity -
+                statEl.shift_report_details_quantity <
+              el.quantity,
+          };
+        } else {
+          return el;
+        }
+      }),
+    [dataSource, stat],
+  );
+
+  const disabled = React.useMemo(
+    () => checedData.some((el) => el.blocked),
+    [checedData],
+  );
 
   return (
     <>
@@ -374,11 +431,21 @@ export const ShiftReport = () => {
               <p>"Особые условия (+25%)"</p>
             )}
             {!shiftReportData?.signed && currentRole !== RoleId.USER && (
-              <div>
-                <Button onClick={handleOnSign} type="primary">
+              <Space direction="vertical">
+                <Button
+                  onClick={handleOnSign}
+                  type="primary"
+                  disabled={disabled}
+                >
                   Согласовано
                 </Button>
-              </div>
+
+                {disabled && (
+                  <Text type="danger">
+                    Записи смены выходят за пределы спецификации
+                  </Text>
+                )}
+              </Space>
             )}
           </Card>
 
@@ -406,7 +473,7 @@ export const ShiftReport = () => {
                   cell: EditableCell,
                 },
               }}
-              dataSource={dataSource}
+              dataSource={checedData}
               columns={mergedColumns}
               loading={isLoading}
               footer={footer}

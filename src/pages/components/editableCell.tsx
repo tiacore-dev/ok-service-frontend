@@ -12,7 +12,6 @@ interface IEditableCellProps {
   inputType?: "text" | "number" | "checkbox";
   required?: boolean;
   record: any;
-  index: number;
   children: Array<string | number | boolean | undefined>;
   [key: string]: any;
 }
@@ -26,7 +25,6 @@ export const EditableCell = ({
   inputType,
   required,
   record,
-  index,
   children,
   ...restProps
 }: IEditableCellProps) => {

@@ -33,19 +33,19 @@ export const ShiftReports = () => {
   const { getWorks } = useWorks();
 
   const tableState = useSelector(
-    (state: IState) => state.settings.shiftReportsSettings
+    (state: IState) => state.settings.shiftReportsSettings,
   );
 
   const handleTableChange = React.useCallback(
     (
       pagination: TablePaginationConfig,
       filters: Record<string, FilterValue | null>,
-      sorter: SorterResult<IShiftReportsListColumn>
+      sorter: SorterResult<IShiftReportsListColumn>,
     ) => {
       const currentState = { pagination, filters, sorter };
       dispatch(saveShiftReportsTableState(currentState));
     },
-    []
+    [],
   );
 
   React.useEffect(() => {
@@ -60,20 +60,20 @@ export const ShiftReports = () => {
   }, []);
 
   const shiftReportsData: IShiftReportsListColumn[] = useSelector(
-    (state: IState) => state.pages.shiftReports.data
+    (state: IState) => state.pages.shiftReports.data,
   ).map((doc) => ({ ...doc, key: doc.shift_report_id }));
 
   const projectsMap = useSelector(getProjectsMap);
   const usersMap = useSelector(getUsersMap);
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.shiftReports.loading
+    (state: IState) => state.pages.shiftReports.loading,
   );
 
   const columns = React.useMemo(
     () =>
       shiftReportsDesktopColumns(navigate, projectsMap, usersMap, tableState),
-    [navigate, projectsMap, usersMap, tableState]
+    [navigate, projectsMap, usersMap, tableState],
   );
   return (
     <>

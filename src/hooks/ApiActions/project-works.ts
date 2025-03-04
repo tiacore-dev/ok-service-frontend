@@ -25,7 +25,7 @@ export const useProjectWorks = () => {
         "project_works",
         "all",
         undefined,
-        { project: project_id, sort_by: "created_at"  }
+        { project: project_id, sort_by: "created_at" },
       )
         .then((projectWorksData) => {
           dispatch(getProjectWorksSuccess(projectWorksData.project_works));
@@ -44,12 +44,12 @@ export const useProjectWorks = () => {
   };
 
   const createProjectWork = (
-    createbleProjectWorkData: IEditableProjectWork
+    createbleProjectWorkData: IEditableProjectWork,
   ) => {
     apiPost<{ work: IProjectWork }>(
       "project_works",
       "add",
-      createbleProjectWorkData
+      createbleProjectWorkData,
     )
       .then(() => {
         getProjectWorks(createbleProjectWorkData.project);
@@ -72,13 +72,10 @@ export const useProjectWorks = () => {
   };
 
   const createProjectWorks = (
-    createbleProjectWorksData: IEditableProjectWork[], project_id: string
+    createbleProjectWorksData: IEditableProjectWork[],
+    project_id: string,
   ) => {
-    apiPost(
-      "project_works",
-      "add/many",
-      createbleProjectWorksData
-    )
+    apiPost("project_works", "add/many", createbleProjectWorksData)
       .then(() => {
         getProjectWorks(project_id);
         notificationApi.success({
@@ -101,14 +98,9 @@ export const useProjectWorks = () => {
 
   const editProjectWork = (
     project_work_id: string,
-    editableProjectWorkData: IEditableProjectWork
+    editableProjectWorkData: IEditableProjectWork,
   ) => {
-    apiPatch<{}>(
-      "project_works",
-      project_work_id,
-      "edit",
-      editableProjectWorkData
-    )
+    apiPatch("project_works", project_work_id, "edit", editableProjectWorkData)
       .then(() => {
         getProjectWorks(editableProjectWorkData.project);
         notificationApi.success({
@@ -130,7 +122,7 @@ export const useProjectWorks = () => {
   };
 
   const deleteProjectWork = (project_work_id: string, project_id: string) => {
-    apiDelete<{}>("project_works", project_work_id, "delete/hard")
+    apiDelete("project_works", project_work_id, "delete/hard")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,

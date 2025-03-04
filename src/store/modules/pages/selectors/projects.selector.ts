@@ -8,10 +8,10 @@ export const getProjectsMap = createSelector(
     const map: Record<string, IProject> = {};
     projects.forEach((project) => (map[project.project_id] = project));
     return map;
-  }
+  },
 );
 
 export const getProjectsState = createSelector(
   [(state: IState) => state.pages.projects],
-  (projects) => projects
+  (projects) => projects,
 );

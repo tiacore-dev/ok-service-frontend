@@ -7,6 +7,7 @@ import { useApi } from "../useApi";
 import {
   getProjectFailure,
   getProjectRequest,
+  getProjectStatSuccess,
   getProjectSuccess,
 } from "../../store/modules/pages/project.state";
 import { IProject } from "../../interfaces/projects/IProject";
@@ -19,6 +20,7 @@ import { editProjectAction } from "../../store/modules/editableEntities/editable
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { NotificationContext } from "../../../root";
+import { IProjectStat } from "../../interfaces/projects/IProjectStat";
 // import { getProjectsState } from "../../store/modules/pages/selectors/projects.selector";
 
 export interface IEditableProject extends Omit<IProject, "project_id"> {}
@@ -67,6 +69,25 @@ export const useProjects = () => {
       });
   };
 
+  const getProjectStat = (projectId: string) => {
+    dispatch(getProjectRequest());
+    apiGet<{ stats: Record<string, IProjectStat> }>(
+      "projects",
+      `${projectId}/get-stat`,
+    )
+      .then((response) => {
+        dispatch(getProjectStatSuccess(response.stats));
+      })
+      .catch(() => {
+        notificationApi.error({
+          message: `Ошибка`,
+          description: "Возникла ошибка при получении статистики спецификации",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      });
+  };
+
   const createProject = (createbleProjectData: IEditableProject) => {
     dispatch(editProjectAction.sendProject());
 
@@ -95,11 +116,11 @@ export const useProjects = () => {
 
   const editProject = (
     project_id: string,
-    editableProjectData: IEditableProject
+    editableProjectData: IEditableProject,
   ) => {
     dispatch(editProjectAction.sendProject());
 
-    apiPatch<{}>("projects", project_id, "edit", editableProjectData)
+    apiPatch("projects", project_id, "edit", editableProjectData)
       .then(() => {
         navigate("/projects");
         getProjects();
@@ -123,7 +144,7 @@ export const useProjects = () => {
   };
 
   const deleteProject = (projectId: string) => {
-    apiDelete<{}>("projects", projectId, "delete/hard")
+    apiDelete("projects", projectId, "delete/hard")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,
@@ -145,5 +166,12 @@ export const useProjects = () => {
       });
   };
 
-  return { getProjects, getProject, createProject, editProject, deleteProject };
+  return {
+    getProjects,
+    getProject,
+    createProject,
+    editProject,
+    deleteProject,
+    getProjectStat,
+  };
 };

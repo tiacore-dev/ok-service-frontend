@@ -14,14 +14,14 @@ import { dateFilterDropdown } from "../../../components/Table/dateFilterDropdown
 import { IShiftReportsSettingsState } from "../../../store/modules/settings/shift-reports";
 
 interface IShiftReportsListColumns extends ColumnType<IShiftReportsListColumn> {
-  key: string
+  key: string;
 }
 
 export const shiftReportsDesktopColumns = (
   navigate: NavigateFunction,
   projectMap: Record<string, IProject>,
   usersMap: Record<string, IUser>,
-  tableState: IShiftReportsSettingsState
+  tableState: IShiftReportsSettingsState,
 ): ColumnsType<IShiftReportsListColumn> => {
   const collumns: ColumnsType<IShiftReportsListColumn> = [
     {
@@ -140,6 +140,12 @@ export const shiftReportsDesktopColumns = (
     },
   ];
 
-  return collumns.map((collumn: IShiftReportsListColumns) => ({...collumn, filteredValue: tableState?.filters && tableState.filters[collumn.key],
-    sortOrder: tableState?.sorter?.field === collumn.key ? tableState.sorter.order : null}))
+  return collumns.map((collumn: IShiftReportsListColumns) => ({
+    ...collumn,
+    filteredValue: tableState?.filters && tableState.filters[collumn.key],
+    sortOrder:
+      tableState?.sorter?.field === collumn.key
+        ? tableState.sorter.order
+        : null,
+  }));
 };

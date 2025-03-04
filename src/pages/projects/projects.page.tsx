@@ -24,21 +24,27 @@ import { saveProjectsTableState } from "../../store/modules/settings/projects";
 export const Projects = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
-  const filters = useSelector(
-    (state: IState) => state.settings.projectsSettings.filters
-  );
   const dispatch = useDispatch();
 
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getUsers } = useUsers();
 
-  const tableState = useSelector((state: IState) => state.settings.projectsSettings);
+  const tableState = useSelector(
+    (state: IState) => state.settings.projectsSettings,
+  );
 
-  const handleTableChange = React.useCallback((pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>, sorter: SorterResult<IProjectsListColumn>) => {
-    const currentState = { pagination, filters, sorter };
-    dispatch(saveProjectsTableState(currentState));
-  }, []);
+  const handleTableChange = React.useCallback(
+    (
+      pagination: TablePaginationConfig,
+      filters: Record<string, FilterValue | null>,
+      sorter: SorterResult<IProjectsListColumn>,
+    ) => {
+      const currentState = { pagination, filters, sorter };
+      dispatch(saveProjectsTableState(currentState));
+    },
+    [],
+  );
 
   React.useEffect(() => {
     getObjects();
@@ -53,14 +59,14 @@ export const Projects = () => {
   const projectsState = useSelector(getProjectsState);
   const projectsData = React.useMemo(
     () => projectsState.data.map((doc) => ({ ...doc, key: doc.project_id })),
-    [projectsState]
+    [projectsState],
   );
 
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.projects.loading
+    (state: IState) => state.pages.projects.loading,
   );
 
   const columns = React.useMemo(
@@ -68,7 +74,7 @@ export const Projects = () => {
       isMobile()
         ? projectsMobileColumns(navigate, objectsMap, usersMap)
         : projectsDesktopColumns(navigate, objectsMap, usersMap, tableState),
-    [navigate, objectsMap, usersMap, tableState]
+    [navigate, objectsMap, usersMap, tableState],
   );
   return (
     <>
