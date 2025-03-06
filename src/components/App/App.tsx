@@ -39,7 +39,6 @@ import {
   getObjectsRequest,
   getObjectsSuccess,
 } from "../../store/modules/pages/objects.state";
-import { IObject } from "../../interfaces/objects/IObject";
 import { IObjectsList } from "../../interfaces/objects/IObjectsList";
 import {
   clearUsersState,
@@ -116,7 +115,7 @@ export const useloadSourse = (): {
       const response: { roles: IRole[]; msg: string } = await apiGet(
         "roles",
         "all",
-        access_token
+        access_token,
       );
 
       dispatch(getRolesSuccess(response.roles));
@@ -135,7 +134,7 @@ export const useloadSourse = (): {
       const response: { objects: IObjectsList[]; msg: string } = await apiGet(
         "objects",
         "all",
-        access_token
+        access_token,
       );
 
       dispatch(getObjectsSuccess(response.objects));
@@ -154,7 +153,7 @@ export const useloadSourse = (): {
       const response: { users: IUsersList[]; msg: string } = await apiGet(
         "users",
         "all",
-        access_token
+        access_token,
       );
 
       dispatch(getUsersSuccess(response.users));
@@ -177,7 +176,6 @@ export const App = () => {
   const authData = useSelector((state: IState) => state.auth);
   const isAuth = authData.isAuth;
   React.useEffect(() => {
-    
     if (location.pathname !== "/login") {
       if (!isAuth) {
         navigate("/login");
@@ -189,7 +187,7 @@ export const App = () => {
 
   const mobile = isMobile();
 
-  const [api, contextHolder] = notification.useNotification();
+  const [, contextHolder] = notification.useNotification();
 
   return (
     <>

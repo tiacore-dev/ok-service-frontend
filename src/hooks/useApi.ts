@@ -16,7 +16,7 @@ export const useApi = () => {
     templateName: string,
     intityId: string,
     methodName: string,
-    data?: D
+    data?: D,
   ): Promise<R> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -35,7 +35,7 @@ export const useApi = () => {
         .post(
           `${process.env.REACT_APP_API_URL}/auth/refresh`,
           { refresh_token: tokens.refresh_token },
-          { withCredentials: false, headers }
+          { withCredentials: false, headers },
         )
         .catch((err) => {
           return err.response;
@@ -49,7 +49,7 @@ export const useApi = () => {
         refreshToken({
           access_token: newToken.data.access_token,
           refresh_token: newToken.data.refresh_token,
-        })
+        }),
       );
       headers["Authorization"] = `Bearer ${newToken.data.access_token}`;
 
@@ -68,7 +68,7 @@ export const useApi = () => {
   const apiDelete = async <R, D = any>(
     templateName: string,
     intityId: string,
-    methodName: string
+    methodName: string,
   ): Promise<R> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -87,7 +87,7 @@ export const useApi = () => {
         .post(
           `${process.env.REACT_APP_API_URL}/auth/refresh`,
           { refresh_token: tokens.refresh_token },
-          { withCredentials: false, headers }
+          { withCredentials: false, headers },
         )
         .catch((err) => {
           return err.response;
@@ -101,7 +101,7 @@ export const useApi = () => {
         refreshToken({
           access_token: newToken.data.access_token,
           refresh_token: newToken.data.refresh_token,
-        })
+        }),
       );
       headers["Authorization"] = `Bearer ${newToken.data.access_token}`;
 
@@ -120,7 +120,7 @@ export const useApi = () => {
   const apiPost = async <R, D = any>(
     templateName: string,
     methodName: string,
-    data?: D
+    data?: D,
   ): Promise<R> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -139,7 +139,7 @@ export const useApi = () => {
         .post(
           `${process.env.REACT_APP_API_URL}/auth/refresh`,
           { refresh_token: tokens.refresh_token },
-          { withCredentials: false, headers }
+          { withCredentials: false, headers },
         )
         .catch((err) => {
           return err.response;
@@ -153,7 +153,7 @@ export const useApi = () => {
         refreshToken({
           access_token: newToken.data.access_token,
           refresh_token: newToken.data.refresh_token,
-        })
+        }),
       );
       headers["Authorization"] = `Bearer ${newToken.data.access_token}`;
 
@@ -173,7 +173,7 @@ export const useApi = () => {
     templateName: string,
     methodName: string,
     access_token?: string,
-    params?: Record<string, string | number>
+    params?: Record<string, string | number>,
   ): Promise<R> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -199,7 +199,7 @@ export const useApi = () => {
         .post(
           `${process.env.REACT_APP_API_URL}/auth/refresh`,
           { refresh_token: tokens.refresh_token },
-          { withCredentials: false, headers }
+          { withCredentials: false, headers },
         )
         .catch((err) => {
           return err.response;
@@ -213,7 +213,7 @@ export const useApi = () => {
         refreshToken({
           access_token: newToken.data.access_token,
           refresh_token: newToken.data.refresh_token,
-        })
+        }),
       );
       headers["Authorization"] = `Bearer ${newToken.data.access_token}`;
 

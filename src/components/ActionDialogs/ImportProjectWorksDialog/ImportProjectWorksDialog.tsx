@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { FileExcelTwoTone } from "@ant-design/icons";
-import { Space, Table } from "antd";
+import { Button, Select, Space, Table } from "antd";
 import { IProject } from "../../../interfaces/projects/IProject";
 import { useSelector } from "react-redux";
 import { RoleId } from "../../../interfaces/roles/IRole";
@@ -9,6 +9,7 @@ import { useProjectWorks } from "../../../hooks/ApiActions/project-works";
 import { getWorksData } from "../../../store/modules/pages/selectors/works.selector";
 import { getCurrentRole } from "../../../store/modules/auth";
 import TextArea from "antd/es/input/TextArea";
+import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 
 interface IImportProjectWorksDialogProps {
   project?: IProject;
@@ -29,7 +30,7 @@ export const ImportProjectWorksDialog = (
   // const [importData, setImportData] = useState<IUploadData[]>([]);
   const role = useSelector(getCurrentRole);
   const [uploadString, setUploadString] = useState<string>("");
-
+  const [workIdMap, setWorkIdMap] = useState<Record<string, string>>({});
   const { project, iconOnly } = props;
 
   const { createProjectWorks } = useProjectWorks();
@@ -41,25 +42,48 @@ export const ImportProjectWorksDialog = (
 
   const works = useSelector(getWorksData);
 
+  const workOptions = useMemo(() => {
+    return works.map((w) => ({
+      label: w.name,
+      value: w.work_id,
+    }));
+  }, [works]);
+
+  const setWorkId = useCallback(
+    (workId: string, workString: string) => {
+      setWorkIdMap({ ...workIdMap, [workString]: workId });
+    },
+    [workIdMap],
+  );
   const columns = [
     {
       title: "Текст",
       dataIndex: "workString",
       key: "workString",
+      width: "25%",
     },
     {
       title: "Количество",
       dataIndex: "quantity",
       key: "quantity",
+      width: "20%",
     },
 
     {
       title: "Работа из справочника",
       dataIndex: "workId",
       key: "workId",
+      width: "30%",
 
       render: (text: string, record: IUploadData) => (
-        <div>{works.find((w) => w.work_id === record.workId)?.name}</div>
+        <Select
+          style={{ width: "180px" }}
+          showSearch
+          filterOption={selectFilterHandler}
+          value={record.workId}
+          onChange={(value) => setWorkId(value, record.workString)}
+          options={workOptions}
+        />
       ),
     },
 
@@ -67,6 +91,7 @@ export const ImportProjectWorksDialog = (
       title: "Статус",
       dataIndex: "isCorrect",
       key: "isCorrect",
+      width: "25%",
 
       render: (text: string, record: IUploadData) => (
         <div>{record.isCorrect ? "Готов к загрузке" : "Ошибка"}</div>
@@ -82,13 +107,11 @@ export const ImportProjectWorksDialog = (
         const rowData = row.split(String.fromCharCode(9));
         const workString = rowData[0] ?? "";
         const quantity = Number(rowData[1]) ?? 0;
-        const workId = works.find((w) =>
-          workString.toLocaleLowerCase().includes(w.name.toLocaleLowerCase()),
-        )?.work_id;
+        const workId = workIdMap[workString];
 
         const isCorrect = quantity > 0 && !!workId;
         return {
-          key: `${i}-${workId}`,
+          key: `${i}`,
           workString,
           quantity,
           workId,
@@ -97,7 +120,7 @@ export const ImportProjectWorksDialog = (
       });
 
     return data;
-  }, [uploadString, works]);
+  }, [uploadString, works, workIdMap]);
 
   const correctData = useMemo(
     () => uploadData.filter((el) => el.isCorrect),
@@ -108,6 +131,22 @@ export const ImportProjectWorksDialog = (
     () => `Загрузить ${correctData.length} из ${uploadData.length}`,
     [uploadData, correctData],
   );
+
+  const handleAnalysis = useCallback(() => {
+    const result: Record<string, string> = {};
+
+    uploadData.forEach((el) => {
+      const workId = works.find((w) =>
+        el.workString.toLocaleLowerCase().includes(w.name.toLocaleLowerCase()),
+      )?.work_id;
+
+      if (workId) {
+        result[el.workString] = workId;
+      }
+    });
+
+    setWorkIdMap({ ...workIdMap, ...result });
+  }, [uploadData, works]);
 
   const handleConfirm = useCallback(() => {
     if (uploadData.every((el) => el.isCorrect)) {
@@ -121,7 +160,7 @@ export const ImportProjectWorksDialog = (
         project.project_id,
       );
     }
-  }, [project, uploadData, createProjectWorks]);
+  }, [project, uploadData, correctData, createProjectWorks]);
 
   return (
     <ActionDialog
@@ -135,11 +174,16 @@ export const ImportProjectWorksDialog = (
       customModalWidth={1000}
       modalText={
         <Space direction="horizontal">
-          <TextArea
-            value={uploadString}
-            onChange={(e) => setUploadString(e.target.value)}
-            style={{ width: "300px", height: "100%" }}
-          />
+          <Space direction="vertical">
+            <TextArea
+              value={uploadString}
+              onChange={(e) => setUploadString(e.target.value)}
+              style={{ width: "300px", height: "100%" }}
+            />
+            <Button onClick={handleAnalysis}>
+              Анализировать наименования работ
+            </Button>
+          </Space>
           <Table
             pagination={false}
             style={{ width: "600px" }}

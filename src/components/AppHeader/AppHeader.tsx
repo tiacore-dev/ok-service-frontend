@@ -17,13 +17,13 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const navigate = useNavigate();
   const { Title } = Typography;
   const showBackButton = useSelector(
-    (state: IState) => state.settings.generalSettings?.showBackButton
+    (state: IState) => state.settings.generalSettings?.showBackButton,
   );
   const back = () => {
     navigate(-1);
   };
   const appHeaderTitle = useSelector(
-    (state: IState) => state.settings.generalSettings?.appHeaderTitle
+    (state: IState) => state.settings.generalSettings?.appHeaderTitle,
   );
 
   desktopItems.push({
@@ -34,22 +34,21 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
     },
   });
   if (role !== RoleId.USER) {
+    desktopItems.push({
+      key: "objects",
+      label: "Объекты",
+      onClick: () => {
+        navigate("/objects");
+      },
+    });
 
-  desktopItems.push({
-    key: "objects",
-    label: "Объекты",
-    onClick: () => {
-      navigate("/objects");
-    },
-  });
-
-  desktopItems.push({
-    key: "projects",
-    label: "Спецификации",
-    onClick: () => {
-      navigate("/projects");
-    },
-  });
+    desktopItems.push({
+      key: "projects",
+      label: "Спецификации",
+      onClick: () => {
+        navigate("/projects");
+      },
+    });
 
     desktopItems.push({
       key: "users",
@@ -59,15 +58,14 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       },
     });
 
-  desktopItems.push({
-    key: "works",
-    label: "Каталог работ",
-    onClick: () => {
-      navigate("/works");
-    },
-  });
-}
-
+    desktopItems.push({
+      key: "works",
+      label: "Каталог работ",
+      onClick: () => {
+        navigate("/works");
+      },
+    });
+  }
 
   desktopItems.push({
     key: "shifts",
