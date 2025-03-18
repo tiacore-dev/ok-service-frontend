@@ -189,15 +189,23 @@ export const App = () => {
 
   const [, contextHolder] = notification.useNotification();
 
+  const fullScreenMode = useSelector(
+    (state: IState) => state.settings.generalSettings.fullScreenMode,
+  );
+
+  const height = fullScreenMode ? null : pageHeight();
+
   return (
     <>
       <Layout>
-        {isAuth && !mobile && <AppHeader isMobile={mobile} />}
+        {isAuth && !mobile && !fullScreenMode && (
+          <AppHeader isMobile={mobile} />
+        )}
 
         <Layout
           style={{
             padding: mobile ? "0" : "0 24px",
-            height: pageHeight(),
+            height: height,
             overflowX: "auto",
             backgroundColor: "#FFFFFF",
           }}
@@ -233,7 +241,7 @@ export const App = () => {
           </Routes>
         </Layout>
 
-        {isAuth && <AppFooter />}
+        {isAuth && !fullScreenMode && <AppFooter />}
         {contextHolder}
       </Layout>
     </>

@@ -101,8 +101,6 @@ export const EditableCell = ({
         </Form.Item>
       ) : options ? (
         options.find((el) => el.value === children[1].toString())?.label
-      ) : inputType === "checkbox" ? (
-        <Checkbox checked={!!children[1]} />
       ) : (
         children[1]
       )}

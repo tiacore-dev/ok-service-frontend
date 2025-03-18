@@ -77,6 +77,7 @@ export const ImportProjectWorksDialog = (
 
       render: (text: string, record: IUploadData) => (
         <Select
+          allowClear
           style={{ width: "180px" }}
           showSearch
           filterOption={selectFilterHandler}
@@ -149,17 +150,15 @@ export const ImportProjectWorksDialog = (
   }, [uploadData, works]);
 
   const handleConfirm = useCallback(() => {
-    if (uploadData.every((el) => el.isCorrect)) {
-      createProjectWorks(
-        correctData.map((el) => ({
-          work: el.workId,
-          project: project.project_id,
-          quantity: el.quantity,
-          signed: role === RoleId.ADMIN || role === RoleId.MANAGER,
-        })),
-        project.project_id,
-      );
-    }
+    createProjectWorks(
+      correctData.map((el) => ({
+        work: el.workId,
+        project: project.project_id,
+        quantity: el.quantity,
+        signed: role === RoleId.ADMIN || role === RoleId.MANAGER,
+      })),
+      project.project_id,
+    );
   }, [project, uploadData, correctData, createProjectWorks]);
 
   return (

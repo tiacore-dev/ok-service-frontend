@@ -3,11 +3,13 @@ import { createSlice } from "@reduxjs/toolkit";
 export interface IGeneralSettingsState {
   showBackButton: boolean;
   appHeaderTitle?: string;
+  fullScreenMode?: boolean;
 }
 
 const initialState: IGeneralSettingsState = {
   showBackButton: false,
   appHeaderTitle: undefined,
+  fullScreenMode: false,
 };
 
 const generalSettingsSlice = createSlice({
@@ -26,6 +28,9 @@ const generalSettingsSlice = createSlice({
     ) => {
       state.appHeaderTitle = action.payload;
     },
+    toggleFullScreenMode: (state: IGeneralSettingsState) => {
+      state.fullScreenMode = !state.fullScreenMode;
+    },
     clearGeneralSettingsState: (state: IGeneralSettingsState) => {
       state.showBackButton = initialState.showBackButton;
     },
@@ -35,6 +40,7 @@ const generalSettingsSlice = createSlice({
 export const {
   setShowBackButton,
   setAppHeaderTitle,
+  toggleFullScreenMode,
   clearGeneralSettingsState,
 } = generalSettingsSlice.actions;
 

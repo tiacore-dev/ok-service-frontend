@@ -42,3 +42,33 @@ export const tenDaysAgo = () => {
   const timestampTenDaysAgo = tenDaysAgo.getTime();
   return timestampTenDaysAgo;
 };
+
+export const getLast21stDate = () => {
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+  const currentDay = today.getDate();
+
+  let targetMonth, targetYear;
+
+  if (currentDay >= 21) {
+    // Если сегодня 21 или позже, берем 21 число текущего месяца
+    targetMonth = currentMonth;
+    targetYear = currentYear;
+  } else {
+    // Если сегодня раньше 21, берем 21 число предыдущего месяца
+    targetMonth = currentMonth - 1;
+    targetYear = currentYear;
+
+    // Если текущий месяц январь (0), то предыдущий месяц будет декабрь (11) предыдущего года
+    if (targetMonth < 0) {
+      targetMonth = 11;
+      targetYear -= 1;
+    }
+  }
+
+  // Создаем дату 21 числа нужного месяца и года
+  const last21stDate = new Date(targetYear, targetMonth, 21).getTime();
+
+  return last21stDate;
+};

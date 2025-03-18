@@ -3,6 +3,7 @@ import {
   Breadcrumb,
   Button,
   Card,
+  Checkbox,
   Form,
   Layout,
   Popconfirm,
@@ -40,6 +41,7 @@ import {
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { ImportProjectWorksDialog } from "../../components/ActionDialogs/ImportProjectWorksDialog/ImportProjectWorksDialog";
+import { selectProjectStat } from "../../store/modules/pages/selectors/project.selector";
 
 export const Project = () => {
   const { Content } = Layout;
@@ -69,13 +71,14 @@ export const Project = () => {
   const usersMap = useSelector(getUsersMap);
 
   const routeParams = useParams();
-  const { getProject, deleteProject } = useProjects();
+  const { getProject, deleteProject, getProjectStat } = useProjects();
   const { getWorks } = useWorks();
 
   React.useEffect(() => {
     getUsers();
     getObjects();
     getWorks();
+    getProjectStat(routeParams.projectId);
     getProject(routeParams.projectId);
     getProjectWorks(routeParams.projectId);
 
@@ -86,7 +89,7 @@ export const Project = () => {
 
   const projectData = useSelector((state: IState) => state.pages.project.data);
   const isLoaded = useSelector((state: IState) => state.pages.project.loaded);
-
+  const stat = useSelector(selectProjectStat);
   const worksData = useSelector(getWorksData);
 
   const worksOptions = worksData.map((el) => ({
@@ -104,11 +107,13 @@ export const Project = () => {
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
     () =>
-      projectWorks.map((doc) => ({
-        ...doc,
-        key: doc.project_work_id,
-      })),
-    [projectWorks],
+      projectWorks.map((doc) => {
+        return {
+          ...doc,
+          key: doc.project_work_id,
+        };
+      }),
+    [projectWorks, stat],
   );
 
   React.useEffect(() => {
@@ -126,7 +131,6 @@ export const Project = () => {
     record.key === newRecordKey;
 
   const edit = (record: IProjectWorksListColumn) => {
-    console.log(record);
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
     if (newRecordKey) {
@@ -213,7 +217,6 @@ export const Project = () => {
       editable: true,
       required: true,
     },
-
     {
       title: "Согласовано",
       inputType: "checkbox",
@@ -221,6 +224,9 @@ export const Project = () => {
       key: "signed",
       editable: currentRole === RoleId.MANAGER || currentRole === RoleId.ADMIN,
       required: false,
+      render: (value: boolean) => {
+        return <Checkbox checked={value} />;
+      },
     },
 
     {
@@ -245,7 +251,16 @@ export const Project = () => {
         ) : (
           <Space>
             <Button
-              icon={<EditTwoTone twoToneColor="#e40808" />}
+              disabled={currentRole === RoleId.PROJECT_LEADER && record.signed}
+              icon={
+                <EditTwoTone
+                  twoToneColor={
+                    currentRole === RoleId.PROJECT_LEADER && record.signed
+                      ? "#808080"
+                      : "#e40808"
+                  }
+                />
+              }
               type="link"
               onClick={() => edit(record)}
             />
@@ -254,7 +269,18 @@ export const Project = () => {
               onConfirm={() => handleDelete(record.key)}
             >
               <Button
-                icon={<DeleteTwoTone twoToneColor="#e40808" />}
+                disabled={
+                  currentRole === RoleId.PROJECT_LEADER && record.signed
+                }
+                icon={
+                  <DeleteTwoTone
+                    twoToneColor={
+                      currentRole === RoleId.PROJECT_LEADER && record.signed
+                        ? "#808080"
+                        : "#e40808"
+                    }
+                  />
+                }
                 type="link"
               />
             </Popconfirm>

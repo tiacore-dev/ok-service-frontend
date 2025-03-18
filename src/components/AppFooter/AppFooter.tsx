@@ -32,7 +32,7 @@ export const AppFooter = () => {
     >
       <FileDoneOutlined style={{ fontSize: "20px" }} />
       <div style={{ fontSize: "12px" }}>Смены</div>
-    </Space>
+    </Space>,
   );
 
   items.push(
@@ -45,10 +45,10 @@ export const AppFooter = () => {
         navigate("/home");
       }}
     >
-      <LineChartOutlined  style={{ fontSize: "20px" }} />
+      <LineChartOutlined style={{ fontSize: "20px" }} />
       <div style={{ fontSize: "12px" }}>Главная</div>
-    </Space>
-  ); 
+    </Space>,
+  );
 
   if (role !== RoleId.USER) {
     items.push(
@@ -63,25 +63,24 @@ export const AppFooter = () => {
       >
         <TeamOutlined style={{ fontSize: "20px" }} />
         <div style={{ fontSize: "12px" }}>Пользователи</div>
-      </Space>
+      </Space>,
     );
 
-  items.push(
-    <Space
-      key="projects"
-      size="small"
-      direction="vertical"
-      style={{ textAlign: "center" }}
-      onClick={() => {
-        navigate("/projects");
-      }}
-    >
-      <ProfileOutlined style={{ fontSize: "20px" }} />
-      <div style={{ fontSize: "12px" }}>Спецификации</div>
-    </Space>
-  );
-}
-
+    items.push(
+      <Space
+        key="projects"
+        size="small"
+        direction="vertical"
+        style={{ textAlign: "center" }}
+        onClick={() => {
+          navigate("/projects");
+        }}
+      >
+        <ProfileOutlined style={{ fontSize: "20px" }} />
+        <div style={{ fontSize: "12px" }}>Спецификации</div>
+      </Space>,
+    );
+  }
 
   items.push(
     <Space
@@ -95,7 +94,7 @@ export const AppFooter = () => {
     >
       <IdcardOutlined style={{ fontSize: "20px" }} />
       <div style={{ fontSize: "12px" }}>Аккаунт</div>
-    </Space>
+    </Space>,
   );
 
   return isMobile() ? (

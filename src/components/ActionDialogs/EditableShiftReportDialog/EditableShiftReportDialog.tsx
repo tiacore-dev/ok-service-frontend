@@ -82,7 +82,7 @@ export const EditableShiftReportDialog = (
   );
 
   const userMap = useSelector((state: IState) => state.pages.users.data)
-    .filter((user) => user.role === RoleId.USER)
+    .filter((user) => user.role === RoleId.USER || user.user_id === userId)
     .map((el) => ({
       label: el.name,
       value: el.user_id,
@@ -114,7 +114,7 @@ export const EditableShiftReportDialog = (
 
   const date: Dayjs = data.date ? dayjs(data.date) : null;
   const handleDateChange = useCallback((value: Dayjs) => {
-    dispatch(editShiftReportAction.setDate(value.valueOf()));
+    dispatch(editShiftReportAction.setDate(value ? value.valueOf() : null));
   }, []);
 
   React.useEffect(() => {

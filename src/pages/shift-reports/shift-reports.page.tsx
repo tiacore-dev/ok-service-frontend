@@ -20,6 +20,7 @@ import { useObjects } from "../../hooks/ApiActions/objects";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
+import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
@@ -64,6 +65,7 @@ export const ShiftReports = () => {
   ).map((doc) => ({ ...doc, key: doc.shift_report_id }));
 
   const projectsMap = useSelector(getProjectsMap);
+  const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
 
   const isLoading = useSelector(
@@ -72,7 +74,13 @@ export const ShiftReports = () => {
 
   const columns = React.useMemo(
     () =>
-      shiftReportsDesktopColumns(navigate, projectsMap, usersMap, tableState),
+      shiftReportsDesktopColumns(
+        navigate,
+        projectsMap,
+        usersMap,
+        tableState,
+        objectsMap,
+      ),
     [navigate, projectsMap, usersMap, tableState],
   );
   return (

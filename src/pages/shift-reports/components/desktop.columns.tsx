@@ -12,6 +12,7 @@ import { IProject } from "../../../interfaces/projects/IProject";
 import { filterDropdown } from "../../../components/Table/filterDropdown";
 import { dateFilterDropdown } from "../../../components/Table/dateFilterDropdown";
 import { IShiftReportsSettingsState } from "../../../store/modules/settings/shift-reports";
+import { IObject } from "../../../interfaces/objects/IObject";
 
 interface IShiftReportsListColumns extends ColumnType<IShiftReportsListColumn> {
   key: string;
@@ -22,6 +23,7 @@ export const shiftReportsDesktopColumns = (
   projectMap: Record<string, IProject>,
   usersMap: Record<string, IUser>,
   tableState: IShiftReportsSettingsState,
+  objectsMap: Record<string, IObject>,
 ): ColumnsType<IShiftReportsListColumn> => {
   const collumns: ColumnsType<IShiftReportsListColumn> = [
     {
@@ -70,6 +72,27 @@ export const shiftReportsDesktopColumns = (
         usersMap[a.user]?.name > usersMap[b.user]?.name ? 1 : -1,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{usersMap[record.user]?.name}</div>
+      ),
+    },
+    {
+      title: "Объект",
+      dataIndex: "object",
+      key: "object",
+      filterDropdown: filterDropdown,
+      onFilter: (value, record) =>
+        objectsMap[projectMap[record.project]?.object]?.name
+          .toString()
+          .toLowerCase()
+          .includes(value.toString().toLowerCase()),
+      sorter: (a, b) =>
+        objectsMap[projectMap[a.project]?.object]?.name >
+        objectsMap[projectMap[b.project]?.object]?.name
+          ? 1
+          : -1,
+      render: (text: string, record: IShiftReportsListColumn) => (
+        <div>
+          <div>{objectsMap[projectMap[record.project]?.object]?.name}</div>
+        </div>
       ),
     },
     {
