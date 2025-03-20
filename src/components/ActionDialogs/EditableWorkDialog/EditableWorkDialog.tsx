@@ -48,12 +48,12 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
         label: el.name,
         value: el.work_category_id,
       })),
-    [categories]
+    [categories],
   );
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableWork
+    (state: IState) => state.editableEntities.editableWork,
   );
   const { sent, ...createWorkData } = data;
 
@@ -74,7 +74,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
           ...work,
           category: work.category.work_category_id,
           sent: false,
-        })
+        }),
       );
     } else {
       dispatch(clearCreateWorkState());
@@ -85,7 +85,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       dispatch(editWorkAction.setName(event.target.value));
     },
-    []
+    [],
   );
 
   const handleCategoryChange = useCallback((value: string) => {
@@ -96,7 +96,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       dispatch(editWorkAction.setMeasurementUnit(event.target.value));
     },
-    []
+    [],
   );
 
   return (

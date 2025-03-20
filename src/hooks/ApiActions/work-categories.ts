@@ -21,16 +21,21 @@ export const useWorkCategories = () => {
 
   const workCategoriesState = useSelector(getWorkCategoriesState);
 
-  const getWorkCategories = () => {
-    if (!workCategoriesState.loaded && !workCategoriesState.loading) {
+  const getWorkCategories = (force?: boolean) => {
+    if (
+      (!workCategoriesState.loaded && !workCategoriesState.loading) ||
+      force
+    ) {
       dispatch(getWorkCategoriesRequest());
       apiGet<{ work_categories: IWorkCategoriesList[] }>(
         "work_categories",
-        "all"
+        "all",
+        undefined,
+        { sort_by: "created_at" },
       )
         .then((workCategoriesData) => {
           dispatch(
-            getWorkCategoriesSuccess(workCategoriesData.work_categories)
+            getWorkCategoriesSuccess(workCategoriesData.work_categories),
           );
         })
         .catch((err) => {
@@ -46,15 +51,15 @@ export const useWorkCategories = () => {
   };
 
   const createWorkCategory = (
-    createbleWorkCategoryData: IEditableWorkCategory
+    createbleWorkCategoryData: IEditableWorkCategory,
   ) => {
     apiPost<{ work: IWorkCategory }>(
       "work_categories",
       "add",
-      createbleWorkCategoryData
+      createbleWorkCategoryData,
     )
       .then(() => {
-        getWorkCategories();
+        getWorkCategories(true);
         notificationApi.success({
           message: `Успешно`,
           description: "Категория работ создана",
@@ -75,16 +80,16 @@ export const useWorkCategories = () => {
 
   const editWorkCategory = (
     work_category_id: string,
-    editableWorkCategoryData: IEditableWorkCategory
+    editableWorkCategoryData: IEditableWorkCategory,
   ) => {
-    apiPatch<{}>(
+    apiPatch(
       "work_categories",
       work_category_id,
       "edit",
-      editableWorkCategoryData
+      editableWorkCategoryData,
     )
       .then(() => {
-        getWorkCategories();
+        getWorkCategories(true);
         notificationApi.success({
           message: `Успешно`,
           description: "Категория работ изменена",
@@ -104,7 +109,7 @@ export const useWorkCategories = () => {
   };
 
   const deleteWorkCategory = (work_category_id: string) => {
-    apiDelete<{}>("work_categories", work_category_id, "delete/hard")
+    apiDelete("work_categories", work_category_id, "delete/hard")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,
@@ -112,7 +117,7 @@ export const useWorkCategories = () => {
           placement: "bottomRight",
           duration: 2,
         });
-        getWorkCategories();
+        getWorkCategories(true);
       })
       .catch((err) => {
         console.log("deleteWorkFailure", err);

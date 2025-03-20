@@ -29,12 +29,12 @@ export const WorkCategories = () => {
   const { Content } = Layout;
   const [form] = Form.useForm();
   const workCategories = useSelector(
-    (state: IState) => state.pages.workCategories.data
+    (state: IState) => state.pages.workCategories.data,
   );
 
   const workCategoriesData: IWorkCategoriesListColumn[] = React.useMemo(
     () => workCategories.map((doc) => ({ ...doc, key: doc.work_category_id })),
-    [workCategories]
+    [workCategories],
   );
 
   const [editingKey, setEditingKey] = React.useState("");
@@ -57,10 +57,16 @@ export const WorkCategories = () => {
     getWorkCategories();
   }, []);
 
+  const workCategoriesDataIsLoaded = useSelector(
+    (state: IState) => state.pages.workCategories.loaded,
+  );
+
   React.useEffect(() => {
-    if (!actualData) {
+    if (workCategoriesDataIsLoaded) {
       setDataSource(workCategoriesData);
-      setActualData(true);
+      if (!actualData) {
+        setActualData(true);
+      }
     }
   }, [workCategoriesData]);
 
@@ -76,7 +82,7 @@ export const WorkCategories = () => {
       setDataSource(workCategoriesData);
       setNewRecordKey("");
     }
-  };;
+  };
 
   const cancel = () => {
     setEditingKey("");
@@ -110,7 +116,7 @@ export const WorkCategories = () => {
   };
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.workCategories.loading
+    (state: IState) => state.pages.workCategories.loading,
   );
 
   const handleAdd = () => {
@@ -241,7 +247,7 @@ export const WorkCategories = () => {
             }}
             dataSource={dataSource}
             columns={mergedColumns}
-            loading={isLoading || !actualData}
+            loading={isLoading}
           />
         </Form>
       </Content>

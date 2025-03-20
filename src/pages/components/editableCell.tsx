@@ -29,59 +29,54 @@ export const EditableCell = ({
   ...restProps
 }: IEditableCellProps) => {
   const form = Form.useFormInstance();
-  const defaultValue = form.getFieldValue(dataIndex);
-  const [value, setValue] = React.useState(defaultValue);
-
-  React.useEffect(() => {
-    setValue(defaultValue);
-  }, [defaultValue]);
+  const value = Form.useWatch(dataIndex, form);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(value);
     form.setFieldsValue({ [dataIndex]: event.target.value });
   };
 
   const handleInputNumberChange = (value: number) => {
-    setValue(value);
     form.setFieldsValue({ [dataIndex]: value });
   };
 
   const handleCheckboxChange = (event: CheckboxChangeEvent) => {
-    setValue(value);
     form.setFieldsValue({ [dataIndex]: event.target.checked });
   };
 
   const handleSelectChange = (value: string) => {
-    setValue(value);
     form.setFieldsValue({ [dataIndex]: value });
   };
 
-  let inputNode;
-  if (record) {
-    if (type === "input") {
-      if (inputType === "checkbox") {
-        inputNode = (
-          <Checkbox checked={value} onChange={handleCheckboxChange} />
+  const [inputNode, setInputNode] = React.useState<React.ReactElement>(null);
+
+  React.useEffect(() => {
+    if (record) {
+      if (type === "input") {
+        if (inputType === "checkbox") {
+          setInputNode(
+            <Checkbox checked={value} onChange={handleCheckboxChange} />,
+          );
+        } else if (inputType === "number") {
+          setInputNode(
+            <InputNumber onChange={handleInputNumberChange} value={value} />,
+          );
+        } else {
+          console.log(value);
+          setInputNode(<Input onChange={handleInputChange} value={value} />);
+        }
+      } else if (type === "select") {
+        setInputNode(
+          <Select
+            showSearch
+            filterOption={selectFilterHandler}
+            onChange={handleSelectChange}
+            value={value}
+            options={options}
+          />,
         );
-      } else if (inputType === "number") {
-        inputNode = (
-          <InputNumber onChange={handleInputNumberChange} value={value} />
-        );
-      } else {
-        inputNode = <Input onChange={handleInputChange} value={value} />;
       }
-    } else if (type === "select") {
-      inputNode = (
-        <Select
-          showSearch
-          filterOption={selectFilterHandler}
-          onChange={handleSelectChange}
-          value={value}
-          options={options}
-        />
-      );
     }
-  }
+  }, [value]);
 
   return (
     <td {...restProps}>
