@@ -1,6 +1,5 @@
 import { Col, Card, Row, Button, Space, Select } from "antd";
 import * as React from "react";
-import { Column, Line, Pie } from "@ant-design/charts";
 import Meta from "antd/es/card/Meta";
 import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +20,21 @@ import { IShiftReportsList } from "../../interfaces/shiftReports/IShiftReportsLi
 import { toggleFullScreenMode } from "../../store/modules/settings/general";
 import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+} from "recharts";
+import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { useUsers } from "../../hooks/ApiActions/users";
 
 const dateTenDaysAgo = tenDaysAgo();
 const last21stDate = getLast21stDate();
@@ -29,14 +43,30 @@ export const Main = () => {
   const authData = useSelector((state: IState) => state.auth);
   const isAuth = authData.isAuth;
   const dispatch = useDispatch();
-
+  const containerRef = React.useRef(null);
+  const [width, setWidth] = React.useState(0);
   const fullScreenMode = useSelector(
     (state: IState) => state.settings.generalSettings.fullScreenMode,
   );
 
+  const usersMap = useSelector(getUsersMap);
+  React.useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
   const { getShiftReports } = useShiftReports();
   const { getObjects } = useObjects();
   const { getProjects } = useProjects();
+  const { getUsers } = useUsers();
   const mobile = isMobile();
 
   React.useEffect(() => {
@@ -44,7 +74,7 @@ export const Main = () => {
       getShiftReports();
       getObjects();
       getProjects();
-
+      getUsers();
       const interval = setInterval(
         () => {
           getShiftReports();
@@ -63,6 +93,8 @@ export const Main = () => {
   const [dateFilterMode, setDateFilterMode] = React.useState<
     "tenDaysAgo" | "fromLast21st"
   >(role === RoleId.USER ? "fromLast21st" : "tenDaysAgo");
+
+  const [showMode, setShowMode] = React.useState<"all" | "byUsers">("all");
 
   const filterDate = React.useMemo(
     () =>
@@ -101,6 +133,42 @@ export const Main = () => {
         return acc;
       }, {}),
     [filteredShiftReportsData],
+  );
+
+  const totalCostDataByUser = React.useMemo(
+    () =>
+      filteredShiftReportsData.reduce(
+        (acc: Record<string, Record<string, number>>, val) => {
+          const user = val.user;
+
+          const date = dateTimestampToLocalString(val.date);
+
+          const userData = acc[user];
+
+          if (userData) {
+            const newSum = (userData[date] ?? 0) + val.shift_report_details_sum;
+            acc[user] = { ...userData, [date]: newSum };
+          } else {
+            acc[user] = { [date]: val.shift_report_details_sum };
+          }
+
+          return acc;
+        },
+        {},
+      ),
+    [filteredShiftReportsData],
+  );
+
+  const totalCostArrayByUser = React.useMemo(
+    () =>
+      Object.entries(totalCostDataByUser).map(([user, value]) => ({
+        user,
+        data: Object.entries(value).map(([date, value]) => ({
+          date,
+          value,
+        })),
+      })),
+    [totalCostData],
   );
 
   const totalCostArray = React.useMemo(
@@ -170,8 +238,8 @@ export const Main = () => {
         {},
       );
 
-      const result = Object.entries(dataWithObject).map(([client, value]) => ({
-        client,
+      const result = Object.entries(dataWithObject).map(([name, value]) => ({
+        name,
         value,
       }));
 
@@ -205,103 +273,154 @@ export const Main = () => {
               { label: "с 21-ого числа", value: "fromLast21st" },
             ]}
           ></Select>
+
+          <Select
+            value={showMode}
+            onChange={setShowMode}
+            options={[
+              { label: "По типу данных", value: "all" },
+              { label: "По сотрудникам", value: "byUsers" },
+            ]}
+          ></Select>
         </Space>
       )}
 
-      <Row gutter={[16, 16]}>
-        <Col key={0} xs={24} sm={12}>
-          <Card hoverable>
-            <Meta
-              title="Общая стоимость выполненных работ"
-              description={description}
-            />
-            <Column
-              height={400}
-              data={totalCostArray}
-              xField="date"
-              yField="value"
-              color="#1f78b4"
-              tooltip={false}
-              label={{
-                text: (originData: { date: string; value: number }) =>
-                  originData.value,
-                style: {
-                  fill: "#FFFFFF",
-                  fontSize: 12,
-                },
-                position: "top",
-              }}
-            />
-          </Card>
-        </Col>
-
-        {role !== RoleId.USER && (
-          <Col key={1} xs={24} sm={12}>
-            <Card hoverable>
-              <Meta title="Количество смен" description={description} />
-              <Column
+      {showMode === "byUsers" ? (
+        <Row gutter={[16, 16]}>
+          {totalCostArrayByUser.map((element) => (
+            <Col ref={containerRef} key={0} xs={24} sm={12}>
+              <Card hoverable style={{ padding: "0 24px" }}>
+                <Meta
+                  title={usersMap[element.user]?.name}
+                  description={description}
+                />
+                <BarChart
+                  width={width - 84}
+                  height={400}
+                  data={element.data}
+                  margin={{
+                    top: 30,
+                    right: 30,
+                    left: 0,
+                    bottom: 30,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis tick={{ fill: "black" }} dataKey="date" />
+                  <YAxis tick={{ fill: "black" }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#4090ff" name="Сумма" />
+                </BarChart>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <Row gutter={[16, 16]}>
+          <Col ref={containerRef} key={0} xs={24} sm={12}>
+            <Card hoverable style={{ padding: "0 24px" }}>
+              <Meta
+                title="Общая стоимость выполненных работ"
+                description={description}
+              />
+              <BarChart
+                width={width - 84}
                 height={400}
-                data={totalCountArray}
-                xField="date"
-                yField="value"
-                color="#1f78b4"
-                tooltip={false}
-                label={{
-                  text: (originData: { date: string; value: number }) =>
-                    originData.value,
-                  style: {
-                    fill: "#FFFFFF",
-                    fontSize: 12,
-                  },
-                  position: "top",
+                data={totalCostArray}
+                margin={{
+                  top: 30,
+                  right: 30,
+                  left: 0,
+                  bottom: 30,
                 }}
-              />
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis tick={{ fill: "black" }} dataKey="date" />
+                <YAxis tick={{ fill: "black" }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#4090ff" name="Сумма" />
+              </BarChart>
             </Card>
           </Col>
-        )}
 
-        {role !== RoleId.USER && (
-          <Col key={2} xs={24} sm={12}>
+          {role !== RoleId.USER && (
+            <Col key={1} xs={24} sm={12}>
+              <Card hoverable>
+                <Meta title="Количество смен" description={description} />
+                <BarChart
+                  width={width - 84}
+                  height={400}
+                  data={totalCountArray}
+                  margin={{
+                    top: 30,
+                    right: 30,
+                    left: 0,
+                    bottom: 30,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis tick={{ fill: "black" }} dataKey="date" />
+                  <YAxis tick={{ fill: "black" }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#4090ff" name="Количество смен" />
+                </BarChart>
+              </Card>
+            </Col>
+          )}
+
+          {role !== RoleId.USER && (
+            <Col key={2} xs={24} sm={12}>
+              <Card hoverable>
+                <Meta
+                  title="Средняя стоимость смены"
+                  description={description}
+                />
+                <LineChart
+                  width={width - 84}
+                  height={400}
+                  data={averageCostArray}
+                >
+                  <XAxis tick={{ fill: "black" }} dataKey="name" />
+                  <YAxis tick={{ fill: "black" }} />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    name="Средняя стоимость"
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#4090ff"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </Card>
+            </Col>
+          )}
+
+          <Col key={3} xs={24} sm={12}>
             <Card hoverable>
-              <Meta title="Средняя стоимость смены" description={description} />
-              <Line
-                height={400}
-                data={averageCostArray}
-                xField="date"
-                yField="value"
-                color="#1f78b4"
-                tooltip={false}
+              <Meta
+                title={"Cтоимость выполненных работ по объектам"}
+                description={description}
               />
+              <PieChart width={width - 84} height={400}>
+                <Pie
+                  data={clientData}
+                  dataKey="value"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#4090ff"
+                  label
+                />
+                <Tooltip />
+              </PieChart>
             </Card>
           </Col>
-        )}
-
-        <Col key={3} xs={24} sm={12}>
-          <Card hoverable>
-            <Meta
-              title={"Cтоимость выполненных работ по объектам"}
-              description={description}
-            />
-            <Pie
-              height={400}
-              data={clientData}
-              angleField={"value"}
-              colorField={"client"}
-              radius={0.8}
-              tooltip={false}
-              label={{
-                text: (originData: { date: string; value: number }) =>
-                  originData.value,
-                style: {
-                  fill: "#FFFFFF",
-                  fontSize: 12,
-                },
-                position: "top",
-              }}
-            />
-          </Card>
-        </Col>
-      </Row>
+        </Row>
+      )}
     </div>
   );
 };
