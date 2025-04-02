@@ -1,0 +1,164 @@
+import * as React from "react";
+import { Card, Col, Row, Tooltip } from "antd";
+import Meta from "antd/es/card/Meta";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useSelector } from "react-redux";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
+
+interface IChartsProps {
+  totalCostArray: {
+    date: string;
+    value: number;
+  }[];
+  totalCountArray: {
+    date: string;
+    value: number;
+  }[];
+  averageCostArray: {
+    date: string;
+    value: number;
+  }[];
+  clientData: {
+    name: string;
+    value: number;
+  }[];
+  description: string;
+}
+
+export const Charts = (props: IChartsProps) => {
+  const {
+    totalCostArray,
+    totalCountArray,
+    averageCostArray,
+    clientData,
+    description,
+  } = props;
+
+  const containerRef = React.useRef(null);
+  const [width, setWidth] = React.useState(0);
+  const role = useSelector(getCurrentRole);
+
+  React.useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  return (
+    <Row gutter={[16, 16]}>
+      <Col ref={containerRef} key={0} xs={24} sm={12}>
+        <Card hoverable style={{ padding: "0 24px" }}>
+          <Meta
+            title="Общая стоимость выполненных работ"
+            description={description}
+          />
+          <BarChart
+            width={width - 84}
+            height={400}
+            data={totalCostArray}
+            margin={{
+              top: 30,
+              right: 30,
+              left: 0,
+              bottom: 30,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis tick={{ fill: "black" }} dataKey="date" />
+            <YAxis tick={{ fill: "black" }} />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="value" fill="#4090ff" name="Сумма" />
+          </BarChart>
+        </Card>
+      </Col>
+
+      {role !== RoleId.USER && (
+        <Col key={1} xs={24} sm={12}>
+          <Card hoverable>
+            <Meta title="Количество смен" description={description} />
+            <BarChart
+              width={width - 84}
+              height={400}
+              data={totalCountArray}
+              margin={{
+                top: 30,
+                right: 30,
+                left: 0,
+                bottom: 30,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis tick={{ fill: "black" }} dataKey="date" />
+              <YAxis tick={{ fill: "black" }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="value" fill="#4090ff" name="Количество смен" />
+            </BarChart>
+          </Card>
+        </Col>
+      )}
+
+      {role !== RoleId.USER && (
+        <Col key={2} xs={24} sm={12}>
+          <Card hoverable>
+            <Meta title="Средняя стоимость смены" description={description} />
+            <LineChart width={width - 84} height={400} data={averageCostArray}>
+              <XAxis tick={{ fill: "black" }} dataKey="name" />
+              <YAxis tick={{ fill: "black" }} />
+              <Tooltip />
+              <Legend />
+              <Line
+                name="Средняя стоимость"
+                type="monotone"
+                dataKey="value"
+                stroke="#4090ff"
+                strokeWidth={2}
+              />
+            </LineChart>
+          </Card>
+        </Col>
+      )}
+
+      <Col key={3} xs={24} sm={12}>
+        <Card hoverable>
+          <Meta
+            title={"Cтоимость выполненных работ по объектам"}
+            description={description}
+          />
+          <PieChart width={width - 84} height={400}>
+            <Pie
+              data={clientData}
+              dataKey="value"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              fill="#4090ff"
+              label
+            />
+            <Tooltip />
+          </PieChart>
+        </Card>
+      </Col>
+    </Row>
+  );
+};
