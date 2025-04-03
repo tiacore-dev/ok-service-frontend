@@ -52,34 +52,35 @@ export const Filters = () => {
       const headers = [
         "Номер",
         "Дата",
-        " Исполнитель",
-        " Объект",
-        " Спецификация",
-        " Прораб",
-        " Сумма",
-        " Согласовано",
+        "Исполнитель",
+        "Объект",
+        "Спецификация",
+        "Прораб",
+        "Сумма",
+        "Согласовано",
       ].join(";");
       const rows = data
-        .map((obj) =>
-          Object.values(obj)
-            .map(
-              (value) => `"${String(value).replace(/"/g, '""')}"`, // Экранирование кавычек
-            )
-            .join(";"),
-        )
-        .join("\n");
+        .map((obj) => {
+          const values = Object.values(obj).map((value) => {
+            return `"${String(value).replace(/"/g, '""')}"`;
+          });
+          return values.join(";");
+        })
+        .join("\r\n"); // Используем \r\n для совместимости с Windows
 
-      const csvContent = `${headers}\n${rows}`;
+      // Добавляем BOM (Byte Order Mark) для правильной кодировки UTF-8
+      const csvContent = "\uFEFF" + headers + "\r\n" + rows;
 
-      // Создание Blob и скачивание
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      // Создание Blob с указанием кодировки
+      const blob = new Blob([csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
 
       link.setAttribute("href", url);
       link.setAttribute("download", filename);
-      link.style.visibility = "hidden";
-
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
