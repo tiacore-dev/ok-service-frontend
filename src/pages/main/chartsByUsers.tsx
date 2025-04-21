@@ -58,7 +58,7 @@ export const ChartsByUsers = (props: IChartsByUsersProps) => {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis tick={{ fill: "black" }} dataKey="date" />
-              <YAxis tick={{ fill: "black" }} />
+              <YAxis tick={{ fill: "black" }} domain={[0, 10000]} />
               <Tooltip />
               <Legend />
               <Bar dataKey="value" fill="#4090ff" name="Сумма" />

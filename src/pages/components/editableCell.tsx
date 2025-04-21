@@ -8,7 +8,7 @@ interface IEditableCellProps {
   dataIndex: string;
   title: string;
   type?: "input" | "select";
-  options?: { label: string; value: string }[];
+  options?: { label: string; value: string; deleted?: boolean }[];
   inputType?: "text" | "number" | "checkbox";
   required?: boolean;
   record: any;
@@ -49,6 +49,12 @@ export const EditableCell = ({
 
   const [inputNode, setInputNode] = React.useState<React.ReactElement>(null);
 
+  const selectOptions = options
+    ? editing
+      ? options.filter((el) => !el.deleted)
+      : options
+    : undefined;
+
   React.useEffect(() => {
     if (record) {
       if (type === "input") {
@@ -61,7 +67,6 @@ export const EditableCell = ({
             <InputNumber onChange={handleInputNumberChange} value={value} />,
           );
         } else {
-          console.log(value);
           setInputNode(<Input onChange={handleInputChange} value={value} />);
         }
       } else if (type === "select") {
@@ -71,7 +76,7 @@ export const EditableCell = ({
             filterOption={selectFilterHandler}
             onChange={handleSelectChange}
             value={value}
-            options={options}
+            options={selectOptions}
           />,
         );
       }

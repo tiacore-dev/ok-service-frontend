@@ -24,14 +24,14 @@ export interface IEditableWork extends Omit<IWork, "work_id" | "category"> {
 
 export const useWorks = () => {
   const dispatch = useDispatch();
-  const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
+  const { apiGet, apiPost, apiPatch } = useApi();
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
   const worksState = useSelector(getWorksState);
 
-  const getWorks = () => {
-    if (!worksState.loaded && !worksState.loading) {
+  const getWorks = (force?: boolean) => {
+    if (force || (!worksState.loaded && !worksState.loading)) {
       dispatch(getWorksRequest());
       apiGet<{ works: IWorksList[] }>("works", "all")
         .then((worksData) => {
@@ -72,7 +72,7 @@ export const useWorks = () => {
     apiPost<{ work: IWork }>("works", "add", createbleWorkData)
       .then(() => {
         navigate("/works");
-        getWorks();
+        getWorks(true);
         notificationApi.success({
           message: `Успешно`,
           description: "Работа создана",
@@ -95,10 +95,10 @@ export const useWorks = () => {
   const editWork = (work_id: string, editableWorkData: IEditableWork) => {
     dispatch(editWorkAction.sendWork());
 
-    apiPatch<{}>("works", work_id, "edit", editableWorkData)
+    apiPatch("works", work_id, "edit", editableWorkData)
       .then(() => {
         navigate("/works");
-        getWorks();
+        getWorks(true);
         notificationApi.success({
           message: `Успешно`,
           description: "Работа изменена",
@@ -119,7 +119,7 @@ export const useWorks = () => {
   };
 
   const deleteWork = (workId: string) => {
-    apiDelete<{}>("works", workId, "delete/hard")
+    apiPatch("works", workId, "delete/soft")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,
@@ -128,7 +128,7 @@ export const useWorks = () => {
           duration: 2,
         });
         navigate("/works");
-        getWorks();
+        getWorks(true);
       })
       .catch((err) => {
         console.log("deleteWorkFailure", err);

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Form, Input, Select, Space } from "antd";
+import { Checkbox, Form, Input, Select, Space } from "antd";
 import { IWork } from "../../../interfaces/works/IWork";
 import {
   clearCreateWorkState,
@@ -99,6 +99,10 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     [],
   );
 
+  const handleDeleteToggle = useCallback(() => {
+    dispatch(editWorkAction.toggleDelete());
+  }, []);
+
   return (
     <ActionDialog
       modalOkText="Сохранить"
@@ -143,6 +147,14 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
                 value={data.measurement_unit}
                 onChange={handleMeasurementUnitChange}
               />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Удалено"
+            >
+              <Checkbox checked={data.deleted} onChange={handleDeleteToggle} />
             </Form.Item>
           </Form>
         </Space>

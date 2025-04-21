@@ -19,7 +19,7 @@ export const Works = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.worksSettings.filters
+    (state: IState) => state.settings.worksSettings.filters,
   );
 
   const { getWorks } = useWorks();
@@ -29,7 +29,7 @@ export const Works = () => {
   }, [filters]);
 
   const worksData: IWorksListColumn[] = useSelector(
-    (state: IState) => state.pages.works.data
+    (state: IState) => state.pages.works.data,
   ).map((doc) => ({ ...doc, key: doc.work_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.works.loading);
@@ -40,7 +40,7 @@ export const Works = () => {
       isMobile()
         ? worksMobileColumns(navigate, currentRole)
         : worksDesktopColumns(navigate, currentRole, workCategoriesOptions),
-    [navigate, workCategoriesOptions, currentRole]
+    [navigate, workCategoriesOptions, currentRole],
   );
 
   return (
@@ -62,7 +62,12 @@ export const Works = () => {
         }}
       >
         <Filters />
-        <Table dataSource={worksData} columns={columns} loading={isLoading} />
+        <Table
+          pagination={false}
+          dataSource={worksData}
+          columns={columns}
+          loading={isLoading}
+        />
       </Content>
     </>
   );

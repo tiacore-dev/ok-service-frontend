@@ -43,7 +43,7 @@ export const Work = () => {
   const [newRecordKey, setNewRecordKey] = React.useState("");
   const [actualData, setActualData] = React.useState<boolean>(false);
   const [dataSource, setDataSource] = React.useState<IWorkPricesListColumn[]>(
-    []
+    [],
   );
 
   const routeParams = useParams();
@@ -72,11 +72,11 @@ export const Work = () => {
   const workData = useSelector((state: IState) => state.pages.work.data);
   const isLoaded = useSelector((state: IState) => state.pages.work.loaded);
   const workPricesIsLoaded = useSelector(
-    (state: IState) => state.pages.workPrices.loaded
+    (state: IState) => state.pages.workPrices.loaded,
   );
 
   const workPrices = useSelector((state: IState) =>
-    getWorkPricesByWorkId(state, workData?.work_id)
+    getWorkPricesByWorkId(state, workData?.work_id),
   );
 
   const workPricesData: IWorkPricesListColumn[] = React.useMemo(
@@ -85,7 +85,7 @@ export const Work = () => {
         ...doc,
         key: doc.work_price_id,
       })),
-    [workPrices]
+    [workPrices],
   );
 
   React.useEffect(() => {
@@ -109,7 +109,7 @@ export const Work = () => {
       setDataSource(workPricesData);
       setNewRecordKey("");
     }
-  };;
+  };
 
   const cancel = () => {
     setEditingKey("");
@@ -245,7 +245,7 @@ export const Work = () => {
   });
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading
+    (state: IState) => state.pages.workPrices.loading,
   );
 
   return (
@@ -276,17 +276,20 @@ export const Work = () => {
             size="small"
           >
             <EditableWorkDialog work={workData} />
-            <DeleteWorkDialog
-              onDelete={() => {
-                deleteWork(workData.work_id);
-              }}
-              name={workData.name}
-            />
+            {!workData.deleted && (
+              <DeleteWorkDialog
+                onDelete={() => {
+                  deleteWork(workData.work_id);
+                }}
+                name={workData.name}
+              />
+            )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Имя: {workData.name}</p>
             <p>Категория: {workData.category.name}</p>
             <p>Единица измерения: {workData.measurement_unit}</p>
+            <p>{workData.deleted && "Удалено"}</p>
           </Card>
 
           <Space

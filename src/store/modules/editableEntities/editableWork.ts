@@ -12,15 +12,17 @@ const initialState: IEditableWorkState = {
   name: "",
   category: "",
   measurement_unit: "шт.",
+  deleted: false,
 };
 
 const setWorkData = (
   state: IEditableWorkState,
-  workData: IEditableWorkState
+  workData: IEditableWorkState,
 ) => {
   state.name = workData.name;
   state.category = workData.category;
   state.measurement_unit = workData.measurement_unit;
+  state.deleted = workData.deleted;
   state.sent = false;
 };
 
@@ -30,7 +32,7 @@ const editableWorkSlice = createSlice({
   reducers: {
     setWorkData: (
       state: IEditableWorkState,
-      action: { payload: IEditableWorkState }
+      action: { payload: IEditableWorkState },
     ) => {
       setWorkData(state, action.payload);
     },
@@ -45,9 +47,13 @@ const editableWorkSlice = createSlice({
 
     setMeasurementUnit: (
       state: IEditableWorkState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.measurement_unit = action.payload;
+    },
+
+    toggleDelete: (state: IEditableWorkState) => {
+      state.deleted = !state.deleted;
     },
 
     sendWork: (state: IEditableWorkState) => {

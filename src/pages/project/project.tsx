@@ -95,6 +95,7 @@ export const Project = () => {
   const worksOptions = worksData.map((el) => ({
     label: el.name,
     value: el.work_id,
+    deleted: el.deleted,
   }));
 
   const projectWorksIsLoaded = useSelector(

@@ -4,11 +4,12 @@ import { NavigateFunction } from "react-router-dom";
 import { IWorksListColumn } from "../../../interfaces/works/IWorksList";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { filterDropdown } from "../../../components/Table/filterDropdown";
+import { DeleteOutlined } from "@ant-design/icons";
 
 export const worksDesktopColumns = (
   navigate: NavigateFunction,
   role: RoleId,
-  workCategoriesOptions?: { text: string; value: string }[]
+  workCategoriesOptions?: { text: string; value: string }[],
 ): ColumnsType<IWorksListColumn> => [
   {
     title: "Наименование",
@@ -28,6 +29,9 @@ export const worksDesktopColumns = (
       } else {
         return (
           <div>
+            {record.deleted && (
+              <DeleteOutlined style={{ marginRight: "8px" }} />
+            )}
             <a
               className="works__table__number"
               onClick={() => navigate && navigate(`/works/${record.key}`)}
