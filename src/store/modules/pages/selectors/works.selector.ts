@@ -54,8 +54,11 @@ export const getWorksState = createSelector(
 );
 
 export const getWorksData = createSelector(
-  [(state: IState) => state.pages.works.data],
-  (works) => works,
+  [
+    (state: IState) => state.pages.works.data,
+    (state: IState, notDeleted?: boolean) => notDeleted,
+  ],
+  (works, notDeleted) => works.filter((work) => !work.deleted || !notDeleted),
 );
 
 export const getWorksMap = createSelector(
