@@ -25,7 +25,7 @@ const workCategoriesSlice = createSlice({
     },
     getWorkCategoriesFailure: (
       state: IWorkCategoriesState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.loading = false;
       state.loaded = false;
@@ -33,7 +33,7 @@ const workCategoriesSlice = createSlice({
     },
     getWorkCategoriesSuccess: (
       state: IWorkCategoriesState,
-      action: { payload: IWorkCategoriesList[] }
+      action: { payload: IWorkCategoriesList[] },
     ) => {
       state.loading = false;
       state.loaded = true;

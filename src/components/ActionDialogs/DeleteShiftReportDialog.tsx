@@ -9,7 +9,9 @@ interface IDeleteShiftReportDialogProps {
   onDelete: () => void;
 }
 
-export const DeleteShiftReportDialog = (props: IDeleteShiftReportDialogProps) => {
+export const DeleteShiftReportDialog = (
+  props: IDeleteShiftReportDialogProps,
+) => {
   const { onDelete, number, iconOnly = true, buttonType = "default" } = props;
 
   return (
@@ -20,9 +22,7 @@ export const DeleteShiftReportDialog = (props: IDeleteShiftReportDialogProps) =>
       buttonType={buttonType}
       buttonIcon={<DeleteTwoTone twoToneColor="#ff1616" />}
       modalTitle={`Подтверждение удаления смены ${number}`}
-      modalText={
-        <p>Вы действительно хотитие удалить смену {number}?</p>
-      }
+      modalText={<p>Вы действительно хотитие удалить смену {number}?</p>}
     />
   );
 };

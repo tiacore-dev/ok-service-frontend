@@ -30,7 +30,7 @@ const objectsSlice = createSlice({
     },
     getObjectsSuccess: (
       state: IObjectsState,
-      action: { payload: IObjectsList[] }
+      action: { payload: IObjectsList[] },
     ) => {
       state.loading = false;
       state.loaded = true;

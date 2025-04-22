@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { useAuthToken } from "./useAuth";
-import { authlogout, refreshToken } from "../store/modules/auth";
+import { authlogout } from "../store/modules/auth";
 
 export interface ITokens {
   access_token: string;

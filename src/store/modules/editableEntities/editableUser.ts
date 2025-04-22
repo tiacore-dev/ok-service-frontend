@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { IUser } from "../../../interfaces/users/IUser";
-import { IRole, RoleId } from "../../../interfaces/roles/IRole";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 export interface IEditableUserState extends Omit<IUser, "user_id"> {
   sent: boolean;

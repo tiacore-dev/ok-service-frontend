@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
@@ -41,14 +41,14 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableUser
+    (state: IState) => state.editableEntities.editableUser,
   );
   const rolesMap = useSelector(getRoles).map((el) => ({
     label: el.name,
     value: el.role_id,
   }));
 
-  const { sent, ...createUserData } = data;
+  const { sent: _sent, ...createUserData } = data;
 
   const editUserData: IEditableUser = { ...createUserData };
 

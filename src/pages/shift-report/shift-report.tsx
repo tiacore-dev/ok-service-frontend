@@ -49,7 +49,6 @@ import { selectProjectStat } from "../../store/modules/pages/selectors/project.s
 import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
 import {
   getProjectWorksMapByProjectId,
-  getWorksData,
   getWorksMap,
 } from "../../store/modules/pages/selectors/works.selector";
 

@@ -32,7 +32,6 @@ import {
 import { IRole } from "../../interfaces/roles/IRole";
 import { User } from "../../pages/user/user";
 import { Object } from "../../pages/object/object";
-import { Projects } from "../../pages/projects/projects.page";
 import {
   clearObjectsState,
   getObjectsFailure,
@@ -221,7 +220,6 @@ export const App = () => {
                 <Route path=":objectId" element={<Object />} />
               </Route>
               <Route path="projects">
-                <Route index={true} element={<Projects />} />
                 <Route path=":projectId" element={<Project />} />
               </Route>
               <Route path="users">

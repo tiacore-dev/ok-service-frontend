@@ -33,7 +33,7 @@ export const Account = () => {
       apiPost<notificationsSubscribeResponse, notificationsSubscribeData>(
         "subscriptions",
         "subscribe",
-        subscriptionData
+        subscriptionData,
       );
     } catch (error) {
       console.error("Error subscribing to Push:", error);

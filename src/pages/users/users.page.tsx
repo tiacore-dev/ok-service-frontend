@@ -21,7 +21,7 @@ export const Users = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.usersSettings.filters
+    (state: IState) => state.settings.usersSettings.filters,
   );
 
   const { getUsers } = useUsers();
@@ -31,7 +31,7 @@ export const Users = () => {
   }, [filters]);
 
   const usersData: IUsersListColumn[] = useSelector(
-    (state: IState) => state.pages.users.data
+    (state: IState) => state.pages.users.data,
   ).map((doc) => ({ ...doc, key: doc.user_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.users.loading);
@@ -43,7 +43,7 @@ export const Users = () => {
       isMobile()
         ? usersMobileColumns(navigate, rolesMap)
         : usersDesktopColumns(navigate, rolesMap, rolesOptions),
-    [navigate]
+    [navigate],
   );
 
   return (

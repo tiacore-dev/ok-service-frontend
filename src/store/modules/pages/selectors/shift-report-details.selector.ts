@@ -7,5 +7,5 @@ export const getshiftReportDetailsByShiftReportId = createSelector(
     (_, shift_report_id?: string) => shift_report_id,
   ],
   (shiftReportDetails, shift_report_id) =>
-    shiftReportDetails.filter((el) => el.shift_report === shift_report_id)
+    shiftReportDetails.filter((el) => el.shift_report === shift_report_id),
 );

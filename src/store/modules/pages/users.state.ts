@@ -30,7 +30,7 @@ const usersSlice = createSlice({
     },
     getUsersSuccess: (
       state: IUsersState,
-      action: { payload: IUsersList[] }
+      action: { payload: IUsersList[] },
     ) => {
       state.loading = false;
       state.loaded = true;

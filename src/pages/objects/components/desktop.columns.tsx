@@ -10,7 +10,7 @@ export const objectsDesktopColumns = (
   navigate: NavigateFunction,
   statusMap: Record<string, IObjectStatus>,
   usersMap: Record<string, IUser>,
-  statusOptions?: { text: string; value: string }[]
+  statusOptions?: { text: string; value: string }[],
 ): ColumnsType<IObjectsListColumn> => [
   {
     title: "Имя",

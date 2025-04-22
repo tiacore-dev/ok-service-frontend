@@ -18,7 +18,7 @@ const initialState: IEditableObjectState = {
 
 const setObjectData = (
   state: IEditableObjectState,
-  objectData: Partial<IObject>
+  objectData: Partial<IObject>,
 ) => {
   state.object_id = objectData.object_id;
   state.name = objectData.name;
@@ -35,7 +35,7 @@ const editableObjectSlice = createSlice({
   reducers: {
     setObjectData: (
       state: IEditableObjectState,
-      action: { payload: IObject }
+      action: { payload: IObject },
     ) => {
       setObjectData(state, action.payload);
     },
@@ -50,14 +50,14 @@ const editableObjectSlice = createSlice({
 
     setDescription: (
       state: IEditableObjectState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.description = action.payload;
     },
 
     setStatus: (
       state: IEditableObjectState,
-      action: { payload: ObjectStatusId }
+      action: { payload: ObjectStatusId },
     ) => {
       state.status = action.payload;
     },

@@ -9,25 +9,25 @@ import { IProject } from "../../../interfaces/projects/IProject";
 export const shiftReportsMobileColumns = (
   navigate: NavigateFunction,
   projectMap: Record<string, IProject>,
-  usersMap: Record<string, IUser>
+  usersMap: Record<string, IUser>,
 ): ColumnsType<IShiftReportsListColumn> => [
-    {
-      dataIndex: "mobileData",
-      key: "mobileData",
-      width: "100%",
-      render: (text: string, record: IShiftReportsListColumn) => (
+  {
+    dataIndex: "mobileData",
+    key: "mobileData",
+    width: "100%",
+    render: (text: string, record: IShiftReportsListColumn) => (
+      <div>
+        <a
+          className="shift-reports__table__number"
+          onClick={() => navigate && navigate(`/shifts/${record.key}`)}
+        >
+          {`${usersMap[record.user]?.name} ${dateTimestampToLocalString(record.date)}`}
+        </a>
+        <div>Спецификация: {projectMap[record.project]?.name}</div>
         <div>
-          <a
-            className="shift-reports__table__number"
-            onClick={() => navigate && navigate(`/shifts/${record.key}`)}
-          >
-            {`${usersMap[record.user]?.name} ${dateTimestampToLocalString(record.date)}`}
-          </a>
-          <div>Спецификация: {projectMap[record.project]?.name}</div>
-          <div>
-            Прораб: {usersMap[projectMap[record.project]?.project_leader]?.name}
-          </div>
+          Прораб: {usersMap[projectMap[record.project]?.project_leader]?.name}
         </div>
-      ),
-    },
-  ];
+      </div>
+    ),
+  },
+];

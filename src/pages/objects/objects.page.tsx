@@ -23,7 +23,7 @@ export const Objects = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.objectsSettings.filters
+    (state: IState) => state.settings.objectsSettings.filters,
   );
 
   const { getObjects } = useObjects();
@@ -35,7 +35,7 @@ export const Objects = () => {
   }, [filters]);
 
   const objectsData: IObjectsListColumn[] = useSelector(
-    (state: IState) => state.pages.objects.data
+    (state: IState) => state.pages.objects.data,
   ).map((doc) => ({ ...doc, key: doc.object_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.objects.loading);
@@ -48,7 +48,7 @@ export const Objects = () => {
       isMobile()
         ? objectsMobileColumns(navigate, statusMap)
         : objectsDesktopColumns(navigate, statusMap, usersMap, statusOptions),
-    [navigate, statusMap, usersMap, statusOptions]
+    [navigate, statusMap, usersMap, statusOptions],
   );
   return (
     <>

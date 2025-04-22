@@ -37,7 +37,7 @@ const authSlice = createSlice({
     },
     refreshToken: (
       state: IAuthState,
-      action: { payload: { refresh_token: string; access_token: string } }
+      action: { payload: { refresh_token: string; access_token: string } },
     ) => {
       state.refresh_token = action.payload.refresh_token;
       state.access_token = action.payload.access_token;
@@ -61,15 +61,15 @@ export const auth = authSlice.reducer;
 
 export const getCurrentUserId = createSelector(
   [(state: IState) => state.auth.user_id],
-  (user_id) => user_id
+  (user_id) => user_id,
 );
 
 export const getCurrentRole = createSelector(
   [(state: IState) => state.auth.role],
-  (role) => role
+  (role) => role,
 );
 
 export const getCurrentCategory = createSelector(
   [(state: IState) => state.auth.category],
-  (category) => category
+  (category) => category,
 );

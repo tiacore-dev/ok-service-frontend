@@ -6,5 +6,5 @@ export const getWorkPricesByWorkId = createSelector(
     (state: IState) => state.pages.workPrices.data,
     (_, work_id?: string) => work_id,
   ],
-  (workPrices, work_id) => workPrices.filter((el) => el.work === work_id)
+  (workPrices, work_id) => workPrices.filter((el) => el.work === work_id),
 );

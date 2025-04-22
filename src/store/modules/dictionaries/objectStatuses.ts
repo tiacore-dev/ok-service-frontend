@@ -25,7 +25,7 @@ const objectStatusesSlice = createSlice({
     },
     getObjectStatusesFailure: (
       state: IObjectStatusesState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.loading = false;
       state.loaded = false;
@@ -33,7 +33,7 @@ const objectStatusesSlice = createSlice({
     },
     getObjectStatusesSuccess: (
       state: IObjectStatusesState,
-      action: { payload: IObjectStatus[] }
+      action: { payload: IObjectStatus[] },
     ) => {
       state.loading = false;
       state.loaded = true;
