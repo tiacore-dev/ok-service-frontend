@@ -3,5 +3,5 @@ export const selectFilterHandler = (
   option: {
     label: string;
     value: string;
-  }
+  },
 ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());

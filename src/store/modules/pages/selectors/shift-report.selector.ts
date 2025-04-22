@@ -3,10 +3,10 @@ import { IState } from "../..";
 
 export const getShiftReportData = createSelector(
   [(state: IState) => state.pages.shiftReport.data],
-  (shiftReports) => shiftReports
+  (shiftReports) => shiftReports,
 );
 
 export const getShiftReportLoading = createSelector(
   [(state: IState) => state.pages.shiftReport.loading],
-  (loading) => loading
+  (loading) => loading,
 );

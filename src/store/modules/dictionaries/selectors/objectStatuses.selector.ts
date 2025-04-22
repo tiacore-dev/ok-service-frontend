@@ -4,7 +4,7 @@ import { IObjectStatus } from "../../../../interfaces/objectStatuses/IObjectStat
 
 export const getObjectStatuses = createSelector(
   [(state: IState) => state.dictionaries.objectStatuses.data],
-  (objectStatuses) => objectStatuses
+  (objectStatuses) => objectStatuses,
 );
 
 export const getObjectStatusesMap = createSelector(
@@ -12,14 +12,14 @@ export const getObjectStatusesMap = createSelector(
   (objectStatuses) => {
     const map: Record<string, IObjectStatus> = {};
     objectStatuses.forEach(
-      (objectStatus) => (map[objectStatus.object_status_id] = objectStatus)
+      (objectStatus) => (map[objectStatus.object_status_id] = objectStatus),
     );
     return map;
-  }
+  },
 );
 
 export const getObjectStatusesOptions = createSelector(
   [(state: IState) => state.dictionaries.objectStatuses.data],
   (objectStatuses) =>
-    objectStatuses.map((el) => ({ text: el.name, value: el.object_status_id }))
+    objectStatuses.map((el) => ({ text: el.name, value: el.object_status_id })),
 );

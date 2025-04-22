@@ -10,6 +10,7 @@ import { getWorksData } from "../../../store/modules/pages/selectors/works.selec
 import { getCurrentRole } from "../../../store/modules/auth";
 import TextArea from "antd/es/input/TextArea";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
+import { IState } from "../../../store/modules";
 
 interface IImportProjectWorksDialogProps {
   project?: IProject;
@@ -40,7 +41,7 @@ export const ImportProjectWorksDialog = (
   const buttonIcon = <FileExcelTwoTone twoToneColor="#ff1616" />;
   const modalTitle = "Загрузить данные";
 
-  const works = useSelector(getWorksData);
+  const works = useSelector((state: IState) => getWorksData(state, true));
 
   const workOptions = useMemo(() => {
     return works.map((w) => ({
@@ -73,12 +74,12 @@ export const ImportProjectWorksDialog = (
       title: "Работа из справочника",
       dataIndex: "workId",
       key: "workId",
-      width: "30%",
+      width: "350px",
 
       render: (text: string, record: IUploadData) => (
         <Select
           allowClear
-          style={{ width: "180px" }}
+          style={{ width: "320px" }}
           showSearch
           filterOption={selectFilterHandler}
           value={record.workId}
@@ -171,7 +172,7 @@ export const ImportProjectWorksDialog = (
       buttonType="default"
       buttonIcon={buttonIcon}
       modalTitle={modalTitle}
-      customModalWidth={1000}
+      customModalWidth={1300}
       modalText={
         <Space direction="horizontal">
           <Space direction="vertical">
@@ -186,7 +187,7 @@ export const ImportProjectWorksDialog = (
           </Space>
           <Table
             pagination={false}
-            style={{ width: "600px" }}
+            style={{ width: "900px" }}
             dataSource={uploadData}
             columns={columns}
           />

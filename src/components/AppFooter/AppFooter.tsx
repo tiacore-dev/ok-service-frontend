@@ -68,16 +68,16 @@ export const AppFooter = () => {
 
     items.push(
       <Space
-        key="projects"
+        key="objects"
         size="small"
         direction="vertical"
         style={{ textAlign: "center" }}
         onClick={() => {
-          navigate("/projects");
+          navigate("/objects");
         }}
       >
         <ProfileOutlined style={{ fontSize: "20px" }} />
-        <div style={{ fontSize: "12px" }}>Спецификации</div>
+        <div style={{ fontSize: "12px" }}>Объекты</div>
       </Space>,
     );
   }

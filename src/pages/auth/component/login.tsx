@@ -28,7 +28,7 @@ export const Login = () => {
         const authLoginResponse = await apiPost<IAuthLoginResponse, ILoginData>(
           "auth",
           "login",
-          loginData
+          loginData,
         );
 
         const { user: userData } = await apiGet<{
@@ -36,7 +36,7 @@ export const Login = () => {
         }>(
           "users",
           `${authLoginResponse.user_id}/view`,
-          authLoginResponse.access_token
+          authLoginResponse.access_token,
         );
 
         dispatch(
@@ -48,7 +48,7 @@ export const Login = () => {
             category: userData.category,
             login: userData.login,
             role: userData.role,
-          })
+          }),
         );
         load(authLoginResponse.access_token);
         navigate("/home");
@@ -57,7 +57,7 @@ export const Login = () => {
         messageApi.error(errorMessage);
       }
     },
-    [apiPost, apiGet, dispatch, navigate, messageApi]
+    [apiPost, apiGet, dispatch, navigate, messageApi],
   );
   return (
     <>

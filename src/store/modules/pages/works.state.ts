@@ -30,7 +30,7 @@ const worksSlice = createSlice({
     },
     getWorksSuccess: (
       state: IWorksState,
-      action: { payload: IWorksList[] }
+      action: { payload: IWorksList[] },
     ) => {
       state.loading = false;
       state.loaded = true;

@@ -8,10 +8,10 @@ export const getObjectsMap = createSelector(
     const map: Record<string, IObject> = {};
     objects.forEach((object) => (map[object.object_id] = object));
     return map;
-  }
+  },
 );
 
 export const getObjectsState = createSelector(
   [(state: IState) => state.pages.objects],
-  (objects) => objects
+  (objects) => objects,
 );

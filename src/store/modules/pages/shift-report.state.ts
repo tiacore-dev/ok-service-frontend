@@ -25,7 +25,7 @@ const shiftReportSlice = createSlice({
     },
     getShiftReportFailure: (
       state: IShiftReportState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.loading = false;
       state.loaded = false;
@@ -33,7 +33,7 @@ const shiftReportSlice = createSlice({
     },
     getShiftReportSuccess: (
       state: IShiftReportState,
-      action: { payload: IShiftReport }
+      action: { payload: IShiftReport },
     ) => {
       state.loading = false;
       state.loaded = true;

@@ -23,7 +23,7 @@ export const useWorkPrices = () => {
       "work_prices",
       "all",
       undefined,
-      { ...params, sort_by: "category", sort_order: "asc" }
+      { ...params, sort_by: "category", sort_order: "asc" },
     )
       .then((workPricesData) => {
         dispatch(getWorkPricesSuccess(workPricesData.work_prices));
@@ -63,7 +63,7 @@ export const useWorkPrices = () => {
 
   const editWorkPrice = (
     work_price_id: string,
-    editableWorkPriceData: IEditableWorkPrice
+    editableWorkPriceData: IEditableWorkPrice,
   ) => {
     apiPatch<{}>("work_prices", work_price_id, "edit", editableWorkPriceData)
       .then(() => {

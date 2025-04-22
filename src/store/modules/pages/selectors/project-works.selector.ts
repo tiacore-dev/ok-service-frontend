@@ -1,6 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { IState } from "../..";
-import { IProject } from "../../../../interfaces/projects/IProject";
 
 export const getProjectWorksByProjectId = createSelector(
   [
@@ -13,5 +12,5 @@ export const getProjectWorksByProjectId = createSelector(
       return [];
     }
     return projectWorks.filter((el) => el.project === project_id);
-  }
+  },
 );

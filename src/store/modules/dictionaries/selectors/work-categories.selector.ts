@@ -4,12 +4,12 @@ import { IWorkCategory } from "../../../../interfaces/workCategories/IWorkCatego
 
 export const getWorkCategoriesAsArray = createSelector(
   [(state: IState) => state.pages.workCategories.data],
-  (workCategories) => workCategories
+  (workCategories) => workCategories,
 );
 
 export const loadedWorkCategories = createSelector(
   [(state: IState) => state.pages.workCategories.loaded],
-  (workCategories) => workCategories
+  (workCategories) => workCategories,
 );
 
 export const getWorkCategoriesMap = createSelector(
@@ -17,14 +17,14 @@ export const getWorkCategoriesMap = createSelector(
   (workCategories) => {
     const map: Record<string, IWorkCategory> = {};
     workCategories.forEach(
-      (category) => (map[category.work_category_id] = category)
+      (category) => (map[category.work_category_id] = category),
     );
     return map;
-  }
+  },
 );
 
 export const getWorkCategoriesOptions = createSelector(
   [(state: IState) => state.pages.workCategories.data],
   (workCategories) =>
-    workCategories.map((el) => ({ text: el.name, value: el.work_category_id }))
+    workCategories.map((el) => ({ text: el.name, value: el.work_category_id })),
 );

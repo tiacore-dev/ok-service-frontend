@@ -4,9 +4,9 @@ import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
 
 export interface IShiftReportsSettingsState {
-  pagination: TablePaginationConfig, 
-  filters: Record<string, FilterValue | null>, 
-  sorter: SorterResult<IShiftReportsListColumn>
+  pagination: TablePaginationConfig;
+  filters: Record<string, FilterValue | null>;
+  sorter: SorterResult<IShiftReportsListColumn>;
 }
 
 const initialState: IShiftReportsSettingsState = {
@@ -21,7 +21,7 @@ const shiftReportsSettingsSlice = createSlice({
   reducers: {
     saveShiftReportsTableState: (
       state: IShiftReportsSettingsState,
-      action: { payload: IShiftReportsSettingsState }
+      action: { payload: IShiftReportsSettingsState },
     ) => {
       state.pagination = action.payload.pagination;
       state.filters = action.payload.filters;

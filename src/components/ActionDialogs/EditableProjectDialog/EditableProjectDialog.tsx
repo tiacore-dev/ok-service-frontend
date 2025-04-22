@@ -38,10 +38,10 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableProject
+    (state: IState) => state.editableEntities.editableProject,
   );
   const objectMap = useSelector(
-    (state: IState) => state.pages.objects.data
+    (state: IState) => state.pages.objects.data,
   ).map((el) => ({
     label: el.name,
     value: el.object_id,

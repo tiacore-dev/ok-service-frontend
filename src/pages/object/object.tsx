@@ -2,7 +2,7 @@ import * as React from "react";
 import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
@@ -14,6 +14,10 @@ import { Link } from "react-router-dom";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { useProjects } from "../../hooks/ApiActions/projects";
+import { useUsers } from "../../hooks/ApiActions/users";
+import { clearProjectsState } from "../../store/modules/pages/projects.state";
+import { Projects } from "./projects/projects.page";
 
 export const Object = () => {
   const { Content } = Layout;
@@ -21,9 +25,19 @@ export const Object = () => {
   const routeParams = useParams();
   const { getObject, deleteObject } = useObjects();
   const usersMap = useSelector(getUsersMap);
+  const dispatch = useDispatch();
+
+  const { getProjects } = useProjects();
+  const { getUsers } = useUsers();
 
   React.useEffect(() => {
     getObject(routeParams.objectId);
+    getUsers();
+    getProjects();
+
+    return () => {
+      dispatch(clearProjectsState());
+    };
   }, []);
   const currentRole = useSelector(getCurrentRole);
   const objectData = useSelector((state: IState) => state.pages.object.data);
@@ -77,6 +91,9 @@ export const Object = () => {
             <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
             <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>
           </Card>
+          {objectData.object_id && (
+            <Projects object_id={objectData.object_id} />
+          )}
         </Content>
       ) : (
         <Spin />

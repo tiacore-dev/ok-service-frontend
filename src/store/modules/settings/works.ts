@@ -4,9 +4,9 @@ import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { IWorksListColumn } from "../../../interfaces/works/IWorksList";
 
 export interface IWorksSettingsState {
-  pagination: TablePaginationConfig, 
-      filters: Record<string, FilterValue | null>, 
-      sorter: SorterResult<IWorksListColumn>
+  pagination: TablePaginationConfig;
+  filters: Record<string, FilterValue | null>;
+  sorter: SorterResult<IWorksListColumn>;
 }
 
 const initialState: IWorksSettingsState = {
@@ -19,19 +19,19 @@ const worksSettingsSlice = createSlice({
   name: "worksSettings",
   initialState,
   reducers: {
-     saveWorksTableState: (
-              state: IWorksSettingsState,
-              action: { payload: IWorksSettingsState }
-            ) => {
-              state.pagination = action.payload.pagination;
-              state.filters = action.payload.filters;
-              state.sorter = action.payload.sorter;
-            },
-            clearWorksTableState: (state: IWorksSettingsState) => {
-              state.pagination = initialState.pagination;
-              state.filters = initialState.filters;
-              state.sorter = initialState.sorter;
-            },
+    saveWorksTableState: (
+      state: IWorksSettingsState,
+      action: { payload: IWorksSettingsState },
+    ) => {
+      state.pagination = action.payload.pagination;
+      state.filters = action.payload.filters;
+      state.sorter = action.payload.sorter;
+    },
+    clearWorksTableState: (state: IWorksSettingsState) => {
+      state.pagination = initialState.pagination;
+      state.filters = initialState.filters;
+      state.sorter = initialState.sorter;
+    },
   },
 });
 

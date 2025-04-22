@@ -1,11 +1,10 @@
 import * as React from "react";
 import { ColumnsType, ColumnType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
-import { IProjectsListColumn } from "../../../interfaces/projects/IProjectsList";
-import { IObject } from "../../../interfaces/objects/IObject";
-import { IUser } from "../../../interfaces/users/IUser";
-import { filterDropdown } from "../../../components/Table/filterDropdown";
-import { IProjectsSettingsState } from "../../../store/modules/settings/projects";
+import { IProjectsListColumn } from "../../../../interfaces/projects/IProjectsList";
+import { IUser } from "../../../../interfaces/users/IUser";
+import { IProjectsSettingsState } from "../../../../store/modules/settings/projects";
+import { filterDropdown } from "../../../../components/Table/filterDropdown";
 
 interface IProjectsListColumns extends ColumnType<IProjectsListColumn> {
   key: string;
@@ -13,32 +12,12 @@ interface IProjectsListColumns extends ColumnType<IProjectsListColumn> {
 
 export const projectsDesktopColumns = (
   navigate: NavigateFunction,
-  objectsMap: Record<string, IObject>,
   usersMap: Record<string, IUser>,
   tableState: IProjectsSettingsState,
 ): ColumnsType<IProjectsListColumn> => {
   const collumns: ColumnsType<IProjectsListColumn> = [
     {
-      title: "Объект",
-      dataIndex: "object",
-      key: "object",
-      width: "20%",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        objectsMap[record.object]?.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) =>
-        objectsMap[a.object]?.name > objectsMap[b.object]?.name ? 1 : -1,
-      render: (text: string, record: IProjectsListColumn) => (
-        <div>
-          <div>{objectsMap[record.object]?.name}</div>
-        </div>
-      ),
-    },
-    {
-      title: "Имя",
+      title: "Спецификация",
       dataIndex: "name",
       key: "name",
       width: "20%",

@@ -9,7 +9,7 @@ import { categoryFilterOptions } from "../../../utils/categoryMap";
 export const usersDesktopColumns = (
   navigate: NavigateFunction,
   rolesMap: Record<string, IRole>,
-  rolesOptions?: { text: string; value: string }[]
+  rolesOptions?: { text: string; value: string }[],
 ): ColumnsType<IUsersListColumn> => [
   {
     title: "Имя",

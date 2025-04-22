@@ -27,7 +27,7 @@ registerRoute(
   ({ url }) => url.origin === "https://fonts.googleapis.com",
   new StaleWhileRevalidate({
     cacheName: "google-fonts-stylesheets",
-  })
+  }),
 );
 
 // Cache the underlying font files with a cache-first strategy for 1 year.
@@ -45,7 +45,7 @@ registerRoute(
         maxEntries: 30,
       }),
     ],
-  })
+  }),
 );
 
 /**
@@ -65,7 +65,7 @@ registerRoute(
       }),
       new ExpirationPlugin({ maxEntries: 1 }), // Will cache maximum 1 requests.
     ],
-  })
+  }),
 );
 
 /**
@@ -87,7 +87,7 @@ registerRoute(
         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
       }),
     ],
-  })
+  }),
 );
 
 // @see https://developers.google.com/web/tools/workbox/guides/common-recipes#cache_css_and_javascript_files
@@ -96,7 +96,7 @@ registerRoute(
     request.destination === "script" || request.destination === "style",
   new StaleWhileRevalidate({
     cacheName: "static-resources",
-  })
+  }),
 );
 
 self.addEventListener("push", (event) => {
@@ -126,7 +126,7 @@ self.addEventListener("notificationclick", (event) => {
           if (clients.openWindow) {
             return clients.openWindow(link); // Открываем новое окно, если вкладка не найдена
           }
-        })
+        }),
     );
   }
 });

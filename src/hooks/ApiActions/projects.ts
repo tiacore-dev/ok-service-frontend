@@ -27,7 +27,6 @@ export const useProjects = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
-
   const getProjects = () => {
     dispatch(getProjectsRequest());
     apiGet<{ projects: IProjectsList[] }>("projects", "all")

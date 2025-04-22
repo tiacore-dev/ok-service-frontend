@@ -25,7 +25,7 @@ const workPricesSlice = createSlice({
     },
     getWorkPricesFailure: (
       state: IWorkPricesState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.loading = false;
       state.loaded = false;
@@ -33,7 +33,7 @@ const workPricesSlice = createSlice({
     },
     getWorkPricesSuccess: (
       state: IWorkPricesState,
-      action: { payload: IWorkPricesList[] }
+      action: { payload: IWorkPricesList[] },
     ) => {
       state.loading = false;
       state.loaded = true;

@@ -15,7 +15,7 @@ const initialState: IEditableProjectState = {
 
 const setProjectData = (
   state: IEditableProjectState,
-  projectData: Partial<IProject>
+  projectData: Partial<IProject>,
 ) => {
   state.project_id = projectData.project_id;
   state.name = projectData.name;
@@ -30,7 +30,7 @@ const editableProjectSlice = createSlice({
   reducers: {
     setProjectData: (
       state: IEditableProjectState,
-      action: { payload: IProject }
+      action: { payload: IProject },
     ) => {
       setProjectData(state, action.payload);
     },
@@ -45,7 +45,7 @@ const editableProjectSlice = createSlice({
 
     setProjectLeader: (
       state: IEditableProjectState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.project_leader = action.payload;
     },

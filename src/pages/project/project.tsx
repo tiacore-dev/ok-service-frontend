@@ -340,6 +340,9 @@ export const Project = () => {
     </Form>
   );
 
+  const object = objectsMap[projectData?.object];
+  const objectLink = `/objects/${projectData?.object}`;
+
   return (
     <>
       <Breadcrumb
@@ -348,7 +351,10 @@ export const Project = () => {
         items={[
           { title: <Link to="/home">Главная</Link> },
           {
-            title: <Link to="/projects">Спецификации</Link>,
+            title: <Link to="/objects">Объекты</Link>,
+          },
+          {
+            title: <Link to={objectLink}>{object?.name}</Link>,
           },
           { title: projectData?.name },
         ]}

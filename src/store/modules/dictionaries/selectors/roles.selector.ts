@@ -4,7 +4,7 @@ import { IRole } from "../../../../interfaces/roles/IRole";
 
 export const getRoles = createSelector(
   [(state: IState) => state.dictionaries.roles.data],
-  (roles) => roles
+  (roles) => roles,
 );
 
 export const getRolesMap = createSelector(
@@ -13,10 +13,10 @@ export const getRolesMap = createSelector(
     const map: Record<string, IRole> = {};
     roles.forEach((role) => (map[role.role_id] = role));
     return map;
-  }
+  },
 );
 
 export const getRolesOptions = createSelector(
   [(state: IState) => state.dictionaries.roles.data],
-  (roles) => roles.map((el) => ({ text: el.name, value: el.role_id }))
+  (roles) => roles.map((el) => ({ text: el.name, value: el.role_id })),
 );

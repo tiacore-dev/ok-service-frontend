@@ -25,7 +25,7 @@ const projectsSlice = createSlice({
     },
     getProjectsFailure: (
       state: IProjectsState,
-      action: { payload: string }
+      action: { payload: string },
     ) => {
       state.loading = false;
       state.loaded = false;
@@ -33,7 +33,7 @@ const projectsSlice = createSlice({
     },
     getProjectsSuccess: (
       state: IProjectsState,
-      action: { payload: IProjectsList[] }
+      action: { payload: IProjectsList[] },
     ) => {
       state.loading = false;
       state.loaded = true;
