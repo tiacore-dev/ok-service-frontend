@@ -8,10 +8,10 @@ export const getUsersMap = createSelector(
     const map: Record<string, IUser> = {};
     users.forEach((user) => (map[user.user_id] = user));
     return map;
-  }
+  },
 );
 
 export const getUsersState = createSelector(
   [(state: IState) => state.pages.users],
-  (users) => users
+  (users) => users,
 );

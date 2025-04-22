@@ -1,7 +1,15 @@
 import * as React from "react";
-import { Card, Col, Row, Tooltip } from "antd";
+import { Card, Col, Row } from "antd";
 import Meta from "antd/es/card/Meta";
-import { Bar, BarChart, CartesianGrid, Legend, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  XAxis,
+  Tooltip,
+  YAxis,
+} from "recharts";
 import { useSelector } from "react-redux";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 

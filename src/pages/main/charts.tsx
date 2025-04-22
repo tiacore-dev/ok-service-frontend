@@ -1,10 +1,12 @@
 import * as React from "react";
-import { Card, Col, Row, Tooltip } from "antd";
+import { Card, Col, Row } from "antd";
 import Meta from "antd/es/card/Meta";
 import {
   Bar,
   BarChart,
   CartesianGrid,
+  Tooltip,
+  Cell,
   Legend,
   Line,
   LineChart,
@@ -37,6 +39,19 @@ interface IChartsProps {
   description: string;
 }
 
+const colors = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#8884d8",
+  "#82ca9d",
+  "#FF5733",
+  "#E91E63",
+  "#4CAF50",
+  "#9C27B0",
+];
+
 export const Charts = (props: IChartsProps) => {
   const {
     totalCostArray,
@@ -66,7 +81,7 @@ export const Charts = (props: IChartsProps) => {
   return (
     <Row gutter={[16, 16]}>
       <Col ref={containerRef} key={0} xs={24} sm={12}>
-        <Card hoverable style={{ padding: "0 24px" }}>
+        <Card style={{ padding: "0 24px" }}>
           <Meta
             title="Общая стоимость выполненных работ"
             description={description}
@@ -94,7 +109,7 @@ export const Charts = (props: IChartsProps) => {
 
       {role !== RoleId.USER && (
         <Col key={1} xs={24} sm={12}>
-          <Card hoverable>
+          <Card>
             <Meta title="Количество смен" description={description} />
             <BarChart
               width={width - 84}
@@ -120,7 +135,7 @@ export const Charts = (props: IChartsProps) => {
 
       {role !== RoleId.USER && (
         <Col key={2} xs={24} sm={12}>
-          <Card hoverable>
+          <Card>
             <Meta title="Средняя стоимость смены" description={description} />
             <LineChart width={width - 84} height={400} data={averageCostArray}>
               <XAxis tick={{ fill: "black" }} dataKey="name" />
@@ -140,7 +155,7 @@ export const Charts = (props: IChartsProps) => {
       )}
 
       <Col key={3} xs={24} sm={12}>
-        <Card hoverable>
+        <Card>
           <Meta
             title={"Cтоимость выполненных работ по объектам"}
             description={description}
@@ -154,7 +169,11 @@ export const Charts = (props: IChartsProps) => {
               outerRadius={100}
               fill="#4090ff"
               label
-            />
+            >
+              {clientData.map((entry, index) => (
+                <Cell fill={colors[index % colors.length]} />
+              ))}
+            </Pie>
             <Tooltip />
           </PieChart>
         </Card>

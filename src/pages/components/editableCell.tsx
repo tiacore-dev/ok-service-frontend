@@ -100,7 +100,7 @@ export const EditableCell = ({
           {inputNode}
         </Form.Item>
       ) : options ? (
-        options.find((el) => el.value === children[1].toString())?.label
+        options.find((el) => el.value === children[1]?.toString())?.label
       ) : (
         children[1]
       )}

@@ -57,7 +57,7 @@ export const ImportProjectWorksDialog = (
   );
   const columns = [
     {
-      title: "Текст",
+      title: "Наименование",
       dataIndex: "workString",
       key: "workString",
       width: "25%",
@@ -153,6 +153,7 @@ export const ImportProjectWorksDialog = (
     createProjectWorks(
       correctData.map((el) => ({
         work: el.workId,
+        project_work_name: el.workString,
         project: project.project_id,
         quantity: el.quantity,
         signed: role === RoleId.ADMIN || role === RoleId.MANAGER,

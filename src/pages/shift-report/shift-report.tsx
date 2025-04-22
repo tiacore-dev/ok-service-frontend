@@ -27,7 +27,6 @@ import { EditableCell } from "../components/editableCell";
 import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { getshiftReportDetailsByShiftReportId } from "../../store/modules/pages/selectors/shift-report-details.selector";
 import { useShiftReportDetails } from "../../hooks/ApiActions/shift-report-detail";
-import { getWorksByProjectId } from "../../store/modules/pages/selectors/works.selector";
 import { getShiftReportData } from "../../store/modules/pages/selectors/shift-report.selector";
 import { clearShiftReportDetailsState } from "../../store/modules/pages/shift-report-details.state";
 import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
@@ -47,6 +46,12 @@ import { RoleId } from "../../interfaces/roles/IRole";
 import { getCurrentRole } from "../../store/modules/auth";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { selectProjectStat } from "../../store/modules/pages/selectors/project.selector";
+import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
+import {
+  getProjectWorksMapByProjectId,
+  getWorksData,
+  getWorksMap,
+} from "../../store/modules/pages/selectors/works.selector";
 
 const { Text } = Typography;
 
@@ -111,15 +116,21 @@ export const ShiftReport = () => {
     }
   }, [shiftReportData?.project]);
 
-  const worksData = useSelector((state: IState) =>
-    getWorksByProjectId(state, shiftReportData?.project),
+  const projectWorksData = useSelector((state: IState) =>
+    getProjectWorksByProjectId(state, shiftReportData?.project),
+  );
+
+  const worksMap = useSelector((state: IState) => getWorksMap(state));
+
+  const projectWorksMapByProjectId = useSelector((state: IState) =>
+    getProjectWorksMapByProjectId(state, shiftReportData?.project),
   );
 
   const stat = useSelector(selectProjectStat);
 
-  const worksOptions = worksData.map((el) => ({
-    label: el.name,
-    value: el.work_id,
+  const projectWorksOptions = projectWorksData.map((el) => ({
+    label: el.project_work_name,
+    value: el.project_work_id,
   }));
 
   const shiftReportDetails = useSelector((state: IState) =>
@@ -187,6 +198,7 @@ export const ShiftReport = () => {
         const item = newData[index];
         const row = {
           ...rowData,
+          work: projectWorksMapByProjectId[rowData.project_work].work,
           quantity: Number(rowData.quantity),
           shift_report: shiftReportData.shift_report_id,
         };
@@ -211,6 +223,7 @@ export const ShiftReport = () => {
       const newData = {
         key: "new",
         shift_report: shiftReportData.shift_report_id,
+        project_work: "",
         work: "",
         quantity: 0,
         summ: 0,
@@ -229,12 +242,20 @@ export const ShiftReport = () => {
 
   const columns = [
     {
-      title: "Работа",
+      title: "Наименование",
       type: "select",
-      options: worksOptions,
+      options: projectWorksOptions,
+      dataIndex: "project_work",
+      key: "project_work",
+      editable: true,
+      required: true,
+    },
+    {
+      title: "Работа",
+      type: "string",
       dataIndex: "work",
       key: "work",
-      editable: true,
+      editable: false,
       required: true,
     },
     {
@@ -309,9 +330,11 @@ export const ShiftReport = () => {
     },
   ];
 
+  const workRender = (work: string) => worksMap[work]?.name;
+
   const mergedColumns = columns.map((col) => {
     if (!col.editable) {
-      return col;
+      return col.dataIndex === "work" ? { ...col, render: workRender } : col;
     }
     return {
       ...col,

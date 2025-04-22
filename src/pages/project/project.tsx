@@ -182,6 +182,7 @@ export const Project = () => {
       const newData = {
         key: "new",
         project: projectData.project_id,
+        project_work_name: "",
         work: "",
         quantity: 0,
         summ: 0,
@@ -200,6 +201,14 @@ export const Project = () => {
   };
 
   const columns = [
+    {
+      title: "Наименование",
+      dataIndex: "project_work_name",
+      type: "input",
+      key: "project_work_name",
+      editable: true,
+      required: true,
+    },
     {
       title: "Работа",
       dataIndex: "work",

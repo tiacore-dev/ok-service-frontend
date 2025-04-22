@@ -24,13 +24,13 @@ export const useShiftReportDetails = () => {
       "shift_report_details",
       "all",
       undefined,
-      { ...params, sort_by: "created_at" }
+      { ...params, sort_by: "created_at" },
     )
       .then((shiftReportDetailsData) => {
         dispatch(
           getShiftReportDetailsSuccess(
-            shiftReportDetailsData.shift_report_details
-          )
+            shiftReportDetailsData.shift_report_details,
+          ),
         );
       })
       .catch((err) => {
@@ -46,12 +46,12 @@ export const useShiftReportDetails = () => {
   };
 
   const createShiftReportDetail = (
-    createbleShiftReportDetailData: IEditableShiftReportDetail
+    createbleShiftReportDetailData: IEditableShiftReportDetail,
   ) => {
     apiPost<{ work: IShiftReportDetail }>(
       "shift_report_details",
       "add",
-      createbleShiftReportDetailData
+      createbleShiftReportDetailData,
     )
       .then(() => {
         getShiftReportDetails({
@@ -77,13 +77,13 @@ export const useShiftReportDetails = () => {
 
   const editShiftReportDetail = (
     shift_report_detail_id: string,
-    editableShiftReportDetailData: IEditableShiftReportDetail
+    editableShiftReportDetailData: IEditableShiftReportDetail,
   ) => {
-    apiPatch<{}>(
+    apiPatch(
       "shift_report_details",
       shift_report_detail_id,
       "edit",
-      editableShiftReportDetailData
+      editableShiftReportDetailData,
     )
       .then(() => {
         getShiftReportDetails({
@@ -109,9 +109,9 @@ export const useShiftReportDetails = () => {
 
   const deleteShiftReportDetail = (
     shift_report_detail_id: string,
-    shift_report_id: string
+    shift_report_id: string,
   ) => {
-    apiDelete<{}>("shift_report_details", shift_report_detail_id, "delete/hard")
+    apiDelete("shift_report_details", shift_report_detail_id, "delete/hard")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,
