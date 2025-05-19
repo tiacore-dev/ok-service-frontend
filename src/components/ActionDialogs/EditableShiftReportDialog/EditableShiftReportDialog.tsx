@@ -18,6 +18,10 @@ import { RoleId } from "../../../interfaces/roles/IRole";
 import { getModalContentWidth } from "../../../utils/pageSettings";
 import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
+import {
+  useCreateShiftReportMutation,
+  useEditShiftReportMutation,
+} from "../../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableShiftReportDialogProps {
@@ -26,10 +30,12 @@ interface IEditableShiftReportDialogProps {
 }
 
 export const EditableShiftReportDialog = (
-  props: IEditableShiftReportDialogProps,
+  props: IEditableShiftReportDialogProps
 ) => {
   const { shiftReport, iconOnly } = props;
   const [object, setObject] = React.useState("");
+  const { mutate: editReportMutation } = useEditShiftReportMutation();
+  const { mutate: createReportMutation } = useCreateShiftReportMutation();
 
   const { createShiftReport, editShiftReport } = useShiftReports();
   const buttonText = shiftReport ? "Редактировать" : "Создать";
@@ -51,25 +57,25 @@ export const EditableShiftReportDialog = (
   const dispatch = useDispatch();
 
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableShiftReport,
+    (state: IState) => state.editableEntities.editableShiftReport
   );
 
   const objectMap = useSelector(
-    (state: IState) => state.pages.objects.data,
+    (state: IState) => state.pages.objects.data
   ).map((el) => ({
     label: el.name,
     value: el.object_id,
   }));
 
   const projectsData = useSelector(
-    (state: IState) => state.pages.projects.data,
+    (state: IState) => state.pages.projects.data
   );
 
   const projectsMap = useSelector(getProjectsMap);
 
   const filteredProjectMapData = useMemo(
     () => projectsData.filter((el) => !object || el.object === object),
-    [projectsData, object],
+    [projectsData, object]
   );
 
   const projectMap = useMemo(
@@ -78,7 +84,7 @@ export const EditableShiftReportDialog = (
         label: el.name,
         value: el.project_id,
       })),
-    [filteredProjectMapData],
+    [filteredProjectMapData]
   );
 
   const userMap = useSelector((state: IState) => state.pages.users.data)
@@ -92,12 +98,43 @@ export const EditableShiftReportDialog = (
 
   const handleConfirm = useCallback(() => {
     if (shiftReport) {
-      editShiftReport(shiftReport.shift_report_id, shiftReportData);
+      // editShiftReport(shiftReport.shift_report_id, shiftReportData);
+      //мутация редактирования
+      editReportMutation(
+        {
+          report_id: shiftReport.shift_report_id,
+          reportData: shiftReportData,
+        }
+        // {
+        //   onSuccess: () => {
+        //     dispatch(editShiftReportAction.sendSuccess());
+        //   },
+        //   onError: () => {
+        //     dispatch(editShiftReportAction.saveError());
+        //   }
+        // }
+      );
     } else {
-      createShiftReport({
+      // createShiftReport({
+      //   ...shiftReportData,
+      //   user: role === RoleId.USER ? userId : shiftReportData.user,
+      // });
+      const reportData = {
         ...shiftReportData,
         user: role === RoleId.USER ? userId : shiftReportData.user,
-      });
+      };
+      createReportMutation(
+        reportData
+        // {
+        //   onSuccess: () => {
+        //     dispatch(editShiftReportAction.sendSuccess());
+        //   },
+        //   onError: () => {
+        //     dispatch(editShiftReportAction.saveError());
+        //   }
+        // }
+      );
+      //мутация создания
     }
   }, [shiftReport, shiftReportData, shiftReportData]);
 
@@ -120,7 +157,7 @@ export const EditableShiftReportDialog = (
   React.useEffect(() => {
     if (filteredProjectMapData.length === 1) {
       dispatch(
-        editShiftReportAction.setProject(filteredProjectMapData[0].project_id),
+        editShiftReportAction.setProject(filteredProjectMapData[0].project_id)
       );
     }
   }, [filteredProjectMapData]);

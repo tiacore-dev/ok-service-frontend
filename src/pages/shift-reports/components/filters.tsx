@@ -1,15 +1,18 @@
 import { Button, Space } from "antd";
 import * as React from "react";
 import { isMobile } from "../../../utils/isMobile";
-import { EditableShiftReportDialog } from "../../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
+import { FileExcelOutlined, ClearOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { IShiftReportsList } from "../../../interfaces/shiftReports/IShiftReportsList";
-import { IState } from "../../../store/modules";
+import { EditableShiftReportDialog } from "../../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
 import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import { FileExcelOutlined } from "@ant-design/icons";
+import {
+  IShiftReport,
+  IShiftReportQueryParams,
+} from "../../../interfaces/shiftReports/IShiftReport";
+import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 
 interface IExportedData {
   number: number;
@@ -22,10 +25,28 @@ interface IExportedData {
   signed: string;
 }
 
-export const Filters = () => {
-  const shiftReportsData: IShiftReportsList[] = useSelector(
-    (state: IState) => state.pages.shiftReports.data,
-  );
+interface FiltersProps {
+  onResetFilters: () => void;
+  currentFilters?: {
+    user?: string;
+    project?: string;
+    date_from?: number;
+    date_to?: number;
+  };
+}
+
+export const Filters: React.FC<FiltersProps> = ({
+  onResetFilters,
+  currentFilters,
+}) => {
+  // Получаем данные из React Query
+  const { data: shiftReportsResponse } = useShiftReportsQuery({
+    ...currentFilters,
+    offset: 0,
+    limit: 10000,
+  });
+
+  const shiftReportsData = shiftReportsResponse?.shift_reports || [];
 
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
@@ -33,22 +54,22 @@ export const Filters = () => {
 
   const exportedData: IExportedData[] = React.useMemo(
     () =>
-      shiftReportsData.map((el) => ({
+      shiftReportsData.map((el: IShiftReport) => ({
         number: el.number,
         date: dateTimestampToLocalString(el.date),
-        user: usersMap[el.user].name,
-        object: objectsMap[projectsMap[el.project].object].name,
-        project: projectsMap[el.project].name,
-        project_leader: usersMap[projectsMap[el.project].project_leader].name,
-        sum: el.shift_report_details_sum.toString().replace(".", ","),
+        user: usersMap[el.user]?.name || "",
+        object: objectsMap[projectsMap[el.project]?.object]?.name || "",
+        project: projectsMap[el.project]?.name || "",
+        project_leader:
+          usersMap[projectsMap[el.project]?.project_leader]?.name || "",
+        sum: el.shift_report_details_sum?.toString().replace(".", ",") || "0",
         signed: el.signed ? "Да" : "Нет",
       })),
-    [shiftReportsData, projectsMap, objectsMap, usersMap],
+    [shiftReportsData, projectsMap, objectsMap, usersMap]
   );
 
   const exportToCSV = React.useCallback(
-    (data: IExportedData[], filename = "data.csv") => {
-      // Преобразование массива объектов в CSV-строку
+    (data: IExportedData[], filename = "report.csv") => {
       const headers = [
         "Номер",
         "Дата",
@@ -59,6 +80,7 @@ export const Filters = () => {
         "Сумма",
         "Согласовано",
       ].join(";");
+
       const rows = data
         .map((obj) => {
           const values = Object.values(obj).map((value) => {
@@ -66,12 +88,10 @@ export const Filters = () => {
           });
           return values.join(";");
         })
-        .join("\r\n"); // Используем \r\n для совместимости с Windows
+        .join("\r\n");
 
-      // Добавляем BOM (Byte Order Mark) для правильной кодировки UTF-8
       const csvContent = "\uFEFF" + headers + "\r\n" + rows;
 
-      // Создание Blob с указанием кодировки
       const blob = new Blob([csvContent], {
         type: "text/csv;charset=utf-8;",
       });
@@ -85,18 +105,26 @@ export const Filters = () => {
       link.click();
       document.body.removeChild(link);
     },
-    [],
+    []
   );
 
   return (
     <div className="shift-reports_filters">
       <Space direction={isMobile() ? "vertical" : "horizontal"}>
         <EditableShiftReportDialog />
+
         <Button
           icon={<FileExcelOutlined />}
           onClick={() => exportToCSV(exportedData, "report.csv")}
         >
           Скачать отчет
+        </Button>
+        <Button
+          icon={<ClearOutlined />}
+          onClick={onResetFilters}
+          // disabled={!currentFilters}
+        >
+          Сбросить фильтры
         </Button>
       </Space>
     </div>

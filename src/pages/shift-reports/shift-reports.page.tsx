@@ -8,8 +8,6 @@ import "./shift-reports.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { minPageHeight } from "../../utils/pageSettings";
-import { IShiftReportsListColumn } from "../../interfaces/shiftReports/IShiftReportsList";
-import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
@@ -21,7 +19,16 @@ import { useWorks } from "../../hooks/ApiActions/works";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
-
+import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
+import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
+import dayjs from "dayjs";
+import { IShiftReportsList } from "../../interfaces/shiftReports/IShiftReportsList";
+interface FiltersState {
+  user?: string;
+  project?: string;
+  date_from?: number;
+  date_to?: number;
+}
 export const ShiftReports = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
@@ -30,47 +37,104 @@ export const ShiftReports = () => {
   const { getUsers } = useUsers();
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
-  const { getShiftReports } = useShiftReports();
   const { getWorks } = useWorks();
 
   const tableState = useSelector(
-    (state: IState) => state.settings.shiftReportsSettings,
+    (state: IState) => state.settings.shiftReportsSettings
   );
 
-  const handleTableChange = React.useCallback(
-    (
-      pagination: TablePaginationConfig,
-      filters: Record<string, FilterValue | null>,
-      sorter: SorterResult<IShiftReportsListColumn>,
-    ) => {
-      const currentState = { pagination, filters, sorter };
-      dispatch(saveShiftReportsTableState(currentState));
+  // Преобразуем текущие фильтры в параметры запроса
+  const queryParams: IShiftReportQueryParams = React.useMemo(() => {
+    const params: IShiftReportQueryParams = {
+      offset: tableState.pagination?.current
+        ? (tableState.pagination.current - 1) *
+          (tableState.pagination.pageSize || 10)
+        : 0,
+      limit: tableState.pagination?.pageSize || 10,
+    };
+
+    if (tableState.sorter?.field) {
+      params.sort_by = tableState.sorter.field as string;
+      params.sort_order = tableState.sorter.order === "ascend" ? "asc" : "desc";
+    }
+
+    // Обрабатываем фильтры
+    if (tableState.filters?.user) {
+      params.user = tableState.filters.user[0] as string;
+    }
+    if (tableState.filters?.project) {
+      params.project = tableState.filters.project[0] as string;
+    }
+    if (tableState.filters?.date_from) {
+      params.date_from = tableState.filters.date_from[0] as number;
+    }
+    if (tableState.filters?.date_to) {
+      params.date_to = tableState.filters.date_to[0] as number;
+    }
+
+    return params;
+  }, [tableState]);
+
+  const { data: shiftReportsResponse, isLoading } =
+    useShiftReportsQuery(queryParams);
+
+  const handleFilterChange = React.useCallback(
+    (field: string, value: any) => {
+      // Обновляем фильтры через saveShiftReportsTableState
+      const newFilters = {
+        ...tableState.filters,
+        [field]: value ? [value] : null,
+      };
+
+      dispatch(
+        saveShiftReportsTableState({
+          ...tableState,
+          filters: newFilters,
+          pagination: {
+            ...tableState.pagination,
+            current: 1, // Сбрасываем на первую страницу при изменении фильтров
+          },
+        })
+      );
     },
-    [],
+    [dispatch, tableState]
   );
+
+  const handleResetFilters = React.useCallback(() => {
+    dispatch(
+      saveShiftReportsTableState({
+        ...tableState,
+        filters: {},
+        pagination: {
+          ...tableState.pagination,
+          current: 1,
+        },
+      })
+    );
+  }, [dispatch, tableState]);
 
   React.useEffect(() => {
     getUsers();
     getProjects();
-    getShiftReports();
     getObjects();
     getWorks();
     return () => {
       dispatch(clearShiftReportsState());
     };
   }, []);
+  console.log(getWorks());
+  const tableData = React.useMemo(() => {
+    if (!shiftReportsResponse?.shift_reports) return [];
 
-  const shiftReportsData: IShiftReportsListColumn[] = useSelector(
-    (state: IState) => state.pages.shiftReports.data,
-  ).map((doc) => ({ ...doc, key: doc.shift_report_id }));
+    return shiftReportsResponse.shift_reports.map((doc: IShiftReportsList) => ({
+      ...doc,
+      key: doc.shift_report_id,
+    }));
+  }, [shiftReportsResponse]);
 
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
-
-  const isLoading = useSelector(
-    (state: IState) => state.pages.shiftReports.loading,
-  );
 
   const columns = React.useMemo(
     () =>
@@ -80,9 +144,44 @@ export const ShiftReports = () => {
         usersMap,
         tableState,
         objectsMap,
+        handleFilterChange,
+        {
+          user: tableState.filters?.user?.[0] as string | undefined,
+          project: tableState.filters?.project?.[0] as string | undefined,
+          date_from: tableState.filters?.date_from?.[0] as number | undefined,
+          date_to: tableState.filters?.date_to?.[0] as number | undefined,
+        }
       ),
-    [navigate, projectsMap, usersMap, tableState],
+    [
+      navigate,
+      projectsMap,
+      usersMap,
+      tableState,
+      objectsMap,
+      handleFilterChange,
+    ]
   );
+
+  const paginationConfig = React.useMemo(
+    () => ({
+      ...tableState.pagination,
+      total: shiftReportsResponse?.total || 0,
+      showSizeChanger: true,
+      pageSizeOptions: ["10", "20", "50", "100"],
+    }),
+    [tableState.pagination, shiftReportsResponse?.total]
+  );
+
+  const currentFilters: FiltersState = React.useMemo(
+    () => ({
+      user: tableState.filters?.user?.[0] as string | undefined,
+      project: tableState.filters?.project?.[0] as string | undefined,
+      date_from: tableState.filters?.date_from?.[0] as number | undefined,
+      date_to: tableState.filters?.date_to?.[0] as number | undefined,
+    }),
+    [tableState.filters]
+  );
+
   return (
     <>
       <Breadcrumb
@@ -101,12 +200,24 @@ export const ShiftReports = () => {
           background: "#FFF",
         }}
       >
-        <Filters />
+        <Filters
+          onResetFilters={handleResetFilters}
+          currentFilters={currentFilters}
+        />
         <Table
-          onChange={handleTableChange}
-          dataSource={shiftReportsData}
+          onChange={(pagination, filters, sorter) => {
+            dispatch(
+              saveShiftReportsTableState({
+                pagination,
+                filters,
+                sorter: Array.isArray(sorter) ? sorter[0] : sorter,
+              })
+            );
+          }}
+          dataSource={tableData}
           columns={columns}
           loading={isLoading}
+          pagination={paginationConfig}
         />
       </Content>
     </>

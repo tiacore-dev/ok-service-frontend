@@ -3,7 +3,6 @@ import {
   Breadcrumb,
   Button,
   Card,
-  Form,
   Layout,
   Popconfirm,
   Space,
@@ -17,30 +16,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
-import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
-import { EditableShiftReportDialog } from "../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
-import { EditableCell } from "../components/editableCell";
 import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
-import { getshiftReportDetailsByShiftReportId } from "../../store/modules/pages/selectors/shift-report-details.selector";
-import { useShiftReportDetails } from "../../hooks/ApiActions/shift-report-detail";
-import { getShiftReportData } from "../../store/modules/pages/selectors/shift-report.selector";
-import { clearShiftReportDetailsState } from "../../store/modules/pages/shift-report-details.state";
-import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
+import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { useProjects } from "../../hooks/ApiActions/projects";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
-import {
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
-  DeleteTwoTone,
-  EditTwoTone,
-} from "@ant-design/icons";
+import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { getCurrentRole } from "../../store/modules/auth";
@@ -51,233 +38,188 @@ import {
   getProjectWorksMapByProjectId,
   getWorksMap,
 } from "../../store/modules/pages/selectors/works.selector";
+import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
+import {
+  useEditShiftReportMutation,
+  useHardDeleteShiftReportMutation,
+} from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
+import {
+  useCreateShiftReportDetailMutation,
+  useDeleteShiftReportDetailMutation,
+  useEditShiftReportDetailMutation,
+} from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.mutations";
+import { EditableShiftReportDialog } from "../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
+import { EditableShiftReportDetailDialog } from "./EditableShiftReportDetailDialog";
 
 const { Text } = Typography;
 
 export const ShiftReport = () => {
-  const [form] = Form.useForm<IShiftReportDetailsListColumn>();
   const [dataSource, setDataSource] = React.useState<
     IShiftReportDetailsListColumn[]
   >([]);
   const dispatch = useDispatch();
   const currentRole = useSelector(getCurrentRole);
-
-  const {
-    getShiftReportDetails,
-    createShiftReportDetail,
-    editShiftReportDetail,
-    deleteShiftReportDetail,
-  } = useShiftReportDetails();
-
-  const [actualData, setActualData] = React.useState<boolean>(false);
-  const [editingKey, setEditingKey] = React.useState("");
-  const [newRecordKey, setNewRecordKey] = React.useState("");
   const { Content } = Layout;
+
+  // Query hooks
+  const routeParams = useParams();
+  const { data: shiftReportData, isLoading: isShiftReportLoading } =
+    useShiftReportQuery(routeParams.shiftId);
+  const { data: shiftReportDetailsData, isLoading: isDetailsLoading } =
+    useShiftReportDetailsQuery(routeParams.shiftId);
+
+  // Mutation hooks
+  const { mutate: editReportMutation } = useEditShiftReportMutation();
+  const { mutate: deleteReportMutation } = useHardDeleteShiftReportMutation();
+  const { mutate: createDetail } = useCreateShiftReportDetailMutation();
+  const { mutate: editDetail } = useEditShiftReportDetailMutation();
+  const { mutate: deleteDetail } = useDeleteShiftReportDetailMutation();
+
+  // State for modal
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [currentRecord, setCurrentRecord] =
+    React.useState<IShiftReportDetailsListColumn | null>(null);
+  const [loading, setLoading] = React.useState(false);
+
+  // API actions
   const { getUsers } = useUsers();
   const { getProjects, getProjectStat } = useProjects();
   const { getWorks } = useWorks();
   const { getObjects } = useObjects();
   const { getProjectWorks } = useProjectWorks();
 
+  // Selectors
   const usersMap = useSelector(getUsersMap);
   const projectsMap = useSelector(getProjectsMap);
-
-  const routeParams = useParams();
-  const { getShiftReport, editShiftReport, deleteShiftReport } =
-    useShiftReports();
+  const worksMap = useSelector(getWorksMap);
+  const stat = useSelector(selectProjectStat);
 
   React.useEffect(() => {
     getProjects();
     getUsers();
     getWorks();
     getObjects();
-    getShiftReport(routeParams.shiftId);
-    getShiftReportDetails({ shift_report: routeParams.shiftId });
 
     return () => {
-      dispatch(clearShiftReportDetailsState());
-      dispatch(clearShiftReportState());
       dispatch(clearProjectWorksState());
     };
   }, []);
 
-  const shiftReportData = useSelector(getShiftReportData);
-
-  const canEdit: boolean =
-    currentRole !== RoleId.USER || !shiftReportData?.signed;
+  const canEdit = currentRole !== RoleId.USER || !shiftReportData?.signed;
 
   React.useEffect(() => {
     if (shiftReportData?.project) {
-      getProjectWorks(shiftReportData?.project);
+      getProjectWorks(shiftReportData.project);
       if (currentRole !== RoleId.USER && !shiftReportData.signed) {
-        getProjectStat(shiftReportData?.project);
+        getProjectStat(shiftReportData.project);
       }
     }
   }, [shiftReportData?.project]);
 
   const projectWorksData = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, shiftReportData?.project),
+    getProjectWorksByProjectId(state, shiftReportData?.project)
   );
-
-  const worksMap = useSelector((state: IState) => getWorksMap(state));
 
   const projectWorksMapByProjectId = useSelector((state: IState) =>
-    getProjectWorksMapByProjectId(state, shiftReportData?.project),
+    getProjectWorksMapByProjectId(state, shiftReportData?.project)
   );
-
-  const stat = useSelector(selectProjectStat);
 
   const projectWorksOptions = projectWorksData.map((el) => ({
     label: el.project_work_name,
     value: el.project_work_id,
   }));
 
-  const shiftReportDetails = useSelector((state: IState) =>
-    getshiftReportDetailsByShiftReportId(
-      state,
-      shiftReportData?.shift_report_id,
-    ),
-  );
-
-  const shiftReportDetailsData: IShiftReportDetailsListColumn[] = React.useMemo(
-    () =>
-      shiftReportDetails.map((doc) => ({
-        ...doc,
-        key: doc.shift_report_detail_id,
-      })),
-    [shiftReportDetails],
-  );
-
-  const shiftReportDetailsIsLoaded = useSelector(
-    (state: IState) => state.pages.shiftReportDetails.loaded,
-  );
-
   React.useEffect(() => {
-    if (shiftReportDetailsIsLoaded) {
-      setDataSource(shiftReportDetailsData);
-      if (!actualData) {
-        setActualData(true);
-      }
+    if (shiftReportDetailsData) {
+      setDataSource(
+        shiftReportDetailsData.map((doc) => ({
+          ...doc,
+          key: doc.shift_report_detail_id,
+        }))
+      );
     }
   }, [shiftReportDetailsData]);
 
-  const isLoaded = useSelector(
-    (state: IState) => state.pages.shiftReport.loaded,
-  );
-
-  const isEditing = (record: IShiftReportDetailsListColumn) =>
-    record.key === editingKey;
-
-  const isCreating = (record: IShiftReportDetailsListColumn) =>
-    record.key === newRecordKey;
+  const handleAdd = () => {
+    setCurrentRecord(null);
+    setModalVisible(true);
+  };
 
   const edit = (record: IShiftReportDetailsListColumn) => {
-    form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
-    if (newRecordKey) {
-      setDataSource(shiftReportDetailsData);
-      setNewRecordKey("");
-    }
+    setCurrentRecord(record);
+    setModalVisible(true);
   };
 
-  const cancel = () => {
-    setEditingKey("");
-    setNewRecordKey("");
-    setDataSource(shiftReportDetailsData);
-  };
-
-  const save = async (key: string) => {
+  const handleSave = async (values: any) => {
     try {
-      setActualData(false);
-      const rowData = await form.validateFields();
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
+      setLoading(true);
+      setModalVisible(false);
 
-      if (index > -1) {
-        const item = newData[index];
+      if (shiftReportData) {
         const row = {
-          ...rowData,
-          work: projectWorksMapByProjectId[rowData.project_work].work,
-          quantity: Number(rowData.quantity),
+          ...values,
+          work: projectWorksMapByProjectId[values.project_work].work,
+          quantity: Number(values.quantity),
           shift_report: shiftReportData.shift_report_id,
         };
 
-        if (isCreating(item)) {
-          // Создание новой записи
-          setNewRecordKey("");
-          createShiftReportDetail(row);
+        if (currentRecord) {
+          await editDetail({
+            id: currentRecord.shift_report_detail_id,
+            data: row,
+          });
         } else {
-          // Редактирование существующей записи
-          setEditingKey("");
-          editShiftReportDetail(item.shift_report_detail_id, row);
+          await createDetail(row);
         }
       }
-    } catch (errInfo) {
-      console.log("Validate Failed:", errInfo);
-    }
-  };
-
-  const handleAdd = () => {
-    if (!newRecordKey) {
-      const newData = {
-        key: "new",
-        shift_report: shiftReportData.shift_report_id,
-        project_work: "",
-        work: "",
-        quantity: 0,
-        summ: 0,
-      };
-      setDataSource([newData, ...dataSource]);
-      setNewRecordKey("new");
-      setEditingKey("");
-      form.setFieldsValue({ ...newData });
+    } catch (error) {
+      console.error("Ошибка при сохранении:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDelete = (key: string) => {
-    setActualData(false);
-    deleteShiftReportDetail(key, routeParams.shiftId);
+    if (shiftReportData) {
+      deleteDetail({
+        id: key,
+        shiftReportId: shiftReportData.shift_report_id,
+      });
+    }
   };
+
+  const workRender = (work: string) => worksMap[work]?.name;
 
   const columns = [
     {
       title: "Наименование",
-      type: "select",
-      options: projectWorksOptions,
       dataIndex: "project_work",
       key: "project_work",
-      editable: true,
-      required: true,
+      render: (value: string) => {
+        const option = projectWorksOptions.find((opt) => opt.value === value);
+        return option?.label || value;
+      },
     },
     {
       title: "Работа",
-      type: "string",
       dataIndex: "work",
       key: "work",
-      editable: false,
-      required: true,
+      render: workRender,
     },
     {
       title: "Количество",
-      inputType: "number",
       dataIndex: "quantity",
       key: "quantity",
-      editable: true,
-      required: true,
     },
     {
       title: "Сумма",
-      inputType: "number",
       dataIndex: "summ",
       key: "summ",
-      editable: false,
     },
     {
       title: "Проверка",
-      inputType: "string",
       dataIndex: "check",
       key: "check",
-      editable: false,
       hidden:
         currentRole === RoleId.USER ||
         !shiftReportData ||
@@ -293,217 +235,186 @@ export const ShiftReport = () => {
       dataIndex: "operation",
       width: !isMobile() && "116px",
       hidden: !canEdit,
-      render: (_: string, record: IShiftReportDetailsListColumn) => {
-        const editable = isEditing(record) || isCreating(record);
-        return editable ? (
-          <span>
+      render: (_: string, record: IShiftReportDetailsListColumn) => (
+        <Space>
+          <Button
+            icon={<EditTwoTone twoToneColor="#e40808" />}
+            type="link"
+            onClick={() => edit(record)}
+          />
+          <Popconfirm
+            title="Удалить?"
+            onConfirm={() => handleDelete(record.key)}
+          >
             <Button
-              onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
-              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-            />
-            <Button
-              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
-              onClick={cancel}
-            ></Button>
-          </span>
-        ) : (
-          <Space>
-            <Button
-              icon={<EditTwoTone twoToneColor="#e40808" />}
+              icon={<DeleteTwoTone twoToneColor="#e40808" />}
               type="link"
-              onClick={() => edit(record)}
             />
-            <Popconfirm
-              title="Удалить?"
-              onConfirm={() => handleDelete(record.key)}
-            >
-              <Button
-                icon={<DeleteTwoTone twoToneColor="#e40808" />}
-                type="link"
-              />
-            </Popconfirm>
-          </Space>
-        );
-      },
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
-  const workRender = (work: string) => worksMap[work]?.name;
-
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col.dataIndex === "work" ? { ...col, render: workRender } : col;
-    }
-    return {
-      ...col,
-      onCell: (record: IShiftReportDetailsListColumn) => ({
-        type: col.type,
-        options: col.options,
-        record,
-        inputType: col.inputType,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        "data-label": col.title,
-        editing: isEditing(record) || isCreating(record),
-      }),
-    };
-  });
-
-  const isLoading = useSelector(
-    (state: IState) => state.pages.shiftReportDetails.loading,
-  );
-
   const footer = React.useCallback(() => {
+    if (!shiftReportDetailsData) return null;
     return `Итого по отчету: ${shiftReportDetailsData.reduce(
-      (acc: number, val) => {
-        return (acc = acc + val.summ);
-      },
-      0,
+      (acc: number, val) => acc + val.summ,
+      0
     )} руб.`;
   }, [shiftReportDetailsData]);
 
   const handleOnSign = React.useCallback(() => {
-    editShiftReport(shiftReportData.shift_report_id, {
-      ...shiftReportData,
-      signed: true,
-    });
-  }, [shiftReportData]);
+    if (shiftReportData) {
+      editReportMutation({
+        report_id: shiftReportData.shift_report_id,
+        reportData: {
+          user: shiftReportData.user,
+          date: shiftReportData.date,
+          date_from: shiftReportData.date_from,
+          date_to: shiftReportData.date_to,
+          project: shiftReportData.project,
+          signed: true,
+          night_shift: shiftReportData.night_shift,
+          extreme_conditions: shiftReportData.extreme_conditions,
+        },
+      });
+    }
+  }, [shiftReportData, editReportMutation]);
 
-  const checedData = React.useMemo(
-    () =>
-      dataSource.map((el) => {
-        if (stat && stat[el.work]) {
-          const statEl = stat[el.work];
-          const check: string =
-            statEl &&
-            `Завершено: ${statEl.shift_report_details_quantity} из ${statEl.project_work_quantity} Доступно: ${Math.max(statEl.project_work_quantity - statEl.shift_report_details_quantity, 0)}`;
-          return {
-            ...el,
-            check,
-            blocked:
-              statEl.project_work_quantity -
-                statEl.shift_report_details_quantity <
-              el.quantity,
-          };
-        } else {
-          return el;
-        }
-      }),
-    [dataSource, stat],
-  );
+  const checedData = React.useMemo(() => {
+    if (!stat || !dataSource) return dataSource;
+
+    return dataSource.map((el) => {
+      if (stat[el.work]) {
+        const statEl = stat[el.work];
+        const check = `Завершено: ${statEl.shift_report_details_quantity} из ${statEl.project_work_quantity} Доступно: ${Math.max(
+          statEl.project_work_quantity - statEl.shift_report_details_quantity,
+          0
+        )}`;
+
+        return {
+          ...el,
+          check,
+          blocked:
+            statEl.project_work_quantity -
+              statEl.shift_report_details_quantity <
+            el.quantity,
+        };
+      }
+      return el;
+    });
+  }, [dataSource, stat]);
 
   const disabled = React.useMemo(
-    () => checedData.some((el) => el.blocked),
-    [checedData],
+    () => checedData.some((el) => el?.blocked),
+    [checedData]
   );
+
+  if (isShiftReportLoading || isDetailsLoading) {
+    return <Spin />;
+  }
+
+  if (!shiftReportData) {
+    return <div>Отчет не найден</div>;
+  }
 
   return (
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
+        style={isMobile() ? { backgroundColor: "#F8F8F8" } : undefined}
         items={[
           { title: <Link to="/home">Главная</Link> },
+          { title: <Link to="/shifts">Смены</Link> },
           {
-            title: <Link to="/shifts">Смены</Link>,
-          },
-          {
-            title: `Смена № ${shiftReportData?.number?.toString().padStart(5, "0") ?? ""}`,
+            title: `Смена № ${shiftReportData.number?.toString().padStart(5, "0")}`,
           },
         ]}
       />
-      {isLoaded &&
-      shiftReportData &&
-      routeParams.shiftId === shiftReportData.shift_report_id ? (
-        <Content
-          style={{
-            padding: "0 24px",
-            margin: 0,
-            minHeight: minPageHeight(),
-            background: "#FFF",
-          }}
-        >
-          <Title
-            level={3}
-          >{`Отчет по смене № ${shiftReportData.number?.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name ?? ""}`}</Title>
-          <Space direction={"horizontal"} size="small">
-            {canEdit && (
-              <EditableShiftReportDialog shiftReport={shiftReportData} />
-            )}
-            {canEdit && (
-              <DeleteShiftReportDialog
-                onDelete={() => {
-                  deleteShiftReport(shiftReportData.shift_report_id);
-                }}
-                number={shiftReportData.number}
-              />
-            )}
-          </Space>
-          <Card style={{ margin: "8px 0" }}>
-            <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
-            <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
-            <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
-            <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
-            <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
-            <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
-            {shiftReportData.night_shift && <p>"Ночная смена (+25%)"</p>}
-            {shiftReportData.extreme_conditions && (
-              <p>"Особые условия (+25%)"</p>
-            )}
-            {!shiftReportData?.signed && currentRole !== RoleId.USER && (
-              <Space direction="vertical">
-                <Button
-                  onClick={handleOnSign}
-                  type="primary"
-                  disabled={disabled}
-                >
-                  Согласовано
-                </Button>
 
-                {disabled && (
-                  <Text type="danger">
-                    Записи смены выходят за пределы спецификации
-                  </Text>
-                )}
-              </Space>
-            )}
-          </Card>
+      <Content
+        style={{
+          padding: "0 24px",
+          margin: 0,
+          minHeight: minPageHeight(),
+          background: "#FFF",
+        }}
+      >
+        <Title level={3}>
+          {`Отчет по смене № ${shiftReportData.number?.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name ?? ""}`}
+        </Title>
 
+        <Space direction="horizontal" size="small">
           {canEdit && (
-            <Space
-              direction={isMobile() ? "vertical" : "horizontal"}
-              className="shift-reports_filters"
-            >
-              <Button
-                onClick={handleAdd}
-                type="primary"
-                style={{ marginBottom: 16 }}
-              >
-                Добавить запись отчета по смене
+            <EditableShiftReportDialog shiftReport={shiftReportData} />
+          )}
+          {canEdit && (
+            <DeleteShiftReportDialog
+              onDelete={() =>
+                deleteReportMutation(shiftReportData.shift_report_id)
+              }
+              number={shiftReportData.number}
+            />
+          )}
+        </Space>
+
+        <Card style={{ margin: "8px 0" }}>
+          <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
+          <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
+          <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
+          <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
+          <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
+          <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
+          {shiftReportData.night_shift && <p>Ночная смена (+25%)</p>}
+          {shiftReportData.extreme_conditions && <p>Особые условия (+25%)</p>}
+          {!shiftReportData.signed && currentRole !== RoleId.USER && (
+            <Space direction="vertical">
+              <Button onClick={handleOnSign} type="primary" disabled={disabled}>
+                Согласовано
               </Button>
+              {disabled && (
+                <Text type="danger">
+                  Записи смены выходят за пределы спецификации
+                </Text>
+              )}
             </Space>
           )}
+        </Card>
 
-          <Form form={form} component={false}>
-            <Table
-              pagination={false}
-              bordered={!isMobile()}
-              components={{
-                body: {
-                  cell: EditableCell,
-                },
-              }}
-              dataSource={checedData}
-              columns={mergedColumns}
-              loading={isLoading}
-              footer={footer}
-            />
-          </Form>
-        </Content>
-      ) : (
-        <Spin />
-      )}
+        {canEdit && (
+          <Space
+            direction={isMobile() ? "vertical" : "horizontal"}
+            className="shift-reports_filters"
+          >
+            <Button
+              onClick={handleAdd}
+              type="primary"
+              style={{ marginBottom: 16 }}
+            >
+              Добавить запись отчета по смене
+            </Button>
+          </Space>
+        )}
+
+        <Table
+          pagination={false}
+          bordered={!isMobile()}
+          dataSource={checedData}
+          columns={columns}
+          loading={isDetailsLoading}
+          footer={footer}
+        />
+
+        <EditableShiftReportDetailDialog
+          visible={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          onSave={handleSave}
+          initialValues={currentRecord || undefined}
+          projectWorksOptions={projectWorksOptions}
+          loading={loading}
+        />
+      </Content>
     </>
   );
 };

@@ -7,12 +7,12 @@ import {
   dateTimestampToLocalString,
   formatDate,
 } from "../../../utils/dateConverter";
-import { Checkbox } from "antd";
+import { Checkbox, DatePicker, Select } from "antd";
 import { IProject } from "../../../interfaces/projects/IProject";
-import { filterDropdown } from "../../../components/Table/filterDropdown";
-import { dateFilterDropdown } from "../../../components/Table/dateFilterDropdown";
 import { IShiftReportsSettingsState } from "../../../store/modules/settings/shift-reports";
 import { IObject } from "../../../interfaces/objects/IObject";
+import { SearchOutlined, CalendarOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 interface IShiftReportsListColumns extends ColumnType<IShiftReportsListColumn> {
   key: string;
@@ -24,16 +24,19 @@ export const shiftReportsDesktopColumns = (
   usersMap: Record<string, IUser>,
   tableState: IShiftReportsSettingsState,
   objectsMap: Record<string, IObject>,
+  onFilterChange?: (field: string, value: any) => void,
+  filters?: {
+    user?: string;
+    project?: string;
+    date_from?: number;
+    date_to?: number;
+  }
 ): ColumnsType<IShiftReportsListColumn> => {
-  const collumns: ColumnsType<IShiftReportsListColumn> = [
+  const columns: ColumnsType<IShiftReportsListColumn> = [
     {
       title: "Номер",
       dataIndex: "number",
       key: "number",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        record.number.toString().padStart(5, "0").includes(value.toString()),
-      sorter: (a, b) => a.number - b.number,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <a
@@ -45,50 +48,105 @@ export const shiftReportsDesktopColumns = (
         </div>
       ),
     },
-
     {
       title: "Дата",
       dataIndex: "date",
       key: "date",
-      filterDropdown: dateFilterDropdown, // Используем компонент для фильтрации по датам
-      onFilter: (value, record) => {
-        return value === formatDate(new Date(record.date));
-      },
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{dateTimestampToLocalString(record.date)}</div>
       ),
+      filterIcon: <CalendarOutlined />,
+      filterDropdown: () => {
+        const [dateFrom, setDateFrom] = React.useState<dayjs.Dayjs | null>(
+          filters?.date_from ? dayjs(filters.date_from) : null
+        );
+        const [dateTo, setDateTo] = React.useState<dayjs.Dayjs | null>(
+          filters?.date_to ? dayjs(filters.date_to) : null
+        );
+
+        const handleDateFromChange = (date: dayjs.Dayjs | null) => {
+          setDateFrom(date);
+          onFilterChange?.(
+            "date_from",
+            date ? date.startOf("day").valueOf() : undefined
+          );
+
+          // Если новая "Дата от" позже текущей "Даты до", сбрасываем "Дату до"
+          if (date && dateTo && date.isAfter(dateTo)) {
+            setDateTo(null);
+            onFilterChange?.("date_to", undefined);
+          }
+        };
+
+        const handleDateToChange = (date: dayjs.Dayjs | null) => {
+          setDateTo(date);
+          onFilterChange?.(
+            "date_to",
+            date ? date.endOf("day").valueOf() : undefined
+          );
+        };
+
+        return (
+          <div style={{ padding: 8 }}>
+            <div>
+              <DatePicker
+                placeholder="Дата от"
+                allowClear
+                format="DD.MM.YYYY"
+                onChange={handleDateFromChange}
+                value={dateFrom}
+              />
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <DatePicker
+                placeholder="Дата до"
+                allowClear
+                format="DD.MM.YYYY"
+                onChange={handleDateToChange}
+                value={dateTo}
+                disabledDate={(current) => {
+                  // Запрещаем выбирать даты раньше dateFrom
+                  if (!dateFrom) return false;
+                  return current && current < dateFrom.startOf("day");
+                }}
+              />
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: "Исполнитель",
       dataIndex: "user",
       key: "user",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        usersMap[record.user]?.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) =>
-        usersMap[a.user]?.name > usersMap[b.user]?.name ? 1 : -1,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{usersMap[record.user]?.name}</div>
+      ),
+      filterIcon: <SearchOutlined />,
+      filterDropdown: () => (
+        <div style={{ padding: 8 }}>
+          <Select
+            style={{ width: 200 }}
+            placeholder="Выберите исполнителя"
+            allowClear
+            showSearch
+            options={Object.values(usersMap).map((user) => ({
+              value: user.user_id,
+              label: user.name,
+            }))}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            onChange={(value) => onFilterChange?.("user", value)}
+            value={filters?.user}
+          />
+        </div>
       ),
     },
     {
       title: "Объект",
       dataIndex: "object",
       key: "object",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        objectsMap[projectMap[record.project]?.object]?.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) =>
-        objectsMap[projectMap[a.project]?.object]?.name >
-        objectsMap[projectMap[b.project]?.object]?.name
-          ? 1
-          : -1,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <div>{objectsMap[projectMap[record.project]?.object]?.name}</div>
@@ -99,17 +157,29 @@ export const shiftReportsDesktopColumns = (
       title: "Спецификация",
       dataIndex: "project",
       key: "project",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        projectMap[record.project]?.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) =>
-        projectMap[a.project]?.name > projectMap[b.project]?.name ? 1 : -1,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <div>{projectMap[record.project]?.name}</div>
+        </div>
+      ),
+      filterIcon: <SearchOutlined />,
+      filterDropdown: () => (
+        <div style={{ padding: 8 }}>
+          <Select
+            style={{ width: 200 }}
+            placeholder="Выберите спецификацию"
+            allowClear
+            showSearch
+            options={Object.values(projectMap).map((project) => ({
+              value: project.project_id,
+              label: project.name,
+            }))}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            onChange={(value) => onFilterChange?.("project", value)}
+            value={filters?.project}
+          />
         </div>
       ),
     },
@@ -117,17 +187,6 @@ export const shiftReportsDesktopColumns = (
       title: "Прораб",
       dataIndex: "project_leader",
       key: "project_leader",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        usersMap[projectMap[record.project]?.project_leader]?.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) =>
-        usersMap[projectMap[a.project]?.project_leader]?.name >
-        usersMap[projectMap[b.project]?.project_leader]?.name
-          ? 1
-          : -1,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <div>
@@ -140,7 +199,6 @@ export const shiftReportsDesktopColumns = (
       title: "Сумма",
       dataIndex: "summ",
       key: "summ",
-      sorter: (a, b) => a.shift_report_details_sum - b.shift_report_details_sum,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{record.shift_report_details_sum}</div>
       ),
@@ -149,12 +207,6 @@ export const shiftReportsDesktopColumns = (
       title: "Согласовано",
       dataIndex: "signed",
       key: "signed",
-      sorter: (a, b) => (a.signed ? 1 : 0) - (b.signed ? 1 : 0),
-      filters: [
-        { text: "Да", value: true },
-        { text: "Нет", value: false },
-      ],
-      onFilter: (value, record) => record.signed === value,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <Checkbox checked={!!record.signed} />
@@ -163,12 +215,10 @@ export const shiftReportsDesktopColumns = (
     },
   ];
 
-  return collumns.map((collumn: IShiftReportsListColumns) => ({
-    ...collumn,
-    filteredValue: tableState?.filters && tableState.filters[collumn.key],
+  return columns.map((column: IShiftReportsListColumns) => ({
+    ...column,
+    filteredValue: tableState?.filters && tableState.filters[column.key],
     sortOrder:
-      tableState?.sorter?.field === collumn.key
-        ? tableState.sorter.order
-        : null,
+      tableState?.sorter?.field === column.key ? tableState.sorter.order : null,
   }));
 };
