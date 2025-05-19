@@ -52,9 +52,11 @@ export const shiftReportsDesktopColumns = (
       title: "Дата",
       dataIndex: "date",
       key: "date",
+      sorter: true, // Добавляем возможность сортировки
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{dateTimestampToLocalString(record.date)}</div>
       ),
+
       filterIcon: <CalendarOutlined />,
       filterDropdown: () => {
         const [dateFrom, setDateFrom] = React.useState<dayjs.Dayjs | null>(
@@ -119,6 +121,7 @@ export const shiftReportsDesktopColumns = (
       title: "Исполнитель",
       dataIndex: "user",
       key: "user",
+      sorter: true, // Добавляем возможность сортировки
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{usersMap[record.user]?.name}</div>
       ),
@@ -157,6 +160,7 @@ export const shiftReportsDesktopColumns = (
       title: "Спецификация",
       dataIndex: "project",
       key: "project",
+      sorter: true, // Добавляем возможность сортировки
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <div>{projectMap[record.project]?.name}</div>
@@ -207,6 +211,7 @@ export const shiftReportsDesktopColumns = (
       title: "Согласовано",
       dataIndex: "signed",
       key: "signed",
+      sorter: true, // Добавляем возможность сортировки
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <Checkbox checked={!!record.signed} />
