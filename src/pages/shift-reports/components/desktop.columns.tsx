@@ -52,7 +52,7 @@ export const shiftReportsDesktopColumns = (
       title: "Дата",
       dataIndex: "date",
       key: "date",
-      sorter: true, // Добавляем возможность сортировки
+      sorter: true,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{dateTimestampToLocalString(record.date)}</div>
       ),
@@ -73,7 +73,6 @@ export const shiftReportsDesktopColumns = (
             date ? date.startOf("day").valueOf() : undefined
           );
 
-          // Если новая "Дата от" позже текущей "Даты до", сбрасываем "Дату до"
           if (date && dateTo && date.isAfter(dateTo)) {
             setDateTo(null);
             onFilterChange?.("date_to", undefined);
@@ -107,7 +106,6 @@ export const shiftReportsDesktopColumns = (
                 onChange={handleDateToChange}
                 value={dateTo}
                 disabledDate={(current) => {
-                  // Запрещаем выбирать даты раньше dateFrom
                   if (!dateFrom) return false;
                   return current && current < dateFrom.startOf("day");
                 }}
@@ -121,7 +119,7 @@ export const shiftReportsDesktopColumns = (
       title: "Исполнитель",
       dataIndex: "user",
       key: "user",
-      sorter: true, // Добавляем возможность сортировки
+      sorter: true,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{usersMap[record.user]?.name}</div>
       ),
@@ -160,7 +158,7 @@ export const shiftReportsDesktopColumns = (
       title: "Спецификация",
       dataIndex: "project",
       key: "project",
-      sorter: true, // Добавляем возможность сортировки
+      sorter: true,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <div>{projectMap[record.project]?.name}</div>
@@ -211,7 +209,7 @@ export const shiftReportsDesktopColumns = (
       title: "Согласовано",
       dataIndex: "signed",
       key: "signed",
-      sorter: true, // Добавляем возможность сортировки
+      sorter: true,
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>
           <Checkbox checked={!!record.signed} />

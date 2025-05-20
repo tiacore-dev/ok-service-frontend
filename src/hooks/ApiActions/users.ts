@@ -75,17 +75,17 @@ export const useUsers = () => {
         getUsers();
         notificationApi.success({
           message: `Успешно`,
-          description: "Объект создан",
+          description: "Пользователь создан",
           placement: "bottomRight",
           duration: 2,
         });
       })
       .catch((err) => {
         dispatch(editUserAction.saveError());
-        console.log("getObjectFailure", err);
+        console.log("AddUserFailure", err);
         notificationApi.error({
           message: `Ошибка`,
-          description: "Возникла ошибка при создании объекта",
+          description: "Возникла ошибка при создании пользователя",
           placement: "bottomRight",
           duration: 2,
         });

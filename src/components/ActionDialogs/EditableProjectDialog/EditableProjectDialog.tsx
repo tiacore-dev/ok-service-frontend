@@ -18,10 +18,11 @@ const modalContentWidth = getModalContentWidth();
 interface IEditableProjectDialogProps {
   project?: IProject;
   iconOnly?: boolean;
+  objectId?: string;
 }
 
 export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
-  const { project, iconOnly } = props;
+  const { project, iconOnly, objectId } = props;
   const { createProject, editProject } = useProjects();
   const buttonText = project ? "Редактировать" : "Создать";
   const popoverText = project
@@ -38,10 +39,10 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableProject,
+    (state: IState) => state.editableEntities.editableProject
   );
   const objectMap = useSelector(
-    (state: IState) => state.pages.objects.data,
+    (state: IState) => state.pages.objects.data
   ).map((el) => ({
     label: el.name,
     value: el.object_id,
@@ -62,15 +63,18 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
     } else {
       createProject(projectData);
     }
-  }, [project, projectData, projectData]);
+  }, [project, projectData, editProject, createProject]);
 
   const handeOpen = useCallback(() => {
     if (project) {
       dispatch(editProjectAction.setProjectData(project));
     } else {
       dispatch(clearCreateProjectState());
+      if (objectId) {
+        dispatch(editProjectAction.setObject(objectId));
+      }
     }
-  }, [project, dispatch]);
+  }, [project, dispatch, objectId]);
 
   return (
     <ActionDialog
@@ -99,20 +103,22 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
               />
             </Form.Item>
 
-            <Form.Item
-              labelCol={{ span: 6 }}
-              wrapperCol={{ span: 18 }}
-              label="Объект"
-            >
-              <Select
-                value={data.object}
-                onChange={(value: string) =>
-                  dispatch(editProjectAction.setObject(value))
-                }
-                options={objectMap}
-                disabled={sent}
-              />
-            </Form.Item>
+            {!objectId && (
+              <Form.Item
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                label="Объект"
+              >
+                <Select
+                  value={data.object}
+                  onChange={(value: string) =>
+                    dispatch(editProjectAction.setObject(value))
+                  }
+                  options={objectMap}
+                  disabled={sent}
+                />
+              </Form.Item>
+            )}
 
             <Form.Item
               labelCol={{ span: 6 }}

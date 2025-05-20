@@ -119,13 +119,15 @@ export const Filters: React.FC<FiltersProps> = ({
         >
           Скачать отчет
         </Button>
-        <Button
-          icon={<ClearOutlined />}
-          onClick={onResetFilters}
-          // disabled={!currentFilters}
-        >
-          Сбросить фильтры
-        </Button>
+        {!isMobile && (
+          <Button
+            icon={<ClearOutlined />}
+            onClick={onResetFilters}
+            // disabled={!currentFilters}
+          >
+            Сбросить фильтры
+          </Button>
+        )}
       </Space>
     </div>
   );

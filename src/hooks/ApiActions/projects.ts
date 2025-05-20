@@ -65,7 +65,7 @@ export const useProjects = () => {
     dispatch(getProjectRequest());
     apiGet<{ stats: Record<string, IProjectStat> }>(
       "projects",
-      `${projectId}/get-stat`,
+      `${projectId}/get-stat`
     )
       .then((response) => {
         dispatch(getProjectStatSuccess(response.stats));
@@ -83,10 +83,21 @@ export const useProjects = () => {
   const createProject = (createbleProjectData: IEditableProject) => {
     dispatch(editProjectAction.sendProject());
 
-    apiPost<{ project: IProject }>("projects", "add", createbleProjectData)
-      .then(() => {
-        getProjects();
-        navigate("/projects");
+    apiPost<{ msg: string; project_id: string }>(
+      "projects",
+      "add",
+      createbleProjectData
+    )
+      .then((response) => {
+        // Проверяем наличие project_id в ответе
+        if (!response.project_id) {
+          console.error("Ошибка: сервер не вернул project_id", response);
+          // throw new Error(response.msg || "Не удалось создать проект");
+        }
+
+        getProjects(); // Обновляем список проектов
+        navigate(`/projects/${response.project_id}`); // Перенаправляем на страницу проекта
+
         notificationApi.success({
           message: `Успешно`,
           description: "Спецификация создана",
@@ -96,7 +107,8 @@ export const useProjects = () => {
       })
       .catch((err) => {
         dispatch(editProjectAction.saveError());
-        console.log("getProjectFailure", err);
+        console.error("Ошибка при создании проекта:", err);
+
         notificationApi.error({
           message: `Ошибка`,
           description: "Возникла ошибка при создании спецификации",
@@ -108,7 +120,7 @@ export const useProjects = () => {
 
   const editProject = (
     project_id: string,
-    editableProjectData: IEditableProject,
+    editableProjectData: IEditableProject
   ) => {
     dispatch(editProjectAction.sendProject());
 

@@ -23,19 +23,19 @@ export const Projects = ({ object_id }: { object_id: string }) => {
   const currentRole = useSelector(getCurrentRole);
 
   const tableState = useSelector(
-    (state: IState) => state.settings.projectsSettings,
+    (state: IState) => state.settings.projectsSettings
   );
 
   const handleTableChange = React.useCallback(
     (
       pagination: TablePaginationConfig,
       filters: Record<string, FilterValue | null>,
-      sorter: SorterResult<IProjectsListColumn>,
+      sorter: SorterResult<IProjectsListColumn>
     ) => {
       const currentState = { pagination, filters, sorter };
       dispatch(saveProjectsTableState(currentState));
     },
-    [],
+    []
   );
 
   const projectsState = useSelector(getProjectsState);
@@ -44,13 +44,13 @@ export const Projects = ({ object_id }: { object_id: string }) => {
       projectsState.data
         .filter((doc) => doc.object === object_id)
         .map((doc) => ({ ...doc, key: doc.project_id })),
-    [projectsState],
+    [projectsState, object_id]
   );
 
   const usersMap = useSelector(getUsersMap);
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.projects.loading,
+    (state: IState) => state.pages.projects.loading
   );
 
   const columns = React.useMemo(
@@ -58,14 +58,14 @@ export const Projects = ({ object_id }: { object_id: string }) => {
       isMobile()
         ? projectsMobileColumns(navigate, usersMap)
         : projectsDesktopColumns(navigate, usersMap, tableState),
-    [navigate, usersMap, tableState],
+    [navigate, usersMap, tableState]
   );
   return (
     <>
       <div className="projects_filters">
         {currentRole !== RoleId.USER && (
           <Space>
-            <EditableProjectDialog />
+            <EditableProjectDialog objectId={object_id} />
           </Space>
         )}
       </div>

@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   Checkbox,
-  Form,
   Layout,
   Popconfirm,
   Space,
@@ -24,52 +23,32 @@ import { Link } from "react-router-dom";
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
-import { EditableCell } from "../components/editableCell";
 import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
-import { getWorksData } from "../../store/modules/pages/selectors/works.selector";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { clearProjectState } from "../../store/modules/pages/project.state";
 import { useWorks } from "../../hooks/ApiActions/works";
-import {
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
-  DeleteTwoTone,
-  EditTwoTone,
-} from "@ant-design/icons";
-import { getCurrentRole } from "../../store/modules/auth";
+import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { ImportProjectWorksDialog } from "../../components/ActionDialogs/ImportProjectWorksDialog/ImportProjectWorksDialog";
 import { selectProjectStat } from "../../store/modules/pages/selectors/project.selector";
+import { EditableProjectWorkDialog } from "./EditableProjectWorkDialog";
 
 export const Project = () => {
   const { Content } = Layout;
-
-  const [form] = Form.useForm<IProjectWorksListColumn>();
-  const [editingKey, setEditingKey] = React.useState("");
-  const [newRecordKey, setNewRecordKey] = React.useState("");
-  const [actualData, setActualData] = React.useState<boolean>(false);
-  const [dataSource, setDataSource] = React.useState<IProjectWorksListColumn[]>(
-    [],
-  );
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [editingRecord, setEditingRecord] =
+    React.useState<IProjectWorksListColumn | null>(null);
   const currentRole = useSelector(getCurrentRole);
 
   const dispatch = useDispatch();
-
-  const {
-    getProjectWorks,
-    createProjectWork,
-    editProjectWork,
-    deleteProjectWork,
-  } = useProjectWorks();
-
+  const { getProjectWorks, deleteProjectWork } = useProjectWorks();
   const { getObjects } = useObjects();
   const { getUsers } = useUsers();
-
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
-
   const routeParams = useParams();
   const { getProject, deleteProject, getProjectStat } = useProjects();
   const { getWorks } = useWorks();
@@ -87,257 +66,118 @@ export const Project = () => {
     };
   }, []);
 
+  const currentUserId = useSelector(getCurrentUserId);
   const projectData = useSelector((state: IState) => state.pages.project.data);
   const isLoaded = useSelector((state: IState) => state.pages.project.loaded);
   const stat = useSelector(selectProjectStat);
-  const worksData = useSelector(getWorksData);
-
-  const worksOptions = worksData.map((el) => ({
-    label: el.name,
-    value: el.work_id,
-    deleted: el.deleted,
-  }));
+  const worksData = useSelector((state: IState) => state.pages.works.data);
 
   const projectWorksIsLoaded = useSelector(
-    (state: IState) => state.pages.projectWorks.loaded,
+    (state: IState) => state.pages.projectWorks.loaded
   );
 
   const projectWorks = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, projectData?.project_id),
+    getProjectWorksByProjectId(state, projectData?.project_id)
   );
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
     () =>
-      projectWorks.map((doc) => {
-        return {
-          ...doc,
-          key: doc.project_work_id,
-        };
-      }),
-    [projectWorks, stat],
+      projectWorks.map((doc) => ({
+        ...doc,
+        key: doc.project_work_id,
+      })),
+    [projectWorks, stat]
   );
 
-  React.useEffect(() => {
-    if (projectWorksIsLoaded) {
-      setDataSource(projectWorksData);
-      if (!actualData) {
-        setActualData(true);
-      }
-    }
-  }, [projectWorksData]);
-
-  const isEditing = (record: IProjectWorksListColumn) =>
-    record.key === editingKey;
-  const isCreating = (record: IProjectWorksListColumn) =>
-    record.key === newRecordKey;
-
-  const edit = (record: IProjectWorksListColumn) => {
-    form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
-    if (newRecordKey) {
-      setDataSource(projectWorksData);
-      setNewRecordKey("");
-    }
-  };
-
-  const cancel = () => {
-    setEditingKey("");
-    setNewRecordKey("");
-    setDataSource(projectWorksData);
-  };
-
-  const save = async (key: string) => {
-    try {
-      const rowData = await form.validateFields();
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
-
-      if (index > -1) {
-        const item = newData[index];
-        const row = {
-          ...rowData,
-          project: projectData.project_id,
-          quantity: Number(rowData.quantity),
-        };
-
-        if (isCreating(item)) {
-          // Создание новой записи
-          setActualData(false);
-          setNewRecordKey("");
-          createProjectWork(row);
-        } else {
-          // Редактирование существующей записи
-          setActualData(false);
-          setEditingKey("");
-          editProjectWork(item.project_work_id, row);
-        }
-      }
-    } catch (errInfo) {
-      console.log("Validate Failed:", errInfo);
-    }
-  };
-
   const handleAdd = () => {
-    if (!newRecordKey) {
-      const newData = {
-        key: "new",
-        project: projectData.project_id,
-        project_work_name: "",
-        work: "",
-        quantity: 0,
-        summ: 0,
-        signed: false,
-      };
-      setDataSource([newData, ...dataSource]);
-      setNewRecordKey("new");
-      setEditingKey("");
-      form.setFieldsValue({ ...newData });
-    }
+    setEditingRecord(null);
+    setModalVisible(true);
+  };
+
+  const handleEdit = (record: IProjectWorksListColumn) => {
+    setEditingRecord(record);
+    setModalVisible(true);
   };
 
   const handleDelete = (key: string) => {
-    setActualData(false);
     deleteProjectWork(key, routeParams.projectId);
+  };
+
+  const handleModalCancel = () => {
+    setModalVisible(false);
+    setEditingRecord(null);
+  };
+
+  const handleModalSave = () => {
+    setModalVisible(false);
+    setEditingRecord(null);
   };
 
   const columns = [
     {
       title: "Наименование",
       dataIndex: "project_work_name",
-      type: "input",
       key: "project_work_name",
-      editable: true,
-      required: true,
     },
     {
       title: "Работа",
       dataIndex: "work",
-      type: "select",
-      options: worksOptions,
       key: "work",
-      editable: true,
-      required: true,
+      render: (value: string) => {
+        const work = worksData.find((w) => w.work_id === value);
+        return work?.name || value;
+      },
     },
-
     {
       title: "Количество",
-      inputType: "number",
       dataIndex: "quantity",
       key: "quantity",
-      editable: true,
-      required: true,
+      width: "100px",
     },
     {
       title: "Согласовано",
-      inputType: "checkbox",
       dataIndex: "signed",
       key: "signed",
-      editable: currentRole === RoleId.MANAGER || currentRole === RoleId.ADMIN,
-      required: false,
-      render: (value: boolean) => {
-        return <Checkbox checked={value} />;
-      },
+      width: "80px",
+      render: (value: boolean) => <Checkbox checked={value} disabled />,
     },
-
-    {
-      title: "Действия",
-      dataIndex: "operation",
-      width: !isMobile() && "116px",
-      hidden: currentRole === RoleId.USER,
-      render: (_: string, record: IProjectWorksListColumn) => {
-        const editable = isEditing(record) || isCreating(record);
-        return editable ? (
-          <span>
-            <Button
-              onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
-              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-            />
-            <Button
-              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
-              onClick={cancel}
-            ></Button>
-          </span>
-        ) : (
-          <Space>
-            <Button
-              disabled={currentRole === RoleId.PROJECT_LEADER && record.signed}
-              icon={
-                <EditTwoTone
-                  twoToneColor={
+    ...(currentUserId === projectData?.project_leader
+      ? [
+          {
+            title: "Действия",
+            dataIndex: "operation",
+            width: !isMobile() && "116px",
+            render: (_: string, record: IProjectWorksListColumn) => (
+              <Space>
+                <Button
+                  disabled={
                     currentRole === RoleId.PROJECT_LEADER && record.signed
-                      ? "#808080"
-                      : "#e40808"
                   }
+                  icon={<EditTwoTone twoToneColor="#e40808" />}
+                  type="link"
+                  onClick={() => handleEdit(record)}
                 />
-              }
-              type="link"
-              onClick={() => edit(record)}
-            />
-            <Popconfirm
-              title="Удалить?"
-              onConfirm={() => handleDelete(record.key)}
-            >
-              <Button
-                disabled={
-                  currentRole === RoleId.PROJECT_LEADER && record.signed
-                }
-                icon={
-                  <DeleteTwoTone
-                    twoToneColor={
+                <Popconfirm
+                  title="Удалить?"
+                  onConfirm={() => handleDelete(record.key)}
+                >
+                  <Button
+                    disabled={
                       currentRole === RoleId.PROJECT_LEADER && record.signed
-                        ? "#808080"
-                        : "#e40808"
                     }
+                    icon={<DeleteTwoTone twoToneColor="#e40808" />}
+                    type="link"
                   />
-                }
-                type="link"
-              />
-            </Popconfirm>
-          </Space>
-        );
-      },
-    },
+                </Popconfirm>
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: IProjectWorksListColumn) => ({
-        type: col.type,
-        options: col.options,
-        record,
-        inputType: col.inputType,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        "data-label": col.title,
-        editing: isEditing(record) || isCreating(record),
-      }),
-    };
-  });
-
   const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading,
-  );
-
-  const table = (
-    <Form form={form} component={false}>
-      <Table
-        bordered={!isMobile()}
-        pagination={false}
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
-        dataSource={dataSource}
-        columns={mergedColumns}
-        loading={isLoading}
-      />
-    </Form>
+    (state: IState) => state.pages.workPrices.loading
   );
 
   const object = objectsMap[projectData?.object];
@@ -350,12 +190,8 @@ export const Project = () => {
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
-          {
-            title: <Link to="/objects">Объекты</Link>,
-          },
-          {
-            title: <Link to={objectLink}>{object?.name}</Link>,
-          },
+          { title: <Link to="/objects">Объекты</Link> },
+          { title: <Link to={objectLink}>{object?.name}</Link> },
           { title: projectData?.name },
         ]}
       />
@@ -375,17 +211,17 @@ export const Project = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            {currentRole !== RoleId.USER && (
-              <EditableProjectDialog project={projectData} />
-            )}
-            {currentRole !== RoleId.USER && (
-              <DeleteProjectDialog
-                onDelete={() => {
-                  deleteProject(projectData.project_id);
-                }}
-                name={projectData.name}
-              />
-            )}
+            {currentRole !== RoleId.USER &&
+              currentUserId === projectData.project_leader && (
+                <EditableProjectDialog project={projectData} />
+              )}
+            {currentRole !== RoleId.USER &&
+              currentUserId === projectData.project_leader && (
+                <DeleteProjectDialog
+                  onDelete={() => deleteProject(projectData.project_id)}
+                  name={projectData.name}
+                />
+              )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {projectData.name}</p>
@@ -393,20 +229,36 @@ export const Project = () => {
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
           </Card>
 
-          {currentRole !== RoleId.USER && (
-            <Space
-              direction={isMobile() ? "vertical" : "horizontal"}
-              className="works_filters"
-              style={{ marginBottom: 16 }}
-            >
-              <Button onClick={handleAdd} type="primary">
-                Добавить запись в спецификацию
-              </Button>
-              <ImportProjectWorksDialog project={projectData} />
-            </Space>
-          )}
+          {currentRole !== RoleId.USER &&
+            currentUserId === projectData.project_leader && (
+              <Space
+                direction={isMobile() ? "vertical" : "horizontal"}
+                className="works_filters"
+                style={{ marginBottom: 16 }}
+              >
+                <Button onClick={handleAdd} type="primary">
+                  Добавить запись в спецификацию
+                </Button>
+                <ImportProjectWorksDialog project={projectData} />
+              </Space>
+            )}
 
-          {table}
+          <Table
+            bordered={!isMobile()}
+            pagination={false}
+            dataSource={projectWorksData}
+            columns={columns}
+            loading={isLoading}
+          />
+
+          <EditableProjectWorkDialog
+            visible={modalVisible}
+            onCancel={handleModalCancel}
+            onSave={handleModalSave}
+            initialValues={editingRecord}
+            projectId={projectData?.project_id}
+            isEditing={!!editingRecord}
+          />
         </Content>
       ) : (
         <Spin />

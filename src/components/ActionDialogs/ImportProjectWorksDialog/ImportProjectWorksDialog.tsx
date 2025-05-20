@@ -26,7 +26,7 @@ interface IUploadData {
 }
 
 export const ImportProjectWorksDialog = (
-  props: IImportProjectWorksDialogProps,
+  props: IImportProjectWorksDialogProps
 ) => {
   // const [importData, setImportData] = useState<IUploadData[]>([]);
   const role = useSelector(getCurrentRole);
@@ -54,7 +54,7 @@ export const ImportProjectWorksDialog = (
     (workId: string, workString: string) => {
       setWorkIdMap({ ...workIdMap, [workString]: workId });
     },
-    [workIdMap],
+    [workIdMap]
   );
   const columns = [
     {
@@ -126,12 +126,12 @@ export const ImportProjectWorksDialog = (
 
   const correctData = useMemo(
     () => uploadData.filter((el) => el.isCorrect),
-    [uploadData],
+    [uploadData]
   );
 
   const buttonLabel = useMemo(
     () => `Загрузить ${correctData.length} из ${uploadData.length}`,
-    [uploadData, correctData],
+    [uploadData, correctData]
   );
 
   const handleAnalysis = useCallback(() => {
@@ -139,7 +139,7 @@ export const ImportProjectWorksDialog = (
 
     uploadData.forEach((el) => {
       const workId = works.find((w) =>
-        el.workString.toLocaleLowerCase().includes(w.name.toLocaleLowerCase()),
+        el.workString.toLocaleLowerCase().includes(w.name.toLocaleLowerCase())
       )?.work_id;
 
       if (workId) {
@@ -159,7 +159,7 @@ export const ImportProjectWorksDialog = (
         quantity: el.quantity,
         signed: role === RoleId.ADMIN || role === RoleId.MANAGER,
       })),
-      project.project_id,
+      project.project_id
     );
   }, [project, uploadData, correctData, createProjectWorks]);
 
