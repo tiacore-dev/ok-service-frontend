@@ -5,6 +5,8 @@ import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { useSelector } from "react-redux";
 import { IState } from "../../store/modules";
+import { isMobile } from "../../utils/isMobile";
+import "./EditableProjectWorkDialog.less"; // Добавьте этот импорт
 
 interface IEditableProjectWorkDialogProps {
   visible: boolean;
@@ -36,7 +38,11 @@ export const EditableProjectWorkDialog: React.FC<
   }, [initialValues, form]);
 
   const worksOptions = worksData.map((el) => ({
-    label: el.name,
+    label: (
+      <span className="work-option-label" style={{ whiteSpace: "normal" }}>
+        {el.name}
+      </span>
+    ),
     value: el.work_id,
     disabled: el.deleted,
   }));
@@ -67,12 +73,14 @@ export const EditableProjectWorkDialog: React.FC<
 
   return (
     <Modal
+      className="project-work-modal" // Добавлен класс для модального окна
       title={isEditing ? "Редактировать запись" : "Добавить запись"}
       visible={visible}
       onOk={handleSubmit}
       onCancel={onCancel}
       okText="Сохранить"
       cancelText="Отмена"
+      width={isMobile() ? "90%" : "50%"} // Адаптивная ширина модального окна
     >
       <Form form={form} layout="vertical">
         <Form.Item
@@ -90,7 +98,15 @@ export const EditableProjectWorkDialog: React.FC<
           label="Работа"
           rules={[{ required: true, message: "Пожалуйста, выберите работу" }]}
         >
-          <Select options={worksOptions} showSearch optionFilterProp="label" />
+          <Select
+            className="work-select" // Добавлен класс для Select
+            options={worksOptions}
+            showSearch
+            optionFilterProp="label"
+            dropdownMatchSelectWidth={false}
+            dropdownStyle={{ minWidth: 250 }} // Минимальная ширина выпадающего списка
+            dropdownClassName="work-dropdown" // Добавлен класс для выпадающего списка
+          />
         </Form.Item>
 
         <Form.Item
