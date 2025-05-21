@@ -32,7 +32,7 @@ import { useWorks } from "../../hooks/ApiActions/works";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
-import { ImportProjectWorksDialog } from "../../components/ActionDialogs/ImportProjectWorksDialog/ImportProjectWorksDialog";
+import { ImportProjectWorks } from "./ImportProjectWorks";
 import { selectProjectStat } from "../../store/modules/pages/selectors/project.selector";
 import { EditableProjectWorkDialog } from "./EditableProjectWorkDialog";
 
@@ -47,6 +47,7 @@ export const Project = () => {
   const { getProjectWorks, deleteProjectWork } = useProjectWorks();
   const { getObjects } = useObjects();
   const { getUsers } = useUsers();
+  const [importMode, setImportMode] = React.useState(false);
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
   const routeParams = useParams();
@@ -73,11 +74,11 @@ export const Project = () => {
   const worksData = useSelector((state: IState) => state.pages.works.data);
 
   const projectWorksIsLoaded = useSelector(
-    (state: IState) => state.pages.projectWorks.loaded
+    (state: IState) => state.pages.projectWorks.loaded,
   );
 
   const projectWorks = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, projectData?.project_id)
+    getProjectWorksByProjectId(state, projectData?.project_id),
   );
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
@@ -86,8 +87,14 @@ export const Project = () => {
         ...doc,
         key: doc.project_work_id,
       })),
-    [projectWorks, stat]
+    [projectWorks, stat],
   );
+
+  const canEdit =
+    (currentRole === RoleId.PROJECT_LEADER &&
+      currentUserId === projectData.project_leader) ||
+    currentRole === RoleId.MANAGER ||
+    currentRole === RoleId.ADMIN;
 
   const handleAdd = () => {
     setEditingRecord(null);
@@ -139,9 +146,9 @@ export const Project = () => {
       dataIndex: "signed",
       key: "signed",
       width: "80px",
-      render: (value: boolean) => <Checkbox checked={value} disabled />,
+      render: (value: boolean) => <Checkbox checked={value} />,
     },
-    ...(currentUserId === projectData?.project_leader
+    ...(canEdit
       ? [
           {
             title: "Действия",
@@ -177,7 +184,7 @@ export const Project = () => {
   ];
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading
+    (state: IState) => state.pages.workPrices.loading,
   );
 
   const object = objectsMap[projectData?.object];
@@ -211,17 +218,13 @@ export const Project = () => {
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
           >
-            {currentRole !== RoleId.USER &&
-              currentUserId === projectData.project_leader && (
-                <EditableProjectDialog project={projectData} />
-              )}
-            {currentRole !== RoleId.USER &&
-              currentUserId === projectData.project_leader && (
-                <DeleteProjectDialog
-                  onDelete={() => deleteProject(projectData.project_id)}
-                  name={projectData.name}
-                />
-              )}
+            {canEdit && <EditableProjectDialog project={projectData} />}
+            {canEdit && (
+              <DeleteProjectDialog
+                onDelete={() => deleteProject(projectData.project_id)}
+                name={projectData.name}
+              />
+            )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {projectData.name}</p>
@@ -229,27 +232,45 @@ export const Project = () => {
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
           </Card>
 
-          {currentRole !== RoleId.USER &&
-            currentUserId === projectData.project_leader && (
-              <Space
-                direction={isMobile() ? "vertical" : "horizontal"}
-                className="works_filters"
-                style={{ marginBottom: 16 }}
-              >
-                <Button onClick={handleAdd} type="primary">
-                  Добавить запись в спецификацию
-                </Button>
-                <ImportProjectWorksDialog project={projectData} />
-              </Space>
-            )}
+          {importMode ? (
+            <ImportProjectWorks
+              project={projectData}
+              close={() => {
+                setImportMode(false);
+              }}
+            />
+          ) : (
+            <>
+              {canEdit && (
+                <Space
+                  direction={isMobile() ? "vertical" : "horizontal"}
+                  className="works_filters"
+                  style={{ marginBottom: 16 }}
+                >
+                  <Button onClick={handleAdd} type="primary">
+                    Добавить запись в спецификацию
+                  </Button>
+                  <Button
+                    loading={!projectWorksIsLoaded}
+                    onClick={() => {
+                      setImportMode(true);
+                    }}
+                    type="default"
+                  >
+                    Загрузить
+                  </Button>
+                </Space>
+              )}
 
-          <Table
-            bordered={!isMobile()}
-            pagination={false}
-            dataSource={projectWorksData}
-            columns={columns}
-            loading={isLoading}
-          />
+              <Table
+                bordered={!isMobile()}
+                pagination={false}
+                dataSource={projectWorksData}
+                columns={columns}
+                loading={isLoading}
+              />
+            </>
+          )}
 
           <EditableProjectWorkDialog
             visible={modalVisible}
