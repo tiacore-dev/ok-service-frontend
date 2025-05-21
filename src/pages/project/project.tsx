@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import {
   Breadcrumb,
@@ -13,7 +15,7 @@ import {
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { useProjects } from "../../hooks/ApiActions/projects";
@@ -22,7 +24,7 @@ import { DeleteProjectDialog } from "../../components/ActionDialogs/DeleteProjec
 import { Link } from "react-router-dom";
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
-import { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
+import type { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
 import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { useObjects } from "../../hooks/ApiActions/objects";
@@ -74,11 +76,11 @@ export const Project = () => {
   const worksData = useSelector((state: IState) => state.pages.works.data);
 
   const projectWorksIsLoaded = useSelector(
-    (state: IState) => state.pages.projectWorks.loaded,
+    (state: IState) => state.pages.projectWorks.loaded
   );
 
   const projectWorks = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, projectData?.project_id),
+    getProjectWorksByProjectId(state, projectData?.project_id)
   );
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
@@ -87,11 +89,12 @@ export const Project = () => {
         ...doc,
         key: doc.project_work_id,
       })),
-    [projectWorks, stat],
+    [projectWorks, stat]
   );
 
   const canEdit =
     (currentRole === RoleId.PROJECT_LEADER &&
+      projectData?.project_leader &&
       currentUserId === projectData.project_leader) ||
     currentRole === RoleId.MANAGER ||
     currentRole === RoleId.ADMIN;
@@ -184,7 +187,7 @@ export const Project = () => {
   ];
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading,
+    (state: IState) => state.pages.workPrices.loading
   );
 
   const object = objectsMap[projectData?.object];
@@ -199,7 +202,7 @@ export const Project = () => {
           { title: <Link to="/home">Главная</Link> },
           { title: <Link to="/objects">Объекты</Link> },
           { title: <Link to={objectLink}>{object?.name}</Link> },
-          { title: projectData?.name },
+          { title: projectData?.name || "Проект" },
         ]}
       />
       {isLoaded &&

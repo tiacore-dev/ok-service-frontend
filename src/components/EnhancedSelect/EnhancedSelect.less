@@ -1,0 +1,23 @@
+.enhanced-select {
+  width: 100%;
+
+  .ant-select-selection-item {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+  }
+}
+
+.enhanced-select-dropdown {
+  .ant-select-item-option-content {
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  // Увеличиваем минимальную ширину выпадающего списка
+  min-width: 250px !important;
+
+  // Ограничиваем максимальную ширину, чтобы не выходить за пределы экрана
+  max-width: 90vw !important;
+}

@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect } from "react";
+"use client";
+
+import React from "react";
+import { useCallback, useEffect } from "react";
 import { Form, Input, InputNumber, Select, Modal } from "antd";
-import { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
+import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import type { IState } from "../../store/modules";
 import { isMobile } from "../../utils/isMobile";
-import "./EditableProjectWorkDialog.less"; // Добавьте этот импорт
+import "./EditableProjectWorkDialog.less"; // Импорт стилей
+import { EnhancedSelect } from "../../components/EnhancedSelect";
 
 interface IEditableProjectWorkDialogProps {
   visible: boolean;
@@ -37,14 +41,19 @@ export const EditableProjectWorkDialog: React.FC<
     }
   }, [initialValues, form]);
 
+  // Создаем два варианта отображения для каждой работы
   const worksOptions = worksData.map((el) => ({
+    // Для выпадающего списка - многострочный вариант
     label: (
       <span className="work-option-label" style={{ whiteSpace: "normal" }}>
         {el.name}
       </span>
     ),
+    // Для отображения в поле - просто текст
     value: el.work_id,
     disabled: el.deleted,
+    // Добавляем текстовое представление для отображения в поле выбора
+    title: el.name,
   }));
 
   const handleSubmit = useCallback(() => {
@@ -73,14 +82,14 @@ export const EditableProjectWorkDialog: React.FC<
 
   return (
     <Modal
-      className="project-work-modal" // Добавлен класс для модального окна
+      className="project-work-modal"
       title={isEditing ? "Редактировать запись" : "Добавить запись"}
       visible={visible}
       onOk={handleSubmit}
       onCancel={onCancel}
       okText="Сохранить"
       cancelText="Отмена"
-      width={isMobile() ? "90%" : "50%"} // Адаптивная ширина модального окна
+      width={isMobile() ? "90%" : "50%"}
     >
       <Form form={form} layout="vertical">
         <Form.Item
@@ -98,14 +107,14 @@ export const EditableProjectWorkDialog: React.FC<
           label="Работа"
           rules={[{ required: true, message: "Пожалуйста, выберите работу" }]}
         >
-          <Select
-            className="work-select" // Добавлен класс для Select
+          <EnhancedSelect
+            className="work-select"
             options={worksOptions}
             showSearch
-            optionFilterProp="label"
-            dropdownMatchSelectWidth={false}
-            dropdownStyle={{ minWidth: 250 }} // Минимальная ширина выпадающего списка
-            dropdownClassName="work-dropdown" // Добавлен класс для выпадающего списка
+            optionFilterProp="title" // Используем title для поиска
+            optionLabelProp="title" // Используем title для отображения в поле
+            dropdownClassName="work-dropdown"
+            style={{ width: "100%" }}
           />
         </Form.Item>
 

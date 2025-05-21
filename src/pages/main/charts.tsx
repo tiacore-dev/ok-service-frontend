@@ -112,7 +112,7 @@ export const Charts = (props: IChartsProps) => {
       {role !== RoleId.USER && (
         <Col key={1} xs={24} sm={12}>
           <Card>
-            <Meta title="Количество смен" description={description} />
+            <Meta title="Количество монтажников" description={description} />
             <BarChart
               width={width - 84}
               height={400}
@@ -188,7 +188,7 @@ export const Charts = (props: IChartsProps) => {
                 verticalAlign="middle"
                 formatter={(value) => {
                   const dataItem = clientData.find(
-                    (item) => item.name === value,
+                    (item) => item.name === value
                   );
                   return `${value}: ${formatNumber(dataItem?.value || 0)}`;
                 }}

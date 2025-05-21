@@ -53,13 +53,16 @@ export const useEditShiftReportDetailMutation = () => {
       id: string;
       data: EditableShiftReportDetail;
     }) => editShiftReportDetailApi(id, data),
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["shiftReportDetails", variables.data.shift_report],
+        queryKey: ["shiftReports"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["shiftReport", variables.id], // Добавьте эту строку
       });
       notification.success({
         message: "Успешно",
-        description: "Запись отчета по смене изменена",
+        description: "Отчет по смене изменён",
         placement: "bottomRight",
         duration: 2,
       });

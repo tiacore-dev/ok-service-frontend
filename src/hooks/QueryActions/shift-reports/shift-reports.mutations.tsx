@@ -4,7 +4,7 @@ import {
   editShiftReport,
   hardDeleteShiftReport,
 } from "../../../api/shift-reports.api";
-import { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
+import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
 
@@ -61,6 +61,9 @@ export const useEditShiftReportMutation = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["shiftReportDetails", variables.report_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["shiftReport", variables.report_id],
       });
       notification.success({
         message: "Успешно",

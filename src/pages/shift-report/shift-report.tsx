@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import {
   Breadcrumb,
@@ -13,14 +15,14 @@ import {
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
-import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
+import type { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { useProjects } from "../../hooks/ApiActions/projects";
@@ -258,26 +260,25 @@ export const ShiftReport = () => {
 
   const footer = React.useCallback(() => {
     if (!shiftReportDetailsData) return null;
-    return `Итого по отчету: ${shiftReportDetailsData.reduce(
-      (acc: number, val) => acc + val.summ,
-      0
-    )} руб.`;
+    return `Итого по отчету: ${shiftReportDetailsData.reduce((acc: number, val) => acc + val.summ, 0)} руб.`;
   }, [shiftReportDetailsData]);
 
   const handleOnSign = React.useCallback(() => {
     if (shiftReportData) {
+      const updatedReportData = {
+        user: shiftReportData.user,
+        date: shiftReportData.date,
+        date_from: shiftReportData.date_from,
+        date_to: shiftReportData.date_to,
+        project: shiftReportData.project,
+        signed: true,
+        night_shift: shiftReportData.night_shift,
+        extreme_conditions: shiftReportData.extreme_conditions,
+      };
+
       editReportMutation({
         report_id: shiftReportData.shift_report_id,
-        reportData: {
-          user: shiftReportData.user,
-          date: shiftReportData.date,
-          date_from: shiftReportData.date_from,
-          date_to: shiftReportData.date_to,
-          project: shiftReportData.project,
-          signed: true,
-          night_shift: shiftReportData.night_shift,
-          extreme_conditions: shiftReportData.extreme_conditions,
-        },
+        reportData: updatedReportData,
       });
     }
   }, [shiftReportData, editReportMutation]);
