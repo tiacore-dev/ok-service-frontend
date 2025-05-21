@@ -18,6 +18,8 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { isMobile } from "../../utils/isMobile";
+import { formatNumber } from "../../utils/formatNumber";
 
 interface IChartsProps {
   totalCostArray: {
@@ -64,7 +66,7 @@ export const Charts = (props: IChartsProps) => {
   const containerRef = React.useRef(null);
   const [width, setWidth] = React.useState(0);
   const role = useSelector(getCurrentRole);
-
+  const mobile = isMobile();
   React.useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -175,6 +177,23 @@ export const Charts = (props: IChartsProps) => {
               ))}
             </Pie>
             <Tooltip />
+            {!mobile && (
+              <Legend
+                layout="vertical"
+                align="right"
+                verticalAlign="middle"
+                formatter={(value) => {
+                  const dataItem = clientData.find(
+                    (item) => item.name === value,
+                  );
+                  return `${value}: ${formatNumber(dataItem?.value || 0)}`;
+                }}
+                wrapperStyle={{
+                  paddingLeft: "20px",
+                  fontSize: "16px",
+                }}
+              />
+            )}
           </PieChart>
         </Card>
       </Col>
