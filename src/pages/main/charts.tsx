@@ -129,7 +129,11 @@ export const Charts = (props: IChartsProps) => {
               <YAxis tick={{ fill: "black" }} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" fill="#4090ff" name="Количество смен" />
+              <Bar
+                dataKey="value"
+                fill="#4090ff"
+                name="Количество монтажников"
+              />
             </BarChart>
           </Card>
         </Col>
