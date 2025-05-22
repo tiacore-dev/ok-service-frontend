@@ -3,7 +3,10 @@ import { ColumnsType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IWorksListColumn } from "../../../interfaces/works/IWorksList";
 import { RoleId } from "../../../interfaces/roles/IRole";
-
+const renderPrice = (record: IWorksListColumn, category: number) => {
+  const price = record.work_prices?.find((p) => p.category === category)?.price;
+  return price ? `${price} руб.` : "-";
+};
 export const worksMobileColumns = (
   navigate: NavigateFunction,
   role: RoleId
@@ -26,25 +29,25 @@ export const worksMobileColumns = (
         )}
         <div>Категория: {record.category.name}</div>
         <div>Единицы измерения: {record.measurement_unit}</div>
-        <div>
-          Разряд 1:{" "}
-          {record.work_prices?.find((price) => price.category === 1)?.price ||
-            "-"}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <div>Разряд 1: {renderPrice(record, 1)}</div>
+          <div>Разряд 2: {renderPrice(record, 2)}</div>
         </div>
-        <div>
-          Разряд 2:{" "}
-          {record.work_prices?.find((price) => price.category === 2)?.price ||
-            "-"}
-        </div>
-        <div>
-          Разряд 3:{" "}
-          {record.work_prices?.find((price) => price.category === 3)?.price ||
-            "-"}
-        </div>
-        <div>
-          Разряд 4:{" "}
-          {record.work_prices?.find((price) => price.category === 4)?.price ||
-            "-"}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <div>Разряд 3: {renderPrice(record, 3)}</div>
+          <div>Разряд 4: {renderPrice(record, 4)}</div>
         </div>
       </div>
     ),
