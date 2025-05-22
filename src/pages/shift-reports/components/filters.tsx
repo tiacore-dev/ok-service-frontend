@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, Space } from "antd";
 import * as React from "react";
 import { isMobile } from "../../../utils/isMobile";
@@ -8,11 +10,9 @@ import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.
 import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import {
-  IShiftReport,
-  IShiftReportQueryParams,
-} from "../../../interfaces/shiftReports/IShiftReport";
+import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
+import { DownloadShiftReportsWithDetails } from "./downloadShiftReportsWithDetails";
 
 interface IExportedData {
   number: number;
@@ -112,13 +112,13 @@ export const Filters: React.FC<FiltersProps> = ({
     <div className="shift-reports_filters">
       <Space direction={isMobile() ? "vertical" : "horizontal"}>
         <EditableShiftReportDialog />
-
         <Button
           icon={<FileExcelOutlined />}
           onClick={() => exportToCSV(exportedData, "report.csv")}
         >
           Скачать отчет
         </Button>
+        <DownloadShiftReportsWithDetails currentFilters={currentFilters} />{" "}
         {!isMobile && (
           <Button
             icon={<ClearOutlined />}

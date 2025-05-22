@@ -52,6 +52,7 @@ import {
 } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.mutations";
 import { EditableShiftReportDialog } from "../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { EditableShiftReportDetailDialog } from "./EditableShiftReportDetailDialog";
+import { DownloadShiftReport } from "./downloadShiftReport";
 
 const { Text } = Typography;
 
@@ -146,6 +147,14 @@ export const ShiftReport = () => {
     setCurrentRecord(null);
     setModalVisible(true);
   };
+
+  const totalSum = React.useMemo(() => {
+    if (!shiftReportDetailsData) return 0;
+    return shiftReportDetailsData.reduce(
+      (acc: number, val) => acc + (val.summ || 0),
+      0
+    );
+  }, [shiftReportDetailsData]);
 
   const edit = (record: IShiftReportDetailsListColumn) => {
     setCurrentRecord(record);
@@ -260,7 +269,7 @@ export const ShiftReport = () => {
 
   const footer = React.useCallback(() => {
     if (!shiftReportDetailsData) return null;
-    return `Итого по отчету: ${shiftReportDetailsData.reduce((acc: number, val) => acc + val.summ, 0)} руб.`;
+    return `Итого по отчету: ${totalSum} руб.`;
   }, [shiftReportDetailsData]);
 
   const handleOnSign = React.useCallback(() => {
@@ -383,11 +392,11 @@ export const ShiftReport = () => {
           )}
         </Card>
 
-        {canEdit && (
-          <Space
-            direction={isMobile() ? "vertical" : "horizontal"}
-            className="shift-reports_filters"
-          >
+        <Space
+          direction={isMobile() ? "vertical" : "horizontal"}
+          className="shift-reports_filters"
+        >
+          {canEdit && (
             <Button
               onClick={handleAdd}
               type="primary"
@@ -395,8 +404,12 @@ export const ShiftReport = () => {
             >
               Добавить запись отчета по смене
             </Button>
-          </Space>
-        )}
+          )}
+          <DownloadShiftReport
+            shiftId={routeParams.shiftId || ""}
+            summ={totalSum}
+          />
+        </Space>
 
         <Table
           pagination={false}
