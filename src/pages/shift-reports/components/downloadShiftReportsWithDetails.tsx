@@ -81,10 +81,77 @@ export const DownloadShiftReportsWithDetails: React.FC<
           signed: el.signed ? "Да" : "Нет",
         })
       );
-      const uniqueDates = new Set(reportRows.map((row) => row.date));
-      const totalDays = uniqueDates.size;
 
       let totalSum = 0;
+      const allRows: ExportRow[] = [];
+      const validReports: IExportedReportData[] = [];
+
+      for (const report of reportRows) {
+        const reportId = shiftReportsData.find(
+          (r: IShiftReport) => r.number === report.number
+        )?.shift_report_id;
+
+        if (reportId) {
+          try {
+            const detailsResponse = await fetchShiftReportDetails({
+              shift_report: reportId,
+            });
+            const details = detailsResponse.shift_report_details || [];
+
+            // Пропускаем смены без деталей
+            if (details.length === 0) continue;
+
+            validReports.push(report);
+            let detailCounter = 0;
+            allRows.push(report);
+            totalSum += parseFloat(report.sum.replace(",", ".")) || 0;
+
+            const currentProjectId = shiftReportsData.find(
+              (r: IShiftReport) => r.shift_report_id === reportId
+            )?.project;
+
+            const projectWorksForCurrentProject = currentProjectId
+              ? allProjectWorks.filter((el) => el.project === currentProjectId)
+              : [];
+
+            const projectWorksNameMap: Record<string, string> = {};
+            projectWorksForCurrentProject.forEach((item) => {
+              projectWorksNameMap[item.project_work_id] =
+                item.project_work_name;
+            });
+
+            for (const detail of details) {
+              detailCounter++;
+              allRows.push({
+                isDetail: true,
+                work: worksMap[detail.work]?.name || "",
+                quantity: detail.quantity,
+                coast: detail.summ / detail.quantity,
+                sum: detail.summ,
+                counter: detailCounter,
+              });
+            }
+
+            allRows.push({
+              isDetail: true,
+              work: "Всего по смене:",
+              quantity: 0,
+              coast: 0,
+              sum: parseFloat(report.sum.replace(",", ".")) || 0,
+            });
+          } catch (error) {
+            console.error(
+              `Ошибка при получении деталей для отчета ${reportId}:`,
+              error
+            );
+          }
+        }
+      }
+
+      // Вычисляем количество уникальных дат только для валидных смен
+      const uniqueDates = new Set(validReports.map((row) => row.date));
+      const totalDays = uniqueDates.size;
+
       const reportHeaders = [
         "№",
         "Наименование оборудования",
@@ -117,67 +184,6 @@ export const DownloadShiftReportsWithDetails: React.FC<
         "\r\n",
       ];
 
-      const allRows: ExportRow[] = [];
-      let detailCounter = 0;
-
-      for (const report of reportRows) {
-        detailCounter = 0;
-        allRows.push(report);
-        totalSum += parseFloat(report.sum.replace(",", ".")) || 0;
-
-        const reportId = shiftReportsData.find(
-          (r: IShiftReport) => r.number === report.number
-        )?.shift_report_id;
-
-        if (reportId) {
-          try {
-            const detailsResponse = await fetchShiftReportDetails({
-              shift_report: reportId,
-            });
-            const details = detailsResponse.shift_report_details || [];
-
-            const currentProjectId = shiftReportsData.find(
-              (r: IShiftReport) => r.shift_report_id === reportId
-            )?.project;
-
-            const projectWorksForCurrentProject = currentProjectId
-              ? allProjectWorks.filter((el) => el.project === currentProjectId)
-              : [];
-
-            const projectWorksNameMap: Record<string, string> = {};
-            projectWorksForCurrentProject.forEach((item) => {
-              projectWorksNameMap[item.project_work_id] =
-                item.project_work_name;
-            });
-
-            for (const detail of details) {
-              detailCounter++;
-              allRows.push({
-                isDetail: true,
-                work: worksMap[detail.work]?.name || "",
-                quantity: detail.quantity,
-                coast: detail.summ / detail.quantity,
-                sum: detail.summ,
-                counter: detailCounter,
-              });
-            }
-
-            allRows.push({
-              isDetail: true,
-              work: "Всего:",
-              quantity: 0,
-              coast: 0,
-              sum: parseFloat(report.sum.replace(",", ".")) || 0,
-            });
-          } catch (error) {
-            console.error(
-              `Ошибка при получении деталей для отчета ${reportId}:`,
-              error
-            );
-          }
-        }
-      }
-
       let csvContent = "\uFEFF";
       csvContent += mainHeaders.join(";");
       csvContent += reportHeaders.join(";") + "\r\n";
@@ -186,9 +192,9 @@ export const DownloadShiftReportsWithDetails: React.FC<
         if ("isDetail" in row) {
           const values = [
             row.counter ? row.counter.toString() : "",
-            row.work === "Всего:" ? "" : row.work,
-            row.work === "Всего:" ? "Всего:" : row.quantity.toString(),
-            row.work === "Всего:" ? "" : row.coast.toString(),
+            row.work.includes("Всего") ? row.work : row.work,
+            row.work.includes("Всего") ? "" : row.quantity.toString(),
+            row.work.includes("Всего") ? "" : row.coast.toString(),
             row.sum.toString().replace(".", ","),
           ];
           csvContent +=
@@ -203,10 +209,20 @@ export const DownloadShiftReportsWithDetails: React.FC<
               .join(";") + "\r\n";
         }
       }
-      const endSum = ["", "Всего:", "", "", totalSum];
-      csvContent = csvContent + endSum.join(";") + "\r\n";
+
+      // Добавляем итоговую сумму
+      const endSum = [
+        "",
+        "ВСЕГО:",
+        "",
+        "",
+        totalSum.toString().replace(".", ","),
+      ];
+      csvContent += endSum.join(";") + "\r\n";
+
+      // Добавляем статистику по дням
       const endStat =
-        "Отработанно по табелю с " +
+        "Отработано по табелю с " +
         dateTimestampToLocalString(currentFilters?.date_from) +
         " по " +
         dateTimestampToLocalString(currentFilters?.date_to) +
@@ -239,6 +255,9 @@ export const DownloadShiftReportsWithDetails: React.FC<
     usersMap,
     worksMap,
     allProjectWorks,
+    currentFilters?.date_from,
+    currentFilters?.date_to,
+    currentFilters?.user,
   ]);
 
   const isDisabled =
