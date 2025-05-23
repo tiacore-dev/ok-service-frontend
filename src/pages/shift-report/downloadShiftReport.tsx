@@ -7,7 +7,7 @@ import { getProjectsMap } from "../../store/modules/pages/selectors/projects.sel
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
-import { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
+// import { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { getWorksMap } from "../../store/modules/pages/selectors/works.selector";

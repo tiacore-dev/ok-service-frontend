@@ -1,6 +1,4 @@
-"use client";
-
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import * as React from "react";
 import { FileExcelOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
@@ -12,6 +10,7 @@ import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { getWorksMap } from "../../../store/modules/pages/selectors/works.selector";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
+import { IState } from "../../../store/modules";
 
 interface IExportedReportData {
   number: number;
@@ -26,10 +25,11 @@ interface IExportedReportData {
 
 interface IExportedDetailData {
   isDetail: boolean;
-  project_work: string;
   work: string;
   quantity: number;
+  coast: number;
   sum: number;
+  counter?: number;
 }
 
 type ExportRow = IExportedReportData | IExportedDetailData;
@@ -48,7 +48,6 @@ export const DownloadShiftReportsWithDetails: React.FC<
 > = ({ currentFilters }) => {
   const [isExporting, setIsExporting] = React.useState(false);
 
-  // Получаем данные из React Query
   const { data: shiftReportsResponse } = useShiftReportsQuery({
     ...currentFilters,
     offset: 0,
@@ -61,11 +60,14 @@ export const DownloadShiftReportsWithDetails: React.FC<
   const usersMap = useSelector(getUsersMap);
   const worksMap = useSelector(getWorksMap);
 
+  const allProjectWorks = useSelector(
+    (state: IState) => state.pages.projectWorks.data
+  );
+
   const exportToCSV = React.useCallback(async () => {
     try {
       setIsExporting(true);
 
-      // Подготовка основных данных отчетов
       const reportRows: IExportedReportData[] = shiftReportsData.map(
         (el: IShiftReport) => ({
           number: el.number,
@@ -79,40 +81,54 @@ export const DownloadShiftReportsWithDetails: React.FC<
           signed: el.signed ? "Да" : "Нет",
         })
       );
+      const uniqueDates = new Set(reportRows.map((row) => row.date));
+      const totalDays = uniqueDates.size;
 
-      // Заголовки для основных данных
+      let totalSum = 0;
       const reportHeaders = [
-        "Номер",
-        "Дата",
-        "Исполнитель",
-        "Объект",
-        "Спецификация",
-        "Прораб",
+        "№",
+        "Наименование оборудования",
+        "кол-во ",
+        "Цена за ед.",
         "Сумма",
-        "Согласовано",
       ];
-
-      // Заголовки для детализации
-      const detailHeaders = [
+      const mainHeaders = [
         "",
-        "Наименование",
-        "Работа",
-        "Количество",
-        "Сумма",
+        "",
+        "",
+        "",
+        "Утверждаю Генеральный директор",
+        "\r\n",
+        "",
+        "",
+        "",
+        'ООО "Огнезащитная Корпорация"',
+        "\r\n",
+        dateTimestampToLocalString(currentFilters?.date_from) +
+          " - " +
+          dateTimestampToLocalString(currentFilters?.date_to),
+        "",
+        "",
+        "___________________  Турков А.И",
+        "\r\n",
+        "\r\n",
+        "",
+        usersMap[currentFilters?.user]?.name || "",
+        "\r\n",
       ];
 
-      // Собираем все строки в один массив
       const allRows: ExportRow[] = [];
+      let detailCounter = 0;
 
-      // Для каждого отчета получаем детали и добавляем их после основной строки
       for (const report of reportRows) {
-        // Добавляем основную строку отчета
+        detailCounter = 0;
         allRows.push(report);
+        totalSum += parseFloat(report.sum.replace(",", ".")) || 0;
 
-        // Получаем детали для этого отчета
         const reportId = shiftReportsData.find(
           (r: IShiftReport) => r.number === report.number
         )?.shift_report_id;
+
         if (reportId) {
           try {
             const detailsResponse = await fetchShiftReportDetails({
@@ -120,17 +136,39 @@ export const DownloadShiftReportsWithDetails: React.FC<
             });
             const details = detailsResponse.shift_report_details || [];
 
-            // Добавляем строки с деталями
+            const currentProjectId = shiftReportsData.find(
+              (r: IShiftReport) => r.shift_report_id === reportId
+            )?.project;
+
+            const projectWorksForCurrentProject = currentProjectId
+              ? allProjectWorks.filter((el) => el.project === currentProjectId)
+              : [];
+
+            const projectWorksNameMap: Record<string, string> = {};
+            projectWorksForCurrentProject.forEach((item) => {
+              projectWorksNameMap[item.project_work_id] =
+                item.project_work_name;
+            });
+
             for (const detail of details) {
-              const projectWorkName = projectsMap[detail.project]?.name || "";
+              detailCounter++;
               allRows.push({
                 isDetail: true,
-                project_work: projectWorkName,
                 work: worksMap[detail.work]?.name || "",
                 quantity: detail.quantity,
+                coast: detail.summ / detail.quantity,
                 sum: detail.summ,
+                counter: detailCounter,
               });
             }
+
+            allRows.push({
+              isDetail: true,
+              work: "Всего:",
+              quantity: 0,
+              coast: 0,
+              sum: parseFloat(report.sum.replace(",", ".")) || 0,
+            });
           } catch (error) {
             console.error(
               `Ошибка при получении деталей для отчета ${reportId}:`,
@@ -140,21 +178,17 @@ export const DownloadShiftReportsWithDetails: React.FC<
         }
       }
 
-      // Формируем CSV
-      let csvContent = "\uFEFF"; // BOM для корректной кодировки
-
-      // Добавляем заголовки
+      let csvContent = "\uFEFF";
+      csvContent += mainHeaders.join(";");
       csvContent += reportHeaders.join(";") + "\r\n";
 
-      // Добавляем строки
       for (const row of allRows) {
         if ("isDetail" in row) {
-          // Это строка детализации
           const values = [
-            "", // Пустая ячейка для отступа
-            row.project_work,
-            row.work,
-            row.quantity.toString(),
+            row.counter ? row.counter.toString() : "",
+            row.work === "Всего:" ? "" : row.work,
+            row.work === "Всего:" ? "Всего:" : row.quantity.toString(),
+            row.work === "Всего:" ? "" : row.coast.toString(),
             row.sum.toString().replace(".", ","),
           ];
           csvContent +=
@@ -162,16 +196,25 @@ export const DownloadShiftReportsWithDetails: React.FC<
               .map((value) => `"${String(value).replace(/"/g, '""')}"`)
               .join(";") + "\r\n";
         } else {
-          // Это основная строка отчета
-          const values = Object.values(row);
+          const values = ["", row.object + " (" + row.project + ")"];
           csvContent +=
             values
               .map((value) => `"${String(value).replace(/"/g, '""')}"`)
               .join(";") + "\r\n";
         }
       }
+      const endSum = ["", "Всего:", "", "", totalSum];
+      csvContent = csvContent + endSum.join(";") + "\r\n";
+      const endStat =
+        "Отработанно по табелю с " +
+        dateTimestampToLocalString(currentFilters?.date_from) +
+        " по " +
+        dateTimestampToLocalString(currentFilters?.date_to) +
+        "  " +
+        totalDays.toString() +
+        " рабочих дней";
+      csvContent += endStat + "\r\n";
 
-      // Создаем и скачиваем файл
       const blob = new Blob([csvContent], {
         type: "text/csv;charset=utf-8;",
       });
@@ -189,16 +232,37 @@ export const DownloadShiftReportsWithDetails: React.FC<
     } finally {
       setIsExporting(false);
     }
-  }, [shiftReportsData, projectsMap, objectsMap, usersMap, worksMap]);
+  }, [
+    shiftReportsData,
+    projectsMap,
+    objectsMap,
+    usersMap,
+    worksMap,
+    allProjectWorks,
+  ]);
 
-  return (
+  const isDisabled =
+    shiftReportsData.length === 0 ||
+    !currentFilters?.date_from ||
+    !currentFilters?.date_to ||
+    !currentFilters?.user;
+
+  const button = (
     <Button
       icon={<FileExcelOutlined />}
       onClick={exportToCSV}
       loading={isExporting}
-      disabled={shiftReportsData.length === 0}
+      disabled={isDisabled}
     >
       Скачать детализированный отчет
     </Button>
+  );
+
+  return isDisabled ? (
+    <Tooltip title="Для скачивания отчета необходимо выбрать фильтры по дате и пользователю">
+      {button}
+    </Tooltip>
+  ) : (
+    button
   );
 };

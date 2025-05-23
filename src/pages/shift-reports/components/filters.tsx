@@ -115,19 +115,20 @@ export const Filters: React.FC<FiltersProps> = ({
         <Button
           icon={<FileExcelOutlined />}
           onClick={() => exportToCSV(exportedData, "report.csv")}
+          style={{ marginRight: 8 }}
         >
           Скачать отчет
         </Button>
-        <DownloadShiftReportsWithDetails currentFilters={currentFilters} />{" "}
-        {!isMobile && (
+        {/* {!isMobile && (
           <Button
             icon={<ClearOutlined />}
             onClick={onResetFilters}
-            // disabled={!currentFilters}
+            disabled={!currentFilters}
+            style={{ marginRight: 8 }}
           >
             Сбросить фильтры
           </Button>
-        )}
+        )} */}
       </Space>
     </div>
   );

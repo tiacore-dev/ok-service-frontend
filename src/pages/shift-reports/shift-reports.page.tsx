@@ -23,6 +23,7 @@ import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shi
 import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
 import dayjs from "dayjs";
 import { IShiftReportsList } from "../../interfaces/shiftReports/IShiftReportsList";
+import { DownloadShiftReportsWithDetails } from "./components/downloadShiftReportsWithDetails";
 interface FiltersState {
   user?: string;
   project?: string;
@@ -200,10 +201,13 @@ export const ShiftReports = () => {
           background: "#FFF",
         }}
       >
-        <Filters
-          onResetFilters={handleResetFilters}
-          currentFilters={currentFilters}
-        />
+        <div style={{ display: "flex" }}>
+          <Filters
+            onResetFilters={handleResetFilters}
+            currentFilters={currentFilters}
+          />
+          <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
+        </div>
         <Table
           onChange={(pagination, filters, sorter) => {
             dispatch(
