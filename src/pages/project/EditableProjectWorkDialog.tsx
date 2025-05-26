@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useCallback, useEffect } from "react";
-import { Form, Input, InputNumber, Select, Modal } from "antd";
+import { Form, Input, InputNumber, Select, Modal, Checkbox } from "antd";
 import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { useWorks } from "../../hooks/ApiActions/works";
@@ -35,7 +35,11 @@ export const EditableProjectWorkDialog: React.FC<
 
   useEffect(() => {
     if (initialValues) {
-      form.setFieldsValue(initialValues);
+      form.setFieldsValue({
+        ...initialValues,
+        // Убедимся, что signed имеет значение, даже если undefined
+        signed: initialValues.signed || false,
+      });
     } else {
       form.resetFields();
     }
@@ -64,6 +68,8 @@ export const EditableProjectWorkDialog: React.FC<
           ...values,
           project: projectId,
           quantity: Number(values.quantity),
+          // Убедимся, что signed передается как boolean
+          signed: !!values.signed,
         };
 
         if (isEditing && initialValues) {
@@ -126,6 +132,13 @@ export const EditableProjectWorkDialog: React.FC<
           ]}
         >
           <InputNumber min={0} style={{ width: "100%" }} />
+        </Form.Item>
+        <Form.Item
+          name="signed"
+          label="Согласовано"
+          valuePropName="checked" // Важно для Checkbox
+        >
+          <Checkbox>Согласовано</Checkbox>
         </Form.Item>
       </Form>
     </Modal>

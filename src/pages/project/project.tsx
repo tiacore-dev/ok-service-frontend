@@ -46,7 +46,8 @@ export const Project = () => {
   const currentRole = useSelector(getCurrentRole);
 
   const dispatch = useDispatch();
-  const { getProjectWorks, deleteProjectWork } = useProjectWorks();
+  const { getProjectWorks, deleteProjectWork, editProjectWork } =
+    useProjectWorks();
   const { getObjects } = useObjects();
   const { getUsers } = useUsers();
   const [importMode, setImportMode] = React.useState(false);
@@ -99,6 +100,20 @@ export const Project = () => {
     currentRole === RoleId.MANAGER ||
     currentRole === RoleId.ADMIN;
 
+  const handleSignedChange = (
+    record: IProjectWorksListColumn,
+    checked: boolean
+  ) => {
+    const updatedData = {
+      ...record,
+      signed: checked,
+      project: projectData?.project_id || "",
+      quantity: Number(record.quantity),
+    };
+
+    editProjectWork(record.project_work_id, updatedData);
+  };
+
   const handleAdd = () => {
     setEditingRecord(null);
     setModalVisible(true);
@@ -149,7 +164,15 @@ export const Project = () => {
       dataIndex: "signed",
       key: "signed",
       width: "80px",
-      render: (value: boolean) => <Checkbox checked={value} />,
+      render: (value: boolean, record: IProjectWorksListColumn) => (
+        <Checkbox
+          checked={value}
+          onChange={(e) => handleSignedChange(record, e.target.checked)}
+          disabled={
+            !canEdit || (currentRole === RoleId.PROJECT_LEADER && value)
+          }
+        />
+      ),
     },
     ...(canEdit
       ? [
