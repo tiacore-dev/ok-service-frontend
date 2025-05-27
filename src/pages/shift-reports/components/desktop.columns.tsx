@@ -7,7 +7,7 @@ import {
   dateTimestampToLocalString,
   formatDate,
 } from "../../../utils/dateConverter";
-import { Checkbox, DatePicker, Select } from "antd";
+import { Button, Checkbox, DatePicker, Select } from "antd";
 import { IProject } from "../../../interfaces/projects/IProject";
 import { IShiftReportsSettingsState } from "../../../store/modules/settings/shift-reports";
 import { IObject } from "../../../interfaces/objects/IObject";
@@ -56,9 +56,12 @@ export const shiftReportsDesktopColumns = (
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{dateTimestampToLocalString(record.date)}</div>
       ),
-
+      filteredValue:
+        tableState?.filters?.date_from || tableState?.filters?.date_to
+          ? [tableState.filters.date_from?.[0], tableState.filters.date_to?.[0]]
+          : null,
       filterIcon: <CalendarOutlined />,
-      filterDropdown: () => {
+      filterDropdown: ({ confirm }) => {
         const [dateFrom, setDateFrom] = React.useState<dayjs.Dayjs | null>(
           filters?.date_from ? dayjs(filters.date_from) : null
         );
@@ -87,6 +90,14 @@ export const shiftReportsDesktopColumns = (
           );
         };
 
+        const handleReset = () => {
+          setDateFrom(null);
+          setDateTo(null);
+          onFilterChange?.("date_from", undefined);
+          onFilterChange?.("date_to", undefined);
+          confirm();
+        };
+
         return (
           <div style={{ padding: 8 }}>
             <div>
@@ -111,6 +122,20 @@ export const shiftReportsDesktopColumns = (
                 }}
               />
             </div>
+            <div
+              style={{
+                marginTop: 8,
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button type="link" size="small" onClick={handleReset}>
+                Сбросить
+              </Button>
+              <Button type="primary" size="small" onClick={() => confirm()}>
+                OK
+              </Button>
+            </div>
           </div>
         );
       },
@@ -123,8 +148,9 @@ export const shiftReportsDesktopColumns = (
       render: (text: string, record: IShiftReportsListColumn) => (
         <div>{usersMap[record.user]?.name}</div>
       ),
+      filteredValue: tableState?.filters?.user || null,
       filterIcon: <SearchOutlined />,
-      filterDropdown: () => (
+      filterDropdown: ({ confirm }) => (
         <div style={{ padding: 8 }}>
           <Select
             style={{ width: 200 }}
@@ -138,7 +164,10 @@ export const shiftReportsDesktopColumns = (
             filterOption={(input, option) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
             }
-            onChange={(value) => onFilterChange?.("user", value)}
+            onChange={(value) => {
+              onFilterChange?.("user", value);
+              confirm();
+            }}
             value={filters?.user}
           />
         </div>
@@ -164,8 +193,9 @@ export const shiftReportsDesktopColumns = (
           <div>{projectMap[record.project]?.name}</div>
         </div>
       ),
+      filteredValue: tableState?.filters?.project || null,
       filterIcon: <SearchOutlined />,
-      filterDropdown: () => (
+      filterDropdown: ({ confirm }) => (
         <div style={{ padding: 8 }}>
           <Select
             style={{ width: 200 }}
@@ -179,7 +209,10 @@ export const shiftReportsDesktopColumns = (
             filterOption={(input, option) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
             }
-            onChange={(value) => onFilterChange?.("project", value)}
+            onChange={(value) => {
+              onFilterChange?.("project", value);
+              confirm();
+            }}
             value={filters?.project}
           />
         </div>
@@ -220,7 +253,6 @@ export const shiftReportsDesktopColumns = (
 
   return columns.map((column: IShiftReportsListColumns) => ({
     ...column,
-    filteredValue: tableState?.filters && tableState.filters[column.key],
     sortOrder:
       tableState?.sorter?.field === column.key ? tableState.sorter.order : null,
   }));

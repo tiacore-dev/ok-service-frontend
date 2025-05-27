@@ -12,7 +12,10 @@ export interface IShiftReportsSettingsState {
 const initialState: IShiftReportsSettingsState = {
   pagination: {},
   filters: {},
-  sorter: {},
+  sorter: {
+    field: "date", // Поле, по которому будет сортировка
+    order: "descend", // Порядок сортировки (descend - от нового к старому)
+  },
 };
 
 const shiftReportsSettingsSlice = createSlice({
@@ -21,7 +24,7 @@ const shiftReportsSettingsSlice = createSlice({
   reducers: {
     saveShiftReportsTableState: (
       state: IShiftReportsSettingsState,
-      action: { payload: IShiftReportsSettingsState },
+      action: { payload: IShiftReportsSettingsState }
     ) => {
       state.pagination = action.payload.pagination;
       state.filters = action.payload.filters;
