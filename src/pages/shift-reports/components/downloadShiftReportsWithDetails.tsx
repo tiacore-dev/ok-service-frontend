@@ -11,6 +11,7 @@ import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/
 import { getWorksMap } from "../../../store/modules/pages/selectors/works.selector";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
 import { IState } from "../../../store/modules";
+import { generateDocument } from "../../../api/download.api";
 
 interface IExportedReportData {
   number: number;
@@ -43,6 +44,28 @@ interface DownloadShiftReportsWithDetailsProps {
   };
 }
 
+export interface ExportExcelTemplate {
+  date_to: string;
+  date_from: string;
+  user: string;
+  total_summ: number;
+  unique_days: number;
+  objects: ExportExcelObject[];
+}
+
+export interface ExportExcelObject {
+  name: string;
+  details_summ: number;
+  details: ExportExcelObjectDetails[];
+}
+
+export interface ExportExcelObjectDetails {
+  work: string;
+  quantity: number;
+  coast: number;
+  detail_summ: number;
+}
+
 export const DownloadShiftReportsWithDetails: React.FC<
   DownloadShiftReportsWithDetailsProps
 > = ({ currentFilters }) => {
@@ -64,185 +87,111 @@ export const DownloadShiftReportsWithDetails: React.FC<
     (state: IState) => state.pages.projectWorks.data
   );
 
-  const exportToCSV = React.useCallback(async () => {
+  const createExportTemplate = async (): Promise<ExportExcelTemplate> => {
+    const exportData: ExportExcelTemplate = {
+      date_from: dateTimestampToLocalString(currentFilters?.date_from) || "",
+      date_to: dateTimestampToLocalString(currentFilters?.date_to) || "",
+      user: usersMap[currentFilters?.user]?.name || "",
+      total_summ: 0,
+      unique_days: 0,
+      objects: [],
+    };
+
+    const uniqueDatesWithDetails = new Set<string>();
+
+    const objectsMapByProject: Record<string, ExportExcelObject> = {};
+
+    for (const report of shiftReportsData) {
+      if (!report.shift_report_id) continue;
+
+      try {
+        const detailsResponse = await fetchShiftReportDetails({
+          shift_report: report.shift_report_id,
+        });
+        const details = detailsResponse.shift_report_details || [];
+
+        if (details.length === 0) continue;
+
+        const reportDate = dateTimestampToLocalString(report.date);
+        uniqueDatesWithDetails.add(reportDate);
+
+        const objectName =
+          objectsMap[projectsMap[report.project]?.object]?.name || "";
+        const projectName = projectsMap[report.project]?.name || "";
+        const objectKey = `${objectName} (${projectName})`;
+
+        let existingObject = objectsMapByProject[objectKey];
+        if (!existingObject) {
+          existingObject = {
+            name: objectKey,
+            details_summ: 0,
+            details: [],
+          };
+          objectsMapByProject[objectKey] = existingObject;
+          exportData.objects.push(existingObject);
+        }
+
+        const reportSum = report.shift_report_details_sum || 0;
+        exportData.total_summ += reportSum;
+        existingObject.details_summ += reportSum;
+
+        details.forEach(
+          (detail: { work: string; quantity: number; summ: number }) => {
+            existingObject?.details.push({
+              work: `${worksMap[detail.work]?.name || ""} (${reportDate})`,
+              quantity: detail.quantity,
+              coast: detail.summ / detail.quantity,
+              detail_summ: detail.summ,
+            });
+          }
+        );
+      } catch (error) {
+        console.error(
+          `Ошибка при получении деталей для отчета ${report.shift_report_id}:`,
+          error
+        );
+      }
+    }
+
+    exportData.unique_days = uniqueDatesWithDetails.size;
+    return exportData;
+  };
+
+  const handleDownload = async (blob: Blob, fileName: string) => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+
+    // Очистка
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    }, 100);
+  };
+
+  const exportToXLSX = React.useCallback(async () => {
     try {
       setIsExporting(true);
+      const exportTemplate = await createExportTemplate();
 
-      const reportRows: IExportedReportData[] = shiftReportsData.map(
-        (el: IShiftReport) => ({
-          number: el.number,
-          date: dateTimestampToLocalString(el.date),
-          user: usersMap[el.user]?.name || "",
-          object: objectsMap[projectsMap[el.project]?.object]?.name || "",
-          project: projectsMap[el.project]?.name || "",
-          project_leader:
-            usersMap[projectsMap[el.project]?.project_leader]?.name || "",
-          sum: el.shift_report_details_sum?.toString().replace(".", ",") || "0",
-          signed: el.signed ? "Да" : "Нет",
-        })
-      );
+      const userName = usersMap[currentFilters?.user]?.name || "unknown";
+      const dateFrom =
+        dateTimestampToLocalString(currentFilters?.date_from) || "";
+      const dateTo = dateTimestampToLocalString(currentFilters?.date_to) || "";
+      const fileName =
+        `shift_report_${userName}_${dateFrom}_${dateTo}.xlsx`.replace(
+          /\s+/g,
+          "_"
+        );
+      const reportName =
+        `shift_report_${userName}_${dateFrom}_${dateTo}`.replace(/\s+/g, "_");
 
-      let totalSum = 0;
-      const allRows: ExportRow[] = [];
-      const validReports: IExportedReportData[] = [];
+      const blob = await generateDocument(exportTemplate, reportName);
 
-      for (const report of reportRows) {
-        const reportId = shiftReportsData.find(
-          (r: IShiftReport) => r.number === report.number
-        )?.shift_report_id;
-
-        if (reportId) {
-          try {
-            const detailsResponse = await fetchShiftReportDetails({
-              shift_report: reportId,
-            });
-            const details = detailsResponse.shift_report_details || [];
-
-            // Пропускаем смены без деталей
-            if (details.length === 0) continue;
-
-            validReports.push(report);
-            let detailCounter = 0;
-            allRows.push(report);
-            totalSum += parseFloat(report.sum.replace(",", ".")) || 0;
-
-            const currentProjectId = shiftReportsData.find(
-              (r: IShiftReport) => r.shift_report_id === reportId
-            )?.project;
-
-            const projectWorksForCurrentProject = currentProjectId
-              ? allProjectWorks.filter((el) => el.project === currentProjectId)
-              : [];
-
-            const projectWorksNameMap: Record<string, string> = {};
-            projectWorksForCurrentProject.forEach((item) => {
-              projectWorksNameMap[item.project_work_id] =
-                item.project_work_name;
-            });
-
-            for (const detail of details) {
-              detailCounter++;
-              allRows.push({
-                isDetail: true,
-                work: worksMap[detail.work]?.name || "",
-                quantity: detail.quantity,
-                coast: detail.summ / detail.quantity,
-                sum: detail.summ,
-                counter: detailCounter,
-              });
-            }
-
-            allRows.push({
-              isDetail: true,
-              work: "Всего по смене:",
-              quantity: 0,
-              coast: 0,
-              sum: parseFloat(report.sum.replace(",", ".")) || 0,
-            });
-          } catch (error) {
-            console.error(
-              `Ошибка при получении деталей для отчета ${reportId}:`,
-              error
-            );
-          }
-        }
-      }
-
-      // Вычисляем количество уникальных дат только для валидных смен
-      const uniqueDates = new Set(validReports.map((row) => row.date));
-      const totalDays = uniqueDates.size;
-
-      const reportHeaders = [
-        "№",
-        "Наименование оборудования",
-        "кол-во ",
-        "Цена за ед.",
-        "Сумма",
-      ];
-      const mainHeaders = [
-        "",
-        "",
-        "",
-        "",
-        "Утверждаю Генеральный директор",
-        "\r\n",
-        "",
-        "",
-        "",
-        'ООО "Огнезащитная Корпорация"',
-        "\r\n",
-        dateTimestampToLocalString(currentFilters?.date_from) +
-          " - " +
-          dateTimestampToLocalString(currentFilters?.date_to),
-        "",
-        "",
-        "___________________  Турков А.И",
-        "\r\n",
-        "\r\n",
-        "",
-        usersMap[currentFilters?.user]?.name || "",
-        "\r\n",
-      ];
-
-      let csvContent = "\uFEFF";
-      csvContent += mainHeaders.join(";");
-      csvContent += reportHeaders.join(";") + "\r\n";
-
-      for (const row of allRows) {
-        if ("isDetail" in row) {
-          const values = [
-            row.counter ? row.counter.toString() : "",
-            row.work.includes("Всего") ? row.work : row.work,
-            row.work.includes("Всего") ? "" : row.quantity.toString(),
-            row.work.includes("Всего") ? "" : row.coast.toString(),
-            row.sum.toString().replace(".", ","),
-          ];
-          csvContent +=
-            values
-              .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-              .join(";") + "\r\n";
-        } else {
-          const values = ["", row.object + " (" + row.project + ")"];
-          csvContent +=
-            values
-              .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-              .join(";") + "\r\n";
-        }
-      }
-
-      // Добавляем итоговую сумму
-      const endSum = [
-        "",
-        "ВСЕГО:",
-        "",
-        "",
-        totalSum.toString().replace(".", ","),
-      ];
-      csvContent += endSum.join(";") + "\r\n";
-
-      // Добавляем статистику по дням
-      const endStat =
-        "Отработано по табелю с " +
-        dateTimestampToLocalString(currentFilters?.date_from) +
-        " по " +
-        dateTimestampToLocalString(currentFilters?.date_to) +
-        "  " +
-        totalDays.toString() +
-        " рабочих дней";
-      csvContent += endStat + "\r\n";
-
-      const blob = new Blob([csvContent], {
-        type: "text/csv;charset=utf-8;",
-      });
-
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-
-      link.setAttribute("href", url);
-      link.setAttribute("download", "detailed_report.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await handleDownload(blob, fileName);
     } catch (error) {
       console.error("Ошибка при экспорте отчета:", error);
     } finally {
@@ -269,7 +218,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
   const button = (
     <Button
       icon={<FileExcelOutlined />}
-      onClick={exportToCSV}
+      onClick={exportToXLSX}
       loading={isExporting}
       disabled={isDisabled}
     >
