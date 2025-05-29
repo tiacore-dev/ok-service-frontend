@@ -1,9 +1,10 @@
 import axios from "axios";
 import { authlogout, refreshToken } from "../store/modules/auth";
 import { ExportExcelTemplate } from "../pages/shift-reports/components/downloadShiftReportsWithDetails";
+import { store } from "../store/appStore"; // Импортируем store для доступа к токенам
 
 const axiosInstance = axios.create({
-  baseURL: process.env.TEMPLATE_API_URL,
+  baseURL: process.env.REACT_APP_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,19 +21,57 @@ export const generateDocument = async (
   name: string
 ) => {
   try {
+    const { access_token, refresh_token } = store.getState().auth;
     const payload: GenerateDocumentParams = {
       file_name: "shift_report_detail_report.xlsx",
       document_data: documentData,
       name: name,
     };
 
-    // Добавляем responseType: 'blob' для получения файла
-    const response = await axiosInstance.post("/api/docs/generate", payload, {
+    // Первая попытка запроса
+    let response = await axiosInstance.post("/templates/generate", payload, {
       responseType: "blob",
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
     });
+
+    // Если получили 401, пробуем обновить токен
+    if (response.status === 401) {
+      const newTokenResponse = await axiosInstance.post("/auth/refresh", {
+        refresh_token,
+      });
+
+      if (newTokenResponse.status !== 200) {
+        store.dispatch(authlogout());
+        throw new Error("Failed to refresh token");
+      }
+
+      // Обновляем токены в store
+      store.dispatch(
+        refreshToken({
+          access_token: newTokenResponse.data.access_token,
+          refresh_token: newTokenResponse.data.refresh_token,
+        })
+      );
+
+      // Повторяем запрос с новым токеном
+      response = await axiosInstance.post("/templates/generate", payload, {
+        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${newTokenResponse.data.access_token}`,
+        },
+      });
+    }
+
     return response.data;
   } catch (error) {
-    console.error("Error generating document:", error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        store.dispatch(authlogout());
+      }
+      throw new Error(error.response?.data?.message || error.message);
+    }
     throw error;
   }
 };
