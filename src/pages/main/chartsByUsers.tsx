@@ -47,7 +47,7 @@ export const ChartsByUsers = (props: IChartsByUsersProps) => {
   return (
     <Row gutter={[16, 16]}>
       {totalCostArrayByUser.map((element) => (
-        <Col ref={containerRef} key={0} xs={24} sm={12} md={8}>
+        <Col ref={containerRef} key={element.user} xs={24} sm={12} md={8}>
           <Card hoverable style={{ padding: "0 24px" }}>
             <Meta
               title={usersMap[element.user]?.name}

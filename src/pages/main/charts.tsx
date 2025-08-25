@@ -177,7 +177,7 @@ export const Charts = (props: IChartsProps) => {
               label
             >
               {clientData.map((entry, index) => (
-                <Cell fill={colors[index % colors.length]} />
+                <Cell key={entry.name} fill={colors[index % colors.length]} />
               ))}
             </Pie>
             <Tooltip />
@@ -188,7 +188,7 @@ export const Charts = (props: IChartsProps) => {
                 verticalAlign="middle"
                 formatter={(value) => {
                   const dataItem = clientData.find(
-                    (item) => item.name === value
+                    (item) => item.name === value,
                   );
                   return `${value}: ${formatNumber(dataItem?.value || 0)}`;
                 }}
