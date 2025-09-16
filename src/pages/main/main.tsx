@@ -1,12 +1,14 @@
-import { Button, Space, Select } from "antd";
+import { Button, Space, Select, DatePicker } from "antd";
 import * as React from "react";
 import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
 import { useDispatch, useSelector } from "react-redux";
 import { getShiftReportsData } from "../../store/modules/pages/selectors/shift-reports.selector";
 import {
+  dateFormat,
   dateTimestampToLocalString,
   getLast21stDate,
-  tenDaysAgo,
+  getTenDaysAgo,
+  getToday,
 } from "../../utils/dateConverter";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { useProjects } from "../../hooks/ApiActions/projects";
@@ -23,8 +25,28 @@ import { useUsers } from "../../hooks/ApiActions/users";
 import { ChartsByUsers } from "./chartsByUsers";
 import { Charts } from "./charts";
 
-const dateTenDaysAgo = tenDaysAgo();
-const last21stDate = getLast21stDate();
+type DateRange = { date_from: number; date_to: number };
+
+export enum RangeType {
+  Today = "today",
+  Yesterday = "yesterday",
+  Last10 = "last10",
+  From21 = "from21",
+  Custom = "custom",
+}
+
+const RangeLabels: Record<RangeType, string> = {
+  [RangeType.Today]: "Сегодня",
+  [RangeType.Yesterday]: "Вчера",
+  [RangeType.Last10]: "Последние 10 дней",
+  [RangeType.From21]: "c 21-ого числа",
+  [RangeType.Custom]: "Произвольный период",
+};
+
+const RangeOptions = Object.entries(RangeLabels).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 export const Main = () => {
   const authData = useSelector((state: IState) => state.auth);
@@ -32,7 +54,7 @@ export const Main = () => {
   const dispatch = useDispatch();
 
   const fullScreenMode = useSelector(
-    (state: IState) => state.settings.generalSettings.fullScreenMode,
+    (state: IState) => state.settings.generalSettings.fullScreenMode
   );
 
   const { getShiftReports } = useShiftReports();
@@ -51,7 +73,7 @@ export const Main = () => {
         () => {
           getShiftReports();
         },
-        10 * 60 * 1000,
+        10 * 60 * 1000
       );
 
       return () => clearInterval(interval);
@@ -62,30 +84,65 @@ export const Main = () => {
   const objectsMap = useSelector(getObjectsMap);
   const role = useSelector(getCurrentRole);
   const shiftReportsData = useSelector(getShiftReportsData);
-  const [dateFilterMode, setDateFilterMode] = React.useState<
-    "tenDaysAgo" | "fromLast21st"
-  >(role === RoleId.USER ? "fromLast21st" : "tenDaysAgo");
+  const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
+    role === RoleId.USER ? RangeType.From21 : RangeType.Last10
+  );
+  const [range, setRange] = React.useState<DateRange>({
+    date_from:
+      role === RoleId.USER
+        ? getLast21stDate().getTime()
+        : getTenDaysAgo().getTime(),
+    date_to: new Date().getTime(),
+  });
 
   const [showMode, setShowMode] = React.useState<"all" | "byUsers">("all");
 
-  const filterDate = React.useMemo(
-    () =>
-      dateFilterMode === "fromLast21st"
-        ? last21stDate
-        : dateFilterMode === "tenDaysAgo"
-          ? dateTenDaysAgo
-          : undefined,
-    [dateFilterMode],
-  );
+  const updateRange = (type: RangeType) => {
+    setDateFilterMode(type);
+
+    const now = new Date();
+    let from: Date;
+    let to: Date = new Date();
+
+    switch (type) {
+      case RangeType.Today:
+        from = getToday();
+        to = new Date();
+        break;
+      case RangeType.Yesterday:
+        from = new Date();
+        from.setDate(from.getDate() - 1);
+        from.setHours(0, 0, 0, 0);
+        to = new Date(from);
+        to.setHours(23, 59, 59, 999);
+        break;
+      case RangeType.Last10:
+        from = getTenDaysAgo();
+        break;
+      case RangeType.From21:
+        from = getLast21stDate();
+        break;
+      case RangeType.Custom:
+        // Для произвольного периода — ждем инпутов
+        return;
+    }
+
+    setRange({
+      date_from: from.getTime(),
+      date_to: to.getTime(),
+    });
+  };
+
+  const handleCustomChange = (key: "date_from" | "date_to", value: number) => {
+    setRange((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   const description = React.useMemo(
-    () =>
-      dateFilterMode === "fromLast21st"
-        ? "с 21 числа"
-        : dateFilterMode === "tenDaysAgo"
-          ? "за последние 10 дней"
-          : "",
-    [dateFilterMode],
+    () => RangeLabels[dateFilterMode],
+    [dateFilterMode]
   );
 
   const filteredShiftReportsData = React.useMemo(
@@ -93,8 +150,8 @@ export const Main = () => {
       shiftReportsData
         .slice()
         .sort((a, b) => a.date - b.date)
-        .filter((el) => el.date >= filterDate),
-    [shiftReportsData, filterDate],
+        .filter((el) => el.date >= range.date_from && el.date <= range.date_to),
+    [shiftReportsData, range]
   );
 
   const totalCostData = React.useMemo(
@@ -104,7 +161,7 @@ export const Main = () => {
         acc[date] = (acc[date] ?? 0) + val.shift_report_details_sum;
         return acc;
       }, {}),
-    [filteredShiftReportsData],
+    [filteredShiftReportsData]
   );
 
   const totalCostDataByUser = React.useMemo(
@@ -112,9 +169,7 @@ export const Main = () => {
       filteredShiftReportsData.reduce(
         (acc: Record<string, Record<string, number>>, val) => {
           const user = val.user;
-
           const date = dateTimestampToLocalString(val.date);
-
           const userData = acc[user];
 
           if (userData) {
@@ -126,9 +181,9 @@ export const Main = () => {
 
           return acc;
         },
-        {},
+        {}
       ),
-    [filteredShiftReportsData],
+    [filteredShiftReportsData]
   );
 
   const totalCostArrayByUser = React.useMemo(
@@ -140,7 +195,7 @@ export const Main = () => {
           value,
         })),
       })),
-    [totalCostData],
+    [totalCostData]
   );
 
   const totalCostArray = React.useMemo(
@@ -149,28 +204,80 @@ export const Main = () => {
         date,
         value,
       })),
-    [totalCostData],
+    [totalCostData]
   );
 
-  const totalCountData = React.useMemo(() => {
+  const totalCountData: Record<
+    string,
+    { empty: number; notSigned: number; signed: number }
+  > = React.useMemo(() => {
     const totalCostMap = filteredShiftReportsData.reduce(
-      (acc: Record<string, IShiftReportsList[]>, val) => {
+      (
+        acc: Record<
+          string,
+          {
+            empty?: IShiftReportsList[];
+            notSigned?: IShiftReportsList[];
+            signed?: IShiftReportsList[];
+          }
+        >,
+        val
+      ) => {
         const date = dateTimestampToLocalString(val.date);
-        acc[date] = acc[date] ? [...acc[date], val] : [val];
+
+        if (val.signed) {
+          acc[date] = acc[date]
+            ? acc[date].signed
+              ? { ...acc[date], signed: [...acc[date].signed, val] }
+              : { ...acc[date], signed: [val] }
+            : { signed: [val] };
+        } else if (val.shift_report_details_sum > 0) {
+          acc[date] = acc[date]
+            ? acc[date].notSigned
+              ? { ...acc[date], notSigned: [...acc[date].notSigned, val] }
+              : { ...acc[date], notSigned: [val] }
+            : { notSigned: [val] };
+        } else {
+          acc[date] = acc[date]
+            ? acc[date].empty
+              ? { ...acc[date], empty: [...acc[date].empty, val] }
+              : { ...acc[date], empty: [val] }
+            : { empty: [val] };
+        }
+
         return acc;
       },
-      {},
+      {}
     );
 
     const result = Object.keys(totalCostMap).reduce(
-      (acc: Record<string, number>, key: string) => {
-        const users = Array.from(
-          new Set(totalCostMap[key].map((el) => el.user)),
+      (
+        acc: Record<
+          string,
+          { empty: number; notSigned: number; signed: number }
+        >,
+        key: string
+      ) => {
+        const usersEmpty = Array.from(
+          new Set(totalCostMap[key].empty?.map((el) => el.user))
         );
-        acc[key] = users?.length;
+
+        const usersNotSigned = Array.from(
+          new Set(totalCostMap[key].notSigned?.map((el) => el.user))
+        );
+
+        const usersEusersSignedmpty = Array.from(
+          new Set(totalCostMap[key].signed?.map((el) => el.user))
+        );
+
+        acc[key] = {
+          empty: usersEmpty?.length || 0,
+          notSigned: usersNotSigned?.length || 0,
+          signed: usersEusersSignedmpty?.length || 0,
+        };
         return acc;
       },
-      {},
+      {}
     );
 
     return result;
@@ -180,18 +287,20 @@ export const Main = () => {
     () =>
       Object.entries(totalCountData).map(([date, value]) => ({
         date,
-        value,
+        ...value,
       })),
-    [totalCountData],
+    [totalCountData]
   );
 
   const averageCostArray = React.useMemo(
     () =>
       Object.entries(totalCostData).map(([date, value]) => ({
         date,
-        value: Math.round(value / totalCountData[date]),
+        value: Math.round(
+          value / (totalCountData[date].signed + totalCountData[date].notSigned)
+        ),
       })),
-    [totalCostData, totalCountData],
+    [totalCostData, totalCountData]
   );
 
   const clientData = React.useMemo(() => {
@@ -207,12 +316,12 @@ export const Main = () => {
             (acc[val.object] ?? 0) + val.shift_report_details_sum;
           return acc;
         },
-        {},
+        {}
       );
 
       const result = Object.entries(dataWithObject).map(([name, value]) => ({
         name,
-        value,
+        value: Math.round(value * 100) / 100,
       }));
 
       return result;
@@ -238,13 +347,29 @@ export const Main = () => {
             }}
           ></Button>
           <Select
+            style={{ width: 200 }}
             value={dateFilterMode}
-            onChange={setDateFilterMode}
-            options={[
-              { label: "Последние 10 дней", value: "tenDaysAgo" },
-              { label: "с 21-ого числа", value: "fromLast21st" },
-            ]}
+            onChange={updateRange}
+            options={RangeOptions}
           ></Select>
+
+          {dateFilterMode === RangeType.Custom && (
+            <DatePicker
+              format={dateFormat}
+              onChange={(value) =>
+                handleCustomChange("date_from", value.valueOf())
+              }
+            />
+          )}
+
+          {dateFilterMode === RangeType.Custom && (
+            <DatePicker
+              format={dateFormat}
+              onChange={(value) =>
+                handleCustomChange("date_to", value.valueOf())
+              }
+            />
+          )}
 
           <Select
             value={showMode}

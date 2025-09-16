@@ -28,7 +28,9 @@ interface IChartsProps {
   }[];
   totalCountArray: {
     date: string;
-    value: number;
+    empty: number;
+    notSigned: number;
+    signed: number;
   }[];
   averageCostArray: {
     date: string;
@@ -130,9 +132,22 @@ export const Charts = (props: IChartsProps) => {
               <Tooltip />
               <Legend />
               <Bar
-                dataKey="value"
+                dataKey="signed"
                 fill="#4090ff"
-                name="Количество монтажников"
+                name="Согласовано"
+                stackId="a"
+              />
+              <Bar
+                dataKey="notSigned"
+                fill="#2bba23ff"
+                name="Не согласовано"
+                stackId="a"
+              />
+              <Bar
+                dataKey="empty"
+                fill="#ffd940ff"
+                name="Не заполнено"
+                stackId="a"
               />
             </BarChart>
           </Card>
@@ -188,7 +203,7 @@ export const Charts = (props: IChartsProps) => {
                 verticalAlign="middle"
                 formatter={(value) => {
                   const dataItem = clientData.find(
-                    (item) => item.name === value,
+                    (item) => item.name === value
                   );
                   return `${value}: ${formatNumber(dataItem?.value || 0)}`;
                 }}

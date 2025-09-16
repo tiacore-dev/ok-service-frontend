@@ -34,13 +34,17 @@ export const formatDate = (d: Date) => {
   return [year, month, day].join("-");
 };
 
-export const tenDaysAgo = () => {
-  const now = new Date();
-  const tenDaysAgo = new Date(now);
-  tenDaysAgo.setDate(now.getDate() - 10);
+export const getTenDaysAgo = () => {
+  const tenDaysAgo = new Date();
+  tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
   tenDaysAgo.setHours(0, 0, 0, 0);
-  const timestampTenDaysAgo = tenDaysAgo.getTime();
-  return timestampTenDaysAgo;
+  return tenDaysAgo;
+};
+
+export const getToday = () => {
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+  return todayDate;
 };
 
 export const getLast21stDate = () => {
@@ -68,7 +72,7 @@ export const getLast21stDate = () => {
   }
 
   // Создаем дату 21 числа нужного месяца и года
-  const last21stDate = new Date(targetYear, targetMonth, 21).getTime();
+  const last21stDate = new Date(targetYear, targetMonth, 21);
 
   return last21stDate;
 };
