@@ -160,7 +160,7 @@ export const Charts = (props: IChartsProps) => {
           <Card>
             <Meta title="Средняя стоимость смены" description={description} />
             <LineChart width={width - 84} height={400} data={averageCostArray}>
-              <XAxis tick={{ fill: "black" }} dataKey="name" />
+              <XAxis tick={{ fill: "black" }} dataKey="date" />
               <YAxis tick={{ fill: "black" }} />
               <Tooltip />
               <Legend />
