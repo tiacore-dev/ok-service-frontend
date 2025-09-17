@@ -54,7 +54,7 @@ export const Main = () => {
   const dispatch = useDispatch();
 
   const fullScreenMode = useSelector(
-    (state: IState) => state.settings.generalSettings.fullScreenMode
+    (state: IState) => state.settings.generalSettings.fullScreenMode,
   );
 
   const { getShiftReports } = useShiftReports();
@@ -73,7 +73,7 @@ export const Main = () => {
         () => {
           getShiftReports();
         },
-        10 * 60 * 1000
+        10 * 60 * 1000,
       );
 
       return () => clearInterval(interval);
@@ -85,7 +85,7 @@ export const Main = () => {
   const role = useSelector(getCurrentRole);
   const shiftReportsData = useSelector(getShiftReportsData);
   const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
-    role === RoleId.USER ? RangeType.From21 : RangeType.Last10
+    role === RoleId.USER ? RangeType.From21 : RangeType.Last10,
   );
   const [range, setRange] = React.useState<DateRange>({
     date_from:
@@ -100,7 +100,6 @@ export const Main = () => {
   const updateRange = (type: RangeType) => {
     setDateFilterMode(type);
 
-    const now = new Date();
     let from: Date;
     let to: Date = new Date();
 
@@ -142,7 +141,7 @@ export const Main = () => {
 
   const description = React.useMemo(
     () => RangeLabels[dateFilterMode],
-    [dateFilterMode]
+    [dateFilterMode],
   );
 
   const filteredShiftReportsData = React.useMemo(
@@ -151,7 +150,7 @@ export const Main = () => {
         .slice()
         .sort((a, b) => a.date - b.date)
         .filter((el) => el.date >= range.date_from && el.date <= range.date_to),
-    [shiftReportsData, range]
+    [shiftReportsData, range],
   );
 
   const totalCostData = React.useMemo(
@@ -161,7 +160,7 @@ export const Main = () => {
         acc[date] = (acc[date] ?? 0) + val.shift_report_details_sum;
         return acc;
       }, {}),
-    [filteredShiftReportsData]
+    [filteredShiftReportsData],
   );
 
   const totalCostDataByUser = React.useMemo(
@@ -181,9 +180,9 @@ export const Main = () => {
 
           return acc;
         },
-        {}
+        {},
       ),
-    [filteredShiftReportsData]
+    [filteredShiftReportsData],
   );
 
   const totalCostArrayByUser = React.useMemo(
@@ -195,7 +194,7 @@ export const Main = () => {
           value,
         })),
       })),
-    [totalCostData]
+    [totalCostData],
   );
 
   const totalCostArray = React.useMemo(
@@ -204,7 +203,7 @@ export const Main = () => {
         date,
         value,
       })),
-    [totalCostData]
+    [totalCostData],
   );
 
   const totalCountData: Record<
@@ -221,7 +220,7 @@ export const Main = () => {
             signed?: IShiftReportsList[];
           }
         >,
-        val
+        val,
       ) => {
         const date = dateTimestampToLocalString(val.date);
 
@@ -247,7 +246,7 @@ export const Main = () => {
 
         return acc;
       },
-      {}
+      {},
     );
 
     const result = Object.keys(totalCostMap).reduce(
@@ -256,18 +255,18 @@ export const Main = () => {
           string,
           { empty: number; notSigned: number; signed: number }
         >,
-        key: string
+        key: string,
       ) => {
         const usersEmpty = Array.from(
-          new Set(totalCostMap[key].empty?.map((el) => el.user))
+          new Set(totalCostMap[key].empty?.map((el) => el.user)),
         );
 
         const usersNotSigned = Array.from(
-          new Set(totalCostMap[key].notSigned?.map((el) => el.user))
+          new Set(totalCostMap[key].notSigned?.map((el) => el.user)),
         );
 
         const usersEusersSignedmpty = Array.from(
-          new Set(totalCostMap[key].signed?.map((el) => el.user))
+          new Set(totalCostMap[key].signed?.map((el) => el.user)),
         );
 
         acc[key] = {
@@ -277,7 +276,7 @@ export const Main = () => {
         };
         return acc;
       },
-      {}
+      {},
     );
 
     return result;
@@ -289,7 +288,7 @@ export const Main = () => {
         date,
         ...value,
       })),
-    [totalCountData]
+    [totalCountData],
   );
 
   const averageCostArray = React.useMemo(
@@ -297,10 +296,11 @@ export const Main = () => {
       Object.entries(totalCostData).map(([date, value]) => ({
         date,
         value: Math.round(
-          value / (totalCountData[date].signed + totalCountData[date].notSigned)
+          value /
+            (totalCountData[date].signed + totalCountData[date].notSigned),
         ),
       })),
-    [totalCostData, totalCountData]
+    [totalCostData, totalCountData],
   );
 
   const clientData = React.useMemo(() => {
@@ -316,7 +316,7 @@ export const Main = () => {
             (acc[val.object] ?? 0) + val.shift_report_details_sum;
           return acc;
         },
-        {}
+        {},
       );
 
       const result = Object.entries(dataWithObject).map(([name, value]) => ({
