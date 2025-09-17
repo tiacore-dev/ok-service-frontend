@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Button, Dropdown, Menu, Space, Table } from "antd";
+import { Button, Dropdown, Input, Menu, Space, Table } from "antd";
 import { useSelector } from "react-redux";
 import TextArea from "antd/es/input/TextArea";
 import { IProject } from "../../interfaces/projects/IProject";
@@ -27,6 +27,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
   const [uploadString, setUploadString] = useState<string>("");
   const [workIdMap, setWorkIdMap] = useState<Record<string, string>>({});
   const { project, close } = props;
+  const [search, setSearch] = useState<string>("");
 
   const { createProjectWorks } = useProjectWorks();
 
@@ -68,16 +69,35 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
       render: (text: string, record: IUploadData) => {
         const menu = (
           <Menu style={{ maxHeight: "400px", overflowY: "auto" }}>
-            {workOptions.map((opt) => (
-              <Menu.Item
-                key={opt.value}
-                onClick={() => setWorkId(opt.value, record.workString)}
-              >
-                <div style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
-                  {opt.label}
-                </div>
-              </Menu.Item>
-            ))}
+            <Input
+              placeholder="Поиск"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            ></Input>
+
+            {workOptions
+              .filter(
+                (el) =>
+                  search === "" ||
+                  (el?.label ?? "")
+                    .toLowerCase()
+                    .includes(search.toLowerCase()),
+              )
+              .map((opt) => (
+                <Menu.Item
+                  key={opt.value}
+                  onClick={() => {
+                    setWorkId(opt.value, record.workString);
+                    setSearch("");
+                  }}
+                >
+                  <div
+                    style={{ whiteSpace: "normal", wordBreak: "break-word" }}
+                  >
+                    {opt.label}
+                  </div>
+                </Menu.Item>
+              ))}
           </Menu>
         );
 
