@@ -1,6 +1,6 @@
 {
-  "name": "app.firecorp",
-  "version": "0.1.0",
+  "name": "firecorp-vision",
+  "version": "1.0.0",
   "description": "",
   "main": "main.js",
   "scripts": {
