@@ -53,6 +53,7 @@ import {
 import { EditableShiftReportDialog } from "../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { EditableShiftReportDetailDialog } from "./EditableShiftReportDetailDialog";
 import { DownloadShiftReport } from "./downloadShiftReport";
+import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 
 const { Text } = Typography;
 
@@ -94,8 +95,14 @@ export const ShiftReport = () => {
   // Selectors
   const usersMap = useSelector(getUsersMap);
   const projectsMap = useSelector(getProjectsMap);
+  const objectsMap = useSelector(getObjectsMap);
   const worksMap = useSelector(getWorksMap);
   const stat = useSelector(selectProjectStat);
+
+  const object = React.useMemo(
+    () => projectsMap[shiftReportData?.project]?.object,
+    [projectsMap, shiftReportData?.project],
+  );
 
   React.useEffect(() => {
     getProjects();
@@ -120,11 +127,11 @@ export const ShiftReport = () => {
   }, [shiftReportData?.project]);
 
   const projectWorksData = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, shiftReportData?.project)
+    getProjectWorksByProjectId(state, shiftReportData?.project),
   );
 
   const projectWorksMapByProjectId = useSelector((state: IState) =>
-    getProjectWorksMapByProjectId(state, shiftReportData?.project)
+    getProjectWorksMapByProjectId(state, shiftReportData?.project),
   );
 
   const projectWorksOptions = projectWorksData.map((el) => ({
@@ -138,7 +145,7 @@ export const ShiftReport = () => {
         shiftReportDetailsData.map((doc) => ({
           ...doc,
           key: doc.shift_report_detail_id,
-        }))
+        })),
       );
     }
   }, [shiftReportDetailsData]);
@@ -152,7 +159,7 @@ export const ShiftReport = () => {
     if (!shiftReportDetailsData) return 0;
     return shiftReportDetailsData.reduce(
       (acc: number, val) => acc + (val.summ || 0),
-      0
+      0,
     );
   }, [shiftReportDetailsData]);
 
@@ -300,7 +307,7 @@ export const ShiftReport = () => {
         const statEl = stat[el.work];
         const check = `Завершено: ${statEl.shift_report_details_quantity} из ${statEl.project_work_quantity} Доступно: ${Math.max(
           statEl.project_work_quantity - statEl.shift_report_details_quantity,
-          0
+          0,
         )}`;
 
         return {
@@ -318,7 +325,7 @@ export const ShiftReport = () => {
 
   const disabled = React.useMemo(
     () => checedData.some((el) => el?.blocked),
-    [checedData]
+    [checedData],
   );
 
   if (isShiftReportLoading || isDetailsLoading) {
@@ -329,6 +336,7 @@ export const ShiftReport = () => {
     return <div>Отчет не найден</div>;
   }
 
+  // const objectLink = `/objects/${object}`;
   return (
     <>
       <Breadcrumb
@@ -373,6 +381,7 @@ export const ShiftReport = () => {
           <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
           <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
           <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
+          <p>Объект: {objectsMap[object]?.name}</p>
           <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
           <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
           <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
