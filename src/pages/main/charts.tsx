@@ -14,6 +14,7 @@ import {
   PieChart,
   XAxis,
   YAxis,
+  LabelList,
 } from "recharts";
 import { useSelector } from "react-redux";
 import { getCurrentRole } from "../../store/modules/auth";
@@ -169,7 +170,9 @@ export const Charts = (props: IChartsProps) => {
                 dataKey="value"
                 stroke="#4090ff"
                 strokeWidth={2}
-              />
+              >
+                <LabelList dataKey="value" position="top" fill="black" />
+              </Line>
             </LineChart>
           </Card>
         </Col>
@@ -203,7 +206,7 @@ export const Charts = (props: IChartsProps) => {
                 verticalAlign="middle"
                 formatter={(value) => {
                   const dataItem = clientData.find(
-                    (item) => item.name === value
+                    (item) => item.name === value,
                   );
                   return `${value}: ${formatNumber(dataItem?.value || 0)}`;
                 }}
