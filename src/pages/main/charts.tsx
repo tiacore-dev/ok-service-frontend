@@ -107,7 +107,9 @@ export const Charts = (props: IChartsProps) => {
             <YAxis tick={{ fill: "black" }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="value" fill="#4090ff" name="Сумма" />
+            <Bar dataKey="value" fill="#4090ff" name="Сумма">
+              <LabelList dataKey="value" position="top" fill="black" />
+            </Bar>
           </BarChart>
         </Card>
       </Col>
