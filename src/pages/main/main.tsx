@@ -22,13 +22,14 @@ import { toggleFullScreenMode } from "../../store/modules/settings/general";
 import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
-import { ChartsByUsers } from "./chartsByUsers";
-import { Charts } from "./charts";
+import { ChartsByUsers } from "./components/chartsByUsers";
+import { Charts } from "./components/charts";
 import {
   ChartsByObjects,
   IObjectStatsItem,
   IUserStatsItem,
-} from "./chartsByObjects";
+} from "./components/chartsByObjects";
+import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 
 type DateRange = { date_from: number; date_to: number };
 
@@ -87,6 +88,7 @@ export const Main = () => {
 
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
+  const usersMap = useSelector(getUsersMap);
   const role = useSelector(getCurrentRole);
   const shiftReportsData = useSelector(getShiftReportsData);
   const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
@@ -215,7 +217,14 @@ export const Main = () => {
 
   const totalCountData: Record<
     string,
-    { empty: number; notSigned: number; signed: number }
+    {
+      empty: number;
+      emptyData: string[];
+      notSigned: number;
+      notSignedData: string[];
+      signed: number;
+      signedData: string[];
+    }
   > = React.useMemo(() => {
     const totalCostMap = filteredShiftReportsData.reduce(
       (
@@ -260,7 +269,14 @@ export const Main = () => {
       (
         acc: Record<
           string,
-          { empty: number; notSigned: number; signed: number }
+          {
+            empty: number;
+            emptyData: string[];
+            notSigned: number;
+            notSignedData: string[];
+            signed: number;
+            signedData: string[];
+          }
         >,
         key: string,
       ) => {
@@ -278,8 +294,17 @@ export const Main = () => {
 
         acc[key] = {
           empty: usersEmpty?.length || 0,
+          emptyData: usersEmpty?.length
+            ? usersEmpty.map((el) => usersMap[el].name)
+            : [],
           notSigned: usersNotSigned?.length || 0,
+          notSignedData: usersNotSigned?.length
+            ? usersNotSigned.map((el) => usersMap[el].name)
+            : [],
           signed: usersEusersSignedmpty?.length || 0,
+          signedData: usersEusersSignedmpty?.length
+            ? usersEusersSignedmpty.map((el) => usersMap[el].name)
+            : [],
         };
         return acc;
       },

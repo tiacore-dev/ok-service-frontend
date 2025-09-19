@@ -2,15 +2,15 @@ import * as React from "react";
 import { Card, Col, List, Row, Space } from "antd";
 import Meta from "antd/es/card/Meta";
 import { useSelector } from "react-redux";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
-import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
+import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
+import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
 import {
   CheckCircleFilled,
   CheckCircleTwoTone,
   ClockCircleFilled,
   PlusCircleFilled,
 } from "@ant-design/icons";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 
 export interface IUserStatsItem {
   user: string;

@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { useSelector } from "react-redux";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 
 interface IChartsByUsersProps {
   totalCostArrayByUser: {
