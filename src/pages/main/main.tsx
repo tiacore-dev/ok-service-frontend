@@ -24,6 +24,11 @@ import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { ChartsByUsers } from "./chartsByUsers";
 import { Charts } from "./charts";
+import {
+  ChartsByObjects,
+  IObjectStatsItem,
+  IUserStatsItem,
+} from "./chartsByObjects";
 
 type DateRange = { date_from: number; date_to: number };
 
@@ -95,7 +100,9 @@ export const Main = () => {
     date_to: new Date().getTime(),
   });
 
-  const [showMode, setShowMode] = React.useState<"all" | "byUsers">("all");
+  const [showMode, setShowMode] = React.useState<
+    "all" | "byUsers" | "byObjects"
+  >("all");
 
   const updateRange = (type: RangeType) => {
     setDateFilterMode(type);
@@ -330,6 +337,70 @@ export const Main = () => {
     }
   }, [filteredShiftReportsData, projectsMap, objectsMap]);
 
+  const totalCostArrayByObjects = React.useMemo(() => {
+    if (projectsMap && objectsMap) {
+      const reportsWithObject = filteredShiftReportsData.map((el) => {
+        const object = projectsMap[el.project]?.object;
+        return { ...el, object };
+      });
+
+      const dataWithObject = reportsWithObject.reduce(
+        (acc: Record<string, Record<string, IUserStatsItem[]>>, val) => {
+          const record: IUserStatsItem = {
+            user: val.user,
+            status:
+              val.shift_report_details_sum === 0
+                ? "empty"
+                : val.signed
+                  ? "signed"
+                  : "not-signed",
+          };
+
+          acc = {
+            ...acc,
+
+            [val.object]: {
+              ...acc[val.object],
+              [val.project]: [
+                ...(acc[val.object] ? acc[val.object][val.project] || [] : []),
+                record,
+              ],
+            },
+          };
+          return acc;
+        },
+        {},
+      );
+
+      const result: IObjectStatsItem[] = Object.entries(dataWithObject).map(
+        ([object, projectsData]) => {
+          const projects = Object.entries(projectsData).map(
+            ([project, users]) => ({
+              project,
+              users,
+            }),
+          );
+
+          const result: IObjectStatsItem = {
+            object,
+            done:
+              projects.length &&
+              projects.every((project) =>
+                project.users.every((user) => user.status === "signed"),
+              ),
+            projects,
+          };
+
+          return result;
+        },
+      );
+
+      return result;
+    } else {
+      return [];
+    }
+  }, [filteredShiftReportsData, projectsMap, objectsMap]);
+
   return (
     <div style={{ padding: "24px" }}>
       {!mobile && (
@@ -373,21 +444,33 @@ export const Main = () => {
 
           <Select
             value={showMode}
-            onChange={setShowMode}
+            onChange={(value) => {
+              if (value === "byObjects") {
+                updateRange(RangeType.Today);
+              }
+              setShowMode(value);
+            }}
             options={[
               { label: "По типу данных", value: "all" },
               { label: "По сотрудникам", value: "byUsers" },
+              { label: "По объектам", value: "byObjects" },
             ]}
           ></Select>
         </Space>
       )}
 
-      {showMode === "byUsers" ? (
+      {showMode === "byUsers" && (
         <ChartsByUsers
           description={description}
           totalCostArrayByUser={totalCostArrayByUser}
         />
-      ) : (
+      )}
+
+      {showMode === "byObjects" && (
+        <ChartsByObjects totalCostArrayByObjects={totalCostArrayByObjects} />
+      )}
+
+      {showMode === "all" && (
         <Charts
           description={description}
           totalCostArray={totalCostArray}
