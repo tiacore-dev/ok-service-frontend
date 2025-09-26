@@ -12,7 +12,7 @@ export interface IObjectVolumeReportObject {
 
 export interface IObjectVolumeReportProject {
   name: string; // Наименование спецификации (проекта)
-  project_details: IObjectVolumeReportProjectDetail[];
+  details: IObjectVolumeReportProjectDetail[];
 }
 
 export interface IObjectVolumeReportProjectDetail {
