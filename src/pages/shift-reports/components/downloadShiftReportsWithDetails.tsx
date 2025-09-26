@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, Tooltip } from "antd";
 import * as React from "react";
 import { FileExcelOutlined } from "@ant-design/icons";
@@ -6,11 +8,10 @@ import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.
 import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { getWorksMap } from "../../../store/modules/pages/selectors/works.selector";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
-import { IState } from "../../../store/modules";
+import type { IState } from "../../../store/modules";
 import { generateDocument } from "../../../api/download.api";
 
 interface IExportedReportData {
@@ -60,7 +61,9 @@ export interface ExportExcelObject {
 }
 
 export interface ExportExcelObjectDetails {
-  work: string;
+  date: string;
+  work_name: string;
+  work_category: string;
   quantity: number;
   coast: number;
   detail_summ: number;
@@ -98,7 +101,6 @@ export const DownloadShiftReportsWithDetails: React.FC<
     };
 
     const uniqueDatesWithDetails = new Set<string>();
-
     const objectsMapByProject: Record<string, ExportExcelObject> = {};
 
     for (const report of shiftReportsData) {
@@ -136,11 +138,34 @@ export const DownloadShiftReportsWithDetails: React.FC<
         existingObject.details_summ += reportSum;
 
         details.forEach(
-          (detail: { work: string; quantity: number; summ: number }) => {
+          (detail: {
+            work: string;
+            quantity: number;
+            summ: number;
+            project_work: string;
+          }) => {
+            // Находим проектную работу
+            const projectWork = allProjectWorks.find(
+              (pw: any) => pw.project_work_id === detail.project_work
+            );
+
+            // Получаем название работы из worksMap по work_id
+            const workName =
+              worksMap[detail.work]?.name || "Неизвестная работа";
+
+            // Получаем название проектной работы (если нужно)
+            const projectWorkName = projectWork?.project_work_name || workName;
+
+            // Получаем название категории работы
+            const workCategory =
+              worksMap[detail.work]?.category?.name || "Без категории";
+
             existingObject?.details.push({
-              work: `${worksMap[detail.work]?.name || ""} (${reportDate})`,
+              date: reportDate, //Столбец Дата работает корректно
+              work_name: workCategory, //Столбец наименование отображает сейчас не то что надо (нужно указать данные не из работы, а из project details)
+              work_category: projectWorkName, //Столбец Категория работает корректно (как было)
               quantity: detail.quantity,
-              coast: detail.summ / detail.quantity,
+              coast: detail.quantity > 0 ? detail.summ / detail.quantity : 0, // Защита от деления на 0
               detail_summ: detail.summ,
             });
           }

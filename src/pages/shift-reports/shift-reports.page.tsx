@@ -1,9 +1,11 @@
+"use client";
+
 //shift-reports.page.tsx
-import { Breadcrumb, Layout, Table, TablePaginationConfig } from "antd";
+import { Breadcrumb, Layout, Table, type TablePaginationConfig } from "antd";
 import * as React from "react";
 import { shiftReportsDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import type { IState } from "../../store/modules";
 import { Filters } from "./components/filters";
 import "./shift-reports.page.less";
 import { useNavigate } from "react-router-dom";
@@ -17,16 +19,17 @@ import { useProjects } from "../../hooks/ApiActions/projects";
 import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { useWorks } from "../../hooks/ApiActions/works";
-import { FilterValue, SorterResult } from "antd/es/table/interface";
+import type { FilterValue, SorterResult } from "antd/es/table/interface";
 import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
 import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
-import {
+import type { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
+import type {
   IShiftReportsList,
   IShiftReportsListColumn,
 } from "../../interfaces/shiftReports/IShiftReportsList";
 import { DownloadShiftReportsWithDetails } from "./components/downloadShiftReportsWithDetails";
+import { DownloadObjectVolumeReport } from "./components/downloadObjectVolumeReport";
 
 interface FiltersState {
   user?: string;
@@ -225,12 +228,13 @@ export const ShiftReports = () => {
           background: "#FFF",
         }}
       >
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
           <Filters
             onResetFilters={handleResetFilters}
             currentFilters={currentFilters}
           />
           <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
+          <DownloadObjectVolumeReport currentFilters={currentFilters} />
         </div>
         <Table<IShiftReportsListColumn>
           onChange={handleTableChange}
