@@ -154,6 +154,18 @@ export const DownloadObjectVolumeReport: React.FC<
       setIsExporting(true);
       const reportData = await createObjectVolumeReport();
 
+      console.log(
+        " Object Volume Report Data:",
+        JSON.stringify(reportData, null, 2)
+      );
+      console.log(" Objects count:", reportData.objects.length);
+      console.log(
+        " Date range:",
+        reportData.date_from,
+        "to",
+        reportData.date_to
+      );
+
       const dateFrom =
         dateTimestampToLocalString(currentFilters?.date_from) || "";
       const dateTo = dateTimestampToLocalString(currentFilters?.date_to) || "";
@@ -164,7 +176,20 @@ export const DownloadObjectVolumeReport: React.FC<
         "_"
       );
 
+      console.log(" Calling generateObjectVolumeReport with:", {
+        reportName,
+        dataStructure: {
+          objects: reportData.objects.length,
+          hasData: reportData.objects.some((obj) => obj.projects.length > 0),
+        },
+      });
+
       const blob = await generateObjectVolumeReport(reportData, reportName);
+
+      console.log(" Received blob:", {
+        size: blob.size,
+        type: blob.type,
+      });
 
       await handleDownload(blob, fileName);
     } catch (error) {
