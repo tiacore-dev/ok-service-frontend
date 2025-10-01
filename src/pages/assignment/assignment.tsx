@@ -24,11 +24,13 @@ import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftRep
 import { ObjectProjectsCard } from "./components/objectProjectsCard";
 import { UsersAssignmentsCard } from "./components/usersAssignmentsCard";
 import { useAssignmentData } from "./hooks/useAssignmentData";
+import { useCreateShiftReportMutation } from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 import "./assignment.less";
+import { ObjectStatusId } from "../../interfaces/objectStatuses/IObjectStatus";
 
 export const Assignment = () => {
   const date_from = React.useMemo(() => getToday().getTime(), []);
-  const date_to = React.useMemo(() => new Date().getTime(), []);
+  const [date_to, setDateTo] = React.useState(new Date().getTime());
 
   const projectsMap = useSelector(getProjectsMap);
   const { data: projects } = useSelector(getProjectsState);
@@ -91,6 +93,58 @@ export const Assignment = () => {
     userId,
   });
 
+  const assignOptions = React.useMemo(() => {
+    if (!projects || !objectsMap)
+      return [] as { value: string; label: string }[];
+    return projects
+      .filter(
+        (p) =>
+          p.project_id &&
+          objectsMap[p.object]?.status === ObjectStatusId.ACTIVE,
+      )
+      .filter((p) =>
+        role === RoleId.PROJECT_LEADER ? p.project_leader === userId : true,
+      )
+      .map((p) => ({
+        value: p.project_id!,
+        label: `${objectsMap[p.object]?.name} — ${p.name}`,
+      }));
+  }, [projects, objectsMap, role, userId]);
+
+  const userOptions = React.useMemo(() => {
+    return userShiftData
+      .filter((u) => !u.assignments.length)
+      .map((u) => ({
+        value: u.userId,
+        label: usersMap[u.userId]?.name ?? u.userId,
+      }));
+  }, [userShiftData, usersMap]);
+
+  const { mutate: createShift, isPending: isAssigning } =
+    useCreateShiftReportMutation();
+
+  const assignUserToProject = React.useCallback(
+    (user_to_assign: string, projectId: string) => {
+      const now = Date.now();
+      createShift(
+        {
+          user: user_to_assign,
+          project: projectId,
+          date: now,
+          signed: false,
+          night_shift: false,
+          extreme_conditions: false,
+        },
+        {
+          onSuccess: () => {
+            setDateTo(Date.now());
+          },
+        },
+      );
+    },
+    [createShift],
+  );
+
   return (
     <>
       <Breadcrumb
@@ -117,6 +171,11 @@ export const Assignment = () => {
                 projectsMap={projectsMap}
                 usersMap={usersMap}
                 loading={isLoading}
+                userOptions={userOptions}
+                onAssignUser={(projectId, userId) =>
+                  assignUserToProject(userId, projectId)
+                }
+                assigning={isAssigning}
               />
             ))}
           </Space>
@@ -129,6 +188,9 @@ export const Assignment = () => {
             projectsMap={projectsMap}
             usersMap={usersMap}
             loading={isLoading}
+            assignOptions={assignOptions}
+            onAssign={assignUserToProject}
+            assigning={isAssigning}
           />
         </div>
       </div>

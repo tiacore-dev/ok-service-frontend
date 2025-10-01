@@ -96,42 +96,17 @@ export const EditableShiftReportDialog = (
 
   const handleConfirm = useCallback(() => {
     if (shiftReport) {
-      // editShiftReport(shiftReport.shift_report_id, shiftReportData);
       //мутация редактирования
-      editReportMutation(
-        {
-          report_id: shiftReport.shift_report_id,
-          reportData: shiftReportData,
-        },
-        // {
-        //   onSuccess: () => {
-        //     dispatch(editShiftReportAction.sendSuccess());
-        //   },
-        //   onError: () => {
-        //     dispatch(editShiftReportAction.saveError());
-        //   }
-        // }
-      );
+      editReportMutation({
+        report_id: shiftReport.shift_report_id,
+        reportData: shiftReportData,
+      });
     } else {
-      // createShiftReport({
-      //   ...shiftReportData,
-      //   user: role === RoleId.USER ? userId : shiftReportData.user,
-      // });
       const reportData = {
         ...shiftReportData,
         user: role === RoleId.USER ? userId : shiftReportData.user,
       };
-      createReportMutation(
-        reportData,
-        // {
-        //   onSuccess: () => {
-        //     dispatch(editShiftReportAction.sendSuccess());
-        //   },
-        //   onError: () => {
-        //     dispatch(editShiftReportAction.saveError());
-        //   }
-        // }
-      );
+      createReportMutation(reportData);
       //мутация создания
     }
   }, [shiftReport, shiftReportData, shiftReportData]);

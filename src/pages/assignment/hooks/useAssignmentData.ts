@@ -40,7 +40,9 @@ export const useAssignmentData = (params: {
   objectsMap:
     | Record<string, { object_id?: string; status: ObjectStatusId }>
     | undefined;
-  users: Array<{ user_id: string; role: RoleId; name: string }> | undefined;
+  users:
+    | Array<{ user_id: string; role: RoleId; name: string; deleted?: boolean }>
+    | undefined;
   usersMap: Record<string, { name: string }> | undefined;
   role: RoleId;
   userId: string;
@@ -115,7 +117,7 @@ export const useAssignmentData = (params: {
     if (!users || !projectsMap || !objectsMap) return [];
 
     return users
-      .filter((user) => user.role === RoleId.USER)
+      .filter((user) => user.role === RoleId.USER && !user.deleted)
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((user) => {
         const assignmentsMap: Record<string, IShiftAssignment> = {};

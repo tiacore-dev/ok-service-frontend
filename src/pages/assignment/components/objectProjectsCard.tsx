@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, List, Space } from "antd";
+import { Card, List, Space, Button, Popover, Select } from "antd";
 import Meta from "antd/es/card/Meta";
 import { IProjectStatsItem } from "../../../interfaces/objects/IObjectStat";
 import { StatusIcon } from "./statusIcon";
@@ -15,6 +15,9 @@ interface Props {
   projectsMap: ProjectsMap;
   usersMap: UsersMap;
   loading?: boolean;
+  userOptions?: { value: string; label: string }[];
+  onAssignUser?: (projectId: string, userId: string) => void;
+  assigning?: boolean;
 }
 
 export const ObjectProjectsCard: React.FC<Props> = ({
@@ -24,10 +27,15 @@ export const ObjectProjectsCard: React.FC<Props> = ({
   projectsMap,
   usersMap,
   loading,
+  userOptions = [],
+  onAssignUser,
+  assigning = false,
 }) => {
   const title = (
     <Space direction="horizontal">{objectsMap[objectId]?.name}</Space>
   );
+
+  const [openProject, setOpenProject] = React.useState<string | null>(null);
 
   return (
     <Card key={objectId} title={title} size="small">
@@ -47,19 +55,64 @@ export const ObjectProjectsCard: React.FC<Props> = ({
           return (
             <List.Item key={el.project}>
               <Meta description={description} />
-              {el.users.map((user) => (
+              <Space direction="vertical">
                 <Space
-                  key={`${el.project}-${user.user}`}
                   direction="horizontal"
                   align="center"
-                  className="assignment-page__statusItem"
+                  className="assignment-page__assignRow"
                 >
-                  <StatusIcon status={user.status} />
-                  <p style={{ margin: "0 0 3px 0" }}>
-                    {usersMap[user.user]?.name ?? user.user}
-                  </p>
+                  <Popover
+                    trigger="click"
+                    open={openProject === el.project}
+                    onOpenChange={(o) => {
+                      if (assigning) {
+                        return;
+                      }
+                      setOpenProject(o ? el.project : null);
+                    }}
+                    content={
+                      <Select
+                        showSearch
+                        placeholder="Выбрать сотрудника"
+                        style={{ minWidth: 420 }}
+                        options={userOptions}
+                        loading={assigning}
+                        disabled={assigning}
+                        filterOption={(input, option) =>
+                          (option?.label as string)
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        onChange={(userId) => {
+                          onAssignUser?.(el.project, userId as string);
+                          setOpenProject(null);
+                        }}
+                      />
+                    }
+                  >
+                    <Button
+                      type="default"
+                      loading={assigning}
+                      disabled={assigning}
+                    >
+                      Добавить сотрудника
+                    </Button>
+                  </Popover>
                 </Space>
-              ))}
+                {el.users.map((user) => (
+                  <Space
+                    key={`${el.project}-${user.user}`}
+                    direction="horizontal"
+                    align="center"
+                    className="assignment-page__statusItem"
+                  >
+                    <StatusIcon status={user.status} />
+                    <p style={{ margin: "0 0 3px 0" }}>
+                      {usersMap[user.user]?.name ?? user.user}
+                    </p>
+                  </Space>
+                ))}
+              </Space>
             </List.Item>
           );
         }}
