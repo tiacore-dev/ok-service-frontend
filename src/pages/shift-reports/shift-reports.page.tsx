@@ -13,7 +13,6 @@ import { getUsersMap } from "../../store/modules/pages/selectors/users.selector"
 import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { useProjects } from "../../hooks/ApiActions/projects";
-import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
 import { useObjects } from "../../hooks/ApiActions/objects";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
@@ -110,9 +109,6 @@ export const ShiftReports = () => {
     getProjects();
     getObjects();
     getWorks();
-    return () => {
-      dispatch(clearShiftReportsState());
-    };
   }, []);
 
   const tableData = React.useMemo(() => {

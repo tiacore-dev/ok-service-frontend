@@ -56,20 +56,20 @@ import { clearWorksState } from "../../store/modules/pages/works.state";
 import { clearProjectsState } from "../../store/modules/pages/projects.state";
 import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
 import { clearWorkCategoriesState } from "../../store/modules/pages/work-categories.state";
-import { clearShiftReportsState } from "../../store/modules/pages/shift-reports.state";
-import { clearShiftReportDetailsState } from "../../store/modules/pages/shift-report-details.state";
 import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
 import { clearObjectState } from "../../store/modules/pages/object.state";
 import { clearUserState } from "../../store/modules/pages/user.state";
 import { clearWorkState } from "../../store/modules/pages/work.state";
 import { clearProjectState } from "../../store/modules/pages/project.state";
-import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
 import { Assignment } from "../../pages/assignment/assignment";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
   clearStates: () => void;
 } => {
+  const queryClient = useQueryClient();
+
   const clearStates = React.useCallback(() => {
     dispatch(clearObjectStatusesState());
     dispatch(clearRolesState());
@@ -83,10 +83,17 @@ export const useloadSourse = (): {
     dispatch(clearProjectState());
     dispatch(clearWorkPricesState());
     dispatch(clearWorkCategoriesState());
-    dispatch(clearShiftReportsState());
-    dispatch(clearShiftReportState());
-    dispatch(clearShiftReportDetailsState());
     dispatch(clearProjectWorksState());
+
+    queryClient.invalidateQueries({
+      queryKey: ["shiftReports"],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["shiftReportDetails"],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["shiftReport"],
+    });
   }, []);
   const notificationApi = React.useContext(NotificationContext);
   const dispatch = useDispatch();

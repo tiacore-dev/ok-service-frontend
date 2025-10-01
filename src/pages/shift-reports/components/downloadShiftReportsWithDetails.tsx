@@ -6,34 +6,34 @@ import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.
 import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
+// import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { getWorksMap } from "../../../store/modules/pages/selectors/works.selector";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
 import { IState } from "../../../store/modules";
 import { generateDocument } from "../../../api/download.api";
 
-interface IExportedReportData {
-  number: number;
-  date: string;
-  user: string;
-  object: string;
-  project: string;
-  project_leader: string;
-  sum: string;
-  signed: string;
-}
+// interface IExportedReportData {
+//   number: number;
+//   date: string;
+//   user: string;
+//   object: string;
+//   project: string;
+//   project_leader: string;
+//   sum: string;
+//   signed: string;
+// }
 
-interface IExportedDetailData {
-  isDetail: boolean;
-  work: string;
-  quantity: number;
-  coast: number;
-  sum: number;
-  counter?: number;
-}
+// interface IExportedDetailData {
+//   isDetail: boolean;
+//   work: string;
+//   quantity: number;
+//   coast: number;
+//   sum: number;
+//   counter?: number;
+// }
 
-type ExportRow = IExportedReportData | IExportedDetailData;
+// type ExportRow = IExportedReportData | IExportedDetailData;
 
 interface DownloadShiftReportsWithDetailsProps {
   currentFilters?: {
@@ -84,7 +84,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
   const worksMap = useSelector(getWorksMap);
 
   const allProjectWorks = useSelector(
-    (state: IState) => state.pages.projectWorks.data
+    (state: IState) => state.pages.projectWorks.data,
   );
 
   const createExportTemplate = async (): Promise<ExportExcelTemplate> => {
@@ -143,12 +143,12 @@ export const DownloadShiftReportsWithDetails: React.FC<
               coast: detail.summ / detail.quantity,
               detail_summ: detail.summ,
             });
-          }
+          },
         );
       } catch (error) {
         console.error(
           `Ошибка при получении деталей для отчета ${report.shift_report_id}:`,
-          error
+          error,
         );
       }
     }
@@ -184,7 +184,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
       const fileName =
         `shift_report_${userName}_${dateFrom}_${dateTo}.xlsx`.replace(
           /\s+/g,
-          "_"
+          "_",
         );
       const reportName =
         `shift_report_${userName}_${dateFrom}_${dateTo}`.replace(/\s+/g, "_");

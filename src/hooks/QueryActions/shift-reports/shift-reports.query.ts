@@ -3,9 +3,10 @@ import { fetchShiftReports } from "../../../api/shift-reports.api";
 import { IShiftReportQueryParams } from "../../../interfaces/shiftReports/IShiftReport";
 import { fetchShiftReport } from "../../../api/shift-reports.api";
 import { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
+import { IShiftReportsList } from "../../../interfaces/shiftReports/IShiftReportsList";
 
 export const useShiftReportsQuery = (filters?: IShiftReportQueryParams) => {
-  return useQuery({
+  return useQuery<{ shift_reports: IShiftReportsList[]; total: number }>({
     queryKey: ["shiftReports", filters], // Ключ запроса, уникальный для каждого набора фильтров
     queryFn: () => fetchShiftReports(filters),
     retry: false,
