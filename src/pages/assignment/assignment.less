@@ -1,0 +1,32 @@
+.assignment-page {
+  &__layout {
+    display: flex;
+    gap: 16px;
+    flex-wrap: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    &__layout {
+      flex-wrap: wrap;
+    }
+  }
+
+  &__column {
+    flex: 1;
+    min-width: 320px;
+  }
+
+  &__fullWidth {
+    width: 100%;
+  }
+
+  &__statusItem {
+    margin-top: 12px;
+    margin-right: 12px;
+  }
+
+  &__unassigned {
+    margin-left: 16px;
+  }
+}
+

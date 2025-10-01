@@ -30,7 +30,6 @@ import {
 } from "../../interfaces/objects/IObjectStat";
 import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { useQueryClient } from "@tanstack/react-query";
 
 type DateRange = { date_from: number; date_to: number };
 
@@ -77,8 +76,6 @@ export const Main = () => {
     }
   }, []);
 
-  const queryClient = useQueryClient();
-
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
@@ -91,12 +88,15 @@ export const Main = () => {
     date_to: new Date().getTime(),
   });
 
-  const queryParams: IShiftReportQueryParams = {
-    sort_by: "date",
-    sort_order: "desc",
-    date_from: range.date_from,
-    date_to: range.date_to,
-  };
+  const queryParams: IShiftReportQueryParams = React.useMemo(
+    () => ({
+      sort_by: "date",
+      sort_order: "desc",
+      date_from: range.date_from,
+      date_to: range.date_to,
+    }),
+    [range],
+  );
 
   const { data: shiftReportsData } = useShiftReportsQuery(queryParams);
 
@@ -105,19 +105,15 @@ export const Main = () => {
   );
 
   React.useEffect(() => {
-    if (isAuth) {
-      const interval = setInterval(
-        () => {
-          queryClient.invalidateQueries({
-            queryKey: ["shiftReports"],
-          });
-        },
-        10 * 60 * 1000,
-      );
-
-      return () => clearInterval(interval);
-    }
-  }, [range]);
+    if (!isAuth) return;
+    const interval = setInterval(
+      () => {
+        setRange((prev) => ({ ...prev, date_to: new Date().getTime() }));
+      },
+      10 * 60 * 1000,
+    );
+    return () => clearInterval(interval);
+  }, [isAuth]);
 
   const [showMode, setShowMode] = React.useState<
     "all" | "byUsers" | "byObjects"
