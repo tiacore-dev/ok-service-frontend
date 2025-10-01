@@ -64,6 +64,7 @@ import { clearUserState } from "../../store/modules/pages/user.state";
 import { clearWorkState } from "../../store/modules/pages/work.state";
 import { clearProjectState } from "../../store/modules/pages/project.state";
 import { clearShiftReportState } from "../../store/modules/pages/shift-report.state";
+import { Assignment } from "../../pages/assignment/assignment";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -233,6 +234,7 @@ export const App = () => {
               </Route>
               <Route path="shifts">
                 <Route index={true} element={<ShiftReports />} />
+                <Route path="assignment" element={<Assignment />} />
                 <Route path=":shiftId" element={<ShiftReport />} />
               </Route>
             </Route>

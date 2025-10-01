@@ -24,12 +24,12 @@ import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { ChartsByUsers } from "./components/chartsByUsers";
 import { Charts } from "./components/charts";
+import { ChartsByObjects } from "./components/chartsByObjects";
+import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import {
-  ChartsByObjects,
   IObjectStatsItem,
   IUserStatsItem,
-} from "./components/chartsByObjects";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+} from "../../interfaces/objects/IObjectStat";
 
 type DateRange = { date_from: number; date_to: number };
 

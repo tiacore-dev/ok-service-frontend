@@ -4,7 +4,6 @@ import * as React from "react";
 import { shiftReportsDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
-import { Filters } from "./components/filters";
 import "./shift-reports.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
@@ -26,7 +25,9 @@ import {
   IShiftReportsList,
   IShiftReportsListColumn,
 } from "../../interfaces/shiftReports/IShiftReportsList";
-import { DownloadShiftReportsWithDetails } from "./components/downloadShiftReportsWithDetails";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
+import { Actions } from "./components/actions";
 
 interface FiltersState {
   user?: string;
@@ -44,9 +45,10 @@ export const ShiftReports = () => {
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getWorks } = useWorks();
+  const role = useSelector(getCurrentRole);
 
   const tableState = useSelector(
-    (state: IState) => state.settings.shiftReportsSettings
+    (state: IState) => state.settings.shiftReportsSettings,
   );
 
   const queryParams: IShiftReportQueryParams = React.useMemo(() => {
@@ -97,24 +99,11 @@ export const ShiftReports = () => {
             ...tableState.pagination,
             current: 1,
           },
-        })
+        }),
       );
     },
-    [dispatch, tableState]
+    [dispatch, tableState],
   );
-
-  const handleResetFilters = React.useCallback(() => {
-    dispatch(
-      saveShiftReportsTableState({
-        ...tableState,
-        filters: {},
-        pagination: {
-          ...tableState.pagination,
-          current: 1,
-        },
-      })
-    );
-  }, [dispatch, tableState]);
 
   React.useEffect(() => {
     getUsers();
@@ -153,7 +142,7 @@ export const ShiftReports = () => {
           project: tableState.filters?.project?.[0] as string | undefined,
           date_from: tableState.filters?.date_from?.[0] as number | undefined,
           date_to: tableState.filters?.date_to?.[0] as number | undefined,
-        }
+        },
       ),
     [
       navigate,
@@ -162,7 +151,7 @@ export const ShiftReports = () => {
       tableState,
       objectsMap,
       handleFilterChange,
-    ]
+    ],
   );
 
   const paginationConfig = React.useMemo(
@@ -172,7 +161,7 @@ export const ShiftReports = () => {
       showSizeChanger: true,
       pageSizeOptions: ["10", "20", "50", "100"],
     }),
-    [tableState.pagination, shiftReportsResponse?.total]
+    [tableState.pagination, shiftReportsResponse?.total],
   );
 
   const currentFilters: FiltersState = React.useMemo(
@@ -182,7 +171,7 @@ export const ShiftReports = () => {
       date_from: tableState.filters?.date_from?.[0] as number | undefined,
       date_to: tableState.filters?.date_to?.[0] as number | undefined,
     }),
-    [tableState.filters]
+    [tableState.filters],
   );
 
   const handleTableChange = (
@@ -190,7 +179,7 @@ export const ShiftReports = () => {
     filters: Record<string, FilterValue | null>,
     sorter:
       | SorterResult<IShiftReportsListColumn>
-      | SorterResult<IShiftReportsListColumn>[]
+      | SorterResult<IShiftReportsListColumn>[],
   ) => {
     // Сохраняем текущие фильтры и объединяем с новыми
     const mergedFilters = {
@@ -203,7 +192,7 @@ export const ShiftReports = () => {
         pagination,
         filters: mergedFilters,
         sorter: Array.isArray(sorter) ? sorter[0] : sorter,
-      })
+      }),
     );
   };
 
@@ -225,13 +214,7 @@ export const ShiftReports = () => {
           background: "#FFF",
         }}
       >
-        <div style={{ display: "flex" }}>
-          <Filters
-            onResetFilters={handleResetFilters}
-            currentFilters={currentFilters}
-          />
-          <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
-        </div>
+        {role !== RoleId.USER && <Actions currentFilters={currentFilters} />}
         <Table<IShiftReportsListColumn>
           onChange={handleTableChange}
           dataSource={tableData as IShiftReportsListColumn[]}

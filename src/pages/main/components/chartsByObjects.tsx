@@ -11,33 +11,17 @@ import {
   PlusCircleFilled,
 } from "@ant-design/icons";
 import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
-
-export interface IUserStatsItem {
-  user: string;
-  status: "empty" | "not-signed" | "signed";
-}
-
-export interface IProjectStatsItem {
-  project: string;
-  users: IUserStatsItem[];
-}
-
-export interface IObjectStatsItem {
-  object: string;
-  done: boolean;
-  projects: IProjectStatsItem[];
-}
+import {
+  IObjectStatsItem,
+  IUserStatsItem,
+} from "../../../interfaces/objects/IObjectStat";
 
 export interface IChartsByObjectsProps {
   totalCostArrayByObjects: IObjectStatsItem[];
-  // description: string;
 }
 
 export const ChartsByObjects = (props: IChartsByObjectsProps) => {
-  const {
-    totalCostArrayByObjects,
-    // description
-  } = props;
+  const { totalCostArrayByObjects } = props;
 
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
