@@ -12,6 +12,7 @@ const initialState: IEditableUserState = {
   login: "",
   category: 0,
   role: RoleId.USER,
+  deleted: false,
 };
 
 const setUserData = (state: IEditableUserState, userData: Partial<IUser>) => {
