@@ -79,6 +79,7 @@ export const User = () => {
             <p>Разряд: {userData.category ?? "Нет разряда"}</p>
             <p>Логин: {userData.login}</p>
             <p>Роль: {rolesMap[userData.role]?.name}</p>
+            {userData.deleted && <p>Удалён</p>}
           </Card>
         </Content>
       ) : (

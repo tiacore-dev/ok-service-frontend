@@ -32,7 +32,9 @@ export const Users = () => {
 
   const usersData: IUsersListColumn[] = useSelector(
     (state: IState) => state.pages.users.data,
-  ).map((doc) => ({ ...doc, key: doc.user_id }));
+  )
+    .filter((user) => !user.deleted)
+    .map((doc) => ({ ...doc, key: doc.user_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.users.loading);
   const rolesMap = useSelector(getRolesMap);
