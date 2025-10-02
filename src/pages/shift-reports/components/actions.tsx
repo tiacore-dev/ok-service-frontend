@@ -14,6 +14,8 @@ import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { DownloadShiftReportsWithDetails } from "./downloadShiftReportsWithDetails";
 import { useNavigate } from "react-router-dom";
+import { getCurrentRole } from "../../../store/modules/auth";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 interface IExportedData {
   number: number;
@@ -44,6 +46,7 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
   });
 
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
+  const role = useSelector(getCurrentRole);
 
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
@@ -116,14 +119,18 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
         >
           Скачать отчет
         </Button>
-        <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
-        <Button
-          icon={<UsergroupAddOutlined />}
-          onClick={() => navigate("/shifts/assignment")}
-          style={{ marginRight: 8 }}
-        >
-          Распределение смен
-        </Button>
+        {role !== RoleId.USER && (
+          <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
+        )}
+        {role !== RoleId.USER && (
+          <Button
+            icon={<UsergroupAddOutlined />}
+            onClick={() => navigate("/shifts/assignment")}
+            style={{ marginRight: 8 }}
+          >
+            Распределение смен
+          </Button>
+        )}
       </Space>
     </div>
   );

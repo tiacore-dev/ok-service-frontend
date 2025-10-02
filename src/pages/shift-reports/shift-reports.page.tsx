@@ -24,8 +24,6 @@ import {
   IShiftReportsList,
   IShiftReportsListColumn,
 } from "../../interfaces/shiftReports/IShiftReportsList";
-import { getCurrentRole } from "../../store/modules/auth";
-import { RoleId } from "../../interfaces/roles/IRole";
 import { Actions } from "./components/actions";
 
 interface FiltersState {
@@ -44,7 +42,6 @@ export const ShiftReports = () => {
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getWorks } = useWorks();
-  const role = useSelector(getCurrentRole);
 
   const tableState = useSelector(
     (state: IState) => state.settings.shiftReportsSettings,
@@ -210,7 +207,7 @@ export const ShiftReports = () => {
           background: "#FFF",
         }}
       >
-        {role !== RoleId.USER && <Actions currentFilters={currentFilters} />}
+        <Actions currentFilters={currentFilters} />
         <Table<IShiftReportsListColumn>
           onChange={handleTableChange}
           dataSource={tableData as IShiftReportsListColumn[]}

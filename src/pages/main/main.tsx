@@ -308,15 +308,15 @@ export const Main = () => {
         acc[key] = {
           empty: usersEmpty?.length || 0,
           emptyData: usersEmpty?.length
-            ? usersEmpty.map((el) => usersMap[el].name)
+            ? usersEmpty.map((el) => usersMap[el]?.name)
             : [],
           notSigned: usersNotSigned?.length || 0,
           notSignedData: usersNotSigned?.length
-            ? usersNotSigned.map((el) => usersMap[el].name)
+            ? usersNotSigned.map((el) => usersMap[el]?.name)
             : [],
           signed: usersEusersSignedmpty?.length || 0,
           signedData: usersEusersSignedmpty?.length
-            ? usersEusersSignedmpty.map((el) => usersMap[el].name)
+            ? usersEusersSignedmpty.map((el) => usersMap[el]?.name)
             : [],
         };
         return acc;
