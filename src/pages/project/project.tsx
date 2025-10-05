@@ -77,11 +77,11 @@ export const Project = () => {
   const worksData = useSelector((state: IState) => state.pages.works.data);
 
   const projectWorksIsLoaded = useSelector(
-    (state: IState) => state.pages.projectWorks.loaded
+    (state: IState) => state.pages.projectWorks.loaded,
   );
 
   const projectWorks = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, projectData?.project_id)
+    getProjectWorksByProjectId(state, projectData?.project_id),
   );
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
@@ -90,7 +90,7 @@ export const Project = () => {
         ...doc,
         key: doc.project_work_id,
       })),
-    [projectWorks, stat]
+    [projectWorks, stat],
   );
 
   const canEdit =
@@ -102,7 +102,7 @@ export const Project = () => {
 
   const handleSignedChange = (
     record: IProjectWorksListColumn,
-    checked: boolean
+    checked: boolean,
   ) => {
     const updatedData = {
       ...record,
@@ -210,7 +210,7 @@ export const Project = () => {
   ];
 
   const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading
+    (state: IState) => state.pages.workPrices.loading,
   );
 
   const object = objectsMap[projectData?.object];

@@ -3,7 +3,7 @@
 import { Button, Space } from "antd";
 import * as React from "react";
 import { isMobile } from "../../../utils/isMobile";
-import { FileExcelOutlined, ClearOutlined } from "@ant-design/icons";
+import { FileExcelOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { EditableShiftReportDialog } from "../../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
@@ -13,6 +13,9 @@ import { dateTimestampToLocalString } from "../../../utils/dateConverter";
 import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { DownloadShiftReportsWithDetails } from "./downloadShiftReportsWithDetails";
+import { useNavigate } from "react-router-dom";
+import { getCurrentRole } from "../../../store/modules/auth";
+import { RoleId } from "../../../interfaces/roles/IRole";
 
 interface IExportedData {
   number: number;
@@ -25,8 +28,7 @@ interface IExportedData {
   signed: string;
 }
 
-interface FiltersProps {
-  onResetFilters: () => void;
+interface ActionsProps {
   currentFilters?: {
     user?: string;
     project?: string;
@@ -35,10 +37,7 @@ interface FiltersProps {
   };
 }
 
-export const Filters: React.FC<FiltersProps> = ({
-  onResetFilters,
-  currentFilters,
-}) => {
+export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
   // Получаем данные из React Query
   const { data: shiftReportsResponse } = useShiftReportsQuery({
     ...currentFilters,
@@ -47,11 +46,12 @@ export const Filters: React.FC<FiltersProps> = ({
   });
 
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
+  const role = useSelector(getCurrentRole);
 
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
-
+  const navigate = useNavigate();
   const exportedData: IExportedData[] = React.useMemo(
     () =>
       shiftReportsData.map((el: IShiftReport) => ({
@@ -65,7 +65,7 @@ export const Filters: React.FC<FiltersProps> = ({
         sum: el.shift_report_details_sum?.toString().replace(".", ",") || "0",
         signed: el.signed ? "Да" : "Нет",
       })),
-    [shiftReportsData, projectsMap, objectsMap, usersMap]
+    [shiftReportsData, projectsMap, objectsMap, usersMap],
   );
 
   const exportToCSV = React.useCallback(
@@ -105,11 +105,11 @@ export const Filters: React.FC<FiltersProps> = ({
       link.click();
       document.body.removeChild(link);
     },
-    []
+    [],
   );
 
   return (
-    <div className="shift-reports_filters">
+    <div className="shift-reports_actions">
       <Space direction={isMobile() ? "vertical" : "horizontal"}>
         <EditableShiftReportDialog />
         <Button
@@ -119,16 +119,18 @@ export const Filters: React.FC<FiltersProps> = ({
         >
           Скачать отчет
         </Button>
-        {/* {!isMobile && (
+        {role !== RoleId.USER && (
+          <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
+        )}
+        {role !== RoleId.USER && (
           <Button
-            icon={<ClearOutlined />}
-            onClick={onResetFilters}
-            disabled={!currentFilters}
+            icon={<UsergroupAddOutlined />}
+            onClick={() => navigate("/shifts/assignment")}
             style={{ marginRight: 8 }}
           >
-            Сбросить фильтры
+            Распределение смен
           </Button>
-        )} */}
+        )}
       </Space>
     </div>
   );

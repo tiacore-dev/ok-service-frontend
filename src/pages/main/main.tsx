@@ -1,8 +1,6 @@
 import { Button, Space, Select, DatePicker } from "antd";
 import * as React from "react";
-import { useShiftReports } from "../../hooks/ApiActions/shift-reports";
 import { useDispatch, useSelector } from "react-redux";
-import { getShiftReportsData } from "../../store/modules/pages/selectors/shift-reports.selector";
 import {
   dateFormat,
   dateTimestampToLocalString,
@@ -17,19 +15,21 @@ import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selec
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { IState } from "../../store/modules";
-import { IShiftReportsList } from "../../interfaces/shiftReports/IShiftReportsList";
+import { IShiftReportsListColumn } from "../../interfaces/shiftReports/IShiftReportsList";
 import { toggleFullScreenMode } from "../../store/modules/settings/general";
 import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { ChartsByUsers } from "./components/chartsByUsers";
 import { Charts } from "./components/charts";
+import { ChartsByObjects } from "./components/chartsByObjects";
+import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import {
-  ChartsByObjects,
   IObjectStatsItem,
   IUserStatsItem,
-} from "./components/chartsByObjects";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+} from "../../interfaces/objects/IObjectStat";
+import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
+import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 
 type DateRange = { date_from: number; date_to: number };
 
@@ -63,7 +63,6 @@ export const Main = () => {
     (state: IState) => state.settings.generalSettings.fullScreenMode,
   );
 
-  const { getShiftReports } = useShiftReports();
   const { getObjects } = useObjects();
   const { getProjects } = useProjects();
   const { getUsers } = useUsers();
@@ -71,18 +70,9 @@ export const Main = () => {
 
   React.useEffect(() => {
     if (isAuth) {
-      getShiftReports();
       getObjects();
       getProjects();
       getUsers();
-      const interval = setInterval(
-        () => {
-          getShiftReports();
-        },
-        10 * 60 * 1000,
-      );
-
-      return () => clearInterval(interval);
     }
   }, []);
 
@@ -90,10 +80,6 @@ export const Main = () => {
   const objectsMap = useSelector(getObjectsMap);
   const usersMap = useSelector(getUsersMap);
   const role = useSelector(getCurrentRole);
-  const shiftReportsData = useSelector(getShiftReportsData);
-  const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
-    role === RoleId.USER ? RangeType.From21 : RangeType.Last10,
-  );
   const [range, setRange] = React.useState<DateRange>({
     date_from:
       role === RoleId.USER
@@ -101,6 +87,33 @@ export const Main = () => {
         : getTenDaysAgo().getTime(),
     date_to: new Date().getTime(),
   });
+
+  const queryParams: IShiftReportQueryParams = React.useMemo(
+    () => ({
+      sort_by: "date",
+      sort_order: "desc",
+      date_from: range.date_from,
+      date_to: range.date_to,
+    }),
+    [range],
+  );
+
+  const { data: shiftReportsData } = useShiftReportsQuery(queryParams);
+
+  const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
+    role === RoleId.USER ? RangeType.From21 : RangeType.Last10,
+  );
+
+  React.useEffect(() => {
+    if (!isAuth) return;
+    const interval = setInterval(
+      () => {
+        setRange((prev) => ({ ...prev, date_to: new Date().getTime() }));
+      },
+      10 * 60 * 1000,
+    );
+    return () => clearInterval(interval);
+  }, [isAuth]);
 
   const [showMode, setShowMode] = React.useState<
     "all" | "byUsers" | "byObjects"
@@ -155,7 +168,7 @@ export const Main = () => {
 
   const filteredShiftReportsData = React.useMemo(
     () =>
-      shiftReportsData
+      (shiftReportsData?.shift_reports || [])
         .slice()
         .sort((a, b) => a.date - b.date)
         .filter((el) => el.date >= range.date_from && el.date <= range.date_to),
@@ -231,33 +244,33 @@ export const Main = () => {
         acc: Record<
           string,
           {
-            empty?: IShiftReportsList[];
-            notSigned?: IShiftReportsList[];
-            signed?: IShiftReportsList[];
+            empty?: IShiftReportsListColumn[];
+            notSigned?: IShiftReportsListColumn[];
+            signed?: IShiftReportsListColumn[];
           }
         >,
         val,
       ) => {
         const date = dateTimestampToLocalString(val.date);
-
+        const report = { ...val, key: val.shift_report_id };
         if (val.signed) {
           acc[date] = acc[date]
             ? acc[date].signed
-              ? { ...acc[date], signed: [...acc[date].signed, val] }
-              : { ...acc[date], signed: [val] }
-            : { signed: [val] };
+              ? { ...acc[date], signed: [...acc[date].signed, report] }
+              : { ...acc[date], signed: [report] }
+            : { signed: [report] };
         } else if (val.shift_report_details_sum > 0) {
           acc[date] = acc[date]
             ? acc[date].notSigned
-              ? { ...acc[date], notSigned: [...acc[date].notSigned, val] }
-              : { ...acc[date], notSigned: [val] }
-            : { notSigned: [val] };
+              ? { ...acc[date], notSigned: [...acc[date].notSigned, report] }
+              : { ...acc[date], notSigned: [report] }
+            : { notSigned: [report] };
         } else {
           acc[date] = acc[date]
             ? acc[date].empty
-              ? { ...acc[date], empty: [...acc[date].empty, val] }
-              : { ...acc[date], empty: [val] }
-            : { empty: [val] };
+              ? { ...acc[date], empty: [...acc[date].empty, report] }
+              : { ...acc[date], empty: [report] }
+            : { empty: [report] };
         }
 
         return acc;
@@ -295,15 +308,15 @@ export const Main = () => {
         acc[key] = {
           empty: usersEmpty?.length || 0,
           emptyData: usersEmpty?.length
-            ? usersEmpty.map((el) => usersMap[el].name)
+            ? usersEmpty.map((el) => usersMap[el]?.name)
             : [],
           notSigned: usersNotSigned?.length || 0,
           notSignedData: usersNotSigned?.length
-            ? usersNotSigned.map((el) => usersMap[el].name)
+            ? usersNotSigned.map((el) => usersMap[el]?.name)
             : [],
           signed: usersEusersSignedmpty?.length || 0,
           signedData: usersEusersSignedmpty?.length
-            ? usersEusersSignedmpty.map((el) => usersMap[el].name)
+            ? usersEusersSignedmpty.map((el) => usersMap[el]?.name)
             : [],
         };
         return acc;

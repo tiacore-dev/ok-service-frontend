@@ -48,6 +48,7 @@ export const Login = () => {
             category: userData.category,
             login: userData.login,
             role: userData.role,
+            deleted: userData.deleted,
           }),
         );
         load(authLoginResponse.access_token);

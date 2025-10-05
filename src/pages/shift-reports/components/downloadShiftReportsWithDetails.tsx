@@ -14,27 +14,27 @@ import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
 import type { IState } from "../../../store/modules";
 import { generateDocument } from "../../../api/download.api";
 
-interface IExportedReportData {
-  number: number;
-  date: string;
-  user: string;
-  object: string;
-  project: string;
-  project_leader: string;
-  sum: string;
-  signed: string;
-}
+// interface IExportedReportData {
+//   number: number;
+//   date: string;
+//   user: string;
+//   object: string;
+//   project: string;
+//   project_leader: string;
+//   sum: string;
+//   signed: string;
+// }
 
-interface IExportedDetailData {
-  isDetail: boolean;
-  work: string;
-  quantity: number;
-  coast: number;
-  sum: number;
-  counter?: number;
-}
+// interface IExportedDetailData {
+//   isDetail: boolean;
+//   work: string;
+//   quantity: number;
+//   coast: number;
+//   sum: number;
+//   counter?: number;
+// }
 
-type ExportRow = IExportedReportData | IExportedDetailData;
+// type ExportRow = IExportedReportData | IExportedDetailData;
 
 interface DownloadShiftReportsWithDetailsProps {
   currentFilters?: {
@@ -87,7 +87,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
   const worksMap = useSelector(getWorksMap);
 
   const allProjectWorks = useSelector(
-    (state: IState) => state.pages.projectWorks.data
+    (state: IState) => state.pages.projectWorks.data,
   );
 
   const createExportTemplate = async (): Promise<ExportExcelTemplate> => {
@@ -146,7 +146,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
           }) => {
             // Находим проектную работу
             const projectWork = allProjectWorks.find(
-              (pw: any) => pw.project_work_id === detail.project_work
+              (pw: any) => pw.project_work_id === detail.project_work,
             );
 
             // Получаем название работы из worksMap по work_id
@@ -168,12 +168,12 @@ export const DownloadShiftReportsWithDetails: React.FC<
               coast: detail.quantity > 0 ? detail.summ / detail.quantity : 0, // Защита от деления на 0
               detail_summ: detail.summ,
             });
-          }
+          },
         );
       } catch (error) {
         console.error(
           `Ошибка при получении деталей для отчета ${report.shift_report_id}:`,
-          error
+          error,
         );
       }
     }
@@ -209,7 +209,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
       const fileName =
         `shift_report_${userName}_${dateFrom}_${dateTo}.xlsx`.replace(
           /\s+/g,
-          "_"
+          "_",
         );
       const reportName =
         `shift_report_${userName}_${dateFrom}_${dateTo}`.replace(/\s+/g, "_");

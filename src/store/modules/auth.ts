@@ -19,6 +19,7 @@ const initialState: IAuthState = {
   access_token: null,
   refresh_token: null,
   role: null,
+  deleted: false,
 };
 
 const authSlice = createSlice({
@@ -34,6 +35,7 @@ const authSlice = createSlice({
       state.access_token = action.payload.access_token;
       state.refresh_token = action.payload.refresh_token;
       state.role = action.payload.role;
+      state.deleted = action.payload.deleted;
     },
     refreshToken: (
       state: IAuthState,
