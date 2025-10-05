@@ -16,6 +16,7 @@ import { DownloadShiftReportsWithDetails } from "./downloadShiftReportsWithDetai
 import { useNavigate } from "react-router-dom";
 import { getCurrentRole } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
+import { DownloadObjectVolumeReport } from "./downloadObjectVolumeReport";
 
 interface IExportedData {
   number: number;
@@ -121,6 +122,9 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
         </Button>
         {role !== RoleId.USER && (
           <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
+        )}
+        {role !== RoleId.USER && (
+          <DownloadObjectVolumeReport currentFilters={currentFilters} />
         )}
         {role !== RoleId.USER && (
           <Button
