@@ -15,6 +15,8 @@ import type {
   IObjectVolumeReport,
   IObjectVolumeReportObject,
 } from "../../../interfaces/reports/IObjectVolumeReport";
+import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
+import type { IShiftReportDetail } from "../../../interfaces/shiftReportDetails/IShiftReportDetail";
 
 interface DownloadObjectVolumeReportProps {
   currentFilters?: {
@@ -40,30 +42,93 @@ export const DownloadObjectVolumeReport: React.FC<
   const projectsMap = useSelector(getProjectsMap);
   const objectsMap = useSelector(getObjectsMap);
 
-  const allProjectWorks = useSelector(
-    (state: IState) => state.pages.projectWorks.data
-  );
+  const allProjectWorks =
+    useSelector((state: IState) => state.pages.projectWorks.data) || [];
 
-  const createObjectVolumeReport = async (): Promise<IObjectVolumeReport> => {
-    const reportData: IObjectVolumeReport = {
-      date_from: dateTimestampToLocalString(currentFilters?.date_from) || "",
-      date_to: dateTimestampToLocalString(currentFilters?.date_to) || "",
-      objects: [],
-    };
+  const projectWorksById = React.useMemo(() => {
+    const map: Record<string, IProjectWorksList> = {};
+    const projectWorksArray = Array.isArray(allProjectWorks)
+      ? (allProjectWorks as IProjectWorksList[])
+      : [];
 
-    // Группируем данные по объектам и проектам
-    const objectsMap_local: Record<string, IObjectVolumeReportObject> = {};
+    for (const projectWork of projectWorksArray) {
+      const projectWorkId = projectWork?.project_work_id;
+      if (projectWorkId) {
+        map[projectWorkId] = projectWork;
+      }
+    }
 
-    for (const report of shiftReportsData) {
-      if (!report.shift_report_id) continue;
+    return map;
+  }, [allProjectWorks]);
+
+  const createObjectVolumeReport =
+    React.useCallback(async (): Promise<IObjectVolumeReport> => {
+      const reportData: IObjectVolumeReport = {
+        date_from: dateTimestampToLocalString(currentFilters?.date_from) || "",
+        date_to: dateTimestampToLocalString(currentFilters?.date_to) || "",
+        objects: [],
+      };
+
+      const objectsMapLocal: Record<string, IObjectVolumeReportObject> = {};
+
+      const params: Record<string, string> = {
+        limit: "10000",
+      };
+
+      if (currentFilters?.date_from) {
+        params.date_from = String(currentFilters.date_from);
+      }
+
+      if (currentFilters?.date_to) {
+        params.date_to = String(currentFilters.date_to);
+      }
+
+      if (currentFilters?.user) {
+        params.user = currentFilters.user;
+      }
+
+      if (currentFilters?.project) {
+        params.project = currentFilters.project;
+      }
+
+      let details: IShiftReportDetail[] = [];
 
       try {
-        const detailsResponse = await fetchShiftReportDetails({
-          shift_report: report.shift_report_id,
-        });
-        const details = detailsResponse.shift_report_details || [];
+        const detailsResponse = await fetchShiftReportDetails(params);
+        details = (detailsResponse.shift_report_details ||
+          []) as IShiftReportDetail[];
+      } catch (error) {
+        console.error("Ошибка при загрузке деталей отчетов:", error);
+        return reportData;
+      }
 
-        if (details.length === 0) continue;
+      if (details.length === 0) {
+        return reportData;
+      }
+
+      const detailsByShiftReportId = details.reduce(
+        (acc: Record<string, IShiftReportDetail[]>, detail) => {
+          if (!detail?.shift_report) {
+            return acc;
+          }
+
+          if (!acc[detail.shift_report]) {
+            acc[detail.shift_report] = [];
+          }
+
+          acc[detail.shift_report].push(detail);
+          return acc;
+        },
+        {},
+      );
+
+      for (const report of shiftReportsData) {
+        const shiftReportId = report.shift_report_id as string;
+        const reportDetails = detailsByShiftReportId[shiftReportId] || [];
+
+        if (reportDetails.length === 0) {
+          continue;
+        }
 
         const project = projectsMap[report.project];
         if (!project) continue;
@@ -72,20 +137,18 @@ export const DownloadObjectVolumeReport: React.FC<
           objectsMap[project.object]?.name || "Неизвестный объект";
         const projectName = project.name || "Неизвестный проект";
 
-        // Создаем или получаем объект
-        let objectData = objectsMap_local[objectName];
+        let objectData = objectsMapLocal[objectName];
         if (!objectData) {
           objectData = {
             name: objectName,
             projects: [],
           };
-          objectsMap_local[objectName] = objectData;
+          objectsMapLocal[objectName] = objectData;
           reportData.objects.push(objectData);
         }
 
-        // Создаем или получаем проект
         let projectData = objectData.projects.find(
-          (p) => p.name === projectName
+          (p) => p.name === projectName,
         );
         if (!projectData) {
           projectData = {
@@ -95,44 +158,38 @@ export const DownloadObjectVolumeReport: React.FC<
           objectData.projects.push(projectData);
         }
 
-        // Обрабатываем детали отчета
-        details.forEach(
-          (detail: { project_work: string; quantity: number }) => {
-            // Находим project_work по ID
-            const projectWork = allProjectWorks.find(
-              (pw) => pw.project_work_id === detail.project_work
-            );
+        for (const detail of reportDetails) {
+          const projectWork = projectWorksById[detail.project_work];
+          const projectDetailName =
+            projectWork?.project_work_name || "Неизвестная запись";
 
-            const projectDetailName =
-              projectWork?.project_work_name || "Неизвестная запись";
+          let projectDetail = projectData.details.find(
+            (pd) => pd.name === projectDetailName,
+          );
 
-            // Ищем существующую запись или создаем новую
-            let projectDetail = projectData!.details.find(
-              (pd) => pd.name === projectDetailName
-            );
-
-            if (!projectDetail) {
-              projectDetail = {
-                name: projectDetailName,
-                quantity: 0,
-              };
-              projectData!.details.push(projectDetail);
-            }
-
-            // Суммируем количество
-            projectDetail.quantity += detail.quantity;
+          if (!projectDetail) {
+            projectDetail = {
+              name: projectDetailName,
+              quantity: 0,
+            };
+            projectData.details.push(projectDetail);
           }
-        );
-      } catch (error) {
-        console.error(
-          `Ошибка при получении деталей для отчета ${report.shift_report_id}:`,
-          error
-        );
-      }
-    }
 
-    return reportData;
-  };
+          projectDetail.quantity += detail.quantity;
+        }
+      }
+
+      return reportData;
+    }, [
+      currentFilters?.date_from,
+      currentFilters?.date_to,
+      currentFilters?.project,
+      currentFilters?.user,
+      objectsMap,
+      projectWorksById,
+      projectsMap,
+      shiftReportsData,
+    ]);
 
   const handleDownload = async (blob: Blob, fileName: string) => {
     const url = window.URL.createObjectURL(blob);
@@ -142,7 +199,6 @@ export const DownloadObjectVolumeReport: React.FC<
     document.body.appendChild(link);
     link.click();
 
-    // Очистка
     setTimeout(() => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
@@ -154,18 +210,6 @@ export const DownloadObjectVolumeReport: React.FC<
       setIsExporting(true);
       const reportData = await createObjectVolumeReport();
 
-      console.log(
-        " Object Volume Report Data:",
-        JSON.stringify(reportData, null, 2)
-      );
-      console.log(" Objects count:", reportData.objects.length);
-      console.log(
-        " Date range:",
-        reportData.date_from,
-        "to",
-        reportData.date_to
-      );
-
       const dateFrom =
         dateTimestampToLocalString(currentFilters?.date_from) || "";
       const dateTo = dateTimestampToLocalString(currentFilters?.date_to) || "";
@@ -173,23 +217,10 @@ export const DownloadObjectVolumeReport: React.FC<
         `object_volume_report_${dateFrom}_${dateTo}.xlsx`.replace(/\s+/g, "_");
       const reportName = `object_volume_report_${dateFrom}_${dateTo}`.replace(
         /\s+/g,
-        "_"
+        "_",
       );
 
-      console.log(" Calling generateObjectVolumeReport with:", {
-        reportName,
-        dataStructure: {
-          objects: reportData.objects.length,
-          hasData: reportData.objects.some((obj) => obj.projects.length > 0),
-        },
-      });
-
       const blob = await generateObjectVolumeReport(reportData, reportName);
-
-      console.log(" Received blob:", {
-        size: blob.size,
-        type: blob.type,
-      });
 
       await handleDownload(blob, fileName);
     } catch (error) {
@@ -198,10 +229,7 @@ export const DownloadObjectVolumeReport: React.FC<
       setIsExporting(false);
     }
   }, [
-    shiftReportsData,
-    projectsMap,
-    objectsMap,
-    allProjectWorks,
+    createObjectVolumeReport,
     currentFilters?.date_from,
     currentFilters?.date_to,
   ]);

@@ -27,6 +27,7 @@ import type {
   IShiftReportsListColumn,
 } from "../../interfaces/shiftReports/IShiftReportsList";
 import { Actions } from "./components/actions";
+import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 
 interface FiltersState {
   user?: string;
@@ -44,6 +45,7 @@ export const ShiftReports = () => {
   const { getProjects } = useProjects();
   const { getObjects } = useObjects();
   const { getWorks } = useWorks();
+  const { getProjectWorks } = useProjectWorks();
 
   const tableState = useSelector(
     (state: IState) => state.settings.shiftReportsSettings,
@@ -108,6 +110,7 @@ export const ShiftReports = () => {
     getProjects();
     getObjects();
     getWorks();
+    getProjectWorks();
   }, []);
 
   const tableData = React.useMemo(() => {
