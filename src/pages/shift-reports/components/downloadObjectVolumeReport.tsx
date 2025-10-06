@@ -153,7 +153,7 @@ export const DownloadObjectVolumeReport: React.FC<
         if (!projectData) {
           projectData = {
             name: projectName,
-            details: [],
+            project_details: [],
           };
           objectData.projects.push(projectData);
         }
@@ -163,7 +163,7 @@ export const DownloadObjectVolumeReport: React.FC<
           const projectDetailName =
             projectWork?.project_work_name || "Неизвестная запись";
 
-          let projectDetail = projectData.details.find(
+          let projectDetail = projectData.project_details.find(
             (pd) => pd.name === projectDetailName,
           );
 
@@ -172,7 +172,7 @@ export const DownloadObjectVolumeReport: React.FC<
               name: projectDetailName,
               quantity: 0,
             };
-            projectData.details.push(projectDetail);
+            projectData.project_details.push(projectDetail);
           }
 
           projectDetail.quantity += detail.quantity;
