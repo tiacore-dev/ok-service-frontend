@@ -12,9 +12,9 @@ export const StatusIcon: React.FC<{ status: ShiftStatus }> = ({ status }) => {
     case "empty":
       return <PlusCircleFilled style={{ fontSize: 20, color: "#ffd940" }} />;
     case "not-signed":
-      return <ClockCircleFilled style={{ fontSize: 20, color: "#2bba23" }} />;
+      return <ClockCircleFilled style={{ fontSize: 20, color: "#4090ff" }} />;
     case "signed":
-      return <CheckCircleFilled style={{ fontSize: 20, color: "#4090ff" }} />;
+      return <CheckCircleFilled style={{ fontSize: 20, color: "#2bba23" }} />;
     default:
       return null;
   }

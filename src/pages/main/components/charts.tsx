@@ -148,13 +148,13 @@ export const Charts = (props: IChartsProps) => {
               <Legend />
               <Bar
                 dataKey="signed"
-                fill="#4090ff"
+                fill="#2bba23"
                 name="Согласовано"
                 stackId="a"
               />
               <Bar
                 dataKey="notSigned"
-                fill="#2bba23ff"
+                fill="#4090ff"
                 name="Не согласовано"
                 stackId="a"
               />

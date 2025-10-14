@@ -38,12 +38,12 @@ export const ChartsByObjects = (props: IChartsByObjectsProps) => {
         break;
       case "not-signed":
         avatar = (
-          <ClockCircleFilled style={{ fontSize: 20, color: "#2bba23" }} />
+          <ClockCircleFilled style={{ fontSize: 20, color: "#4090ff" }} />
         );
         break;
       case "signed":
         avatar = (
-          <CheckCircleFilled style={{ fontSize: 20, color: "#4090ff" }} />
+          <CheckCircleFilled style={{ fontSize: 20, color: "#2bba23" }} />
         );
         break;
 
