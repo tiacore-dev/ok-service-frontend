@@ -112,7 +112,7 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
   return (
     <div className="shift-reports_actions">
       <Space direction={isMobile() ? "vertical" : "horizontal"}>
-        <EditableShiftReportDialog />
+        {role !== RoleId.USER && <EditableShiftReportDialog />}
         <Button
           icon={<FileExcelOutlined />}
           onClick={() => exportToCSV(exportedData, "report.csv")}
