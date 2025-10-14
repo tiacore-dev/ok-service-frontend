@@ -245,8 +245,8 @@ export const Main = () => {
           string,
           {
             empty?: IShiftReportsListColumn[];
-            notSigned?: IShiftReportsListColumn[];
             signed?: IShiftReportsListColumn[];
+            notSigned?: IShiftReportsListColumn[];
           }
         >,
         val,
