@@ -119,7 +119,7 @@ export const Charts = (props: IChartsProps) => {
             <YAxis tick={{ fill: "black" }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="value" fill="#4090ff" name="Сумма">
+            <Bar dataKey="value" fill="#6940ff" name="Сумма">
               <LabelList dataKey="value" position="top" fill="black" />
             </Bar>
           </BarChart>
@@ -154,13 +154,13 @@ export const Charts = (props: IChartsProps) => {
               />
               <Bar
                 dataKey="notSigned"
-                fill="#4090ff"
+                fill="#6940ffff"
                 name="Не согласовано"
                 stackId="a"
               />
               <Bar
                 dataKey="empty"
-                fill="#ffd940ff"
+                fill="#ffac40ff"
                 name="Не заполнено"
                 stackId="a"
               />
@@ -186,7 +186,7 @@ export const Charts = (props: IChartsProps) => {
                 name="Средняя стоимость"
                 type="monotone"
                 dataKey="value"
-                stroke="#4090ff"
+                stroke="#6940ff"
                 strokeWidth={2}
               >
                 <LabelList dataKey="value" position="top" fill="black" />
@@ -209,7 +209,7 @@ export const Charts = (props: IChartsProps) => {
               cx="50%"
               cy="50%"
               outerRadius={100}
-              fill="#4090ff"
+              fill="#6940ff"
               label
             >
               {clientData.map((entry, index) => (

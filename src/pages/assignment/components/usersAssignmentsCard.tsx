@@ -70,7 +70,7 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                   />
                 ) : (
                   <Space direction="horizontal" align="center">
-                    <StopOutlined style={{ fontSize: 20, color: "#4090ff" }} />
+                    <StopOutlined style={{ fontSize: 20, color: "#6940ff" }} />
                     <span className="assignment-page__unassigned">
                       Не назначен
                     </span>

@@ -33,12 +33,12 @@ export const ChartsByObjects = (props: IChartsByObjectsProps) => {
     switch (item.status) {
       case "empty":
         avatar = (
-          <PlusCircleFilled style={{ fontSize: 20, color: "#ffd940" }} />
+          <PlusCircleFilled style={{ fontSize: 20, color: "#ffac40" }} />
         );
         break;
       case "not-signed":
         avatar = (
-          <ClockCircleFilled style={{ fontSize: 20, color: "#4090ff" }} />
+          <ClockCircleFilled style={{ fontSize: 20, color: "#6940ff" }} />
         );
         break;
       case "signed":
@@ -67,7 +67,7 @@ export const ChartsByObjects = (props: IChartsByObjectsProps) => {
         const title = (
           <Space direction="horizontal">
             {objectsMap[element.object]?.name}
-            {element.done && <CheckCircleTwoTone twoToneColor="#4090ff" />}
+            {element.done && <CheckCircleTwoTone twoToneColor="#6940ff" />}
           </Space>
         );
         return (

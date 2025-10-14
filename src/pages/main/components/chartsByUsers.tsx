@@ -73,7 +73,7 @@ export const ChartsByUsers = (props: IChartsByUsersProps) => {
               />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" fill="#4090ff" name="Сумма" />
+              <Bar dataKey="value" fill="#6940ff" name="Сумма" />
             </BarChart>
           </Card>
         </Col>
