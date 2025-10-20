@@ -1,7 +1,8 @@
 import { Breadcrumb, Layout, Table } from "antd";
+import type { TableProps } from "antd";
 import * as React from "react";
 import { usersDesktopColumns } from "./components/desktop.columns";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { Filters } from "./components/filters";
 import "./users.page.less";
@@ -16,6 +17,7 @@ import {
   getRolesOptions,
 } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { Link } from "react-router-dom";
+import { saveUsersTableState } from "../../store/modules/settings/users";
 
 export const Users = () => {
   const { Content } = Layout;
@@ -30,6 +32,11 @@ export const Users = () => {
     getUsers();
   }, [filters]);
 
+  const tableState = useSelector(
+    (state: IState) => state.settings.usersSettings,
+  );
+  const dispatch = useDispatch();
+
   const usersData: IUsersListColumn[] = useSelector(
     (state: IState) => state.pages.users.data,
   )
@@ -40,12 +47,44 @@ export const Users = () => {
   const rolesMap = useSelector(getRolesMap);
   const rolesOptions = useSelector(getRolesOptions);
 
+  const handleTableChange: TableProps<IUsersListColumn>["onChange"] = (
+    pagination,
+    filters,
+    sorter,
+  ) => {
+    dispatch(
+      saveUsersTableState({
+        pagination,
+        filters,
+        sorter: Array.isArray(sorter) ? sorter[0] : sorter,
+      }),
+    );
+  };
+
+  const paginationConfig = React.useMemo<TableProps<IUsersListColumn>["pagination"]>(
+    () => {
+      const hasSavedPagination =
+        Boolean(tableState.pagination?.current) ||
+        Boolean(tableState.pagination?.pageSize);
+
+      return hasSavedPagination
+        ? tableState.pagination
+        : { current: 1, pageSize: 10, showSizeChanger: true };
+    },
+    [tableState.pagination],
+  );
+
   const columns = React.useMemo(
     () =>
       isMobile()
         ? usersMobileColumns(navigate, rolesMap)
-        : usersDesktopColumns(navigate, rolesMap, rolesOptions),
-    [navigate],
+        : usersDesktopColumns(
+            navigate,
+            rolesMap,
+            rolesOptions,
+            tableState,
+          ),
+    [navigate, rolesMap, rolesOptions, tableState],
   );
 
   return (
@@ -67,7 +106,13 @@ export const Users = () => {
         }}
       >
         <Filters />
-        <Table dataSource={usersData} columns={columns} loading={isLoading} />
+        <Table
+          dataSource={usersData}
+          columns={columns}
+          loading={isLoading}
+          pagination={paginationConfig}
+          onChange={handleTableChange}
+        />
       </Content>
     </>
   );
