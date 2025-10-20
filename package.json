@@ -1,6 +1,6 @@
 {
   "name": "firecorp-vision",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tim-Elias/ParcelCloud.git"
+    "url": "git+https://github.com/tiacore-dev/ok-service-frontend.git"
   },
   "keywords": [],
-  "author": "Ilia Timofeev",
+  "author": "tiacore.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Tim-Elias/ParcelCloud/issues"
+    "url": "https://github.com/tiacore-dev/ok-service-frontend/issues"
   },
-  "homepage": "https://github.com/Tim-Elias/ParcelCloud#readme",
+  "homepage": "https://github.com/tiacore-dev/ok-service-frontend#readme",
   "devDependencies": {
     "@babel/core": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
