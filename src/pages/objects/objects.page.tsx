@@ -1,7 +1,8 @@
 import { Breadcrumb, Layout, Table } from "antd";
+import type { TableProps } from "antd";
 import * as React from "react";
 import { objectsDesktopColumns } from "./components/desktop.columns";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import { Filters } from "./components/filters";
 import "./objects.page.less";
@@ -18,6 +19,7 @@ import {
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { useUsers } from "../../hooks/ApiActions/users";
+import { saveObjectsTableState } from "../../store/modules/settings/objects";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -34,6 +36,11 @@ export const Objects = () => {
     getUsers();
   }, [filters]);
 
+  const tableState = useSelector(
+    (state: IState) => state.settings.objectsSettings,
+  );
+  const dispatch = useDispatch();
+
   const objectsData: IObjectsListColumn[] = useSelector(
     (state: IState) => state.pages.objects.data,
   ).map((doc) => ({ ...doc, key: doc.object_id }));
@@ -43,12 +50,44 @@ export const Objects = () => {
   const usersMap = useSelector(getUsersMap);
   const statusOptions = useSelector(getObjectStatusesOptions);
 
+  const handleTableChange: TableProps<IObjectsListColumn>["onChange"] = (
+    pagination,
+    filters,
+    sorter,
+  ) => {
+    dispatch(
+      saveObjectsTableState({
+        pagination,
+        filters,
+        sorter: Array.isArray(sorter) ? sorter[0] : sorter,
+      }),
+    );
+  };
+
+  const paginationConfig = React.useMemo<
+    TableProps<IObjectsListColumn>["pagination"]
+  >(() => {
+    const hasSavedPagination =
+      Boolean(tableState.pagination?.current) ||
+      Boolean(tableState.pagination?.pageSize);
+
+    return hasSavedPagination
+      ? tableState.pagination
+      : { current: 1, pageSize: 10, showSizeChanger: true };
+  }, [tableState.pagination]);
+
   const columns = React.useMemo(
     () =>
       isMobile()
         ? objectsMobileColumns(navigate, statusMap)
-        : objectsDesktopColumns(navigate, statusMap, usersMap, statusOptions),
-    [navigate, statusMap, usersMap, statusOptions],
+        : objectsDesktopColumns(
+            navigate,
+            statusMap,
+            usersMap,
+            statusOptions,
+            tableState,
+          ),
+    [navigate, statusMap, usersMap, statusOptions, tableState],
   );
   return (
     <>
@@ -69,7 +108,13 @@ export const Objects = () => {
         }}
       >
         <Filters />
-        <Table dataSource={objectsData} columns={columns} loading={isLoading} />
+        <Table
+          dataSource={objectsData}
+          columns={columns}
+          loading={isLoading}
+          pagination={paginationConfig}
+          onChange={handleTableChange}
+        />
       </Content>
     </>
   );
