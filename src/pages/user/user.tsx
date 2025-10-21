@@ -1,39 +1,67 @@
 import * as React from "react";
 import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import Title from "antd/es/typography/Title";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
-import { useUsers } from "../../hooks/ApiActions/users";
 import { EditableUserDialog } from "../../components/ActionDialogs/EditableUserDialog/EditableUserDialog";
 import { getRolesMap } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
-import { Link } from "react-router-dom";
-import { clearUserState } from "../../store/modules/pages/user.state";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { useUserQuery, useDeleteUserMutation } from "../../queries/users";
+import { NotificationContext } from "../../contexts/NotificationContext";
+import { useContext, useMemo } from "react";
 
 export const User = () => {
-  const dispatch = useDispatch();
-
   const { Content } = Layout;
   const rolesMap = useSelector(getRolesMap);
   const routeParams = useParams();
-  const { getUser, deleteUser } = useUsers();
   const currentRole = useSelector(getCurrentRole);
+  const navigate = useNavigate();
+  const notificationApi = useContext(NotificationContext);
+  const { mutateAsync: deleteUser } = useDeleteUserMutation();
 
-  React.useEffect(() => {
-    getUser(routeParams.userId);
+  const userId = routeParams.userId;
+  const { data: userData, isPending, isFetching } = useUserQuery(userId, {
+    enabled: Boolean(userId),
+  });
 
-    return () => {
-      dispatch(clearUserState());
-    };
-  }, []);
+  const isLoaded = useMemo(
+    () => Boolean(userData && userId === userData.user_id),
+    [userData, userId],
+  );
 
-  const userData = useSelector((state: IState) => state.pages.user.data);
-  const isLoaded = useSelector((state: IState) => state.pages.user.loaded);
+  const handleDelete = React.useCallback(async () => {
+    if (!userData) {
+      return;
+    }
+
+    try {
+      await deleteUser(userData.user_id);
+      notificationApi?.success({
+        message: "Успешно",
+        description: "Пользователь удалён",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      navigate("/users");
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Возникла ошибка при удалении пользователя";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
+  }, [userData, deleteUser, notificationApi, navigate]);
+
+  const isLoading = isPending || isFetching;
 
   return (
     <>
@@ -48,7 +76,7 @@ export const User = () => {
           { title: userData?.name },
         ]}
       />
-      {isLoaded && userData && routeParams.userId === userData.user_id ? (
+      {isLoaded && userData ? (
         <Content
           style={{
             padding: "0 24px",
@@ -67,9 +95,7 @@ export const User = () => {
             )}
             {currentRole === RoleId.ADMIN && (
               <DeleteUserDialog
-                onDelete={() => {
-                  deleteUser(userData.user_id);
-                }}
+                onDelete={handleDelete}
                 name={userData.name}
               />
             )}
@@ -83,7 +109,7 @@ export const User = () => {
           </Card>
         </Content>
       ) : (
-        <Spin />
+        <Spin spinning={isLoading} />
       )}
     </>
   );

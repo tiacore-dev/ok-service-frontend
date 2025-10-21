@@ -3,7 +3,7 @@ import { IShiftReportDetailsList } from "../../../../interfaces/shiftReportDetai
 import { fetchShiftReportDetails } from "../../../../api/shift-report-details.api";
 
 export const useShiftReportDetailsQuery = (
-  shiftReportId: string | undefined
+  shiftReportId: string | undefined,
 ) => {
   return useQuery<IShiftReportDetailsList[]>({
     queryKey: ["shiftReportDetails", shiftReportId],
@@ -12,7 +12,7 @@ export const useShiftReportDetailsQuery = (
         return Promise.resolve([]);
       }
       return fetchShiftReportDetails({ shift_report: shiftReportId }).then(
-        (data) => data.shift_report_details
+        (data) => data.shift_report_details,
       );
     },
     enabled: !!shiftReportId,

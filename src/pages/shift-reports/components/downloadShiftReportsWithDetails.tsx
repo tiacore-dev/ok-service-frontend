@@ -4,16 +4,16 @@ import { Button, Tooltip } from "antd";
 import * as React from "react";
 import { FileExcelOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
-import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
-import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
+import { useObjectsMap } from "../../../queries/objects";
+import { useProjectsMap } from "../../../queries/projects";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { getWorksMap } from "../../../store/modules/pages/selectors/works.selector";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
-import type { IState } from "../../../store/modules";
 import { generateDocument } from "../../../api/download.api";
 import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
+import { useUsersMap } from "../../../queries/users";
+import { useProjectWorksMap } from "../../../queries/projectWorks";
 
 interface DownloadShiftReportsWithDetailsProps {
   currentFilters?: {
@@ -67,13 +67,12 @@ export const DownloadShiftReportsWithDetails = ({
   });
 
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
-  const projectsMap = useSelector(getProjectsMap);
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
+  const { projectsMap } = useProjectsMap();
+  const { objectsMap } = useObjectsMap();
+  const { usersMap } = useUsersMap();
   const worksMap = useSelector(getWorksMap);
 
-  const allProjectWorks =
-    useSelector((state: IState) => state.pages.projectWorks.data) || [];
+  const { projectWorks: allProjectWorks = [] } = useProjectWorksMap();
 
   const projectWorksById = React.useMemo(() => {
     const map: Record<string, IProjectWorksList> = {};

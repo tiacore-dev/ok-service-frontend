@@ -1,16 +1,20 @@
 "use client";
 
-import React from "react";
-import { useCallback, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { Form, Input, InputNumber, Modal, Checkbox } from "antd";
 import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
-import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { useSelector } from "react-redux";
 import type { IState } from "../../store/modules";
 import { isMobile } from "../../utils/isMobile";
 import "./EditableProjectWorkDialog.less"; // Импорт стилей
 import { EnhancedSelect } from "../../components/EnhancedSelect";
+import {
+  useCreateProjectWorkMutation,
+  useUpdateProjectWorkMutation,
+  type EditableProjectWorkPayload,
+} from "../../queries/projectWorks";
+import { NotificationContext } from "../../contexts/NotificationContext";
 
 interface IEditableProjectWorkDialogProps {
   visible: boolean;
@@ -25,9 +29,11 @@ export const EditableProjectWorkDialog: React.FC<
   IEditableProjectWorkDialogProps
 > = ({ visible, onCancel, onSave, initialValues, projectId, isEditing }) => {
   const [form] = Form.useForm();
-  const { createProjectWork, editProjectWork } = useProjectWorks();
+  const createProjectWorkMutation = useCreateProjectWorkMutation();
+  const updateProjectWorkMutation = useUpdateProjectWorkMutation();
   const { getWorks } = useWorks();
   const worksData = useSelector((state: IState) => state.pages.works.data);
+  const notificationApi = useContext(NotificationContext);
 
   const customSelectFilterHandler = useCallback(
     (
@@ -76,28 +82,64 @@ export const EditableProjectWorkDialog: React.FC<
   const handleSubmit = useCallback(() => {
     form
       .validateFields()
-      .then((values) => {
-        const data = {
+      .then(async (values) => {
+        const data: EditableProjectWorkPayload = {
           ...values,
           project: projectId,
           quantity: Number(values.quantity),
-          // Убедимся, что signed передается как boolean
           signed: !!values.signed,
         };
 
-        if (isEditing && initialValues) {
-          editProjectWork(initialValues.project_work_id, data);
-        } else {
-          createProjectWork(data);
-        }
+        try {
+          if (isEditing && initialValues) {
+            await updateProjectWorkMutation.mutateAsync({
+              projectWorkId: initialValues.project_work_id,
+              payload: data,
+            });
+            notificationApi?.success({
+              message: "Успешно",
+              description: "Работа в спецификации обновлена",
+              placement: "bottomRight",
+              duration: 2,
+            });
+          } else {
+            await createProjectWorkMutation.mutateAsync(data);
+            notificationApi?.success({
+              message: "Успешно",
+              description: "Работа добавлена в спецификацию",
+              placement: "bottomRight",
+              duration: 2,
+            });
+          }
 
-        onSave();
-        form.resetFields();
+          onSave();
+          form.resetFields();
+        } catch (error) {
+          const description =
+            error instanceof Error
+              ? error.message
+              : "Возникла ошибка при сохранении работы";
+          notificationApi?.error({
+            message: "Ошибка",
+            description,
+            placement: "bottomRight",
+            duration: 2,
+          });
+        }
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
       });
-  }, [form, projectId, isEditing, initialValues, onSave]);
+  }, [
+    form,
+    projectId,
+    isEditing,
+    initialValues,
+    onSave,
+    updateProjectWorkMutation,
+    notificationApi,
+    createProjectWorkMutation,
+  ]);
 
   return (
     <Modal

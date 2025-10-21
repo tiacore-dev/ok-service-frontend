@@ -11,43 +11,35 @@ import { isMobile } from "../../utils/isMobile";
 import { objectsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IObjectsListColumn } from "../../interfaces/objects/IObjectsList";
-import { useObjects } from "../../hooks/ApiActions/objects";
 import {
   getObjectStatusesMap,
   getObjectStatusesOptions,
 } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import { Link } from "react-router-dom";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
-import { useUsers } from "../../hooks/ApiActions/users";
+import { useUsersMap } from "../../queries/users";
 import { saveObjectsTableState } from "../../store/modules/settings/objects";
+import { useObjectsQuery } from "../../queries/objects";
 
 export const Objects = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
-  const filters = useSelector(
-    (state: IState) => state.settings.objectsSettings.filters,
-  );
-
-  const { getObjects } = useObjects();
-  const { getUsers } = useUsers();
-
-  React.useEffect(() => {
-    getObjects();
-    getUsers();
-  }, [filters]);
+  const { usersMap } = useUsersMap();
+  const { data: objectsList, isFetching } = useObjectsQuery();
 
   const tableState = useSelector(
     (state: IState) => state.settings.objectsSettings,
   );
   const dispatch = useDispatch();
 
-  const objectsData: IObjectsListColumn[] = useSelector(
-    (state: IState) => state.pages.objects.data,
-  ).map((doc) => ({ ...doc, key: doc.object_id }));
-
-  const isLoading = useSelector((state: IState) => state.pages.objects.loading);
+  const objectsData: IObjectsListColumn[] = React.useMemo(
+    () =>
+      (objectsList ?? []).map((doc) => ({
+        ...doc,
+        key: doc.object_id,
+      })),
+    [objectsList],
+  );
   const statusMap = useSelector(getObjectStatusesMap);
-  const usersMap = useSelector(getUsersMap);
   const statusOptions = useSelector(getObjectStatusesOptions);
 
   const handleTableChange: TableProps<IObjectsListColumn>["onChange"] = (
@@ -111,7 +103,7 @@ export const Objects = () => {
         <Table
           dataSource={objectsData}
           columns={columns}
-          loading={isLoading}
+          loading={isFetching}
           pagination={paginationConfig}
           onChange={handleTableChange}
         />

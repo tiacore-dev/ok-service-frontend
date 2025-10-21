@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
@@ -10,9 +10,17 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableProjectDialog.less";
-import { useProjects } from "../../../hooks/ApiActions/projects";
 import { getModalContentWidth } from "../../../utils/pageSettings";
 import { RoleId } from "../../../interfaces/roles/IRole";
+import { useUsersMap } from "../../../queries/users";
+import { useObjectsMap } from "../../../queries/objects";
+import { useNavigate } from "react-router-dom";
+import { NotificationContext } from "../../../contexts/NotificationContext";
+import {
+  useCreateProjectMutation,
+  useUpdateProjectMutation,
+  type EditableProjectPayload,
+} from "../../../queries/projects";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableProjectDialogProps {
@@ -23,7 +31,6 @@ interface IEditableProjectDialogProps {
 
 export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
   const { project, iconOnly, objectId } = props;
-  const { createProject, editProject } = useProjects();
   const buttonText = project ? "Редактировать" : "Создать";
   const popoverText = project
     ? "Редактировать спецификацию"
@@ -41,29 +48,83 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
   const data = useSelector(
     (state: IState) => state.editableEntities.editableProject
   );
-  const objectMap = useSelector(
-    (state: IState) => state.pages.objects.data
-  ).map((el) => ({
+  const { objects } = useObjectsMap();
+  const objectMap = objects.map((el) => ({
     label: el.name,
     value: el.object_id,
   }));
 
-  const userMap = useSelector((state: IState) => state.pages.users.data)
+  const { users } = useUsersMap();
+  const userMap = users
     .filter((user) => user.role === RoleId.PROJECT_LEADER)
     .map((el) => ({
       label: el.name,
       value: el.user_id,
     }));
 
-  const { sent, ...projectData } = data;
+  const { sent, project_id: projectIdFromState, ...projectData } = data;
+  const navigate = useNavigate();
+  const notificationApi = useContext(NotificationContext);
+  const createProjectMutation = useCreateProjectMutation();
+  const updateProjectMutation = useUpdateProjectMutation();
 
-  const handleConfirm = useCallback(() => {
-    if (project) {
-      editProject(project.project_id, projectData);
-    } else {
-      createProject(projectData);
+  const handleConfirm = useCallback(async () => {
+    dispatch(editProjectAction.sendProject());
+
+    try {
+      if (project?.project_id ?? projectIdFromState) {
+        const targetId = project?.project_id ?? projectIdFromState;
+        await updateProjectMutation.mutateAsync({
+          projectId: targetId!,
+          payload: projectData as EditableProjectPayload,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Спецификация изменена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        const response = await createProjectMutation.mutateAsync(
+          projectData as EditableProjectPayload,
+        );
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Спецификация создана",
+          placement: "bottomRight",
+          duration: 2,
+        });
+        const createdProjectId =
+          response.project?.project_id ?? response.project_id;
+        if (createdProjectId) {
+          navigate(`/projects/${createdProjectId}`);
+        } else {
+          navigate("/projects");
+        }
+      }
+    } catch (error) {
+      dispatch(editProjectAction.saveError());
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Возникла ошибка при сохранении спецификации";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
     }
-  }, [project, projectData, editProject, createProject]);
+  }, [
+    dispatch,
+    project,
+    projectIdFromState,
+    projectData,
+    updateProjectMutation,
+    notificationApi,
+    createProjectMutation,
+    navigate,
+  ]);
 
   const handeOpen = useCallback(() => {
     if (project) {

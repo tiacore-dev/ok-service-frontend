@@ -11,15 +11,9 @@ import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { minPageHeight } from "../../utils/pageSettings";
 import { Link } from "react-router-dom";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
-import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
-import { useUsers } from "../../hooks/ApiActions/users";
-import { useProjects } from "../../hooks/ApiActions/projects";
-import { useObjects } from "../../hooks/ApiActions/objects";
 import { useWorks } from "../../hooks/ApiActions/works";
 import type { FilterValue, SorterResult } from "antd/es/table/interface";
 import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import type { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
 import type {
@@ -27,7 +21,9 @@ import type {
   IShiftReportsListColumn,
 } from "../../interfaces/shiftReports/IShiftReportsList";
 import { Actions } from "./components/actions";
-import { useProjectWorks } from "../../hooks/ApiActions/project-works";
+import { useUsersMap } from "../../queries/users";
+import { useObjectsMap } from "../../queries/objects";
+import { useProjectsMap } from "../../queries/projects";
 
 interface FiltersState {
   user?: string;
@@ -41,11 +37,7 @@ export const ShiftReports = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { getUsers } = useUsers();
-  const { getProjects } = useProjects();
-  const { getObjects } = useObjects();
   const { getWorks } = useWorks();
-  const { getProjectWorks } = useProjectWorks();
 
   const tableState = useSelector(
     (state: IState) => state.settings.shiftReportsSettings,
@@ -106,11 +98,7 @@ export const ShiftReports = () => {
   );
 
   React.useEffect(() => {
-    getUsers();
-    getProjects();
-    getObjects();
     getWorks();
-    getProjectWorks();
   }, []);
 
   const tableData = React.useMemo(() => {
@@ -122,9 +110,9 @@ export const ShiftReports = () => {
     }));
   }, [shiftReportsResponse]);
 
-  const projectsMap = useSelector(getProjectsMap);
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
+  const { projectsMap } = useProjectsMap();
+  const { objectsMap } = useObjectsMap();
+  const { usersMap } = useUsersMap();
 
   const columns = React.useMemo(
     () =>

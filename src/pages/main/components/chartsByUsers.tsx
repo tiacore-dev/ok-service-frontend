@@ -10,8 +10,7 @@ import {
   Tooltip,
   YAxis,
 } from "recharts";
-import { useSelector } from "react-redux";
-import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
+import { useUsersMap } from "../../../queries/users";
 
 interface IChartsByUsersProps {
   totalCostArrayByUser: {
@@ -28,7 +27,7 @@ export const ChartsByUsers = (props: IChartsByUsersProps) => {
   const { totalCostArrayByUser, description } = props;
 
   const containerRef = React.useRef(null);
-  const usersMap = useSelector(getUsersMap);
+  const { usersMap } = useUsersMap();
   const [width, setWidth] = React.useState(0);
 
   React.useEffect(() => {

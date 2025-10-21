@@ -24,7 +24,7 @@ const shiftReportsSettingsSlice = createSlice({
   reducers: {
     saveShiftReportsTableState: (
       state: IShiftReportsSettingsState,
-      action: { payload: IShiftReportsSettingsState }
+      action: { payload: IShiftReportsSettingsState },
     ) => {
       state.pagination = action.payload.pagination;
       state.filters = action.payload.filters;

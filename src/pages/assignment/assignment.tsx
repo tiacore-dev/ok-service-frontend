@@ -3,21 +3,12 @@ import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import {
-  getProjectsMap,
-  getProjectsState,
-} from "../../store/modules/pages/selectors/projects.selector";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
-import {
-  getUsersMap,
-  getUsersState,
-} from "../../store/modules/pages/selectors/users.selector";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { getToday } from "../../utils/dateConverter";
 import { RoleId } from "../../interfaces/roles/IRole";
-import { useObjects } from "../../hooks/ApiActions/objects";
-import { useProjects } from "../../hooks/ApiActions/projects";
-import { useUsers } from "../../hooks/ApiActions/users";
+import { useUsersMap } from "../../queries/users";
+import { useObjectsMap } from "../../queries/objects";
+import { useProjectsMap } from "../../queries/projects";
 import { IState } from "../../store/modules";
 import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
@@ -32,14 +23,6 @@ export const Assignment = () => {
   const date_from = React.useMemo(() => getToday().getTime(), []);
   const [date_to, setDateTo] = React.useState(new Date().getTime());
 
-  const projectsMap = useSelector(getProjectsMap);
-  const { data: projects } = useSelector(getProjectsState);
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
-  const { data: users } = useSelector(getUsersState);
-  const role = useSelector(getCurrentRole);
-  const userId = useSelector(getCurrentUserId);
-
   const queryParams: IShiftReportQueryParams = {
     sort_by: "date",
     sort_order: "desc",
@@ -53,17 +36,13 @@ export const Assignment = () => {
   const authData = useSelector((state: IState) => state.auth);
   const isAuth = authData.isAuth;
 
-  const { getObjects } = useObjects();
-  const { getProjects } = useProjects();
-  const { getUsers } = useUsers();
-
-  React.useEffect(() => {
-    if (isAuth) {
-      getObjects();
-      getProjects();
-      getUsers();
-    }
-  }, [isAuth]);
+  const { usersMap, users } = useUsersMap({ enabled: isAuth });
+  const { objectsMap } = useObjectsMap({ enabled: isAuth });
+  const { projects: projectsList, projectsMap } = useProjectsMap({
+    enabled: isAuth,
+  });
+  const role = useSelector(getCurrentRole);
+  const userId = useSelector(getCurrentUserId);
 
   const filteredShiftReportsData = React.useMemo(
     () =>
@@ -84,7 +63,7 @@ export const Assignment = () => {
   );
   const { objectsShiftData, userShiftData } = useAssignmentData({
     filteredShiftReportsData,
-    projects,
+    projects: projectsList,
     projectsMap,
     objectsMap,
     users,
@@ -94,9 +73,9 @@ export const Assignment = () => {
   });
 
   const assignOptions = React.useMemo(() => {
-    if (!projects || !objectsMap)
+    if (!projectsList || !objectsMap)
       return [] as { value: string; label: string }[];
-    return projects
+    return projectsList
       .filter(
         (p) =>
           p.project_id &&
@@ -109,7 +88,7 @@ export const Assignment = () => {
         value: p.project_id!,
         label: `${objectsMap[p.object]?.name} — ${p.name}`,
       }));
-  }, [projects, objectsMap, role, userId]);
+  }, [projectsList, objectsMap, role, userId]);
 
   const userOptions = React.useMemo(() => {
     return userShiftData

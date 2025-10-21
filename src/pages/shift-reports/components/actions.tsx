@@ -6,9 +6,6 @@ import { isMobile } from "../../../utils/isMobile";
 import { FileExcelOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { EditableShiftReportDialog } from "../../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
-import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
-import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
-import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
 import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
@@ -17,6 +14,9 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentRole } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { DownloadObjectVolumeReport } from "./downloadObjectVolumeReport";
+import { useUsersMap } from "../../../queries/users";
+import { useObjectsMap } from "../../../queries/objects";
+import { useProjectsMap } from "../../../queries/projects";
 
 interface IExportedData {
   number: number;
@@ -49,9 +49,9 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
   const role = useSelector(getCurrentRole);
 
-  const projectsMap = useSelector(getProjectsMap);
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
+  const { projectsMap } = useProjectsMap();
+  const { objectsMap } = useObjectsMap();
+  const { usersMap } = useUsersMap();
   const navigate = useNavigate();
   const exportedData: IExportedData[] = React.useMemo(
     () =>

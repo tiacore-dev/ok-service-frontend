@@ -22,7 +22,7 @@ import {
 } from "../../store/modules/dictionaries/objectStatuses";
 import { useApi } from "../../hooks/useApi";
 import { IObjectStatus } from "../../interfaces/objectStatuses/IObjectStatus";
-import { NotificationContext } from "../../../root";
+import { NotificationContext } from "../../contexts/NotificationContext";
 import {
   clearRolesState,
   getRolesFailure,
@@ -32,20 +32,6 @@ import {
 import { IRole } from "../../interfaces/roles/IRole";
 import { User } from "../../pages/user/user";
 import { Object } from "../../pages/object/object";
-import {
-  clearObjectsState,
-  getObjectsFailure,
-  getObjectsRequest,
-  getObjectsSuccess,
-} from "../../store/modules/pages/objects.state";
-import { IObjectsList } from "../../interfaces/objects/IObjectsList";
-import {
-  clearUsersState,
-  getUsersFailure,
-  getUsersRequest,
-  getUsersSuccess,
-} from "../../store/modules/pages/users.state";
-import { IUsersList } from "../../interfaces/users/IUsersList";
 import { Project } from "../../pages/project/project";
 import { Works } from "../../pages/works/works.page";
 import { Work } from "../../pages/work/work";
@@ -53,37 +39,32 @@ import { WorkCategories } from "../../pages/work-categories/work-categories.page
 import { ShiftReports } from "../../pages/shift-reports/shift-reports.page";
 import { ShiftReport } from "../../pages/shift-report/shift-report";
 import { clearWorksState } from "../../store/modules/pages/works.state";
-import { clearProjectsState } from "../../store/modules/pages/projects.state";
 import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
 import { clearWorkCategoriesState } from "../../store/modules/pages/work-categories.state";
-import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
-import { clearObjectState } from "../../store/modules/pages/object.state";
-import { clearUserState } from "../../store/modules/pages/user.state";
 import { clearWorkState } from "../../store/modules/pages/work.state";
-import { clearProjectState } from "../../store/modules/pages/project.state";
 import { Assignment } from "../../pages/assignment/assignment";
 import { useQueryClient } from "@tanstack/react-query";
+import { usersKeys } from "../../queries/users";
+import { objectsKeys } from "../../queries/objects";
+import { projectsKeys } from "../../queries/projects";
+import { projectWorksKeys } from "../../queries/projectWorks";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
   clearStates: () => void;
 } => {
   const queryClient = useQueryClient();
+  const notificationApi = React.useContext(NotificationContext);
+  const dispatch = useDispatch();
+  const { apiGet } = useApi();
 
   const clearStates = React.useCallback(() => {
     dispatch(clearObjectStatusesState());
     dispatch(clearRolesState());
-    dispatch(clearObjectsState());
-    dispatch(clearObjectState());
-    dispatch(clearUsersState());
-    dispatch(clearUserState());
     dispatch(clearWorksState());
     dispatch(clearWorkState());
-    dispatch(clearProjectsState());
-    dispatch(clearProjectState());
     dispatch(clearWorkPricesState());
     dispatch(clearWorkCategoriesState());
-    dispatch(clearProjectWorksState());
 
     queryClient.invalidateQueries({
       queryKey: ["shiftReports"],
@@ -94,10 +75,11 @@ export const useloadSourse = (): {
     queryClient.invalidateQueries({
       queryKey: ["shiftReport"],
     });
-  }, []);
-  const notificationApi = React.useContext(NotificationContext);
-  const dispatch = useDispatch();
-  const { apiGet } = useApi();
+    queryClient.removeQueries({ queryKey: usersKeys.all() });
+    queryClient.removeQueries({ queryKey: objectsKeys.all() });
+    queryClient.removeQueries({ queryKey: projectsKeys.all() });
+    queryClient.removeQueries({ queryKey: projectWorksKeys.all() });
+  }, [dispatch, queryClient]);
 
   const load = React.useCallback(async (access_token?: string) => {
     // Загрузка справочника статусов объектов
@@ -135,44 +117,7 @@ export const useloadSourse = (): {
       dispatch(getRolesFailure(err));
     }
 
-    // Загрузка справочника объектов
-    dispatch(getObjectsRequest());
-    try {
-      const response: { objects: IObjectsList[]; msg: string } = await apiGet(
-        "objects",
-        "all",
-        access_token,
-      );
-
-      dispatch(getObjectsSuccess(response.objects));
-    } catch (err) {
-      notificationApi.error({
-        message: "Ошибка",
-        description: "Ошибка при загрузке справочника объектов",
-      });
-      console.log("getObjectsFailure ", err);
-      dispatch(getObjectsFailure(err));
-    }
-
-    // Загрузка справочника пользователей
-    dispatch(getUsersRequest());
-    try {
-      const response: { users: IUsersList[]; msg: string } = await apiGet(
-        "users",
-        "all",
-        access_token,
-      );
-
-      dispatch(getUsersSuccess(response.users));
-    } catch (err) {
-      notificationApi.error({
-        message: "Ошибка",
-        description: "Ошибка при загрузке справочника статусов объектов",
-      });
-      console.log("getUsersFailure ", err);
-      dispatch(getUsersFailure(err));
-    }
-  }, []);
+  }, [apiGet, dispatch, notificationApi]);
 
   return { load, clearStates };
 };

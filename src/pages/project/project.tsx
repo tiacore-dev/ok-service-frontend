@@ -13,30 +13,32 @@ import {
   Table,
 } from "antd";
 import Title from "antd/es/typography/Title";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
-import { useProjects } from "../../hooks/ApiActions/projects";
 import { EditableProjectDialog } from "../../components/ActionDialogs/EditableProjectDialog/EditableProjectDialog";
 import { DeleteProjectDialog } from "../../components/ActionDialogs/DeleteProjectDialog";
-import { Link } from "react-router-dom";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import type { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
-import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
-import { useProjectWorks } from "../../hooks/ApiActions/project-works";
-import { useObjects } from "../../hooks/ApiActions/objects";
-import { useUsers } from "../../hooks/ApiActions/users";
-import { clearProjectState } from "../../store/modules/pages/project.state";
+import { useUsersMap } from "../../queries/users";
+import { useObjectsMap } from "../../queries/objects";
 import { useWorks } from "../../hooks/ApiActions/works";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { ImportProjectWorks } from "./ImportProjectWorks";
-import { selectProjectStat } from "../../store/modules/pages/selectors/project.selector";
 import { EditableProjectWorkDialog } from "./EditableProjectWorkDialog";
+import {
+  useDeleteProjectMutation,
+  useProjectQuery,
+} from "../../queries/projects";
+import {
+  useDeleteProjectWorkMutation,
+  useProjectWorksMap,
+  useUpdateProjectWorkMutation,
+} from "../../queries/projectWorks";
+import { NotificationContext } from "../../contexts/NotificationContext";
 
 export const Project = () => {
   const { Content } = Layout;
@@ -44,75 +46,85 @@ export const Project = () => {
   const [editingRecord, setEditingRecord] =
     React.useState<IProjectWorksListColumn | null>(null);
   const currentRole = useSelector(getCurrentRole);
-
-  const dispatch = useDispatch();
-  const { getProjectWorks, deleteProjectWork, editProjectWork } =
-    useProjectWorks();
-  const { getObjects } = useObjects();
-  const { getUsers } = useUsers();
+  const { usersMap } = useUsersMap();
+  const { objectsMap } = useObjectsMap();
   const [importMode, setImportMode] = React.useState(false);
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
   const routeParams = useParams();
-  const { getProject, deleteProject, getProjectStat } = useProjects();
+  const navigate = useNavigate();
+  const notificationApi = React.useContext(NotificationContext);
+  const projectId = routeParams.projectId;
   const { getWorks } = useWorks();
+  const {
+    data: projectData,
+    isPending: isProjectPending,
+    isFetching: isProjectFetching,
+  } = useProjectQuery(projectId, { enabled: Boolean(projectId) });
+  const {
+    projectWorks,
+    isPending: isProjectWorksPending,
+    isFetching: isProjectWorksFetching,
+  } = useProjectWorksMap(projectId, { enabled: Boolean(projectId) });
+  const deleteProjectMutation = useDeleteProjectMutation();
+  const updateProjectWorkMutation = useUpdateProjectWorkMutation();
+  const deleteProjectWorkMutation = useDeleteProjectWorkMutation();
 
   React.useEffect(() => {
-    getUsers();
-    getObjects();
     getWorks();
-    getProjectStat(routeParams.projectId);
-    getProject(routeParams.projectId);
-    getProjectWorks(routeParams.projectId);
-
-    return () => {
-      dispatch(clearProjectState());
-    };
   }, []);
 
   const currentUserId = useSelector(getCurrentUserId);
-  const projectData = useSelector((state: IState) => state.pages.project.data);
-  const isLoaded = useSelector((state: IState) => state.pages.project.loaded);
-  const stat = useSelector(selectProjectStat);
+  const isProjectLoading = isProjectPending || isProjectFetching;
+  const projectWorksLoading = isProjectWorksPending || isProjectWorksFetching;
+  const projectWorksList = projectWorks ?? [];
   const worksData = useSelector((state: IState) => state.pages.works.data);
-
-  const projectWorksIsLoaded = useSelector(
-    (state: IState) => state.pages.projectWorks.loaded,
-  );
-
-  const projectWorks = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, projectData?.project_id),
-  );
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
     () =>
-      projectWorks.map((doc) => ({
+      projectWorksList.map((doc) => ({
         ...doc,
         key: doc.project_work_id,
       })),
-    [projectWorks, stat],
+    [projectWorksList],
   );
 
   const canEdit =
-    (currentRole === RoleId.PROJECT_LEADER &&
+    Boolean(
       projectData?.project_leader &&
-      currentUserId === projectData.project_leader) ||
+        currentRole === RoleId.PROJECT_LEADER &&
+        currentUserId === projectData.project_leader,
+    ) ||
     currentRole === RoleId.MANAGER ||
     currentRole === RoleId.ADMIN;
 
-  const handleSignedChange = (
-    record: IProjectWorksListColumn,
-    checked: boolean,
-  ) => {
-    const updatedData = {
-      ...record,
-      signed: checked,
-      project: projectData?.project_id || "",
-      quantity: Number(record.quantity),
-    };
-
-    editProjectWork(record.project_work_id, updatedData);
-  };
+  const handleSignedChange = React.useCallback(
+    async (record: IProjectWorksListColumn, checked: boolean) => {
+      if (!projectData?.project_id) return;
+      try {
+        await updateProjectWorkMutation.mutateAsync({
+          projectWorkId: record.project_work_id,
+          payload: {
+            project: projectData.project_id,
+            project_work_name: record.project_work_name,
+            work: record.work,
+            quantity: Number(record.quantity),
+            signed: checked,
+          },
+        });
+      } catch (error) {
+        const description =
+          error instanceof Error
+            ? error.message
+            : "Не удалось обновить работу спецификации";
+        notificationApi?.error({
+          message: "Ошибка",
+          description,
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+    },
+    [projectData, updateProjectWorkMutation, notificationApi],
+  );
 
   const handleAdd = () => {
     setEditingRecord(null);
@@ -124,9 +136,60 @@ export const Project = () => {
     setModalVisible(true);
   };
 
-  const handleDelete = (key: string) => {
-    deleteProjectWork(key, routeParams.projectId);
-  };
+  const handleDelete = React.useCallback(
+    async (projectWorkId: string) => {
+      if (!projectData?.project_id) return;
+      try {
+        await deleteProjectWorkMutation.mutateAsync({
+          projectWorkId,
+          projectId: projectData.project_id,
+        });
+        notificationApi?.success({
+          message: "Удалено",
+          description: "Работа удалена из спецификации",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } catch (error) {
+        const description =
+          error instanceof Error
+            ? error.message
+            : "Не удалось удалить работу спецификации";
+        notificationApi?.error({
+          message: "Ошибка",
+          description,
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+    },
+    [projectData, deleteProjectWorkMutation, notificationApi],
+  );
+
+  const handleDeleteProject = React.useCallback(async () => {
+    if (!projectData?.project_id) return;
+    try {
+      await deleteProjectMutation.mutateAsync(projectData.project_id);
+      notificationApi?.success({
+        message: "Удалено",
+        description: "Спецификация удалена",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      navigate("/projects");
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Не удалось удалить спецификацию";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
+  }, [projectData, deleteProjectMutation, notificationApi, navigate]);
 
   const handleModalCancel = () => {
     setModalVisible(false);
@@ -192,7 +255,7 @@ export const Project = () => {
                 />
                 <Popconfirm
                   title="Удалить?"
-                  onConfirm={() => handleDelete(record.key)}
+                  onConfirm={() => handleDelete(record.project_work_id)}
                 >
                   <Button
                     disabled={
@@ -209,12 +272,12 @@ export const Project = () => {
       : []),
   ];
 
-  const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading,
-  );
-
-  const object = objectsMap[projectData?.object];
-  const objectLink = `/objects/${projectData?.object}`;
+  const isLoading = projectWorksLoading;
+  const object = projectData ? objectsMap[projectData.object] : undefined;
+  const objectLink = projectData ? `/objects/${projectData.object}` : "/objects";
+  const isLoaded =
+    !isProjectLoading &&
+    Boolean(projectData && projectId === projectData.project_id);
 
   return (
     <>
@@ -247,7 +310,7 @@ export const Project = () => {
             {canEdit && <EditableProjectDialog project={projectData} />}
             {canEdit && (
               <DeleteProjectDialog
-                onDelete={() => deleteProject(projectData.project_id)}
+                onDelete={handleDeleteProject}
                 name={projectData.name}
               />
             )}
@@ -277,7 +340,7 @@ export const Project = () => {
                     Добавить запись в спецификацию
                   </Button>
                   <Button
-                    loading={!projectWorksIsLoaded}
+                    loading={projectWorksLoading}
                     onClick={() => {
                       setImportMode(true);
                     }}
@@ -303,12 +366,12 @@ export const Project = () => {
             onCancel={handleModalCancel}
             onSave={handleModalSave}
             initialValues={editingRecord}
-            projectId={projectData?.project_id}
+            projectId={projectData?.project_id ?? ""}
             isEditing={!!editingRecord}
           />
         </Content>
       ) : (
-        <Spin />
+        <Spin spinning={isProjectLoading || projectWorksLoading} />
       )}
     </>
   );

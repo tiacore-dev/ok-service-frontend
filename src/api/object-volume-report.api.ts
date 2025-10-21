@@ -18,10 +18,10 @@ interface GenerateObjectReportParams {
 
 export const generateObjectVolumeReport = async (
   documentData: IObjectVolumeReport,
-  name: string
+  name: string,
 ) => {
   try {
-    const { access_token, refresh_token } = store.getState().auth;
+    const { access_token } = store.getState().auth;
     const payload: GenerateObjectReportParams = {
       file_name: "template_objects.xlsx", // имя шаблона для отчета по объектам template_objects.xlsx
       document_data: documentData,
@@ -31,7 +31,7 @@ export const generateObjectVolumeReport = async (
     console.log(" API Payload:", JSON.stringify(payload, null, 2));
     console.log(
       " Document data objects count:",
-      documentData.objects?.length || 0
+      documentData.objects?.length || 0,
     );
 
     // Первая попытка запроса
@@ -70,7 +70,7 @@ export const generateObjectVolumeReport = async (
             refreshToken({
               access_token: newTokenResponse.data.access_token,
               refresh_token: newTokenResponse.data.refresh_token,
-            })
+            }),
           );
 
           // Повторяем запрос с новым токеном
@@ -89,13 +89,13 @@ export const generateObjectVolumeReport = async (
               headers: {
                 Authorization: `Bearer ${newTokenResponse.data.access_token}`,
               },
-            }
+            },
           );
 
           console.log(" Retry response status:", retryResponse.status);
           console.log(
             " Retry response data size:",
-            retryResponse.data?.size || 0
+            retryResponse.data?.size || 0,
           );
 
           return retryResponse.data;

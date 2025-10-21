@@ -3,13 +3,11 @@
 import { Button, Tooltip } from "antd";
 import * as React from "react";
 import { FileExcelOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
-import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
-import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
+import { useObjectsMap } from "../../../queries/objects";
+import { useProjectsMap } from "../../../queries/projects";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
-import type { IState } from "../../../store/modules";
 import { generateObjectVolumeReport } from "../../../api/object-volume-report.api";
 import type {
   IObjectVolumeReport,
@@ -17,6 +15,7 @@ import type {
 } from "../../../interfaces/reports/IObjectVolumeReport";
 import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
 import type { IShiftReportDetail } from "../../../interfaces/shiftReportDetails/IShiftReportDetail";
+import { useProjectWorksMap } from "../../../queries/projectWorks";
 
 interface DownloadObjectVolumeReportProps {
   currentFilters?: {
@@ -39,11 +38,10 @@ export const DownloadObjectVolumeReport: React.FC<
   });
 
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
-  const projectsMap = useSelector(getProjectsMap);
-  const objectsMap = useSelector(getObjectsMap);
+  const { projectsMap } = useProjectsMap();
+  const { objectsMap } = useObjectsMap();
 
-  const allProjectWorks =
-    useSelector((state: IState) => state.pages.projectWorks.data) || [];
+  const { projectWorks: allProjectWorks = [] } = useProjectWorksMap();
 
   const projectWorksById = React.useMemo(() => {
     const map: Record<string, IProjectWorksList> = {};

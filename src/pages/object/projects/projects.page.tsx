@@ -12,9 +12,9 @@ import { getCurrentRole } from "../../../store/modules/auth";
 import { IState } from "../../../store/modules";
 import { IProjectsListColumn } from "../../../interfaces/projects/IProjectsList";
 import { saveProjectsTableState } from "../../../store/modules/settings/projects";
-import { getProjectsState } from "../../../store/modules/pages/selectors/projects.selector";
 import { isMobile } from "../../../utils/isMobile";
-import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
+import { useUsersMap } from "../../../queries/users";
+import { useProjectsMap } from "../../../queries/projects";
 
 export const Projects = ({ object_id }: { object_id: string }) => {
   const navigate = useNavigate();
@@ -38,20 +38,18 @@ export const Projects = ({ object_id }: { object_id: string }) => {
     []
   );
 
-  const projectsState = useSelector(getProjectsState);
+  const { projects, isPending, isFetching } = useProjectsMap();
   const projectsData = React.useMemo(
     () =>
-      projectsState.data
+      (projects ?? [])
         .filter((doc) => doc.object === object_id)
         .map((doc) => ({ ...doc, key: doc.project_id })),
-    [projectsState, object_id]
+    [projects, object_id]
   );
 
-  const usersMap = useSelector(getUsersMap);
+  const { usersMap } = useUsersMap();
 
-  const isLoading = useSelector(
-    (state: IState) => state.pages.projects.loading
-  );
+  const isLoading = isPending || isFetching;
 
   const columns = React.useMemo(
     () =>

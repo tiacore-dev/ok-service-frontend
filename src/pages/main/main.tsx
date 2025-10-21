@@ -8,10 +8,6 @@ import {
   getTenDaysAgo,
   getToday,
 } from "../../utils/dateConverter";
-import { useObjects } from "../../hooks/ApiActions/objects";
-import { useProjects } from "../../hooks/ApiActions/projects";
-import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { IState } from "../../store/modules";
@@ -19,11 +15,12 @@ import { IShiftReportsListColumn } from "../../interfaces/shiftReports/IShiftRep
 import { toggleFullScreenMode } from "../../store/modules/settings/general";
 import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
-import { useUsers } from "../../hooks/ApiActions/users";
 import { ChartsByUsers } from "./components/chartsByUsers";
 import { Charts } from "./components/charts";
 import { ChartsByObjects } from "./components/chartsByObjects";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { useUsersMap } from "../../queries/users";
+import { useProjectsMap } from "../../queries/projects";
+import { useObjectsMap } from "../../queries/objects";
 import {
   IObjectStatsItem,
   IUserStatsItem,
@@ -63,22 +60,11 @@ export const Main = () => {
     (state: IState) => state.settings.generalSettings.fullScreenMode,
   );
 
-  const { getObjects } = useObjects();
-  const { getProjects } = useProjects();
-  const { getUsers } = useUsers();
   const mobile = isMobile();
 
-  React.useEffect(() => {
-    if (isAuth) {
-      getObjects();
-      getProjects();
-      getUsers();
-    }
-  }, []);
-
-  const projectsMap = useSelector(getProjectsMap);
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
+  const { projectsMap } = useProjectsMap({ enabled: isAuth });
+  const { objectsMap } = useObjectsMap({ enabled: isAuth });
+  const { usersMap } = useUsersMap({ enabled: isAuth });
   const role = useSelector(getCurrentRole);
   const [range, setRange] = React.useState<DateRange>({
     date_from:

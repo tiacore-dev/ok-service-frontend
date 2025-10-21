@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
@@ -10,11 +10,17 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableUserDialog.less";
-import { IEditableUser, useUsers } from "../../../hooks/ApiActions/users";
 import { getRoles } from "../../../store/modules/dictionaries/selectors/roles.selector";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { categoryMap } from "../../../utils/categoryMap";
 import { getModalContentWidth } from "../../../utils/pageSettings";
+import { useNavigate } from "react-router-dom";
+import {
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  type EditableUserPayload,
+} from "../../../queries/users";
+import { NotificationContext } from "../../../contexts/NotificationContext";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableUserDialogProps {
@@ -25,7 +31,6 @@ interface IEditableUserDialogProps {
 export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const { user, iconOnly } = props;
   const [password, setPassword] = useState<string>("");
-  const { createUser, editUser } = useUsers();
   const buttonText = user ? "Редактировать" : "Создать";
   const popoverText = user
     ? "Редактировать пользователя"
@@ -43,6 +48,10 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const data = useSelector(
     (state: IState) => state.editableEntities.editableUser,
   );
+  const navigate = useNavigate();
+  const notificationApi = useContext(NotificationContext);
+  const createUserMutation = useCreateUserMutation();
+  const updateUserMutation = useUpdateUserMutation();
   const rolesMap = useSelector(getRoles).map((el) => ({
     label: el.name,
     value: el.role_id,
@@ -50,21 +59,66 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
 
   const { sent: _sent, ...createUserData } = data;
 
-  const editUserData: IEditableUser = { ...createUserData };
+  const editUserData: EditableUserPayload = { ...createUserData };
 
   if (password) {
     editUserData.password = password;
   }
 
-  const handleConfirm = useCallback(() => {
-    if (user) {
-      editUser(user.user_id, editUserData);
-    } else {
-      createUser({ ...createUserData, password });
+  const handleConfirm = useCallback(async () => {
+    dispatch(editUserAction.sendUser());
+    try {
+      if (user) {
+        await updateUserMutation.mutateAsync({
+          userId: user.user_id,
+          payload: editUserData,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Пользователь изменен",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createUserMutation.mutateAsync({
+          ...createUserData,
+          password,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Пользователь создан",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+      navigate("/users");
+    } catch (error) {
+      dispatch(editUserAction.saveError());
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Возникла ошибка при сохранении пользователя";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
     }
-  }, [user, editUserData, createUserData, password]);
+  }, [
+    user,
+    updateUserMutation,
+    editUserData,
+    notificationApi,
+    createUserMutation,
+    createUserData,
+    password,
+    dispatch,
+    navigate,
+  ]);
 
   const handeOpen = useCallback(() => {
+    setPassword("");
     if (user) {
       dispatch(editUserAction.setUserData(user));
     } else {

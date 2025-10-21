@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
@@ -12,9 +12,16 @@ import { IState } from "../../../store/modules";
 import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus";
 import { getObjectStatuses } from "../../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import "./EditableObjectDialog.less";
-import { useObjects } from "../../../hooks/ApiActions/objects";
 import { getModalContentWidth } from "../../../utils/pageSettings";
 import { RoleId } from "../../../interfaces/roles/IRole";
+import { useUsersMap } from "../../../queries/users";
+import { useNavigate } from "react-router-dom";
+import {
+  useCreateObjectMutation,
+  useUpdateObjectMutation,
+  type EditableObjectPayload,
+} from "../../../queries/objects";
+import { NotificationContext } from "../../../contexts/NotificationContext";
 
 const modalContentWidth = getModalContentWidth();
 
@@ -25,7 +32,6 @@ interface IEditableObjectDialogProps {
 
 export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   const { object, iconOnly } = props;
-  const { createObject, editObject } = useObjects();
   const buttonText = object ? "Редактировать" : "Создать";
   const popoverText = object ? "Редактировать объект" : "Создать объект";
   const buttonIcon = object ? (
@@ -44,15 +50,60 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
     value: el.object_status_id,
   }));
 
-  const { sent, ...objectData } = data;
+  const { sent, object_id, ...objectData } = data;
+  const navigate = useNavigate();
+  const notificationApi = useContext(NotificationContext);
+  const createObjectMutation = useCreateObjectMutation();
+  const updateObjectMutation = useUpdateObjectMutation();
 
-  const handleConfirm = useCallback(() => {
-    if (object) {
-      editObject(object.object_id, objectData);
-    } else {
-      createObject(objectData);
+  const handleConfirm = useCallback(async () => {
+    dispatch(editObjectAction.sendObject());
+
+    try {
+      if (object?.object_id ?? object_id) {
+        const targetId = object?.object_id ?? object_id;
+        await updateObjectMutation.mutateAsync({
+          objectId: targetId!,
+          payload: objectData as EditableObjectPayload,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Объект изменен",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createObjectMutation.mutateAsync(objectData as EditableObjectPayload);
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Объект создан",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+      navigate("/objects");
+    } catch (error) {
+      dispatch(editObjectAction.saveError());
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Возникла ошибка при сохранении объекта";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
     }
-  }, [object, objectData, objectData]);
+  }, [
+    dispatch,
+    object,
+    objectData,
+    updateObjectMutation,
+    notificationApi,
+    createObjectMutation,
+    navigate,
+  ]);
 
   const handeOpen = useCallback(() => {
     if (object) {
@@ -62,10 +113,9 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
     }
   }, [object, dispatch]);
 
-  const userMap = useSelector((state: IState) => state.pages.users.data)
-    .filter(
-      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN,
-    )
+  const { users } = useUsersMap();
+  const userMap = users
+    .filter((user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN)
     .map((el) => ({
       label: el.name,
       value: el.user_id,

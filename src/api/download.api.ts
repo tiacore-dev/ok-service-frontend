@@ -18,7 +18,7 @@ interface GenerateDocumentParams {
 
 export const generateDocument = async (
   documentData: ExportExcelTemplate,
-  name: string
+  name: string,
 ) => {
   try {
     const { access_token, refresh_token } = store.getState().auth;
@@ -52,7 +52,7 @@ export const generateDocument = async (
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       // Повторяем запрос с новым токеном

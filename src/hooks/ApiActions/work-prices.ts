@@ -6,7 +6,7 @@ import {
 import { useApi } from "../useApi";
 import { useDispatch } from "react-redux";
 import { useContext } from "react";
-import { NotificationContext } from "../../../root";
+import { NotificationContext } from "../../contexts/NotificationContext";
 import { IWorkPrice } from "../../interfaces/workPrices/IWorkPrice";
 import { IWorkPricesList } from "../../interfaces/workPrices/IWorkPricesList";
 
@@ -65,7 +65,7 @@ export const useWorkPrices = () => {
     work_price_id: string,
     editableWorkPriceData: IEditableWorkPrice,
   ) => {
-    apiPatch<{}>("work_prices", work_price_id, "edit", editableWorkPriceData)
+    apiPatch<void>("work_prices", work_price_id, "edit", editableWorkPriceData)
       .then(() => {
         getWorkPrices({ work: editableWorkPriceData.work });
         notificationApi.success({
@@ -87,7 +87,7 @@ export const useWorkPrices = () => {
   };
 
   const deleteWorkPrice = (work_price_id: string, work_id: string) => {
-    apiDelete<{}>("work_prices", work_price_id, "delete/hard")
+    apiDelete<void>("work_prices", work_price_id, "delete/hard")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,

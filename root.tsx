@@ -9,17 +9,23 @@ import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import updateLocale from "dayjs/plugin/updateLocale";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { NotificationContext } from "./src/contexts/NotificationContext";
 
 export interface IRootProps {
   store: any;
   persistor: Persistor;
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false, // Настройки по умолчанию
       retry: 1,
+      staleTime: 0,
+    },
+    mutations: {
+      retry: 0,
     },
   },
 });
@@ -28,8 +34,6 @@ dayjs.extend(updateLocale);
 dayjs.updateLocale("ru", {
   weekStart: 1,
 });
-
-export const NotificationContext = React.createContext(null);
 
 export function Root({ store, persistor }: IRootProps) {
   const [api, contextHolder] = notification.useNotification();
@@ -54,6 +58,7 @@ export function Root({ store, persistor }: IRootProps) {
             </ConfigProvider>
           </NotificationContext.Provider>
         </PersistGate>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </React.StrictMode>
   );

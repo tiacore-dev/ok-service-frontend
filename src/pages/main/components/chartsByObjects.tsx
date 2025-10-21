@@ -1,16 +1,15 @@
 import * as React from "react";
 import { Card, Col, List, Row, Space } from "antd";
 import Meta from "antd/es/card/Meta";
-import { useSelector } from "react-redux";
-import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
-import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
 import {
   CheckCircleFilled,
   CheckCircleTwoTone,
   ClockCircleFilled,
   PlusCircleFilled,
 } from "@ant-design/icons";
-import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
+import { useUsersMap } from "../../../queries/users";
+import { useObjectsMap } from "../../../queries/objects";
+import { useProjectsMap } from "../../../queries/projects";
 import {
   IObjectStatsItem,
   IUserStatsItem,
@@ -23,9 +22,9 @@ export interface IChartsByObjectsProps {
 export const ChartsByObjects = (props: IChartsByObjectsProps) => {
   const { totalCostArrayByObjects } = props;
 
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
-  const projectsMap = useSelector(getProjectsMap);
+  const { objectsMap } = useObjectsMap();
+  const { usersMap } = useUsersMap();
+  const { projectsMap } = useProjectsMap();
 
   const renderItem = (item: IUserStatsItem) => {
     let avatar = null;
@@ -51,11 +50,13 @@ export const ChartsByObjects = (props: IChartsByObjectsProps) => {
         return;
     }
 
+    const userName = usersMap[item.user]?.name ?? item.user;
+
     return (
       <List.Item>
         <Space direction="horizontal" align="center">
           {avatar}
-          <p style={{ margin: "0 0 3px 0" }}>{usersMap[item.user].name}</p>
+          <p style={{ margin: "0 0 3px 0" }}>{userName}</p>
         </Space>
       </List.Item>
     );
@@ -76,7 +77,7 @@ export const ChartsByObjects = (props: IChartsByObjectsProps) => {
               {element.projects.map((el) => (
                 <div key={el.project}>
                   <Meta
-                    description={`${projectsMap[el.project].name} (${usersMap[projectsMap[el.project].project_leader].name})`}
+                    description={`${projectsMap[el.project].name} (${usersMap[projectsMap[el.project].project_leader]?.name ?? projectsMap[el.project].project_leader})`}
                   />
                   <List
                     itemLayout="horizontal"

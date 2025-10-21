@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
 });
 
 export const fetchShiftReportDetails = async (
-  params: Record<string, string>
+  params: Record<string, string>,
 ) => {
   try {
     const { access_token, refresh_token } = store.getState().auth;
@@ -36,7 +36,7 @@ export const fetchShiftReportDetails = async (
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.get("/shift_report_details/all", {
@@ -83,7 +83,7 @@ export const createShiftReportDetailApi = async (data: any) => {
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.post("/shift_report_details/add", data, {
@@ -116,7 +116,7 @@ export const editShiftReportDetailApi = async (id: string, data: any) => {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
 
     if (response.status === 401) {
@@ -133,7 +133,7 @@ export const editShiftReportDetailApi = async (id: string, data: any) => {
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.patch(
@@ -143,7 +143,7 @@ export const editShiftReportDetailApi = async (id: string, data: any) => {
           headers: {
             Authorization: `Bearer ${newTokenResponse.data.access_token}`,
           },
-        }
+        },
       );
     }
 
@@ -169,7 +169,7 @@ export const deleteShiftReportDetailApi = async (id: string) => {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
 
     if (response.status === 401) {
@@ -186,7 +186,7 @@ export const deleteShiftReportDetailApi = async (id: string) => {
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.delete(
@@ -195,7 +195,7 @@ export const deleteShiftReportDetailApi = async (id: string) => {
           headers: {
             Authorization: `Bearer ${newTokenResponse.data.access_token}`,
           },
-        }
+        },
       );
     }
 

@@ -20,14 +20,14 @@ interface CreateShiftReportResponse {
 }
 
 export const fetchShiftReports = async (
-  queryParams: IShiftReportQueryParams
+  queryParams: IShiftReportQueryParams,
 ) => {
   try {
     // Получаем текущее состояние auth из store
     const { access_token, refresh_token } = store.getState().auth;
     const params = {
       ...Object.fromEntries(
-        Object.entries(queryParams).filter(([_, value]) => value !== undefined)
+        Object.entries(queryParams).filter(([_, value]) => value !== undefined),
       ),
     };
     // Первая попытка запроса
@@ -51,7 +51,7 @@ export const fetchShiftReports = async (
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
       // Повторяем запрос с новым токеном
       response = await axiosInstance.get("/shift_reports/all", {
@@ -74,7 +74,7 @@ export const fetchShiftReports = async (
 };
 
 export const fetchShiftReport = async (
-  report_id: string
+  report_id: string,
 ): Promise<IShiftReport> => {
   try {
     const { access_token, refresh_token } = store.getState().auth;
@@ -85,7 +85,7 @@ export const fetchShiftReport = async (
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
 
     if (response.status === 401) {
@@ -102,7 +102,7 @@ export const fetchShiftReport = async (
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.get<ShiftReportApiResponse>(
@@ -111,7 +111,7 @@ export const fetchShiftReport = async (
           headers: {
             Authorization: `Bearer ${newTokenResponse.data.access_token}`,
           },
-        }
+        },
       );
     }
 
@@ -128,7 +128,7 @@ export const fetchShiftReport = async (
 };
 
 export const hardDeleteShiftReport = async (
-  report_id: string
+  report_id: string,
 ): Promise<void> => {
   try {
     const { access_token, refresh_token } = store.getState().auth;
@@ -139,7 +139,7 @@ export const hardDeleteShiftReport = async (
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
 
     if (response.status === 401) {
@@ -156,7 +156,7 @@ export const hardDeleteShiftReport = async (
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.delete(
@@ -165,7 +165,7 @@ export const hardDeleteShiftReport = async (
           headers: {
             Authorization: `Bearer ${newTokenResponse.data.access_token}`,
           },
-        }
+        },
       );
     }
 
@@ -182,7 +182,7 @@ export const hardDeleteShiftReport = async (
 };
 
 export const createShiftReport = async (
-  createbleShiftReportData: Omit<IShiftReport, "shift_report_id" | "number">
+  createbleShiftReportData: Omit<IShiftReport, "shift_report_id" | "number">,
 ): Promise<CreateShiftReportResponse> => {
   try {
     const { access_token, refresh_token } = store.getState().auth;
@@ -194,7 +194,7 @@ export const createShiftReport = async (
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
 
     if (response.status === 401) {
@@ -211,7 +211,7 @@ export const createShiftReport = async (
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.post<CreateShiftReportResponse>(
@@ -221,7 +221,7 @@ export const createShiftReport = async (
           headers: {
             Authorization: `Bearer ${newTokenResponse.data.access_token}`,
           },
-        }
+        },
       );
     }
 
@@ -239,7 +239,7 @@ export const createShiftReport = async (
 
 export const editShiftReport = async (
   shift_report_id: string,
-  editableShiftReportData: Omit<IShiftReport, "shift_report_id" | "number">
+  editableShiftReportData: Omit<IShiftReport, "shift_report_id" | "number">,
 ): Promise<{ shift_report_id: string }> => {
   try {
     const { access_token, refresh_token } = store.getState().auth;
@@ -251,7 +251,7 @@ export const editShiftReport = async (
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
 
     if (response.status === 401) {
@@ -268,7 +268,7 @@ export const editShiftReport = async (
         refreshToken({
           access_token: newTokenResponse.data.access_token,
           refresh_token: newTokenResponse.data.refresh_token,
-        })
+        }),
       );
 
       response = await axiosInstance.patch<{ shift_report_id: string }>(
@@ -278,7 +278,7 @@ export const editShiftReport = async (
           headers: {
             Authorization: `Bearer ${newTokenResponse.data.access_token}`,
           },
-        }
+        },
       );
     }
 

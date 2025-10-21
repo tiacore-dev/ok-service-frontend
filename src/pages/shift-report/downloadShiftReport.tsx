@@ -3,16 +3,15 @@ import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
 import { FileExcelOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
+import { useUsersMap } from "../../queries/users";
+import { useObjectsMap } from "../../queries/objects";
+import { useProjectsMap } from "../../queries/projects";
 // import { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { getWorksMap } from "../../store/modules/pages/selectors/works.selector";
-import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
-import { IState } from "../../store/modules";
+import { useProjectWorksMap } from "../../queries/projectWorks";
 
 interface IExportedData {
   number: number;
@@ -44,18 +43,19 @@ export const DownloadShiftReport: React.FC<DownloadProps> = ({
   const { data: shiftReportData } = useShiftReportQuery(shiftId);
   const { data: shiftReportDetailsData } = useShiftReportDetailsQuery(shiftId);
 
-  const projectsMap = useSelector(getProjectsMap);
-  const objectsMap = useSelector(getObjectsMap);
-  const usersMap = useSelector(getUsersMap);
+  const { projectsMap } = useProjectsMap();
+  const { objectsMap } = useObjectsMap();
+  const { usersMap } = useUsersMap();
   const worksMap = useSelector(getWorksMap);
-  const projectWorksData = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, shiftReportData?.project)
+  const { projectWorks: projectWorksData } = useProjectWorksMap(
+    shiftReportData?.project,
+    { enabled: Boolean(shiftReportData?.project) },
   );
 
   // Создаем маппинг project_work_id -> project_work_name
   const projectWorksNameMap = React.useMemo(() => {
     const map: Record<string, string> = {};
-    projectWorksData.forEach((item) => {
+    (projectWorksData ?? []).forEach((item) => {
       map[item.project_work_id] = item.project_work_name;
     });
     return map;

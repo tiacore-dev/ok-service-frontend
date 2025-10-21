@@ -1,13 +1,17 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { Button, Dropdown, Input, Menu, Space, Table } from "antd";
 import { useSelector } from "react-redux";
 import TextArea from "antd/es/input/TextArea";
 import { IProject } from "../../interfaces/projects/IProject";
 import { getCurrentRole } from "../../store/modules/auth";
-import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { IState } from "../../store/modules";
 import { getWorksData } from "../../store/modules/pages/selectors/works.selector";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { NotificationContext } from "../../contexts/NotificationContext";
+import {
+  useCreateProjectWorksMutation,
+  type EditableProjectWorkPayload,
+} from "../../queries/projectWorks";
 
 interface IImportProjectWorksProps {
   project?: IProject;
@@ -28,8 +32,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
   const [workIdMap, setWorkIdMap] = useState<Record<string, string>>({});
   const { project, close } = props;
   const [search, setSearch] = useState<string>("");
-
-  const { createProjectWorks } = useProjectWorks();
+  const createProjectWorksMutation = useCreateProjectWorksMutation();
 
   const works = useSelector((state: IState) => getWorksData(state, true));
 
@@ -196,19 +199,59 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
     setWorkIdMap({ ...workIdMap, ...result });
   }, [uploadData, works]);
 
-  const handleConfirm = useCallback(() => {
-    createProjectWorks(
-      correctData.map((el) => ({
-        work: el.workId,
-        project_work_name: el.workString,
-        project: project.project_id,
-        quantity: el.quantity,
-        signed: role === RoleId.ADMIN || role === RoleId.MANAGER,
-      })),
-      project.project_id,
-    );
-    close();
-  }, [project, uploadData, correctData, createProjectWorks]);
+  const notificationApi = useContext(NotificationContext);
+
+  const handleConfirm = useCallback(async () => {
+    if (!project?.project_id) {
+      notificationApi?.error({
+        message: "Ошибка",
+        description: "Не удалось определить спецификацию",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      return;
+    }
+
+    const payload: EditableProjectWorkPayload[] = correctData.map((el) => ({
+      work: el.workId!,
+      project_work_name: el.workString ?? "",
+      project: project.project_id!,
+      quantity: el.quantity ?? 0,
+      signed: role === RoleId.ADMIN || role === RoleId.MANAGER,
+    }));
+
+    try {
+      await createProjectWorksMutation.mutateAsync({
+        projectId: project.project_id,
+        payload,
+      });
+      notificationApi?.success({
+        message: "Успешно",
+        description: "Работы добавлены в спецификацию",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      close();
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Возникла ошибка при добавлении работ в спецификацию";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
+  }, [
+    project,
+    correctData,
+    createProjectWorksMutation,
+    notificationApi,
+    close,
+    role,
+  ]);
 
   return (
     <div

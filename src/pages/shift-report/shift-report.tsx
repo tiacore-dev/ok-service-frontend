@@ -14,32 +14,21 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
-import { getProjectsMap } from "../../store/modules/pages/selectors/projects.selector";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
 import type { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
-import { useUsers } from "../../hooks/ApiActions/users";
-import { useProjects } from "../../hooks/ApiActions/projects";
+import { useUsersMap } from "../../queries/users";
 import { useWorks } from "../../hooks/ApiActions/works";
-import { useProjectWorks } from "../../hooks/ApiActions/project-works";
-import { clearProjectWorksState } from "../../store/modules/pages/project-works.state";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { getCurrentRole } from "../../store/modules/auth";
-import { useObjects } from "../../hooks/ApiActions/objects";
-import { selectProjectStat } from "../../store/modules/pages/selectors/project.selector";
-import { getProjectWorksByProjectId } from "../../store/modules/pages/selectors/project-works.selector";
-import {
-  getProjectWorksMapByProjectId,
-  getWorksMap,
-} from "../../store/modules/pages/selectors/works.selector";
+import { getWorksMap } from "../../store/modules/pages/selectors/works.selector";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import {
   useEditShiftReportMutation,
@@ -53,7 +42,9 @@ import {
 import { EditableShiftReportDialog } from "../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { EditableShiftReportDetailDialog } from "./EditableShiftReportDetailDialog";
 import { DownloadShiftReport } from "./downloadShiftReport";
-import { getObjectsMap } from "../../store/modules/pages/selectors/objects.selector";
+import { useObjectsMap } from "../../queries/objects";
+import { useProjectsMap, useProjectStatQuery } from "../../queries/projects";
+import { useProjectWorksMap } from "../../queries/projectWorks";
 
 const { Text } = Typography;
 
@@ -61,7 +52,6 @@ export const ShiftReport = () => {
   const [dataSource, setDataSource] = React.useState<
     IShiftReportDetailsListColumn[]
   >([]);
-  const dispatch = useDispatch();
   const currentRole = useSelector(getCurrentRole);
   const { Content } = Layout;
 
@@ -86,18 +76,24 @@ export const ShiftReport = () => {
   const [loading, setLoading] = React.useState(false);
 
   // API actions
-  const { getUsers } = useUsers();
-  const { getProjects, getProjectStat } = useProjects();
+  const { usersMap } = useUsersMap();
   const { getWorks } = useWorks();
-  const { getObjects } = useObjects();
-  const { getProjectWorks } = useProjectWorks();
-
-  // Selectors
-  const usersMap = useSelector(getUsersMap);
-  const projectsMap = useSelector(getProjectsMap);
-  const objectsMap = useSelector(getObjectsMap);
+  const { objectsMap } = useObjectsMap();
+  const { projectsMap } = useProjectsMap({ enabled: Boolean(shiftReportData?.project) });
+  const { data: projectStat } = useProjectStatQuery(
+    shiftReportData?.project ?? "",
+    { enabled: Boolean(shiftReportData?.project) },
+  );
+  const {
+    projectWorks,
+    projectWorksMap,
+    isPending: isProjectWorksPending,
+    isFetching: isProjectWorksFetching,
+  } = useProjectWorksMap(shiftReportData?.project, {
+    enabled: Boolean(shiftReportData?.project),
+  });
   const worksMap = useSelector(getWorksMap);
-  const stat = useSelector(selectProjectStat);
+  const stat = projectStat ?? {};
 
   const object = React.useMemo(
     () => projectsMap[shiftReportData?.project]?.object,
@@ -105,34 +101,14 @@ export const ShiftReport = () => {
   );
 
   React.useEffect(() => {
-    getProjects();
-    getUsers();
     getWorks();
-    getObjects();
-
-    return () => {
-      dispatch(clearProjectWorksState());
-    };
   }, []);
 
   const canEdit = currentRole !== RoleId.USER || !shiftReportData?.signed;
 
-  React.useEffect(() => {
-    if (shiftReportData?.project) {
-      getProjectWorks(shiftReportData.project);
-      if (currentRole !== RoleId.USER && !shiftReportData.signed) {
-        getProjectStat(shiftReportData.project);
-      }
-    }
-  }, [shiftReportData?.project]);
+  const projectWorksData = projectWorks ?? [];
 
-  const projectWorksData = useSelector((state: IState) =>
-    getProjectWorksByProjectId(state, shiftReportData?.project),
-  );
-
-  const projectWorksMapByProjectId = useSelector((state: IState) =>
-    getProjectWorksMapByProjectId(state, shiftReportData?.project),
-  );
+  const projectWorksMapByProjectId = projectWorksMap;
 
   const projectWorksOptions = projectWorksData.map((el) => ({
     label: el.project_work_name,
@@ -174,9 +150,13 @@ export const ShiftReport = () => {
       setModalVisible(false);
 
       if (shiftReportData) {
+        const projectWork = projectWorksMapByProjectId[values.project_work];
+        if (!projectWork) {
+          throw new Error("Работа спецификации не найдена");
+        }
         const row = {
           ...values,
-          work: projectWorksMapByProjectId[values.project_work].work,
+          work: projectWork.work,
           quantity: Number(values.quantity),
           shift_report: shiftReportData.shift_report_id,
         };
@@ -380,10 +360,10 @@ export const ShiftReport = () => {
         <Card style={{ margin: "8px 0" }}>
           <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
           <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
-          <p>Исполнитель: {usersMap[shiftReportData.user]?.name}</p>
+          <p>Исполнитель: {usersMap[shiftReportData.user]?.name ?? ""}</p>
           <p>Объект: {objectsMap[object]?.name}</p>
           <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
-          <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name}`}</p>
+          <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name ?? ""}`}</p>
           <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
           {shiftReportData.night_shift && <p>Ночная смена (+25%)</p>}
           {shiftReportData.extreme_conditions && <p>Особые условия (+25%)</p>}

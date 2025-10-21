@@ -6,7 +6,7 @@ import {
 import { useApi } from "../useApi";
 import { useDispatch, useSelector } from "react-redux";
 import { useContext } from "react";
-import { NotificationContext } from "../../../root";
+import { NotificationContext } from "../../contexts/NotificationContext";
 import { IWorkCategory } from "../../interfaces/workCategories/IWorkCategory";
 import { IWorkCategoriesList } from "../../interfaces/workCategories/IWorkCategoriesList";
 import { getWorkCategoriesState } from "../../store/modules/pages/selectors/work-categories.selector";

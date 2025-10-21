@@ -15,12 +15,14 @@ import { dateFormat } from "../../../utils/dateConverter";
 import { getCurrentRole, getCurrentUserId } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { getModalContentWidth } from "../../../utils/pageSettings";
-import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.selector";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 import {
   useCreateShiftReportMutation,
   useEditShiftReportMutation,
 } from "../../../hooks/QueryActions/shift-reports/shift-reports.mutations";
+import { useUsersMap } from "../../../queries/users";
+import { useObjectsMap } from "../../../queries/objects";
+import { useProjectsMap } from "../../../queries/projects";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableShiftReportDialogProps {
@@ -58,22 +60,17 @@ export const EditableShiftReportDialog = (
     (state: IState) => state.editableEntities.editableShiftReport,
   );
 
-  const objectMap = useSelector(
-    (state: IState) => state.pages.objects.data,
-  ).map((el) => ({
+  const { objects } = useObjectsMap();
+  const objectMap = objects.map((el) => ({
     label: el.name,
     value: el.object_id,
   }));
 
-  const projectsData = useSelector(
-    (state: IState) => state.pages.projects.data,
-  );
-
-  const projectsMap = useSelector(getProjectsMap);
+  const { projects: projectsList, projectsMap } = useProjectsMap();
 
   const filteredProjectMapData = useMemo(
-    () => projectsData.filter((el) => !object || el.object === object),
-    [projectsData, object],
+    () => projectsList.filter((el) => !object || el.object === object),
+    [projectsList, object],
   );
 
   const projectMap = useMemo(
@@ -85,7 +82,8 @@ export const EditableShiftReportDialog = (
     [filteredProjectMapData],
   );
 
-  const userMap = useSelector((state: IState) => state.pages.users.data)
+  const { users } = useUsersMap();
+  const userMap = users
     .filter((user) => user.role === RoleId.USER || user.user_id === userId)
     .map((el) => ({
       label: el.name,
@@ -96,7 +94,6 @@ export const EditableShiftReportDialog = (
 
   const handleConfirm = useCallback(() => {
     if (shiftReport) {
-      //мутация редактирования
       editReportMutation({
         report_id: shiftReport.shift_report_id,
         reportData: shiftReportData,
@@ -107,20 +104,24 @@ export const EditableShiftReportDialog = (
         user: role === RoleId.USER ? userId : shiftReportData.user,
       };
       createReportMutation(reportData);
-      //мутация создания
     }
-  }, [shiftReport, shiftReportData, shiftReportData]);
+  }, [
+    shiftReport,
+    shiftReportData,
+    editReportMutation,
+    createReportMutation,
+    role,
+    userId,
+  ]);
 
   const handeOpen = useCallback(() => {
     if (shiftReport) {
       dispatch(editShiftReportAction.setShiftReportData(shiftReport));
-      if (projectsMap) {
-        setObject(projectsMap[shiftReport.project]?.object);
-      }
+      setObject(projectsMap[shiftReport.project]?.object ?? "");
     } else {
       dispatch(clearCreateShiftReportState());
     }
-  }, [shiftReport, dispatch]);
+  }, [shiftReport, dispatch, projectsMap]);
 
   const date: Dayjs = data.date ? dayjs(data.date) : null;
   const handleDateChange = useCallback((value: Dayjs) => {

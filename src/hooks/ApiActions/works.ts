@@ -13,7 +13,7 @@ import { IWork } from "../../interfaces/works/IWork";
 import { IWorksList } from "../../interfaces/works/IWorksList";
 import { useDispatch, useSelector } from "react-redux";
 import { useContext } from "react";
-import { NotificationContext } from "../../../root";
+import { NotificationContext } from "../../contexts/NotificationContext";
 import { editWorkAction } from "../../store/modules/editableEntities/editableWork";
 import { useNavigate } from "react-router-dom";
 import { getWorksState } from "../../store/modules/pages/selectors/works.selector";

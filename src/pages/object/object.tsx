@@ -1,47 +1,67 @@
 import * as React from "react";
 import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import Title from "antd/es/typography/Title";
-import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
-import { useObjects } from "../../hooks/ApiActions/objects";
 import { EditableObjectDialog } from "../../components/ActionDialogs/EditableObjectDialog/EditableObjectDialog";
 import { DeleteObjectDialog } from "../../components/ActionDialogs/DeleteObjectDialog";
 import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
-import { Link } from "react-router-dom";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
-import { useProjects } from "../../hooks/ApiActions/projects";
-import { useUsers } from "../../hooks/ApiActions/users";
-import { clearProjectsState } from "../../store/modules/pages/projects.state";
+import { useUsersMap } from "../../queries/users";
 import { Projects } from "./projects/projects.page";
+import {
+  useDeleteObjectMutation,
+  useObjectQuery,
+} from "../../queries/objects";
+import { NotificationContext } from "../../contexts/NotificationContext";
+import { useContext, useMemo } from "react";
 
 export const Object = () => {
   const { Content } = Layout;
   const objectStatusesMap = useSelector(getObjectStatusesMap);
   const routeParams = useParams();
-  const { getObject, deleteObject } = useObjects();
-  const usersMap = useSelector(getUsersMap);
-  const dispatch = useDispatch();
-
-  const { getProjects } = useProjects();
-  const { getUsers } = useUsers();
-
-  React.useEffect(() => {
-    getObject(routeParams.objectId);
-    getUsers();
-    getProjects();
-
-    return () => {
-      dispatch(clearProjectsState());
-    };
-  }, []);
+  const navigate = useNavigate();
+  const { usersMap } = useUsersMap();
+  const notificationApi = useContext(NotificationContext);
+  const objectId = routeParams.objectId;
+  const { data: objectData, isPending, isFetching } = useObjectQuery(objectId, {
+    enabled: Boolean(objectId),
+  });
+  const { mutateAsync: deleteObjectMutation } = useDeleteObjectMutation();
   const currentRole = useSelector(getCurrentRole);
-  const objectData = useSelector((state: IState) => state.pages.object.data);
-  const isLoaded = useSelector((state: IState) => state.pages.object.loaded);
+
+  const isLoaded = useMemo(
+    () => Boolean(objectData && objectId === objectData.object_id),
+    [objectData, objectId],
+  );
+
+  const handleDelete = React.useCallback(async () => {
+    if (!objectData?.object_id) return;
+    try {
+      await deleteObjectMutation(objectData.object_id);
+      notificationApi?.success({
+        message: "Успешно",
+        description: "Объект удалён",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      navigate("/objects");
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Возникла ошибка при удалении объекта";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
+  }, [deleteObjectMutation, notificationApi, objectData, navigate]);
 
   return (
     <>
@@ -58,7 +78,7 @@ export const Object = () => {
       />
       {isLoaded &&
       objectData &&
-      routeParams.objectId === objectData.object_id ? (
+      objectId === objectData.object_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -77,9 +97,7 @@ export const Object = () => {
             )}
             {currentRole === RoleId.ADMIN && (
               <DeleteObjectDialog
-                onDelete={() => {
-                  deleteObject(objectData.object_id);
-                }}
+                onDelete={handleDelete}
                 name={objectData.name}
               />
             )}
@@ -96,7 +114,7 @@ export const Object = () => {
           )}
         </Content>
       ) : (
-        <Spin />
+        <Spin spinning={isPending || isFetching} />
       )}
     </>
   );

@@ -11,13 +11,13 @@ import { isMobile } from "../../utils/isMobile";
 import { usersMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IUsersListColumn } from "../../interfaces/users/IUsersList";
-import { useUsers } from "../../hooks/ApiActions/users";
 import {
   getRolesMap,
   getRolesOptions,
 } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { Link } from "react-router-dom";
 import { saveUsersTableState } from "../../store/modules/settings/users";
+import { useUsersQuery } from "../../queries/users";
 
 export const Users = () => {
   const { Content } = Layout;
@@ -26,24 +26,24 @@ export const Users = () => {
     (state: IState) => state.settings.usersSettings.filters,
   );
 
-  const { getUsers } = useUsers();
+  const { data: usersList, isFetching, refetch } = useUsersQuery();
 
   React.useEffect(() => {
-    getUsers();
-  }, [filters]);
+    refetch();
+  }, [filters, refetch]);
 
   const tableState = useSelector(
     (state: IState) => state.settings.usersSettings,
   );
   const dispatch = useDispatch();
 
-  const usersData: IUsersListColumn[] = useSelector(
-    (state: IState) => state.pages.users.data,
-  )
-    .filter((user) => !user.deleted)
-    .map((doc) => ({ ...doc, key: doc.user_id }));
-
-  const isLoading = useSelector((state: IState) => state.pages.users.loading);
+  const usersData: IUsersListColumn[] = React.useMemo(
+    () =>
+      (usersList ?? [])
+        .filter((user) => !user.deleted)
+        .map((doc) => ({ ...doc, key: doc.user_id })),
+    [usersList],
+  );
   const rolesMap = useSelector(getRolesMap);
   const rolesOptions = useSelector(getRolesOptions);
 
@@ -109,7 +109,7 @@ export const Users = () => {
         <Table
           dataSource={usersData}
           columns={columns}
-          loading={isLoading}
+          loading={isFetching}
           pagination={paginationConfig}
           onChange={handleTableChange}
         />
