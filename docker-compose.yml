@@ -1,7 +1,7 @@
 services:
   frontend:
     container_name: ok-service-frontend-${CONFIG_NAME}
-    image: ${DOCKERHUB_USERNAME}/ok-service-frontend:${TAG}
+    image: gloomylime/ok-service-frontend:${TAG}
     ports:
       - "${PORT}:80"  
     restart: always
