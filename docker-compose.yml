@@ -1,11 +1,9 @@
-
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    container_name: ok-service-frontend-${CONFIG_NAME}
+    image: ${DOCKERHUB_USERNAME}/ok-service-frontend:${TAG}
     ports:
-      - "${PORT}:80"  # Вы можете оставить это, чтобы тестировать приложение отдельно, но Nginx будет использовать внутреннюю связь
+      - "${PORT}:80"  
     restart: always
     networks:
       - ok_network

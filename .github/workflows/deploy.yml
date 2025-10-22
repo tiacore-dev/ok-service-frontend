@@ -2,53 +2,164 @@ name: Deploy to Server
 
 on:
   push:
-    branches: [ master, dev, stage ]
+    branches: [ master, stage, dev ]
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-
+    env:
+      API_URL_PROD: ${{ secrets.API_URL_PROD }}
+      API_URL_DEV: ${{ secrets.API_URL_DEV }}
+      API_URL_STAGE: ${{ secrets.API_URL_STAGE }}
+      API_URL_TEST: ${{ secrets.API_URL_TEST }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
+      - name: Set API URLs from secrets
+        id: set-urls
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "master" ]; then
+            echo "api_url=${API_URL_PROD}" >> $GITHUB_OUTPUT
+          elif [ "${GITHUB_REF_NAME}" = "dev" ]; then
+            echo "api_url=${API_URL_DEV}" >> $GITHUB_OUTPUT
+          elif [ "${GITHUB_REF_NAME}" = "stage" ]; then
+            echo "api_url=${API_URL_STAGE}" >> $GITHUB_OUTPUT
+          else
+            echo "api_url=${API_URL_TEST}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend:cache
+          cache-to: type=inline
+          build-args: |
+            REACT_APP_API_URL=${{ steps.set-urls.outputs.api_url }}
+            REACT_APP_WP=${{ secrets.APP_WP }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ==== ВЫБОР SSH-КЛЮЧА/ЮЗЕРА/IP ПО ВЕТКЕ ====
       - name: Setup SSH for Master
         if: github.ref_name == 'master'
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_MASTER }}
+      - name: Set Master host vars
+        if: github.ref_name == 'master'
+        run: |
+          echo "SSH_USER=${{ secrets.SSH_USER_MASTER }}" >> $GITHUB_ENV
+          echo "SERVER_IP=${{ secrets.SERVER_IP_MASTER }}" >> $GITHUB_ENV
 
       - name: Setup SSH for Dev
         if: github.ref_name == 'dev'
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
+      - name: Set Dev host vars
+        if: github.ref_name == 'dev'
+        run: |
+          echo "SSH_USER=${{ secrets.SSH_USER_DEV }}" >> $GITHUB_ENV
+          echo "SERVER_IP=${{ secrets.SERVER_IP_DEV }}" >> $GITHUB_ENV
 
       - name: Setup SSH for Stage
         if: github.ref_name == 'stage'
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_STAGE }}
-
-
-
-      - name: Deploy to Production
-        if: github.ref_name == 'master'
-        run: ssh -o StrictHostKeyChecking=no -t ${{ secrets.SSH_USER_MASTER }}@${{ secrets.SERVER_IP_MASTER }} "cd apps/ok-service-frontend && git pull origin master && docker-compose down && docker-compose up --build -d"
-
-      - name: Deploy to Development
-        if: github.ref_name == 'dev'
-        run: ssh -o StrictHostKeyChecking=no -t ${{ secrets.SSH_USER_DEV }}@${{ secrets.SERVER_IP_DEV }} "cd apps/ok-service-frontend-dev && git pull origin dev && docker-compose down && docker-compose up --build -d"
-      
-      - name: Deploy to Stage
+      - name: Set Stage host vars
         if: github.ref_name == 'stage'
-        run: ssh -o StrictHostKeyChecking=no -t ${{ secrets.SSH_USER_STAGE }}@${{ secrets.SERVER_IP_STAGE }} "cd apps/ok-service-frontend-stage && git pull origin stage && docker-compose down && docker-compose up --build -d"
+        run: |
+          echo "SSH_USER=${{ secrets.SSH_USER_STAGE }}" >> $GITHUB_ENV
+          echo "SERVER_IP=${{ secrets.SERVER_IP_STAGE }}" >> $GITHUB_ENV
+      # ============================================
 
+      - name: Determine Deployment Path and Tag
+        run: |
+          if [[ "${{ github.ref_name }}" == "master" ]]; then
+            echo "DEPLOY_PATH=apps/ok-service-frontend" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "dev" ]]; then
+            echo "DEPLOY_PATH=apps/ok-service-frontend-dev" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "stage" ]]; then
+            echo "DEPLOY_PATH=apps/ok-service-frontend-stage" >> $GITHUB_ENV
+          else
+            echo "❌ Неизвестная ветка! Прерываем процесс."
+            exit 1
+          fi
+          echo "DEPLOY_TAG=${{ github.sha }}" >> $GITHUB_ENV
+          echo "DEPLOY_BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Deploy Frontend
+        env:
+          SSH_USER: ${{ env.SSH_USER }}
+          SERVER_IP: ${{ env.SERVER_IP }}
+          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+          DEPLOY_TAG: ${{ env.DEPLOY_TAG }}
+          DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
+        run: |
+          echo "🚀 Деплой на ${SSH_USER}@${SERVER_IP} в ${DEPLOY_PATH} (branch: ${DEPLOY_BRANCH}) ..."
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 "${SSH_USER}@${SERVER_IP}" << 'EOF'
+            set -euo pipefail
+
+            export DOCKERHUB_USERNAME='${{ secrets.DOCKERHUB_USERNAME }}'
+            export DOCKERHUB_TOKEN='${{ secrets.DOCKERHUB_TOKEN }}'
+            export DEPLOY_TAG='${{ env.DEPLOY_TAG }}'
+            export DEPLOY_BRANCH='${{ env.DEPLOY_BRANCH }}'
+            export DEPLOY_PATH='${{ env.DEPLOY_PATH }}'
+
+            cd "$DEPLOY_PATH" || { echo "❌ Не удалось перейти в $DEPLOY_PATH"; exit 1; }
+
+            echo "➡️ git pull origin ${DEPLOY_BRANCH}"
+            git fetch origin "${DEPLOY_BRANCH}"
+            git checkout "${DEPLOY_BRANCH}" || true
+            git pull --rebase origin "${DEPLOY_BRANCH}" || { echo "❌ git pull не удался"; exit 1; }
+
+            echo "➡️ docker login"
+            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin \
+              || { echo "❌ Docker login failed"; exit 1; }
+
+            echo "➡️ docker pull \$DOCKERHUB_USERNAME/ok-service-frontend:\$DEPLOY_TAG"
+            docker pull "$DOCKERHUB_USERNAME/ok-service-frontend:$DEPLOY_TAG" \
+              || { echo "❌ Docker pull failed"; exit 1; }
+
+            # Обновляем .env с новым тегом
+            touch .env
+            if grep -q "^TAG=" .env; then
+              sed -i "s/^TAG=.*/TAG=\$DEPLOY_TAG/" .env
+            else
+              echo "TAG=\$DEPLOY_TAG" >> .env
+            fi
+
+            echo "➡️ docker compose up -d"
+            docker compose pull --ignore-pull-failures || true
+            docker compose up -d --remove-orphans \
+              || { echo "❌ docker compose up failed"; exit 1; }
+
+            echo "✅ Деплой завершён"
+          EOF
 
   notify:
     name: 📬 Telegram Notify
     runs-on: ubuntu-latest
-    needs: [deploy]
+    needs: [ build-and-push, deploy ]
     if: always()
     steps:
       - name: 📬 Telegram Notification
@@ -63,7 +174,7 @@ jobs:
 
           if [ "$DEPLOY_STATUS" != "success" ]; then
             STATUS="🛑 *Ошибка деплоя*"
-            EXTRA_LINK="\n\n[🔍 Открыть GitHub Actions]($RUN_URL)"
+            EXTRA_LINK="[🔍 Открыть GitHub Actions]($RUN_URL)"
           else
             STATUS="✅ Деплой *успешен*"
             EXTRA_LINK=""
@@ -76,7 +187,8 @@ jobs:
           📦 *Ветка:* \`$REF_NAME\`
           🔖 *Тег:* \`$SHA\`
           👤 *Автор деплоя:* [$AUTHOR](https://github.com/$AUTHOR)
-          📝 *Коммит:* $COMMIT_MESSAGE${EXTRA_LINK}"
+          📝 *Коммит:* $COMMIT_MESSAGE
+          $EXTRA_LINK"
 
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="$CHAT_ID" \
