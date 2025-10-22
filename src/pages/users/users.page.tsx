@@ -11,13 +11,10 @@ import { isMobile } from "../../utils/isMobile";
 import { usersMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IUsersListColumn } from "../../interfaces/users/IUsersList";
-import {
-  getRolesMap,
-  getRolesOptions,
-} from "../../store/modules/dictionaries/selectors/roles.selector";
 import { Link } from "react-router-dom";
 import { saveUsersTableState } from "../../store/modules/settings/users";
 import { useUsersQuery } from "../../queries/users";
+import { useRoles } from "../../queries/roles";
 
 export const Users = () => {
   const { Content } = Layout;
@@ -44,8 +41,7 @@ export const Users = () => {
         .map((doc) => ({ ...doc, key: doc.user_id })),
     [usersList],
   );
-  const rolesMap = useSelector(getRolesMap);
-  const rolesOptions = useSelector(getRolesOptions);
+  const { rolesMap, roleOptions } = useRoles();
 
   const handleTableChange: TableProps<IUsersListColumn>["onChange"] = (
     pagination,
@@ -81,10 +77,10 @@ export const Users = () => {
         : usersDesktopColumns(
             navigate,
             rolesMap,
-            rolesOptions,
+            roleOptions,
             tableState,
           ),
-    [navigate, rolesMap, rolesOptions, tableState],
+    [navigate, rolesMap, roleOptions, tableState],
   );
 
   return (

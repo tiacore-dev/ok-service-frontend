@@ -6,17 +6,17 @@ import { useSelector } from "react-redux";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableUserDialog } from "../../components/ActionDialogs/EditableUserDialog/EditableUserDialog";
-import { getRolesMap } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useUserQuery, useDeleteUserMutation } from "../../queries/users";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
+import { useRoles } from "../../queries/roles";
 
 export const User = () => {
   const { Content } = Layout;
-  const rolesMap = useSelector(getRolesMap);
+  const { rolesMap } = useRoles();
   const routeParams = useParams();
   const currentRole = useSelector(getCurrentRole);
   const navigate = useNavigate();

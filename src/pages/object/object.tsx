@@ -7,7 +7,6 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableObjectDialog } from "../../components/ActionDialogs/EditableObjectDialog/EditableObjectDialog";
 import { DeleteObjectDialog } from "../../components/ActionDialogs/DeleteObjectDialog";
-import { getObjectStatusesMap } from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useUsersMap } from "../../queries/users";
@@ -18,13 +17,14 @@ import {
 } from "../../queries/objects";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
+import { useObjectStatuses } from "../../queries/objectStatuses";
 
 export const Object = () => {
   const { Content } = Layout;
-  const objectStatusesMap = useSelector(getObjectStatusesMap);
   const routeParams = useParams();
   const navigate = useNavigate();
   const { usersMap } = useUsersMap();
+  const { statusMap: objectStatusesMap } = useObjectStatuses();
   const notificationApi = useContext(NotificationContext);
   const objectId = routeParams.objectId;
   const { data: objectData, isPending, isFetching } = useObjectQuery(objectId, {

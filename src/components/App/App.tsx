@@ -3,7 +3,7 @@ import { Layout, notification } from "antd";
 import { AppHeader } from "../AppHeader/AppHeader";
 import { AppFooter } from "../AppFooter/AppFooter";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import "./App.less";
 import { Route, Routes } from "react-router-dom";
@@ -14,22 +14,7 @@ import { Users } from "../../pages/users/users.page";
 import { Login } from "../../pages/auth/component/login";
 import { Account } from "../../pages/auth/component/account";
 import { Objects } from "../../pages/objects/objects.page";
-import {
-  clearObjectStatusesState,
-  getObjectStatusesFailure,
-  getObjectStatusesRequest,
-  getObjectStatusesSuccess,
-} from "../../store/modules/dictionaries/objectStatuses";
-import { useApi } from "../../hooks/useApi";
-import { IObjectStatus } from "../../interfaces/objectStatuses/IObjectStatus";
 import { NotificationContext } from "../../contexts/NotificationContext";
-import {
-  clearRolesState,
-  getRolesFailure,
-  getRolesRequest,
-  getRolesSuccess,
-} from "../../store/modules/dictionaries/roles";
-import { IRole } from "../../interfaces/roles/IRole";
 import { User } from "../../pages/user/user";
 import { Object } from "../../pages/object/object";
 import { Project } from "../../pages/project/project";
@@ -47,6 +32,10 @@ import { projectWorksKeys } from "../../queries/projectWorks";
 import { worksKeys } from "../../queries/works";
 import { workPricesKeys } from "../../queries/workPrices";
 import { workCategoriesKeys } from "../../queries/workCategories";
+import { objectStatusesKeys } from "../../queries/objectStatuses";
+import { rolesKeys } from "../../queries/roles";
+import { fetchObjectStatuses } from "../../api/object-statuses.api";
+import { fetchRoles } from "../../api/roles.api";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -54,13 +43,8 @@ export const useloadSourse = (): {
 } => {
   const queryClient = useQueryClient();
   const notificationApi = React.useContext(NotificationContext);
-  const dispatch = useDispatch();
-  const { apiGet } = useApi();
 
   const clearStates = React.useCallback(() => {
-    dispatch(clearObjectStatusesState());
-    dispatch(clearRolesState());
-
     queryClient.invalidateQueries({
       queryKey: ["shiftReports"],
     });
@@ -77,45 +61,37 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: worksKeys.all() });
     queryClient.removeQueries({ queryKey: workPricesKeys.all() });
     queryClient.removeQueries({ queryKey: workCategoriesKeys.all() });
-  }, [dispatch, queryClient]);
+    queryClient.removeQueries({ queryKey: objectStatusesKeys.all() });
+    queryClient.removeQueries({ queryKey: rolesKeys.all() });
+  }, [queryClient]);
 
-  const load = React.useCallback(async (access_token?: string) => {
-    // Загрузка справочника статусов объектов
-    dispatch(getObjectStatusesRequest());
+  const load = React.useCallback(async (_accessToken?: string) => {
     try {
-      const response: { object_statuses: IObjectStatus[]; msg: string } =
-        await apiGet("object_statuses", "all", access_token);
-
-      dispatch(getObjectStatusesSuccess(response.object_statuses));
+      await queryClient.prefetchQuery({
+        queryKey: objectStatusesKeys.list(),
+        queryFn: fetchObjectStatuses,
+      });
     } catch (err) {
       notificationApi.error({
         message: "Ошибка",
         description: "Ошибка при загрузке справочника статусов объектов",
       });
-      console.log("getObjectStatusesFailure ", err);
-      dispatch(getObjectStatusesFailure(err));
+      console.error("fetchObjectStatuses", err);
     }
 
-    // Загрузка справочника ролей
-    dispatch(getRolesRequest());
     try {
-      const response: { roles: IRole[]; msg: string } = await apiGet(
-        "roles",
-        "all",
-        access_token,
-      );
-
-      dispatch(getRolesSuccess(response.roles));
+      await queryClient.prefetchQuery({
+        queryKey: rolesKeys.list(),
+        queryFn: fetchRoles,
+      });
     } catch (err) {
       notificationApi.error({
         message: "Ошибка",
         description: "Ошибка при загрузке справочника ролей",
       });
-      console.log("getRolesFailure ", err);
-      dispatch(getRolesFailure(err));
+      console.error("fetchRoles", err);
     }
-
-  }, [apiGet, dispatch, notificationApi]);
+  }, [notificationApi, queryClient]);
 
   return { load, clearStates };
 };

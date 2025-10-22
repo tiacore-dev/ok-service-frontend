@@ -10,7 +10,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus";
-import { getObjectStatuses } from "../../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import "./EditableObjectDialog.less";
 import { getModalContentWidth } from "../../../utils/pageSettings";
 import { RoleId } from "../../../interfaces/roles/IRole";
@@ -22,6 +21,7 @@ import {
   type EditableObjectPayload,
 } from "../../../queries/objects";
 import { NotificationContext } from "../../../contexts/NotificationContext";
+import { useObjectStatuses } from "../../../queries/objectStatuses";
 
 const modalContentWidth = getModalContentWidth();
 
@@ -45,10 +45,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   const data = useSelector(
     (state: IState) => state.editableEntities.editableObject,
   );
-  const statusMap = useSelector(getObjectStatuses).map((el) => ({
-    label: el.name,
-    value: el.object_status_id,
-  }));
+  const { statusOptions } = useObjectStatuses();
 
   const { sent, object_id, ...objectData } = data;
   const navigate = useNavigate();
@@ -202,7 +199,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 onChange={(value: ObjectStatusId) =>
                   dispatch(editObjectAction.setStatus(value))
                 }
-                options={statusMap}
+                options={statusOptions}
                 disabled={sent}
               />
             </Form.Item>

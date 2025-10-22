@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
@@ -10,7 +10,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableUserDialog.less";
-import { getRoles } from "../../../store/modules/dictionaries/selectors/roles.selector";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { categoryMap } from "../../../utils/categoryMap";
 import { getModalContentWidth } from "../../../utils/pageSettings";
@@ -21,6 +20,7 @@ import {
   type EditableUserPayload,
 } from "../../../queries/users";
 import { NotificationContext } from "../../../contexts/NotificationContext";
+import { useRoles } from "../../../queries/roles";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableUserDialogProps {
@@ -52,10 +52,15 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const notificationApi = useContext(NotificationContext);
   const createUserMutation = useCreateUserMutation();
   const updateUserMutation = useUpdateUserMutation();
-  const rolesMap = useSelector(getRoles).map((el) => ({
-    label: el.name,
-    value: el.role_id,
-  }));
+  const { roles } = useRoles();
+  const rolesMap = React.useMemo(
+    () =>
+      roles.map((role) => ({
+        label: role.name,
+        value: role.role_id,
+      })),
+    [roles],
+  );
 
   const { sent: _sent, ...createUserData } = data;
 

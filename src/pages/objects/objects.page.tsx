@@ -11,14 +11,11 @@ import { isMobile } from "../../utils/isMobile";
 import { objectsMobileColumns } from "./components/mobile.columns";
 import { minPageHeight } from "../../utils/pageSettings";
 import { IObjectsListColumn } from "../../interfaces/objects/IObjectsList";
-import {
-  getObjectStatusesMap,
-  getObjectStatusesOptions,
-} from "../../store/modules/dictionaries/selectors/objectStatuses.selector";
 import { Link } from "react-router-dom";
 import { useUsersMap } from "../../queries/users";
 import { saveObjectsTableState } from "../../store/modules/settings/objects";
 import { useObjectsQuery } from "../../queries/objects";
+import { useObjectStatuses } from "../../queries/objectStatuses";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -39,8 +36,7 @@ export const Objects = () => {
       })),
     [objectsList],
   );
-  const statusMap = useSelector(getObjectStatusesMap);
-  const statusOptions = useSelector(getObjectStatusesOptions);
+  const { statusMap, statusOptions } = useObjectStatuses();
 
   const handleTableChange: TableProps<IObjectsListColumn>["onChange"] = (
     pagination,
