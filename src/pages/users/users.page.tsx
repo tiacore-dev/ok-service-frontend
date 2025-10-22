@@ -20,17 +20,17 @@ export const Users = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.usersSettings.filters,
+    (state: IState) => state.settings.usersSettings.filters
   );
 
   const { data: usersList, isFetching, refetch } = useUsersQuery();
 
-  React.useEffect(() => {
-    refetch();
-  }, [filters, refetch]);
+  // React.useEffect(() => {
+  //   refetch();
+  // }, [filters, refetch]);
 
   const tableState = useSelector(
-    (state: IState) => state.settings.usersSettings,
+    (state: IState) => state.settings.usersSettings
   );
   const dispatch = useDispatch();
 
@@ -39,48 +39,42 @@ export const Users = () => {
       (usersList ?? [])
         .filter((user) => !user.deleted)
         .map((doc) => ({ ...doc, key: doc.user_id })),
-    [usersList],
+    [usersList]
   );
   const { rolesMap, roleOptions } = useRoles();
 
   const handleTableChange: TableProps<IUsersListColumn>["onChange"] = (
     pagination,
     filters,
-    sorter,
+    sorter
   ) => {
     dispatch(
       saveUsersTableState({
         pagination,
         filters,
         sorter: Array.isArray(sorter) ? sorter[0] : sorter,
-      }),
+      })
     );
   };
 
-  const paginationConfig = React.useMemo<TableProps<IUsersListColumn>["pagination"]>(
-    () => {
-      const hasSavedPagination =
-        Boolean(tableState.pagination?.current) ||
-        Boolean(tableState.pagination?.pageSize);
+  const paginationConfig = React.useMemo<
+    TableProps<IUsersListColumn>["pagination"]
+  >(() => {
+    const hasSavedPagination =
+      Boolean(tableState.pagination?.current) ||
+      Boolean(tableState.pagination?.pageSize);
 
-      return hasSavedPagination
-        ? tableState.pagination
-        : { current: 1, pageSize: 10, showSizeChanger: true };
-    },
-    [tableState.pagination],
-  );
+    return hasSavedPagination
+      ? tableState.pagination
+      : { current: 1, pageSize: 10, showSizeChanger: true };
+  }, [tableState.pagination]);
 
   const columns = React.useMemo(
     () =>
       isMobile()
         ? usersMobileColumns(navigate, rolesMap)
-        : usersDesktopColumns(
-            navigate,
-            rolesMap,
-            roleOptions,
-            tableState,
-          ),
-    [navigate, rolesMap, roleOptions, tableState],
+        : usersDesktopColumns(navigate, rolesMap, roleOptions, tableState),
+    [navigate, rolesMap, roleOptions, tableState]
   );
 
   return (
