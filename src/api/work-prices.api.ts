@@ -2,7 +2,8 @@ import { apiClient } from "./base";
 import type { IWorkPrice } from "../interfaces/workPrices/IWorkPrice";
 import type { IWorkPricesList } from "../interfaces/workPrices/IWorkPricesList";
 
-export interface EditableWorkPricePayload extends Omit<IWorkPrice, "work_price_id"> {}
+export interface EditableWorkPricePayload
+  extends Omit<IWorkPrice, "work_price_id"> {}
 
 export const fetchWorkPrices = async (
   params: Record<string, string> = {},

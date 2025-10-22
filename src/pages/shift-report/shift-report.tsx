@@ -23,12 +23,10 @@ import { dateTimestampToLocalString } from "../../utils/dateConverter";
 import type { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { useUsersMap } from "../../queries/users";
-import { useWorks } from "../../hooks/ApiActions/works";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { getCurrentRole } from "../../store/modules/auth";
-import { getWorksMap } from "../../store/modules/pages/selectors/works.selector";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import {
   useEditShiftReportMutation,
@@ -45,6 +43,7 @@ import { DownloadShiftReport } from "./downloadShiftReport";
 import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap, useProjectStatQuery } from "../../queries/projects";
 import { useProjectWorksMap } from "../../queries/projectWorks";
+import { useWorksMap } from "../../queries/works";
 
 const { Text } = Typography;
 
@@ -77,7 +76,6 @@ export const ShiftReport = () => {
 
   // API actions
   const { usersMap } = useUsersMap();
-  const { getWorks } = useWorks();
   const { objectsMap } = useObjectsMap();
   const { projectsMap } = useProjectsMap({ enabled: Boolean(shiftReportData?.project) });
   const { data: projectStat } = useProjectStatQuery(
@@ -92,17 +90,13 @@ export const ShiftReport = () => {
   } = useProjectWorksMap(shiftReportData?.project, {
     enabled: Boolean(shiftReportData?.project),
   });
-  const worksMap = useSelector(getWorksMap);
+  const { worksMap } = useWorksMap();
   const stat = projectStat ?? {};
 
   const object = React.useMemo(
     () => projectsMap[shiftReportData?.project]?.object,
     [projectsMap, shiftReportData?.project],
   );
-
-  React.useEffect(() => {
-    getWorks();
-  }, []);
 
   const canEdit = currentRole !== RoleId.USER || !shiftReportData?.signed;
 

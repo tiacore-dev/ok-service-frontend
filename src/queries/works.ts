@@ -19,7 +19,7 @@ import type { IWork } from "../interfaces/works/IWork";
 import type { IWorksList } from "../interfaces/works/IWorksList";
 import { createQueryKeys } from "../queryKeys";
 
-const worksKeys = createQueryKeys("works");
+export const worksKeys = createQueryKeys("works");
 
 type WorksQueryOptions<TData> = Omit<
   UseQueryOptions<IWorksList[], Error, TData>,
@@ -111,7 +111,11 @@ export const useUpdateWorkMutation = (): UseMutationResult<
   });
 };
 
-export const useDeleteWorkMutation = (): UseMutationResult<void, Error, string> => {
+export const useDeleteWorkMutation = (): UseMutationResult<
+  void,
+  Error,
+  string
+> => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (workId) => deleteWork(workId),

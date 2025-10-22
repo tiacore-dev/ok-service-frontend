@@ -2,7 +2,8 @@ import { apiClient } from "./base";
 import type { IWork } from "../interfaces/works/IWork";
 import type { IWorksList } from "../interfaces/works/IWorksList";
 
-export interface EditableWorkPayload extends Omit<IWork, "work_id" | "category"> {
+export interface EditableWorkPayload
+  extends Omit<IWork, "work_id" | "category"> {
   category: string;
 }
 
@@ -12,11 +13,15 @@ export const fetchWorks = async (): Promise<IWorksList[]> => {
 };
 
 export const fetchWork = async (workId: string): Promise<IWork> => {
-  const { data } = await apiClient.get<{ work: IWork }>(`/works/${workId}/view`);
+  const { data } = await apiClient.get<{ work: IWork }>(
+    `/works/${workId}/view`,
+  );
   return data.work;
 };
 
-export const createWork = async (payload: EditableWorkPayload): Promise<IWork> => {
+export const createWork = async (
+  payload: EditableWorkPayload,
+): Promise<IWork> => {
   const { data } = await apiClient.post<{ work: IWork }>("/works/add", payload);
   return data.work;
 };

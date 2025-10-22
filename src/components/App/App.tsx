@@ -38,16 +38,15 @@ import { Work } from "../../pages/work/work";
 import { WorkCategories } from "../../pages/work-categories/work-categories.page";
 import { ShiftReports } from "../../pages/shift-reports/shift-reports.page";
 import { ShiftReport } from "../../pages/shift-report/shift-report";
-import { clearWorksState } from "../../store/modules/pages/works.state";
-import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
-import { clearWorkCategoriesState } from "../../store/modules/pages/work-categories.state";
-import { clearWorkState } from "../../store/modules/pages/work.state";
 import { Assignment } from "../../pages/assignment/assignment";
 import { useQueryClient } from "@tanstack/react-query";
 import { usersKeys } from "../../queries/users";
 import { objectsKeys } from "../../queries/objects";
 import { projectsKeys } from "../../queries/projects";
 import { projectWorksKeys } from "../../queries/projectWorks";
+import { worksKeys } from "../../queries/works";
+import { workPricesKeys } from "../../queries/workPrices";
+import { workCategoriesKeys } from "../../queries/workCategories";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -61,10 +60,6 @@ export const useloadSourse = (): {
   const clearStates = React.useCallback(() => {
     dispatch(clearObjectStatusesState());
     dispatch(clearRolesState());
-    dispatch(clearWorksState());
-    dispatch(clearWorkState());
-    dispatch(clearWorkPricesState());
-    dispatch(clearWorkCategoriesState());
 
     queryClient.invalidateQueries({
       queryKey: ["shiftReports"],
@@ -79,6 +74,9 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: objectsKeys.all() });
     queryClient.removeQueries({ queryKey: projectsKeys.all() });
     queryClient.removeQueries({ queryKey: projectWorksKeys.all() });
+    queryClient.removeQueries({ queryKey: worksKeys.all() });
+    queryClient.removeQueries({ queryKey: workPricesKeys.all() });
+    queryClient.removeQueries({ queryKey: workCategoriesKeys.all() });
   }, [dispatch, queryClient]);
 
   const load = React.useCallback(async (access_token?: string) => {

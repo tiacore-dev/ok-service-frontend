@@ -10,11 +10,16 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableWorkDialog.less";
-import { IEditableWork, useWorks } from "../../../hooks/ApiActions/works";
-import { getWorkCategoriesAsArray } from "../../../store/modules/dictionaries/selectors/work-categories.selector";
-import { useWorkCategories } from "../../../hooks/ApiActions/work-categories";
+import {
+  useCreateWorkMutation,
+  useUpdateWorkMutation,
+} from "../../../queries/works";
+import type { EditableWorkPayload } from "../../../queries/works";
+import { useWorkCategoriesQuery } from "../../../queries/workCategories";
 import { getModalContentWidth } from "../../../utils/pageSettings";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
+import { NotificationContext } from "../../../contexts/NotificationContext";
+import { useNavigate } from "react-router-dom";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableWorkDialogProps {
@@ -24,7 +29,8 @@ interface IEditableWorkDialogProps {
 
 export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
   const { work, iconOnly } = props;
-  const { createWork, editWork } = useWorks();
+  const createWorkMutation = useCreateWorkMutation();
+  const updateWorkMutation = useUpdateWorkMutation();
   const buttonText = work ? "Редактировать" : "Создать";
   const popoverText = work ? "Редактировать работы" : "Создать работу";
   const buttonIcon = work ? (
@@ -33,22 +39,15 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     <PlusCircleTwoTone twoToneColor="#ff1616" />
   );
 
-  const { getWorkCategories } = useWorkCategories();
-
   const modalTitle = work ? "Редактирование работы" : "Создание новой работы";
-  const categories = useSelector(getWorkCategoriesAsArray);
-
-  if (!categories.length) {
-    getWorkCategories();
-  }
-
+  const { data: categoriesData = [] } = useWorkCategoriesQuery();
   const categoriesMap = useMemo(
     () =>
-      categories.map((el) => ({
+      categoriesData.map((el) => ({
         label: el.name,
         value: el.work_category_id,
       })),
-    [categories],
+    [categoriesData],
   );
 
   const dispatch = useDispatch();
@@ -56,16 +55,57 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     (state: IState) => state.editableEntities.editableWork,
   );
   const { sent, ...createWorkData } = data;
+  const notificationApi = React.useContext(NotificationContext);
+  const navigate = useNavigate();
 
-  const editWorkData: IEditableWork = { ...createWorkData };
+  const editWorkData: EditableWorkPayload = {
+    ...createWorkData,
+  };
 
-  const handleConfirm = useCallback(() => {
-    if (work) {
-      editWork(work.work_id, editWorkData);
-    } else {
-      createWork(createWorkData);
+  const handleConfirm = useCallback(async () => {
+    try {
+      if (work) {
+        await updateWorkMutation.mutateAsync({
+          workId: work.work_id,
+          payload: editWorkData,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Работа изменена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createWorkMutation.mutateAsync(createWorkData);
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Работа создана",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+      navigate("/works");
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Возникла ошибка при сохранении работы";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
     }
-  }, [work, editWorkData, createWorkData]);
+  }, [
+    work,
+    editWorkData,
+    createWorkData,
+    updateWorkMutation,
+    createWorkMutation,
+    notificationApi,
+    navigate,
+  ]);
 
   const handeOpen = useCallback(() => {
     if (work) {

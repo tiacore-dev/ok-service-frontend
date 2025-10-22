@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import {
   Breadcrumb,
   Button,
@@ -8,13 +9,10 @@ import {
   Table,
 } from "antd";
 import * as React from "react";
-import { useSelector } from "react-redux";
-import { IState } from "../../store/modules";
 import { isMobile } from "../../utils/isMobile";
 import { minPageHeight } from "../../utils/pageSettings";
 import { Link } from "react-router-dom";
 import { IWorkCategoriesListColumn } from "../../interfaces/workCategories/IWorkCategoriesList";
-import { useWorkCategories } from "../../hooks/ApiActions/work-categories";
 import { EditableCell } from "../components/editableCell";
 import {
   CheckCircleTwoTone,
@@ -24,19 +22,17 @@ import {
 } from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import {
+  useCreateWorkCategoryMutation,
+  useDeleteWorkCategoryMutation,
+  useUpdateWorkCategoryMutation,
+  useWorkCategoriesQuery,
+} from "../../queries/workCategories";
+import { NotificationContext } from "../../contexts/NotificationContext";
 
 export const WorkCategories = () => {
   const { Content } = Layout;
   const [form] = Form.useForm();
-  const workCategories = useSelector(
-    (state: IState) => state.pages.workCategories.data,
-  );
-
-  const workCategoriesData: IWorkCategoriesListColumn[] = React.useMemo(
-    () => workCategories.map((doc) => ({ ...doc, key: doc.work_category_id })),
-    [workCategories],
-  );
-
   const [editingKey, setEditingKey] = React.useState("");
   const [newRecordKey, setNewRecordKey] = React.useState("");
   const [actualData, setActualData] = React.useState<boolean>(false);
@@ -46,29 +42,30 @@ export const WorkCategories = () => {
     IWorkCategoriesListColumn[]
   >([]);
 
+  const notificationApi = React.useContext(NotificationContext);
   const {
-    getWorkCategories,
-    createWorkCategory,
-    editWorkCategory,
-    deleteWorkCategory,
-  } = useWorkCategories();
+    data: workCategories = [],
+    isPending,
+    isFetching,
+  } = useWorkCategoriesQuery();
+  const createWorkCategoryMutation = useCreateWorkCategoryMutation();
+  const updateWorkCategoryMutation = useUpdateWorkCategoryMutation();
+  const deleteWorkCategoryMutation = useDeleteWorkCategoryMutation();
 
-  React.useEffect(() => {
-    getWorkCategories();
-  }, []);
-
-  const workCategoriesDataIsLoaded = useSelector(
-    (state: IState) => state.pages.workCategories.loaded,
+  const workCategoriesData: IWorkCategoriesListColumn[] = React.useMemo(
+    () =>
+      workCategories.map((doc) => ({ ...doc, key: doc.work_category_id })),
+    [workCategories],
   );
 
   React.useEffect(() => {
-    if (workCategoriesDataIsLoaded) {
+    if (!isPending && !isFetching) {
       setDataSource(workCategoriesData);
       if (!actualData) {
         setActualData(true);
       }
     }
-  }, [workCategoriesData]);
+  }, [workCategoriesData, isPending, isFetching]);
 
   const isEditing = (record: IWorkCategoriesListColumn) =>
     record.key === editingKey;
@@ -102,22 +99,43 @@ export const WorkCategories = () => {
           // Создание новой записи
           setActualData(false);
           setNewRecordKey("");
-          createWorkCategory(row);
+          await createWorkCategoryMutation.mutateAsync(row);
+          notificationApi?.success({
+            message: "Успешно",
+            description: "Категория работ создана",
+            placement: "bottomRight",
+            duration: 2,
+          });
         } else {
           // Редактирование существующей записи
           setActualData(false);
           setEditingKey("");
-          editWorkCategory(item.work_category_id, row);
+          await updateWorkCategoryMutation.mutateAsync({
+            categoryId: item.work_category_id,
+            payload: row,
+          });
+          notificationApi?.success({
+            message: "Успешно",
+            description: "Категория работ изменена",
+            placement: "bottomRight",
+            duration: 2,
+          });
         }
       }
     } catch (errInfo) {
-      console.log("Validate Failed:", errInfo);
+      const description =
+        errInfo instanceof Error
+          ? errInfo.message
+          : "Не удалось сохранить категорию работы";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
     }
   };
-
-  const isLoading = useSelector(
-    (state: IState) => state.pages.workCategories.loading,
-  );
+  const isLoading = isPending || isFetching;
 
   const handleAdd = () => {
     if (!newRecordKey) {
@@ -132,9 +150,28 @@ export const WorkCategories = () => {
     }
   };
 
-  const handleDelete = (key: string) => {
-    setActualData(false);
-    deleteWorkCategory(key);
+  const handleDelete = async (key: string) => {
+    try {
+      setActualData(false);
+      await deleteWorkCategoryMutation.mutateAsync(key);
+      notificationApi?.success({
+        message: "Удалено",
+        description: "Категория работ удалена",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Не удалось удалить категорию";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
   };
 
   const columns = [

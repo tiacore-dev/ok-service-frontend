@@ -3,13 +3,12 @@
 import { Button, Tooltip } from "antd";
 import * as React from "react";
 import { FileExcelOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
 import { useObjectsMap } from "../../../queries/objects";
 import { useProjectsMap } from "../../../queries/projects";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { getWorksMap } from "../../../store/modules/pages/selectors/works.selector";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
+import { useWorksMap } from "../../../queries/works";
 import { generateDocument } from "../../../api/download.api";
 import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
 import { useUsersMap } from "../../../queries/users";
@@ -70,7 +69,7 @@ export const DownloadShiftReportsWithDetails = ({
   const { projectsMap } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
   const { usersMap } = useUsersMap();
-  const worksMap = useSelector(getWorksMap);
+  const { worksMap } = useWorksMap();
 
   const { projectWorks: allProjectWorks = [] } = useProjectWorksMap();
 

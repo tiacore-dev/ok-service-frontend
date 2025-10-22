@@ -4,10 +4,9 @@ import { useSelector } from "react-redux";
 import TextArea from "antd/es/input/TextArea";
 import { IProject } from "../../interfaces/projects/IProject";
 import { getCurrentRole } from "../../store/modules/auth";
-import { IState } from "../../store/modules";
-import { getWorksData } from "../../store/modules/pages/selectors/works.selector";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { NotificationContext } from "../../contexts/NotificationContext";
+import { useWorksMap } from "../../queries/works";
 import {
   useCreateProjectWorksMutation,
   type EditableProjectWorkPayload,
@@ -34,14 +33,19 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
   const [search, setSearch] = useState<string>("");
   const createProjectWorksMutation = useCreateProjectWorksMutation();
 
-  const works = useSelector((state: IState) => getWorksData(state, true));
+  const { works } = useWorksMap();
+
+  const availableWorks = useMemo(
+    () => works.filter((w) => !w.deleted),
+    [works],
+  );
 
   const workOptions = useMemo(() => {
-    return works.map((w) => ({
+    return availableWorks.map((w) => ({
       label: w.name,
       value: w.work_id,
     }));
-  }, [works]);
+  }, [availableWorks]);
 
   const setWorkId = useCallback(
     (workId: string, workString: string) => {
@@ -105,7 +109,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
         );
 
         const buttonText = record.workId
-          ? works.find((w) => w.work_id === record.workId)?.name
+          ? availableWorks.find((w) => w.work_id === record.workId)?.name
           : "Выберите работу";
 
         return (
@@ -171,7 +175,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
       });
 
     return data;
-  }, [uploadString, works, workIdMap]);
+  }, [uploadString, availableWorks, workIdMap]);
 
   const correctData = useMemo(
     () => uploadData.filter((el) => el.isCorrect),
@@ -187,7 +191,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
     const result: Record<string, string> = {};
 
     uploadData.forEach((el) => {
-      const workId = works.find((w) =>
+      const workId = availableWorks.find((w) =>
         el.workString.toLocaleLowerCase().includes(w.name.toLocaleLowerCase()),
       )?.work_id;
 
@@ -197,7 +201,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
     });
 
     setWorkIdMap({ ...workIdMap, ...result });
-  }, [uploadData, works]);
+  }, [uploadData, availableWorks]);
 
   const notificationApi = useContext(NotificationContext);
 

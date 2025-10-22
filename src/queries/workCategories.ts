@@ -17,7 +17,7 @@ import type { IWorkCategoriesList } from "../interfaces/workCategories/IWorkCate
 import type { IWorkCategory } from "../interfaces/workCategories/IWorkCategory";
 import { createQueryKeys } from "../queryKeys";
 
-const workCategoriesKeys = createQueryKeys("workCategories");
+export const workCategoriesKeys = createQueryKeys("workCategories");
 
 type WorkCategoriesQueryOptions<TData> = Omit<
   UseQueryOptions<IWorkCategoriesList[], Error, TData>,
@@ -59,7 +59,8 @@ export const useUpdateWorkCategoryMutation = (): UseMutationResult<
 > => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ categoryId, payload }) => updateWorkCategory(categoryId, payload),
+    mutationFn: ({ categoryId, payload }) =>
+      updateWorkCategory(categoryId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: workCategoriesKeys.list() });
     },

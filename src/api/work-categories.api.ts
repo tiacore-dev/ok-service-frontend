@@ -6,12 +6,11 @@ export interface EditableWorkCategoryPayload
   extends Omit<IWorkCategory, "work_category_id"> {}
 
 export const fetchWorkCategories = async (): Promise<IWorkCategoriesList[]> => {
-  const { data } = await apiClient.get<{ work_categories: IWorkCategoriesList[] }>(
-    "/work_categories/all",
-    {
-      params: { sort_by: "created_at" },
-    },
-  );
+  const { data } = await apiClient.get<{
+    work_categories: IWorkCategoriesList[];
+  }>("/work_categories/all", {
+    params: { sort_by: "created_at" },
+  });
   return data.work_categories;
 };
 

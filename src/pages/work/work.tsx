@@ -12,21 +12,15 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import { useSelector } from "react-redux";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
-import { Link } from "react-router-dom";
-import { useWorks } from "../../hooks/ApiActions/works";
+import { Link, useNavigate } from "react-router-dom";
 import { EditableWorkDialog } from "../../components/ActionDialogs/EditableWorkDialog/EditableWorkDialog";
 import { DeleteWorkDialog } from "../../components/ActionDialogs/DeleteWorkDialog";
 import { EditableCell } from "../components/editableCell";
 import { IWorkPricesListColumn } from "../../interfaces/workPrices/IWorkPricesList";
-import { useWorkPrices } from "../../hooks/ApiActions/work-prices";
-import { getWorkPricesByWorkId } from "../../store/modules/pages/selectors/work-prices.selector";
-import { SortOrder } from "../../utils/sortOrder";
-import { clearWorkPricesState } from "../../store/modules/pages/work-prices.state";
-import { clearWorkState } from "../../store/modules/pages/work.state";
+import { NotificationContext } from "../../contexts/NotificationContext";
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
@@ -35,6 +29,16 @@ import {
 } from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import {
+  useDeleteWorkMutation,
+  useWorkQuery,
+} from "../../queries/works";
+import {
+  useCreateWorkPriceMutation,
+  useDeleteWorkPriceMutation,
+  useUpdateWorkPriceMutation,
+  useWorkPricesQuery,
+} from "../../queries/workPrices";
 
 export const Work = () => {
   const { Content } = Layout;
@@ -47,55 +51,57 @@ export const Work = () => {
   );
 
   const routeParams = useParams();
-  const { getWork, deleteWork } = useWorks();
-  const dispatch = useDispatch();
+  const workId = routeParams.workId;
+  const navigate = useNavigate();
   const currentRole = useSelector(getCurrentRole);
+  const notificationApi = React.useContext(NotificationContext);
 
-  const { getWorkPrices, createWorkPrice, editWorkPrice, deleteWorkPrice } =
-    useWorkPrices();
+  const {
+    data: workData,
+    isPending: isWorkPending,
+    isFetching: isWorkFetching,
+  } = useWorkQuery(workId, { enabled: Boolean(workId) });
 
-  React.useEffect(() => {
-    getWork(routeParams.workId);
-    getWorkPrices({
-      work: routeParams.workId,
-      sort_by: "category",
-      sort_order: SortOrder.ASC,
-    });
-
-    return () => {
-      dispatch(clearWorkPricesState());
-      dispatch(clearWorkState());
-      setDataSource([]);
-    };
-  }, []);
-
-  const workData = useSelector((state: IState) => state.pages.work.data);
-  const isLoaded = useSelector((state: IState) => state.pages.work.loaded);
-  const workPricesIsLoaded = useSelector(
-    (state: IState) => state.pages.workPrices.loaded
+  const workPricesParams = React.useMemo(
+    () =>
+      workId
+        ? {
+            work: workId,
+            sort_by: "category",
+            sort_order: "asc",
+          }
+        : undefined,
+    [workId],
   );
 
-  const workPrices = useSelector((state: IState) =>
-    getWorkPricesByWorkId(state, workData?.work_id)
-  );
+  const {
+    data: workPrices = [],
+    isPending: isWorkPricesPending,
+    isFetching: isWorkPricesFetching,
+  } = useWorkPricesQuery(workPricesParams, { enabled: Boolean(workId) });
 
   const workPricesData: IWorkPricesListColumn[] = React.useMemo(
     () =>
-      workPrices.map((doc) => ({
+      (workPrices ?? []).map((doc) => ({
         ...doc,
         key: doc.work_price_id,
       })),
-    [workPrices]
+    [workPrices],
   );
 
   React.useEffect(() => {
-    if (workPricesIsLoaded) {
+    if (!isWorkPricesPending && !isWorkPricesFetching) {
       setDataSource(workPricesData);
       if (!actualData) {
         setActualData(true);
       }
     }
-  }, [workPricesData]);
+  }, [workPricesData, isWorkPricesPending, isWorkPricesFetching]);
+
+  const deleteWorkMutation = useDeleteWorkMutation();
+  const createWorkPriceMutation = useCreateWorkPriceMutation();
+  const updateWorkPriceMutation = useUpdateWorkPriceMutation();
+  const deleteWorkPriceMutation = useDeleteWorkPriceMutation();
 
   const isEditing = (record: IWorkPricesListColumn) =>
     record.key === editingKey;
@@ -129,23 +135,56 @@ export const Work = () => {
           ...rowData,
           category: Number(rowData.category), // Преобразуем в число
           price: Number(rowData.price), // Преобразуем в число
-          work: workData.work_id, // Добавляем work_id
+          work: workData?.work_id,
         };
 
         if (isCreating(item)) {
           // Создание новой записи
           setActualData(false);
           setNewRecordKey("");
-          createWorkPrice(row);
+          if (!workData?.work_id) {
+            throw new Error("Не удалось определить работу");
+          }
+          await createWorkPriceMutation.mutateAsync({
+            ...row,
+            work: workData.work_id,
+          });
+          notificationApi?.success({
+            message: "Успешно",
+            description: "Цена работ создана",
+            placement: "bottomRight",
+            duration: 2,
+          });
         } else {
           // Редактирование существующей записи
           setActualData(false);
           setEditingKey("");
-          editWorkPrice(item.work_price_id, row);
+          await updateWorkPriceMutation.mutateAsync({
+            workPriceId: item.work_price_id,
+            payload: {
+              ...row,
+              work: workData?.work_id ?? "",
+            },
+          });
+          notificationApi?.success({
+            message: "Успешно",
+            description: "Цена работ изменена",
+            placement: "bottomRight",
+            duration: 2,
+          });
         }
       }
     } catch (errInfo) {
-      console.log("Validate Failed:", errInfo);
+      const description =
+        errInfo instanceof Error
+          ? errInfo.message
+          : "Не удалось сохранить цену работы";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
     }
   };
 
@@ -164,9 +203,32 @@ export const Work = () => {
     }
   };
 
-  const handleDelete = (key: string) => {
-    setActualData(false);
-    deleteWorkPrice(key, routeParams.workId);
+  const handleDelete = async (key: string) => {
+    if (!workId) return;
+    try {
+      setActualData(false);
+      await deleteWorkPriceMutation.mutateAsync({
+        workPriceId: key,
+        workId,
+      });
+      notificationApi?.success({
+        message: "Удалено",
+        description: "Цена работ удалена",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : "Не удалось удалить цену работы";
+      notificationApi?.error({
+        message: "Ошибка",
+        description,
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
   };
 
   const columns = [
@@ -244,9 +306,12 @@ export const Work = () => {
     };
   });
 
-  const isLoading = useSelector(
-    (state: IState) => state.pages.workPrices.loading
-  );
+  const isLoaded =
+    !isWorkPending &&
+    !isWorkFetching &&
+    Boolean(workData && workId && workId === workData.work_id);
+
+  const isLoading = isWorkPricesPending || isWorkPricesFetching;
 
   return (
     <>
@@ -278,8 +343,29 @@ export const Work = () => {
             <EditableWorkDialog work={workData} />
             {!workData.deleted && (
               <DeleteWorkDialog
-                onDelete={() => {
-                  deleteWork(workData.work_id);
+                onDelete={async () => {
+                  if (!workData.work_id) return;
+                  try {
+                    await deleteWorkMutation.mutateAsync(workData.work_id);
+                    notificationApi?.success({
+                      message: "Удалено",
+                      description: "Работа удалена",
+                      placement: "bottomRight",
+                      duration: 2,
+                    });
+                    navigate("/works");
+                  } catch (error) {
+                    const description =
+                      error instanceof Error
+                        ? error.message
+                        : "Не удалось удалить работу";
+                    notificationApi?.error({
+                      message: "Ошибка",
+                      description,
+                      placement: "bottomRight",
+                      duration: 2,
+                    });
+                  }
                 }}
                 name={workData.name}
               />

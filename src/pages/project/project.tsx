@@ -15,7 +15,6 @@ import {
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableProjectDialog } from "../../components/ActionDialogs/EditableProjectDialog/EditableProjectDialog";
@@ -23,12 +22,12 @@ import { DeleteProjectDialog } from "../../components/ActionDialogs/DeleteProjec
 import type { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
 import { useUsersMap } from "../../queries/users";
 import { useObjectsMap } from "../../queries/objects";
-import { useWorks } from "../../hooks/ApiActions/works";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { ImportProjectWorks } from "./ImportProjectWorks";
 import { EditableProjectWorkDialog } from "./EditableProjectWorkDialog";
+import { useWorksMap } from "../../queries/works";
 import {
   useDeleteProjectMutation,
   useProjectQuery,
@@ -53,7 +52,6 @@ export const Project = () => {
   const navigate = useNavigate();
   const notificationApi = React.useContext(NotificationContext);
   const projectId = routeParams.projectId;
-  const { getWorks } = useWorks();
   const {
     data: projectData,
     isPending: isProjectPending,
@@ -68,15 +66,12 @@ export const Project = () => {
   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
   const deleteProjectWorkMutation = useDeleteProjectWorkMutation();
 
-  React.useEffect(() => {
-    getWorks();
-  }, []);
 
   const currentUserId = useSelector(getCurrentUserId);
   const isProjectLoading = isProjectPending || isProjectFetching;
   const projectWorksLoading = isProjectWorksPending || isProjectWorksFetching;
   const projectWorksList = projectWorks ?? [];
-  const worksData = useSelector((state: IState) => state.pages.works.data);
+  const { worksMap } = useWorksMap();
 
   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
     () =>
@@ -212,7 +207,7 @@ export const Project = () => {
       dataIndex: "work",
       key: "work",
       render: (value: string) => {
-        const work = worksData.find((w) => w.work_id === value);
+        const work = worksMap[value];
         return work?.name || value;
       },
     },

@@ -2,7 +2,6 @@ import { Button, Space } from "antd";
 import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
 import { FileExcelOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
 import { useUsersMap } from "../../queries/users";
 import { useObjectsMap } from "../../queries/objects";
@@ -10,8 +9,8 @@ import { useProjectsMap } from "../../queries/projects";
 // import { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
-import { getWorksMap } from "../../store/modules/pages/selectors/works.selector";
 import { useProjectWorksMap } from "../../queries/projectWorks";
+import { useWorksMap } from "../../queries/works";
 
 interface IExportedData {
   number: number;
@@ -46,7 +45,7 @@ export const DownloadShiftReport: React.FC<DownloadProps> = ({
   const { projectsMap } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
   const { usersMap } = useUsersMap();
-  const worksMap = useSelector(getWorksMap);
+  const { worksMap } = useWorksMap();
   const { projectWorks: projectWorksData } = useProjectWorksMap(
     shiftReportData?.project,
     { enabled: Boolean(shiftReportData?.project) },

@@ -18,7 +18,7 @@ import type { IWorkPricesList } from "../interfaces/workPrices/IWorkPricesList";
 import type { IWorkPrice } from "../interfaces/workPrices/IWorkPrice";
 import { createQueryKeys } from "../queryKeys";
 
-const workPricesKeys = createQueryKeys("workPrices");
+export const workPricesKeys = createQueryKeys("workPrices");
 
 type WorkPricesQueryOptions<TData> = Omit<
   UseQueryOptions<IWorkPricesList[], Error, TData>,

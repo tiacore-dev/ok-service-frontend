@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { Form, Input, InputNumber, Modal, Checkbox } from "antd";
 import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
-import { useWorks } from "../../hooks/ApiActions/works";
-import { useSelector } from "react-redux";
-import type { IState } from "../../store/modules";
 import { isMobile } from "../../utils/isMobile";
 import "./EditableProjectWorkDialog.less"; // Импорт стилей
 import { EnhancedSelect } from "../../components/EnhancedSelect";
@@ -15,6 +12,7 @@ import {
   type EditableProjectWorkPayload,
 } from "../../queries/projectWorks";
 import { NotificationContext } from "../../contexts/NotificationContext";
+import { useWorksMap } from "../../queries/works";
 
 interface IEditableProjectWorkDialogProps {
   visible: boolean;
@@ -31,8 +29,7 @@ export const EditableProjectWorkDialog: React.FC<
   const [form] = Form.useForm();
   const createProjectWorkMutation = useCreateProjectWorkMutation();
   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
-  const { getWorks } = useWorks();
-  const worksData = useSelector((state: IState) => state.pages.works.data);
+  const { works } = useWorksMap();
   const notificationApi = useContext(NotificationContext);
 
   const customSelectFilterHandler = useCallback(
@@ -48,9 +45,6 @@ export const EditableProjectWorkDialog: React.FC<
     [],
   );
 
-  useEffect(() => {
-    getWorks();
-  }, []);
 
   useEffect(() => {
     if (initialValues) {
@@ -65,19 +59,25 @@ export const EditableProjectWorkDialog: React.FC<
   }, [initialValues, form]);
 
   // Создаем два варианта отображения для каждой работы
-  const worksOptions = worksData.map((el) => ({
-    // Для выпадающего списка - многострочный вариант
-    label: (
-      <span className="work-option-label" style={{ whiteSpace: "normal" }}>
-        {el.name}
-      </span>
-    ),
-    // Для отображения в поле - просто текст
-    value: el.work_id,
-    disabled: el.deleted,
-    // Добавляем текстовое представление для отображения в поле выбора
-    title: el.name,
-  }));
+  const worksOptions = useMemo(
+    () =>
+      works
+        .filter((el) => !el.deleted)
+        .map((el) => ({
+          // Для выпадающего списка - многострочный вариант
+          label: (
+            <span className="work-option-label" style={{ whiteSpace: "normal" }}>
+              {el.name}
+            </span>
+          ),
+          // Для отображения в поле - просто текст
+          value: el.work_id,
+          disabled: el.deleted,
+          // Добавляем текстовое представление для отображения в поле выбора
+          title: el.name,
+        })),
+    [works],
+  );
 
   const handleSubmit = useCallback(() => {
     form

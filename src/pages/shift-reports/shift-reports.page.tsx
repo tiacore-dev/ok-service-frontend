@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { minPageHeight } from "../../utils/pageSettings";
 import { Link } from "react-router-dom";
-import { useWorks } from "../../hooks/ApiActions/works";
 import type { FilterValue, SorterResult } from "antd/es/table/interface";
 import { saveShiftReportsTableState } from "../../store/modules/settings/shift-reports";
 import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
@@ -36,8 +35,6 @@ export const ShiftReports = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { getWorks } = useWorks();
 
   const tableState = useSelector(
     (state: IState) => state.settings.shiftReportsSettings,
@@ -96,10 +93,6 @@ export const ShiftReports = () => {
     },
     [dispatch, tableState],
   );
-
-  React.useEffect(() => {
-    getWorks();
-  }, []);
 
   const tableData = React.useMemo(() => {
     if (!shiftReportsResponse?.shift_reports) return [];
