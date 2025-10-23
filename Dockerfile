@@ -8,7 +8,7 @@ ARG REACT_APP_API_URL
 ARG REACT_APP_WP
 
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
-ENV REACT_APP_ID=$REACT_APP_WP
+ENV REACT_APP_WP=$REACT_APP_WP
 
 # Copy package.json and install dependencies
 COPY package.json package-lock.json ./
