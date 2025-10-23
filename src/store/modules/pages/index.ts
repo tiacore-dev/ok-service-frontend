@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 
 import { users } from "./users.state";
+import { cities } from "./cities.state";
 import { objects } from "./objects.state";
 import { user } from "./user.state";
 import { object } from "./object.state";
@@ -21,6 +22,7 @@ export const pages = combineReducers({
   projectWorks,
   objects,
   object,
+  cities,
   users,
   user,
   works,

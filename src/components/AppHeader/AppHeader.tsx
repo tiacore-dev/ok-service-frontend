@@ -43,6 +43,14 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
     });
 
     desktopItems.push({
+      key: "cities",
+      label: "Города",
+      onClick: () => {
+        navigate("/cities");
+      },
+    });
+
+    desktopItems.push({
       key: "users",
       label: "Пользователи",
       onClick: () => {
@@ -52,7 +60,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
 
     desktopItems.push({
       key: "works",
-      label: "Каталог работ",
+      label: "Виды работ",
       onClick: () => {
         navigate("/works");
       },
@@ -69,7 +77,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
 
   desktopItems.push({
     key: "account",
-    label: "Аккаунт",
+    label: "Профиль",
     onClick: () => {
       navigate("/account");
     },

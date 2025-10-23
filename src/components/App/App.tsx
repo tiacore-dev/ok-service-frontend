@@ -11,6 +11,7 @@ import { Main } from "../../pages/main/main";
 import { isMobile } from "../../utils/isMobile";
 import { pageHeight } from "../../utils/pageSettings";
 import { Users } from "../../pages/users/users.page";
+import { Cities } from "../../pages/cities/cities.page";
 import { Login } from "../../pages/auth/component/login";
 import { Account } from "../../pages/auth/component/account";
 import { Objects } from "../../pages/objects/objects.page";
@@ -46,6 +47,13 @@ import {
   getUsersSuccess,
 } from "../../store/modules/pages/users.state";
 import { IUsersList } from "../../interfaces/users/IUsersList";
+import {
+  clearCitiesState,
+  getCitiesFailure,
+  getCitiesRequest,
+  getCitiesSuccess,
+} from "../../store/modules/pages/cities.state";
+import { ICitiesList } from "../../interfaces/cities/ICitiesList";
 import { Project } from "../../pages/project/project";
 import { Works } from "../../pages/works/works.page";
 import { Work } from "../../pages/work/work";
@@ -74,6 +82,7 @@ export const useloadSourse = (): {
     dispatch(clearRolesState());
     dispatch(clearObjectsState());
     dispatch(clearObjectState());
+    dispatch(clearCitiesState());
     dispatch(clearUsersState());
     dispatch(clearUserState());
     dispatch(clearWorksState());
@@ -164,6 +173,25 @@ export const useloadSourse = (): {
       console.log("getUsersFailure ", err);
       dispatch(getUsersFailure(err));
     }
+
+    // ����㧪� �ࠢ�筨�� �����
+    dispatch(getCitiesRequest());
+    try {
+      const response: { cities: ICitiesList[]; msg: string } = await apiGet(
+        "cities",
+        "all",
+        access_token,
+      );
+
+      dispatch(getCitiesSuccess(response.cities));
+    } catch (err) {
+      notificationApi.error({
+        message: "Ошибка",
+        description: "Не удалось загрузить города",
+      });
+      console.log("getCitiesFailure ", err);
+      dispatch(getCitiesFailure(err));
+    }
   }, []);
 
   return { load, clearStates };
@@ -221,6 +249,9 @@ export const App = () => {
               </Route>
               <Route path="projects">
                 <Route path=":projectId" element={<Project />} />
+              </Route>
+              <Route path="cities">
+                <Route index={true} element={<Cities />} />
               </Route>
               <Route path="users">
                 <Route index={true} element={<Users />} />

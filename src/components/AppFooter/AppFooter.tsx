@@ -2,6 +2,7 @@ import * as React from "react";
 import { Flex, Layout, Space } from "antd";
 import { isMobile } from "../../utils/isMobile";
 import {
+  EnvironmentOutlined,
   FileDoneOutlined,
   IdcardOutlined,
   LineChartOutlined,
@@ -68,6 +69,21 @@ export const AppFooter = () => {
 
     items.push(
       <Space
+        key="cities"
+        size="small"
+        direction="vertical"
+        style={{ textAlign: "center" }}
+        onClick={() => {
+          navigate("/cities");
+        }}
+      >
+        <EnvironmentOutlined style={{ fontSize: "20px" }} />
+        <div style={{ fontSize: "12px" }}>Города</div>
+      </Space>,
+    );
+
+    items.push(
+      <Space
         key="objects"
         size="small"
         direction="vertical"
@@ -93,7 +109,7 @@ export const AppFooter = () => {
       }}
     >
       <IdcardOutlined style={{ fontSize: "20px" }} />
-      <div style={{ fontSize: "12px" }}>Аккаунт</div>
+      <div style={{ fontSize: "12px" }}>Профиль</div>
     </Space>,
   );
 
@@ -114,7 +130,7 @@ export const AppFooter = () => {
         textAlign: "center",
       }}
     >
-      Tiacore ©2025
+      Tiacore c2025
     </Footer>
   );
 };
