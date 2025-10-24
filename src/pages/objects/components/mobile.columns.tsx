@@ -3,10 +3,12 @@ import { ColumnsType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IObjectsListColumn } from "../../../interfaces/objects/IObjectsList";
 import { IObjectStatus } from "../../../interfaces/objectStatuses/IObjectStatus";
+import { ICity } from "../../../interfaces/cities/ICity";
 
 export const objectsMobileColumns = (
   navigate: NavigateFunction,
   statusMap: Record<string, IObjectStatus>,
+  citiesMap: Record<string, ICity>
 ): ColumnsType<IObjectsListColumn> => [
   {
     dataIndex: "mobileData",
@@ -22,6 +24,7 @@ export const objectsMobileColumns = (
         </a>
         <div>Адрес: {record.address}</div>
         <div>Описание: {record.description}</div>
+        <div>Город: {record.city ? citiesMap[record.city]?.name : "—"}</div>
         <div>Статус: {statusMap[record.status]?.name}</div>
       </div>
     ),

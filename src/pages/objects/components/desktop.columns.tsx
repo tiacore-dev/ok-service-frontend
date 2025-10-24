@@ -5,18 +5,20 @@ import { IObjectsListColumn } from "../../../interfaces/objects/IObjectsList";
 import { IObjectStatus } from "../../../interfaces/objectStatuses/IObjectStatus";
 import { IUser } from "../../../interfaces/users/IUser";
 import { filterDropdown } from "../../../components/Table/filterDropdown";
+import { ICity } from "../../../interfaces/cities/ICity";
 
 export const objectsDesktopColumns = (
   navigate: NavigateFunction,
   statusMap: Record<string, IObjectStatus>,
   usersMap: Record<string, IUser>,
-  statusOptions?: { text: string; value: string }[],
+  citiesMap: Record<string, ICity>,
+  statusOptions?: { text: string; value: string }[]
 ): ColumnsType<IObjectsListColumn> => [
   {
     title: "Имя",
     dataIndex: "name",
     key: "name",
-    width: "20%",
+    width: "15%",
     filterDropdown: filterDropdown,
     onFilter: (value, record) =>
       record.name
@@ -39,7 +41,7 @@ export const objectsDesktopColumns = (
     title: "Адрес",
     dataIndex: "address",
     key: "address",
-    width: "20%",
+    width: "15%",
     render: (text: string, record: IObjectsListColumn) => (
       <div>
         <div>{record.address}</div>
@@ -50,7 +52,7 @@ export const objectsDesktopColumns = (
     title: "Описание",
     dataIndex: "description",
     key: "description",
-    width: "20%",
+    width: "15%",
     render: (text: string, record: IObjectsListColumn) => (
       <div>
         <div>{record.description}</div>
@@ -58,10 +60,34 @@ export const objectsDesktopColumns = (
     ),
   },
   {
+    title: "Город",
+    dataIndex: "city",
+    key: "city",
+    width: "10%",
+    filterDropdown: filterDropdown,
+    onFilter: (value, record) =>
+      record.city
+        ? citiesMap[record.city]?.name
+            .toString()
+            .toLowerCase()
+            .includes(value.toString().toLowerCase())
+        : false,
+    sorter: (a, b) => {
+      const cityA = a.city ? citiesMap[a.city]?.name || "" : "";
+      const cityB = b.city ? citiesMap[b.city]?.name || "" : "";
+      return cityA > cityB ? 1 : -1;
+    },
+    render: (text: string, record: IObjectsListColumn) => (
+      <div>
+        <div>{record.city ? citiesMap[record.city]?.name : "—"}</div>
+      </div>
+    ),
+  },
+  {
     title: "Менеджер",
     dataIndex: "manager",
     key: "manager",
-    width: "20%",
+    width: "15%",
     filterDropdown: filterDropdown,
     onFilter: (value, record) =>
       usersMap[record.manager]?.name
@@ -84,7 +110,7 @@ export const objectsDesktopColumns = (
     sorter: (a, b) =>
       statusMap[a.status]?.name > statusMap[b.status]?.name ? 1 : -1,
     key: "status",
-    width: "20%",
+    width: "15%",
     render: (text: string, record: IObjectsListColumn) => (
       <div>{statusMap[record.status]?.name}</div>
     ),

@@ -1,9 +1,11 @@
+"use client";
+
 import * as React from "react";
 import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { IState } from "../../store/modules";
+import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { useUsers } from "../../hooks/ApiActions/users";
@@ -14,18 +16,23 @@ import { Link } from "react-router-dom";
 import { clearUserState } from "../../store/modules/pages/user.state";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { useCities } from "../../hooks/ApiActions/cities";
+import { getCitiesMap } from "../../store/modules/pages/selectors/cities.selector";
 
 export const User = () => {
   const dispatch = useDispatch();
 
   const { Content } = Layout;
   const rolesMap = useSelector(getRolesMap);
+  const citiesMap = useSelector(getCitiesMap);
   const routeParams = useParams();
   const { getUser, deleteUser } = useUsers();
+  const { getCities } = useCities();
   const currentRole = useSelector(getCurrentRole);
 
   React.useEffect(() => {
     getUser(routeParams.userId);
+    getCities();
 
     return () => {
       dispatch(clearUserState());
@@ -78,6 +85,7 @@ export const User = () => {
             <p>Имя: {userData.name}</p>
             <p>Разряд: {userData.category ?? "Нет разряда"}</p>
             <p>Логин: {userData.login}</p>
+            <p>Город: {userData.city ? citiesMap[userData.city]?.name : "—"}</p>
             <p>Роль: {rolesMap[userData.role]?.name}</p>
           </Card>
         </Content>

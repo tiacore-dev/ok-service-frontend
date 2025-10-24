@@ -18,37 +18,51 @@ import {
 import { Link } from "react-router-dom";
 import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
 import { useUsers } from "../../hooks/ApiActions/users";
+import { useCities } from "../../hooks/ApiActions/cities";
+import { getCitiesMap } from "../../store/modules/pages/selectors/cities.selector";
 
 export const Objects = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.objectsSettings.filters,
+    (state: IState) => state.settings.objectsSettings.filters
   );
 
   const { getObjects } = useObjects();
   const { getUsers } = useUsers();
+  const { getCities } = useCities();
 
   React.useEffect(() => {
     getObjects();
     getUsers();
+    getCities();
   }, [filters]);
 
   const objectsData: IObjectsListColumn[] = useSelector(
-    (state: IState) => state.pages.objects.data,
-  ).map((doc) => ({ ...doc, key: doc.object_id }));
+    (state: IState) => state.pages.objects.data
+  ).map((doc) => ({
+    ...doc,
+    key: doc.object_id,
+  }));
 
   const isLoading = useSelector((state: IState) => state.pages.objects.loading);
   const statusMap = useSelector(getObjectStatusesMap);
   const usersMap = useSelector(getUsersMap);
+  const citiesMap = useSelector(getCitiesMap);
   const statusOptions = useSelector(getObjectStatusesOptions);
 
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? objectsMobileColumns(navigate, statusMap)
-        : objectsDesktopColumns(navigate, statusMap, usersMap, statusOptions),
-    [navigate, statusMap, usersMap, statusOptions],
+        ? objectsMobileColumns(navigate, statusMap, citiesMap)
+        : objectsDesktopColumns(
+            navigate,
+            statusMap,
+            usersMap,
+            citiesMap,
+            statusOptions
+          ),
+    [navigate, statusMap, usersMap, citiesMap, statusOptions]
   );
   return (
     <>

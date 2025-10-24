@@ -1,4 +1,4 @@
-import { ObjectStatusId } from "../objectStatuses/IObjectStatus";
+import type { ObjectStatusId } from "../objectStatuses/IObjectStatus";
 
 export interface IObject {
   object_id?: string;
@@ -7,5 +7,6 @@ export interface IObject {
   description: string;
   status: ObjectStatusId;
   manager: string;
+  city?: string;
   deleted?: boolean;
 }

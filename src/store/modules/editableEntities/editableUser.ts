@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IUser } from "../../../interfaces/users/IUser";
+import type { IUser } from "../../../interfaces/users/IUser";
 import { RoleId } from "../../../interfaces/roles/IRole";
 
 export interface IEditableUserState extends Omit<IUser, "user_id"> {
@@ -12,12 +12,14 @@ const initialState: IEditableUserState = {
   login: "",
   category: 0,
   role: RoleId.USER,
+  city: undefined,
 };
 
 const setUserData = (state: IEditableUserState, userData: Partial<IUser>) => {
   state.name = userData.name;
   state.role = userData.role;
   state.login = userData.login;
+  state.city = userData.city;
   state.sent = false;
 };
 
@@ -43,6 +45,10 @@ const editableUserSlice = createSlice({
 
     setCategory: (state: IEditableUserState, action: { payload: number }) => {
       state.category = action.payload;
+    },
+
+    setCity: (state: IEditableUserState, action: { payload: string }) => {
+      state.city = action.payload;
     },
 
     sendUser: (state: IEditableUserState) => {

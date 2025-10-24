@@ -5,11 +5,13 @@ import { IUsersListColumn } from "../../../interfaces/users/IUsersList";
 import { IRole } from "../../../interfaces/roles/IRole";
 import { filterDropdown } from "../../../components/Table/filterDropdown";
 import { categoryFilterOptions } from "../../../utils/categoryMap";
+import { ICity } from "../../../interfaces/cities/ICity";
 
 export const usersDesktopColumns = (
   navigate: NavigateFunction,
   rolesMap: Record<string, IRole>,
-  rolesOptions?: { text: string; value: string }[],
+  citiesMap: Record<string, ICity>,
+  rolesOptions?: { text: string; value: string }[]
 ): ColumnsType<IUsersListColumn> => [
   {
     title: "Имя",
@@ -68,6 +70,15 @@ export const usersDesktopColumns = (
       <div>
         <div>{rolesMap[record.role]?.name}</div>
       </div>
+    ),
+  },
+  {
+    title: "Город",
+    dataIndex: "city",
+    key: "city",
+    width: "15%",
+    render: (text: string, record: IUsersListColumn) => (
+      <div>{record.city ? citiesMap[record.city]?.name : "—"}</div>
     ),
   },
 ];

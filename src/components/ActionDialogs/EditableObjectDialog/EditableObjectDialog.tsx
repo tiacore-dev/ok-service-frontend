@@ -15,6 +15,7 @@ import "./EditableObjectDialog.less";
 import { useObjects } from "../../../hooks/ApiActions/objects";
 import { getModalContentWidth } from "../../../utils/pageSettings";
 import { RoleId } from "../../../interfaces/roles/IRole";
+import { getCitiesMap } from "../../../store/modules/pages/selectors/cities.selector";
 
 const modalContentWidth = getModalContentWidth();
 
@@ -37,7 +38,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableObject,
+    (state: IState) => state.editableEntities.editableObject
   );
   const statusMap = useSelector(getObjectStatuses).map((el) => ({
     label: el.name,
@@ -61,10 +62,14 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
       dispatch(clearCreateObjectState());
     }
   }, [object, dispatch]);
-
+  const citiesMap = useSelector(getCitiesMap);
+  const citiesOptions = Object.values(citiesMap).map((city) => ({
+    label: city.name,
+    value: city.city_id,
+  }));
   const userMap = useSelector((state: IState) => state.pages.users.data)
     .filter(
-      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN,
+      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN
     )
     .map((el) => ({
       label: el.name,
@@ -98,7 +103,21 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 style={{ width: "100%" }}
               />
             </Form.Item>
-
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Город"
+            >
+              <Select
+                value={data.city}
+                onChange={(value: string) =>
+                  dispatch(editObjectAction.setCity(value))
+                }
+                options={citiesOptions}
+                allowClear
+                placeholder="Выберите город"
+              />
+            </Form.Item>
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}

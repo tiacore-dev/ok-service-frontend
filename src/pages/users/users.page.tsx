@@ -16,12 +16,13 @@ import {
   getRolesOptions,
 } from "../../store/modules/dictionaries/selectors/roles.selector";
 import { Link } from "react-router-dom";
+import { getCitiesMap } from "../../store/modules/pages/selectors/cities.selector";
 
 export const Users = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.usersSettings.filters,
+    (state: IState) => state.settings.usersSettings.filters
   );
 
   const { getUsers } = useUsers();
@@ -31,19 +32,20 @@ export const Users = () => {
   }, [filters]);
 
   const usersData: IUsersListColumn[] = useSelector(
-    (state: IState) => state.pages.users.data,
+    (state: IState) => state.pages.users.data
   ).map((doc) => ({ ...doc, key: doc.user_id }));
 
   const isLoading = useSelector((state: IState) => state.pages.users.loading);
   const rolesMap = useSelector(getRolesMap);
   const rolesOptions = useSelector(getRolesOptions);
+  const citiesMap = useSelector(getCitiesMap);
 
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? usersMobileColumns(navigate, rolesMap)
-        : usersDesktopColumns(navigate, rolesMap, rolesOptions),
-    [navigate],
+        ? usersMobileColumns(navigate, rolesMap, citiesMap)
+        : usersDesktopColumns(navigate, rolesMap, citiesMap, rolesOptions),
+    [navigate, rolesMap, citiesMap, rolesOptions]
   );
 
   return (

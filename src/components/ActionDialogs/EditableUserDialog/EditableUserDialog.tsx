@@ -15,6 +15,8 @@ import { getRoles } from "../../../store/modules/dictionaries/selectors/roles.se
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { categoryMap } from "../../../utils/categoryMap";
 import { getModalContentWidth } from "../../../utils/pageSettings";
+import { useCities } from "../../../hooks/ApiActions/cities";
+import { getCitiesMap } from "../../../store/modules/pages/selectors/cities.selector";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableUserDialogProps {
@@ -26,6 +28,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const { user, iconOnly } = props;
   const [password, setPassword] = useState<string>("");
   const { createUser, editUser } = useUsers();
+  const { getCities } = useCities();
   const buttonText = user ? "Редактировать" : "Создать";
   const popoverText = user
     ? "Редактировать пользователя"
@@ -41,11 +44,17 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableUser,
+    (state: IState) => state.editableEntities.editableUser
   );
   const rolesMap = useSelector(getRoles).map((el) => ({
     label: el.name,
     value: el.role_id,
+  }));
+
+  const citiesMap = useSelector(getCitiesMap);
+  const citiesOptions = Object.values(citiesMap).map((city) => ({
+    label: city.name,
+    value: city.city_id,
   }));
 
   const { sent: _sent, ...createUserData } = data;
@@ -62,15 +71,16 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
     } else {
       createUser({ ...createUserData, password });
     }
-  }, [user, editUserData, createUserData, password]);
+  }, [user, password]);
 
   const handeOpen = useCallback(() => {
+    getCities();
     if (user) {
       dispatch(editUserAction.setUserData(user));
     } else {
       dispatch(clearCreateUserState());
     }
-  }, [user, dispatch]);
+  }, [user, dispatch, getCities]);
 
   return (
     <ActionDialog
@@ -147,6 +157,22 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
                   dispatch(editUserAction.setRole(value))
                 }
                 options={rolesMap}
+              />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Город"
+            >
+              <Select
+                value={data.city}
+                onChange={(value: string) =>
+                  dispatch(editUserAction.setCity(value))
+                }
+                options={citiesOptions}
+                allowClear
+                placeholder="Выберите город"
               />
             </Form.Item>
           </Form>

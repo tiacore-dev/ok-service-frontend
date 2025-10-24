@@ -18,6 +18,8 @@ import { useProjects } from "../../hooks/ApiActions/projects";
 import { useUsers } from "../../hooks/ApiActions/users";
 import { clearProjectsState } from "../../store/modules/pages/projects.state";
 import { Projects } from "./projects/projects.page";
+import { getCitiesMap } from "../../store/modules/pages/selectors/cities.selector";
+import { useCities } from "../../hooks/ApiActions/cities";
 
 export const Object = () => {
   const { Content } = Layout;
@@ -25,15 +27,18 @@ export const Object = () => {
   const routeParams = useParams();
   const { getObject, deleteObject } = useObjects();
   const usersMap = useSelector(getUsersMap);
+  const citiesMap = useSelector(getCitiesMap);
   const dispatch = useDispatch();
 
   const { getProjects } = useProjects();
   const { getUsers } = useUsers();
+  const { getCities } = useCities();
 
   React.useEffect(() => {
     getObject(routeParams.objectId);
     getUsers();
     getProjects();
+    getCities();
 
     return () => {
       dispatch(clearProjectsState());
@@ -88,6 +93,9 @@ export const Object = () => {
             <p>Наименование: {objectData.name}</p>
             <p>Адрес: {objectData.address}</p>
             <p>Описание: {objectData.description}</p>
+            <p>
+              Город: {objectData.city ? citiesMap[objectData.city]?.name : "—"}
+            </p>
             <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
             <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>
           </Card>
