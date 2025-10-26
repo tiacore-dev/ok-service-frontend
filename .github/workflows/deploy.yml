@@ -63,6 +63,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_MASTER }}
+
       - name: Set Master host vars
         if: github.ref_name == 'master'
         run: |
@@ -74,6 +75,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
+
       - name: Set Dev host vars
         if: github.ref_name == 'dev'
         run: |
@@ -86,15 +88,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_STAGE }}
 
-      - name: Deploy to Production
-        if: github.ref_name == 'master'
-        run: ssh -o StrictHostKeyChecking=no -t ${{ secrets.SSH_USER_MASTER }}@${{ secrets.SERVER_IP_MASTER }} "cd apps/ok-service-frontend && git pull origin master && docker compose down && docker compose up --build -d"
-
-      - name: Deploy to Development
-        if: github.ref_name == 'dev'
-        run: ssh -o StrictHostKeyChecking=no -t ${{ secrets.SSH_USER_DEV }}@${{ secrets.SERVER_IP_DEV }} "cd apps/ok-service-frontend-dev && git pull origin dev && docker-compose down && docker-compose up --build -d"
-      
-      - name: Deploy to Stage
+      - name: Set Stage host vars
         if: github.ref_name == 'stage'
         run: |
           echo "SSH_USER=${{ secrets.SSH_USER_STAGE }}" >> $GITHUB_ENV
