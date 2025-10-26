@@ -197,7 +197,7 @@ export const Charts = (props: IChartsProps) => {
                 <ul className="main__yesterday__ul">
                   {yesterdayData.empty.map((el) => (
                     <li className="main__yesterday__empty" key={el.key}>
-                      {usersMap[el.user].name}
+                      {usersMap[el.user]?.name}
                     </li>
                   ))}
                 </ul>
@@ -209,7 +209,7 @@ export const Charts = (props: IChartsProps) => {
                 <ul className="main__yesterday__ul">
                   {yesterdayData.notSigned.map((el) => (
                     <li className="main__yesterday__not-signed" key={el.key}>
-                      {usersMap[el.user].name}
+                      {usersMap[el.user]?.name}
                     </li>
                   ))}
                 </ul>
@@ -221,7 +221,7 @@ export const Charts = (props: IChartsProps) => {
                 <ul className="main__yesterday__ul">
                   {yesterdayData.signed.map((el) => (
                     <li className="main__yesterday__signed" key={el.key}>
-                      {usersMap[el.user].name}
+                      {usersMap[el.user]?.name}
                     </li>
                   ))}
                 </ul>

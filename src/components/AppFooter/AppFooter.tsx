@@ -123,14 +123,5 @@ export const AppFooter = () => {
         {items}
       </Flex>
     </Footer>
-  ) : (
-    <Footer
-      style={{
-        padding: "24px 50px",
-        textAlign: "center",
-      }}
-    >
-      Tiacore c2025
-    </Footer>
-  );
+  ) : null;
 };

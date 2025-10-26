@@ -3,13 +3,13 @@ import { isMobile } from "./isMobile";
 export const minPageHeight = () => {
   const clientHeight = document.documentElement.clientHeight;
 
-  return isMobile() ? `${clientHeight - 110}px` : `${clientHeight - 172}px`;
+  return isMobile() ? `${clientHeight - 110}px` : `${clientHeight - 108}px`;
 };
 
 export const pageHeight = () => {
   const scrollHeight = document.documentElement.scrollHeight;
 
-  return isMobile() ? `${scrollHeight - 70}px` : `${scrollHeight - 134}px`;
+  return isMobile() ? `${scrollHeight - 70}px` : `${scrollHeight - 70}px`;
 };
 
 export const minLeftMenuHeight = () => {
