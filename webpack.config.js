@@ -7,10 +7,20 @@ const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = () => {
-  const env = dotenv.config().parsed;
+  const dotenvResult = dotenv.config();
+  const envFileValues = dotenvResult.error ? {} : dotenvResult.parsed || {};
 
-  const envKeys = Object.keys(env).reduce((prev, next) => {
-    prev[`${next}`] = JSON.stringify(env[next]);
+  const runtimeEnvValues = Object.keys(process.env)
+    .filter((key) => key.startsWith("REACT_APP_"))
+    .reduce((acc, key) => {
+      acc[key] = process.env[key];
+      return acc;
+    }, {});
+
+  const mergedEnv = { ...envFileValues, ...runtimeEnvValues };
+
+  const envKeys = Object.keys(mergedEnv).reduce((prev, next) => {
+    prev[`${next}`] = JSON.stringify(mergedEnv[next]);
     return prev;
   }, {});
 
