@@ -158,11 +158,11 @@ jobs:
             # Обновляем .env с новым тегом (и при необходимости юзернейм)
             touch .env
             if grep -q "^TAG=" .env; then
-              sed -i "s/^TAG=.*/TAG=\$DEPLOY_TAG/" .env
+              sed -i "s/^TAG=.*/TAG=$DEPLOY_TAG/" .env
             else
-              echo "TAG=\$DEPLOY_TAG" >> .env
+              echo "TAG=$DEPLOY_TAG" >> .env
             fi
-            grep -q "^DOCKERHUB_USERNAME=" .env || echo "DOCKERHUB_USERNAME=\$DOCKERHUB_USERNAME" >> .env
+            grep -q "^DOCKERHUB_USERNAME=" .env || echo "DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME" >> .env
 
             echo "➡️ docker compose down (мягко)"
             docker compose down || true
