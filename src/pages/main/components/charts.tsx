@@ -49,11 +49,14 @@ interface IChartsProps {
   totalCostArray: ITotalCost[];
   totalCountArray: ITotalCount[];
   averageCostArray: IAverageCost[];
-  yesterdayData: {
-    empty?: IShiftReportsListColumn[];
-    signed?: IShiftReportsListColumn[];
-    notSigned?: IShiftReportsListColumn[];
-  };
+  yesterdayData: [
+    string,
+    {
+      empty?: IShiftReportsListColumn[];
+      signed?: IShiftReportsListColumn[];
+      notSigned?: IShiftReportsListColumn[];
+    },
+  ];
   description: string;
 }
 
@@ -188,47 +191,52 @@ export const Charts = (props: IChartsProps) => {
       )}
 
       <Col key={3} xs={24} sm={12}>
-        <Card>
-          <Meta title={"Данные по сменам"} description={"за Вчера"} />
-          <div className="main__yesterday">
-            {!!yesterdayData?.empty && (
-              <div className="main__yesterday__el">
-                Не заполнено: {yesterdayData.empty.length}
-                <ul className="main__yesterday__ul">
-                  {yesterdayData.empty.map((el) => (
-                    <li className="main__yesterday__empty" key={el.key}>
-                      {usersMap[el.user]?.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {!!yesterdayData?.notSigned && (
-              <div className="main__yesterday__el">
-                Не согласовано: {yesterdayData.notSigned.length}
-                <ul className="main__yesterday__ul">
-                  {yesterdayData.notSigned.map((el) => (
-                    <li className="main__yesterday__not-signed" key={el.key}>
-                      {usersMap[el.user]?.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {!!yesterdayData?.signed && (
-              <div className="main__yesterday__el">
-                Согласовано: {yesterdayData.signed.length}
-                <ul className="main__yesterday__ul">
-                  {yesterdayData.signed.map((el) => (
-                    <li className="main__yesterday__signed" key={el.key}>
-                      {usersMap[el.user]?.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </Card>
+        {yesterdayData ? (
+          <Card>
+            <Meta
+              title={`Данные по сменам за ${yesterdayData[0]}`}
+              // description={`Данные по сменам за ${yesterdayData[0]}`}
+            />
+            <div className="main__yesterday">
+              {!!yesterdayData[1]?.empty && (
+                <div className="main__yesterday__el">
+                  Не заполнено: {yesterdayData[1].empty.length}
+                  <ul className="main__yesterday__ul">
+                    {yesterdayData[1].empty.map((el) => (
+                      <li className="main__yesterday__empty" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!!yesterdayData[1]?.notSigned && (
+                <div className="main__yesterday__el">
+                  Не согласовано: {yesterdayData[1].notSigned.length}
+                  <ul className="main__yesterday__ul">
+                    {yesterdayData[1].notSigned.map((el) => (
+                      <li className="main__yesterday__not-signed" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!!yesterdayData[1]?.signed && (
+                <div className="main__yesterday__el">
+                  Согласовано: {yesterdayData[1].signed.length}
+                  <ul className="main__yesterday__ul">
+                    {yesterdayData[1].signed.map((el) => (
+                      <li className="main__yesterday__signed" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </Card>
+        ) : null}
       </Col>
     </Row>
   );

@@ -87,9 +87,7 @@ export const Main = () => {
 
   const { data: shiftReportsData } = useShiftReportsQuery(queryParams);
 
-  const yesterdayShiftReportsData = (
-    shiftReportsData?.shift_reports || []
-  ).filter((el) => el.date >= range.date_from && el.date <= range.date_to);
+  const yesterdayShiftReportsData = shiftReportsData?.shift_reports || [];
 
   const yesterdayReducedData = yesterdayShiftReportsData.reduce(
     reduceShiftReportData,
@@ -97,7 +95,7 @@ export const Main = () => {
   );
 
   const yesterdayData = yesterdayReducedData
-    ? Object.values(yesterdayReducedData)[0]
+    ? Object.entries(yesterdayReducedData)[1]
     : undefined;
 
   const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
