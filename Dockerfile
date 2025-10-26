@@ -16,7 +16,10 @@ RUN npm install
 
 # Copy the rest of the application and build it
 COPY . .
-RUN npm run build
+# Force the build layer to rebuild whenever API/WP values change
+RUN REACT_APP_API_URL=$REACT_APP_API_URL \
+    REACT_APP_WP=$REACT_APP_WP \
+    npm run build
 
 # Устанавливаем "serve" для отдачи build-содержимого
 RUN npm install -g serve

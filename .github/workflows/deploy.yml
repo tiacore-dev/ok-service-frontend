@@ -29,6 +29,10 @@ jobs:
             echo "api_url=${API_URL_TEST}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Echo selected API URL
+        run: |
+          echo "📡 Using API URL: ${{ steps.set-urls.outputs.api_url }}"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
