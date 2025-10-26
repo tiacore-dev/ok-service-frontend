@@ -22,10 +22,10 @@ export const Works = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const filters = useSelector(
-    (state: IState) => state.settings.worksSettings.filters
+    (state: IState) => state.settings.worksSettings.filters,
   );
   const tableState = useSelector(
-    (state: IState) => state.settings.worksSettings
+    (state: IState) => state.settings.worksSettings,
   );
   const dispatch = useDispatch();
 
@@ -36,7 +36,7 @@ export const Works = () => {
   }, [filters]);
 
   const worksData: IWorksListColumn[] = useSelector(
-    (state: IState) => state.pages.works.data
+    (state: IState) => state.pages.works.data,
   ).map((doc) => ({
     ...doc,
     key: doc.work_id,
@@ -53,9 +53,9 @@ export const Works = () => {
             navigate,
             currentRole,
             workCategoriesOptions,
-            tableState
+            tableState,
           ),
-    [navigate, workCategoriesOptions, currentRole, tableState]
+    [navigate, workCategoriesOptions, currentRole, tableState],
   );
 
   return (
@@ -88,7 +88,7 @@ export const Works = () => {
                 pagination,
                 filters,
                 sorter: Array.isArray(sorter) ? sorter[0] : sorter,
-              })
+              }),
             );
           }}
         />

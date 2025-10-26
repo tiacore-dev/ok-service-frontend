@@ -83,13 +83,8 @@ export const useDeleteShiftReportDetailMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      shiftReportId,
-    }: {
-      id: string;
-      shiftReportId: string;
-    }) => deleteShiftReportDetailApi(id),
+    mutationFn: ({ id }: { id: string; shiftReportId: string }) =>
+      deleteShiftReportDetailApi(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportDetails", variables.shiftReportId],

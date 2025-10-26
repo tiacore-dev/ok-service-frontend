@@ -23,7 +23,7 @@ export const generateDocument = async (
   try {
     const { access_token, refresh_token } = store.getState().auth;
     const payload: GenerateDocumentParams = {
-      file_name: "shift_report_detail_report.xlsx",
+      file_name: "shift_report_detail_report_new.xlsx", //имя шаблона который используем, shift_report_detail_report_new.xlsx-для зарплатных вед.
       document_data: documentData,
       name: name,
     };

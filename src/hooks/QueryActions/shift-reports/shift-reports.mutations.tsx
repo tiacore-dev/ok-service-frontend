@@ -15,17 +15,15 @@ export type EditableShiftReport = Omit<
 
 export const useCreateShiftReportMutation = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (reportData: EditableShiftReport) =>
       createShiftReport(reportData),
-    onSuccess: (data) => {
+    onSuccess: () => {
       // Инвалидируем кэш для списка отчетов
       queryClient.invalidateQueries({
         queryKey: ["shiftReports"],
       });
-      navigate(`/shifts/${data.shift_report_id}`);
       notification.success({
         message: "Успешно",
         description: "Отчет по смене создан",

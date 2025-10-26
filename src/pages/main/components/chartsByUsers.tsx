@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { useSelector } from "react-redux";
-import { getUsersMap } from "../../store/modules/pages/selectors/users.selector";
+import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 
 interface IChartsByUsersProps {
   totalCostArrayByUser: {
@@ -47,7 +47,7 @@ export const ChartsByUsers = (props: IChartsByUsersProps) => {
   return (
     <Row gutter={[16, 16]}>
       {totalCostArrayByUser.map((element) => (
-        <Col ref={containerRef} key={0} xs={24} sm={12} md={8}>
+        <Col ref={containerRef} key={element.user} xs={24} sm={12} md={8}>
           <Card hoverable style={{ padding: "0 24px" }}>
             <Meta
               title={usersMap[element.user]?.name}
@@ -73,7 +73,7 @@ export const ChartsByUsers = (props: IChartsByUsersProps) => {
               />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" fill="#4090ff" name="Сумма" />
+              <Bar dataKey="value" fill="#6940ff" name="Сумма" />
             </BarChart>
           </Card>
         </Col>

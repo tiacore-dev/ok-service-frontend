@@ -65,7 +65,7 @@ export const EditableShiftReportDetailDialog: React.FC<
               required: true,
               message: "Пожалуйста, введите количество",
               type: "number",
-              min: 1,
+              min: 0.001,
               transform: (value) => Number(value),
             },
           ]}

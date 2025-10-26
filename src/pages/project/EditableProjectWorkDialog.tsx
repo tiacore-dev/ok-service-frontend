@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useCallback, useEffect } from "react";
-import { Form, Input, InputNumber, Select, Modal, Checkbox } from "antd";
+import { Form, Input, InputNumber, Modal, Checkbox } from "antd";
 import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
 import { useProjectWorks } from "../../hooks/ApiActions/project-works";
 import { useWorks } from "../../hooks/ApiActions/works";
@@ -28,6 +28,19 @@ export const EditableProjectWorkDialog: React.FC<
   const { createProjectWork, editProjectWork } = useProjectWorks();
   const { getWorks } = useWorks();
   const worksData = useSelector((state: IState) => state.pages.works.data);
+
+  const customSelectFilterHandler = useCallback(
+    (
+      input: string,
+      option: {
+        title: string;
+        disabled: boolean;
+      },
+    ) =>
+      !option.disabled &&
+      (option?.title ?? "").toLowerCase().includes(input.toLowerCase()),
+    [],
+  );
 
   useEffect(() => {
     getWorks();
@@ -114,6 +127,7 @@ export const EditableProjectWorkDialog: React.FC<
           rules={[{ required: true, message: "Пожалуйста, выберите работу" }]}
         >
           <EnhancedSelect
+            filterOption={customSelectFilterHandler}
             className="work-select"
             options={worksOptions}
             showSearch

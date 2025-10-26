@@ -19,28 +19,32 @@ export const useProjectWorks = () => {
   const notificationApi = useContext(NotificationContext);
 
   const getProjectWorks = (project_id?: string) => {
+    const params: Record<string, string> = { sort_by: "created_at" };
+
     if (project_id) {
-      dispatch(getProjectWorksRequest());
-      apiGet<{ project_works: IProjectWorksList[] }>(
-        "project_works",
-        "all",
-        undefined,
-        { project: project_id, sort_by: "created_at" },
-      )
-        .then((projectWorksData) => {
-          dispatch(getProjectWorksSuccess(projectWorksData.project_works));
-        })
-        .catch((err) => {
-          dispatch(getProjectWorksFailure(err));
-          notificationApi.error({
-            message: `Ошибка`,
-            description:
-              "Возникла ошибка при получении списка работ по спецификации",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        });
+      params.project = project_id;
     }
+
+    dispatch(getProjectWorksRequest());
+    apiGet<{ project_works: IProjectWorksList[] }>(
+      "project_works",
+      "all",
+      undefined,
+      params,
+    )
+      .then((projectWorksData) => {
+        dispatch(getProjectWorksSuccess(projectWorksData.project_works));
+      })
+      .catch((err) => {
+        dispatch(getProjectWorksFailure(err));
+        notificationApi.error({
+          message: `Ошибка`,
+          description:
+            "Возникла ошибка при получении списка работ по спецификации",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      });
   };
 
   const createProjectWork = (

@@ -24,7 +24,7 @@ export interface IEditableUser extends Omit<IUser, "user_id"> {
 
 export const useUsers = () => {
   const dispatch = useDispatch();
-  const { apiGet, apiPost, apiPatch, apiDelete } = useApi();
+  const { apiGet, apiPost, apiPatch } = useApi();
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
 
@@ -95,7 +95,7 @@ export const useUsers = () => {
   const editUser = (user_id: string, editableUserData: IEditableUser) => {
     dispatch(editUserAction.sendUser());
 
-    apiPatch<{}>("users", user_id, "edit", editableUserData)
+    apiPatch("users", user_id, "edit", editableUserData)
       .then(() => {
         navigate("/users");
         getUsers();
@@ -119,7 +119,7 @@ export const useUsers = () => {
   };
 
   const deleteUser = (userId: string) => {
-    apiDelete<{}>("users", userId, "delete/hard")
+    apiPatch("users", userId, "delete/soft")
       .then(() => {
         notificationApi.success({
           message: `Успешно`,

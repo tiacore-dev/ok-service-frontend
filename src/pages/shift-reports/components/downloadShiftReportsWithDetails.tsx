@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, Tooltip } from "antd";
 import * as React from "react";
 import { FileExcelOutlined } from "@ant-design/icons";
@@ -6,34 +8,12 @@ import { getProjectsMap } from "../../../store/modules/pages/selectors/projects.
 import { getObjectsMap } from "../../../store/modules/pages/selectors/objects.selector";
 import { getUsersMap } from "../../../store/modules/pages/selectors/users.selector";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { getWorksMap } from "../../../store/modules/pages/selectors/works.selector";
 import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
-import { IState } from "../../../store/modules";
+import type { IState } from "../../../store/modules";
 import { generateDocument } from "../../../api/download.api";
-
-interface IExportedReportData {
-  number: number;
-  date: string;
-  user: string;
-  object: string;
-  project: string;
-  project_leader: string;
-  sum: string;
-  signed: string;
-}
-
-interface IExportedDetailData {
-  isDetail: boolean;
-  work: string;
-  quantity: number;
-  coast: number;
-  sum: number;
-  counter?: number;
-}
-
-type ExportRow = IExportedReportData | IExportedDetailData;
+import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
 
 interface DownloadShiftReportsWithDetailsProps {
   currentFilters?: {
@@ -60,15 +40,24 @@ export interface ExportExcelObject {
 }
 
 export interface ExportExcelObjectDetails {
-  work: string;
+  date: string;
+  work_name: string;
+  work_category: string;
   quantity: number;
   coast: number;
   detail_summ: number;
 }
 
-export const DownloadShiftReportsWithDetails: React.FC<
-  DownloadShiftReportsWithDetailsProps
-> = ({ currentFilters }) => {
+type ShiftReportDetail = {
+  work?: string;
+  quantity?: number;
+  summ?: number;
+  project_work?: string;
+};
+
+export const DownloadShiftReportsWithDetails = ({
+  currentFilters,
+}: DownloadShiftReportsWithDetailsProps) => {
   const [isExporting, setIsExporting] = React.useState(false);
 
   const { data: shiftReportsResponse } = useShiftReportsQuery({
@@ -83,41 +72,89 @@ export const DownloadShiftReportsWithDetails: React.FC<
   const usersMap = useSelector(getUsersMap);
   const worksMap = useSelector(getWorksMap);
 
-  const allProjectWorks = useSelector(
-    (state: IState) => state.pages.projectWorks.data
-  );
+  const allProjectWorks =
+    useSelector((state: IState) => state.pages.projectWorks.data) || [];
 
-  const createExportTemplate = async (): Promise<ExportExcelTemplate> => {
-    const exportData: ExportExcelTemplate = {
-      date_from: dateTimestampToLocalString(currentFilters?.date_from) || "",
-      date_to: dateTimestampToLocalString(currentFilters?.date_to) || "",
-      user: usersMap[currentFilters?.user]?.name || "",
-      total_summ: 0,
-      unique_days: 0,
-      objects: [],
-    };
+  const projectWorksById = React.useMemo(() => {
+    const map: Record<string, IProjectWorksList> = {};
+    const projectWorksArray = Array.isArray(allProjectWorks)
+      ? (allProjectWorks as IProjectWorksList[])
+      : [];
 
-    const uniqueDatesWithDetails = new Set<string>();
+    for (const projectWork of projectWorksArray) {
+      const projectWorkId = projectWork?.project_work_id;
+      if (projectWorkId) {
+        map[projectWorkId] = projectWork;
+      }
+    }
 
-    const objectsMapByProject: Record<string, ExportExcelObject> = {};
+    return map;
+  }, [allProjectWorks]);
 
-    for (const report of shiftReportsData) {
-      if (!report.shift_report_id) continue;
+  const createExportTemplate =
+    React.useCallback(async (): Promise<ExportExcelTemplate> => {
+      const exportData: ExportExcelTemplate = {
+        date_from: dateTimestampToLocalString(currentFilters?.date_from) || "",
+        date_to: dateTimestampToLocalString(currentFilters?.date_to) || "",
+        user: usersMap[currentFilters?.user]?.name || "",
+        total_summ: 0,
+        unique_days: 0,
+        objects: [],
+      };
 
-      try {
-        const detailsResponse = await fetchShiftReportDetails({
-          shift_report: report.shift_report_id,
-        });
-        const details = detailsResponse.shift_report_details || [];
+      if (shiftReportsData.length === 0) {
+        return exportData;
+      }
 
-        if (details.length === 0) continue;
+      const uniqueDatesWithDetails = new Set<string>();
+      const objectsMapByProject: Record<string, ExportExcelObject> = {};
+
+      const validReports = shiftReportsData.filter((report: any) =>
+        Boolean(report?.shift_report_id),
+      );
+
+      if (validReports.length === 0) {
+        return exportData;
+      }
+
+      const reportsWithDetails = await Promise.all(
+        validReports.map(async (report: any) => {
+          try {
+            const detailsResponse = await fetchShiftReportDetails({
+              shift_report: report.shift_report_id,
+            });
+
+            const details = (detailsResponse.shift_report_details ||
+              []) as ShiftReportDetail[];
+
+            return {
+              report,
+              details,
+            };
+          } catch (error) {
+            console.error(
+              `Ошибка при получении деталей для отчета ${report.shift_report_id}:`,
+              error,
+            );
+            return null;
+          }
+        }),
+      );
+
+      for (const reportWithDetails of reportsWithDetails) {
+        if (!reportWithDetails) continue;
+
+        const { report, details } = reportWithDetails;
+        if (!details.length) continue;
 
         const reportDate = dateTimestampToLocalString(report.date);
         uniqueDatesWithDetails.add(reportDate);
 
-        const objectName =
-          objectsMap[projectsMap[report.project]?.object]?.name || "";
-        const projectName = projectsMap[report.project]?.name || "";
+        const project = projectsMap[report.project];
+        const objectName = project
+          ? objectsMap[project.object]?.name || ""
+          : "";
+        const projectName = project?.name || "";
         const objectKey = `${objectName} (${projectName})`;
 
         let existingObject = objectsMapByProject[objectKey];
@@ -127,6 +164,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
             details_summ: 0,
             details: [],
           };
+
           objectsMapByProject[objectKey] = existingObject;
           exportData.objects.push(existingObject);
         }
@@ -135,27 +173,42 @@ export const DownloadShiftReportsWithDetails: React.FC<
         exportData.total_summ += reportSum;
         existingObject.details_summ += reportSum;
 
-        details.forEach(
-          (detail: { work: string; quantity: number; summ: number }) => {
-            existingObject?.details.push({
-              work: `${worksMap[detail.work]?.name || ""} (${reportDate})`,
-              quantity: detail.quantity,
-              coast: detail.summ / detail.quantity,
-              detail_summ: detail.summ,
-            });
-          }
-        );
-      } catch (error) {
-        console.error(
-          `Ошибка при получении деталей для отчета ${report.shift_report_id}:`,
-          error
-        );
-      }
-    }
+        for (const detail of details) {
+          const projectWorkId = detail.project_work;
+          const projectWork = projectWorkId
+            ? projectWorksById[projectWorkId]
+            : undefined;
+          const workId = detail.work;
+          const categoryWorkName = workId ? worksMap[workId]?.name || "" : "";
+          const projectWorkName = projectWork?.project_work_name || "";
+          const quantity = detail.quantity ?? 0;
+          const summ = detail.summ ?? 0;
+          const coast = quantity > 0 ? summ / quantity : 0;
 
-    exportData.unique_days = uniqueDatesWithDetails.size;
-    return exportData;
-  };
+          existingObject.details.push({
+            date: reportDate,
+            work_name: projectWorkName,
+            work_category: categoryWorkName,
+            quantity,
+            coast,
+            detail_summ: summ,
+          });
+        }
+      }
+
+      exportData.unique_days = uniqueDatesWithDetails.size;
+      return exportData;
+    }, [
+      currentFilters?.date_from,
+      currentFilters?.date_to,
+      currentFilters?.user,
+      objectsMap,
+      projectWorksById,
+      projectsMap,
+      shiftReportsData,
+      usersMap,
+      worksMap,
+    ]);
 
   const handleDownload = async (blob: Blob, fileName: string) => {
     const url = window.URL.createObjectURL(blob);
@@ -165,7 +218,6 @@ export const DownloadShiftReportsWithDetails: React.FC<
     document.body.appendChild(link);
     link.click();
 
-    // Очистка
     setTimeout(() => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
@@ -184,7 +236,7 @@ export const DownloadShiftReportsWithDetails: React.FC<
       const fileName =
         `shift_report_${userName}_${dateFrom}_${dateTo}.xlsx`.replace(
           /\s+/g,
-          "_"
+          "_",
         );
       const reportName =
         `shift_report_${userName}_${dateFrom}_${dateTo}`.replace(/\s+/g, "_");
@@ -198,15 +250,11 @@ export const DownloadShiftReportsWithDetails: React.FC<
       setIsExporting(false);
     }
   }, [
-    shiftReportsData,
-    projectsMap,
-    objectsMap,
-    usersMap,
-    worksMap,
-    allProjectWorks,
+    createExportTemplate,
     currentFilters?.date_from,
     currentFilters?.date_to,
     currentFilters?.user,
+    usersMap,
   ]);
 
   const isDisabled =

@@ -87,6 +87,7 @@ export const User = () => {
             <p>Логин: {userData.login}</p>
             <p>Город: {userData.city ? citiesMap[userData.city]?.name : "—"}</p>
             <p>Роль: {rolesMap[userData.role]?.name}</p>
+            {userData.deleted && <p>Удалён</p>}
           </Card>
         </Content>
       ) : (
