@@ -31,7 +31,13 @@ jobs:
 
       - name: Echo selected API URL
         run: |
-          echo "📡 Using API URL: ${{ steps.set-urls.outputs.api_url }}"
+          api_url="${{ steps.set-urls.outputs.api_url }}"
+          if [ -z "$api_url" ]; then
+            echo "⚠️ API URL is empty"
+          else
+            safe_prefix="${api_url:0:24}"
+            echo "📡 Using API URL (prefix): ${safe_prefix}..."
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
