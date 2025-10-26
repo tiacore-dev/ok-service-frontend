@@ -134,6 +134,12 @@ jobs:
             export DEPLOY_BRANCH='${{ env.DEPLOY_BRANCH }}'
             export DEPLOY_PATH='${{ env.DEPLOY_PATH }}'
 
+            # Проверим наличие docker compose v2
+            if ! docker compose version >/dev/null 2>&1; then
+              echo "❌ Docker Compose v2 не найден. Установите docker-compose-plugin."
+              exit 1
+            fi
+
             cd "$DEPLOY_PATH" || { echo "❌ Не удалось перейти в $DEPLOY_PATH"; exit 1; }
 
             echo "➡️ git pull origin ${DEPLOY_BRANCH}"
@@ -145,20 +151,22 @@ jobs:
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin \
               || { echo "❌ Docker login failed"; exit 1; }
 
-            echo "➡️ docker pull \$DOCKERHUB_USERNAME/ok-service-frontend:\$DEPLOY_TAG"
-            docker pull "$DOCKERHUB_USERNAME/ok-service-frontend:$DEPLOY_TAG" \
-              || { echo "❌ Docker pull failed"; exit 1; }
-
-            # Обновляем .env с новым тегом
+            # Обновляем .env с новым тегом (и при необходимости юзернейм)
             touch .env
             if grep -q "^TAG=" .env; then
               sed -i "s/^TAG=.*/TAG=\$DEPLOY_TAG/" .env
             else
               echo "TAG=\$DEPLOY_TAG" >> .env
             fi
+            grep -q "^DOCKERHUB_USERNAME=" .env || echo "DOCKERHUB_USERNAME=\$DOCKERHUB_USERNAME" >> .env
+
+            echo "➡️ docker compose down (мягко)"
+            docker compose down || true
+
+            echo "➡️ docker compose pull"
+            docker compose pull --ignore-pull-failures || true
 
             echo "➡️ docker compose up -d"
-            docker compose pull --ignore-pull-failures || true
             docker compose up -d --remove-orphans \
               || { echo "❌ docker compose up failed"; exit 1; }
 
