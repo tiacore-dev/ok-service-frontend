@@ -17,6 +17,7 @@ import { DownloadObjectVolumeReport } from "./downloadObjectVolumeReport";
 import { useUsersMap } from "../../../queries/users";
 import { useObjectsMap } from "../../../queries/objects";
 import { useProjectsMap } from "../../../queries/projects";
+import { DownloadUsersReport } from "./downloadUsersReport";
 
 interface IExportedData {
   number: number;
@@ -125,6 +126,9 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
         )}
         {role !== RoleId.USER && (
           <DownloadObjectVolumeReport currentFilters={currentFilters} />
+        )}
+        {role !== RoleId.USER && (
+          <DownloadUsersReport currentFilters={currentFilters} />
         )}
         {role !== RoleId.USER && (
           <Button

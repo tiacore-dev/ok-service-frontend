@@ -212,32 +212,36 @@ export const EditableShiftReportDialog = (
                 disabled={sent}
               />
             </Form.Item>
-            <Form.Item
-              labelCol={{ span: 10 }}
-              wrapperCol={{ span: 14 }}
-              label="Ночная смена (+25%)"
-            >
-              <Checkbox
-                checked={data.night_shift}
-                onChange={() =>
-                  dispatch(editShiftReportAction.toggleNightShift())
-                }
-                disabled={sent}
-              />
-            </Form.Item>
-            <Form.Item
-              labelCol={{ span: 10 }}
-              wrapperCol={{ span: 14 }}
-              label="Особые условия (+25%)"
-            >
-              <Checkbox
-                checked={data.extreme_conditions}
-                onChange={() =>
-                  dispatch(editShiftReportAction.toggleExtremeConditions())
-                }
-                disabled={sent}
-              />
-            </Form.Item>
+            {role !== RoleId.USER && (
+              <Form.Item
+                labelCol={{ span: 10 }}
+                wrapperCol={{ span: 14 }}
+                label="Ночная смена (+25%)"
+              >
+                <Checkbox
+                  checked={data.night_shift}
+                  onChange={() =>
+                    dispatch(editShiftReportAction.toggleNightShift())
+                  }
+                  disabled={sent}
+                />
+              </Form.Item>
+            )}
+            {role !== RoleId.USER && (
+              <Form.Item
+                labelCol={{ span: 10 }}
+                wrapperCol={{ span: 14 }}
+                label="Особые условия (+25%)"
+              >
+                <Checkbox
+                  checked={data.extreme_conditions}
+                  onChange={() =>
+                    dispatch(editShiftReportAction.toggleExtremeConditions())
+                  }
+                  disabled={sent}
+                />
+              </Form.Item>
+            )}
 
             {role !== RoleId.USER && shiftReport?.signed && (
               <Form.Item

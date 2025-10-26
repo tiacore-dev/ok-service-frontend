@@ -91,12 +91,10 @@ export const Assignment = () => {
   }, [projectsList, objectsMap, role, userId]);
 
   const userOptions = React.useMemo(() => {
-    return userShiftData
-      .filter((u) => !u.assignments.length)
-      .map((u) => ({
-        value: u.userId,
-        label: usersMap[u.userId]?.name ?? u.userId,
-      }));
+    return userShiftData.map((u) => ({
+      value: u.userId,
+      label: usersMap[u.userId]?.name ?? u.userId,
+    }));
   }, [userShiftData, usersMap]);
 
   const { mutate: createShift, isPending: isAssigning } =
