@@ -16,6 +16,7 @@ import { useUsersMap } from "../../queries/users";
 import { saveObjectsTableState } from "../../store/modules/settings/objects";
 import { useObjectsQuery } from "../../queries/objects";
 import { useObjectStatuses } from "../../queries/objectStatuses";
+import { useCitiesMap } from "../../queries/cities";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -37,6 +38,7 @@ export const Objects = () => {
     [objectsList],
   );
   const { statusMap, statusOptions } = useObjectStatuses();
+  const { citiesMap, cityOptions } = useCitiesMap();
 
   const handleTableChange: TableProps<IObjectsListColumn>["onChange"] = (
     pagination,
@@ -67,15 +69,25 @@ export const Objects = () => {
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? objectsMobileColumns(navigate, statusMap)
+        ? objectsMobileColumns(navigate, statusMap, citiesMap)
         : objectsDesktopColumns(
             navigate,
             statusMap,
             usersMap,
+            citiesMap,
             statusOptions,
+            cityOptions,
             tableState,
           ),
-    [navigate, statusMap, usersMap, statusOptions, tableState],
+    [
+      navigate,
+      statusMap,
+      usersMap,
+      statusOptions,
+      cityOptions,
+      citiesMap,
+      tableState,
+    ],
   );
   return (
     <>

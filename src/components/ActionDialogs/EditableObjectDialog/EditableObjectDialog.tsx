@@ -22,6 +22,7 @@ import {
 } from "../../../queries/objects";
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useObjectStatuses } from "../../../queries/objectStatuses";
+import { useCitiesMap } from "../../../queries/cities";
 
 const modalContentWidth = getModalContentWidth();
 
@@ -70,7 +71,9 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
           duration: 2,
         });
       } else {
-        await createObjectMutation.mutateAsync(objectData as EditableObjectPayload);
+        await createObjectMutation.mutateAsync(
+          objectData as EditableObjectPayload,
+        );
         notificationApi?.success({
           message: "Успешно",
           description: "Объект создан",
@@ -111,12 +114,16 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   }, [object, dispatch]);
 
   const { users } = useUsersMap();
-  const userMap = users
-    .filter((user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN)
+  const userOptions = users
+    .filter(
+      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN,
+    )
     .map((el) => ({
       label: el.name,
       value: el.user_id,
     }));
+
+  const { cityOptions } = useCitiesMap();
 
   return (
     <ActionDialog
@@ -145,7 +152,21 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 style={{ width: "100%" }}
               />
             </Form.Item>
-
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Город"
+            >
+              <Select
+                value={data.city}
+                onChange={(value: string) =>
+                  dispatch(editObjectAction.setCity(value))
+                }
+                options={cityOptions}
+                allowClear
+                placeholder="Выберите город"
+              />
+            </Form.Item>
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
@@ -184,7 +205,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 onChange={(value: string) =>
                   dispatch(editObjectAction.setManager(value))
                 }
-                options={userMap}
+                options={userOptions}
                 disabled={sent}
               />
             </Form.Item>

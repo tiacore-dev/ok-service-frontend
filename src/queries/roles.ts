@@ -27,6 +27,7 @@ export const useRoles = () => {
     () =>
       roles.map((role) => ({
         text: role.name,
+        label: role.name,
         value: role.role_id,
       })),
     [roles],

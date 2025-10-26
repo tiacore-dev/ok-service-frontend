@@ -5,7 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import logo from "./logo.png";
 import { IState } from "../../store/modules";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  BarChartOutlined,
+  BarsOutlined,
+  FileDoneOutlined,
+  SettingOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 
@@ -29,47 +36,67 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   desktopItems.push({
     key: "main",
     label: "Главная",
+    icon: <BarChartOutlined />,
     onClick: () => {
       navigate("/home");
     },
   });
+
+  desktopItems.push({
+    key: "shifts",
+    label: "Смены",
+    icon: <FileDoneOutlined />,
+    onClick: () => {
+      navigate("/shifts");
+    },
+  });
+
   if (role !== RoleId.USER) {
     desktopItems.push({
       key: "objects",
       label: "Объекты",
+      icon: <BarsOutlined />,
       onClick: () => {
         navigate("/objects");
       },
     });
 
     desktopItems.push({
-      key: "users",
-      label: "Пользователи",
-      onClick: () => {
-        navigate("/users");
-      },
-    });
+      label: "Справочники",
+      key: "dictionaries",
+      icon: <SettingOutlined />,
+      children: [
+        {
+          key: "cities",
+          label: "Города",
+          onClick: () => {
+            navigate("/cities");
+          },
+        },
 
-    desktopItems.push({
-      key: "works",
-      label: "Каталог работ",
-      onClick: () => {
-        navigate("/works");
-      },
+        {
+          key: "users",
+          label: "Пользователи",
+          onClick: () => {
+            navigate("/users");
+          },
+        },
+
+        {
+          key: "works",
+          label: "Виды работ",
+          onClick: () => {
+            navigate("/works");
+          },
+        },
+      ],
     });
   }
 
   desktopItems.push({
-    key: "shifts",
-    label: "Смены",
-    onClick: () => {
-      navigate("/shifts");
-    },
-  });
-
-  desktopItems.push({
     key: "account",
-    label: "Аккаунт",
+    label: "Профиль",
+    icon: <UserOutlined />,
     onClick: () => {
       navigate("/account");
     },

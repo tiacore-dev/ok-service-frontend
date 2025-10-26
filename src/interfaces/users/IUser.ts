@@ -6,5 +6,6 @@ export interface IUser {
   login: string;
   category: number;
   role: RoleId;
+  city?: string;
   deleted: boolean;
 }

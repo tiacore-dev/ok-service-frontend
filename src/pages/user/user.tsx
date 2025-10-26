@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import Title from "antd/es/typography/Title";
@@ -13,6 +15,7 @@ import { useUserQuery, useDeleteUserMutation } from "../../queries/users";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { useRoles } from "../../queries/roles";
+import { useCitiesMap } from "../../queries/cities";
 
 export const User = () => {
   const { Content } = Layout;
@@ -22,9 +25,13 @@ export const User = () => {
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
   const { mutateAsync: deleteUser } = useDeleteUserMutation();
-
+  const { citiesMap } = useCitiesMap();
   const userId = routeParams.userId;
-  const { data: userData, isPending, isFetching } = useUserQuery(userId, {
+  const {
+    data: userData,
+    isPending,
+    isFetching,
+  } = useUserQuery(userId, {
     enabled: Boolean(userId),
   });
 
@@ -94,16 +101,14 @@ export const User = () => {
               <EditableUserDialog user={userData} />
             )}
             {currentRole === RoleId.ADMIN && (
-              <DeleteUserDialog
-                onDelete={handleDelete}
-                name={userData.name}
-              />
+              <DeleteUserDialog onDelete={handleDelete} name={userData.name} />
             )}
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Имя: {userData.name}</p>
             <p>Разряд: {userData.category ?? "Нет разряда"}</p>
             <p>Логин: {userData.login}</p>
+            <p>Город: {userData.city ? citiesMap[userData.city]?.name : "—"}</p>
             <p>Роль: {rolesMap[userData.role]?.name}</p>
             {userData.deleted && <p>Удалён</p>}
           </Card>

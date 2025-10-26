@@ -5,13 +5,16 @@ import { IUsersListColumn } from "../../../interfaces/users/IUsersList";
 import { IRole } from "../../../interfaces/roles/IRole";
 import { filterDropdown } from "../../../components/Table/filterDropdown";
 import { categoryFilterOptions } from "../../../utils/categoryMap";
+import { ICity } from "../../../interfaces/cities/ICity";
 import type { IUsersSettingsState } from "../../../store/modules/settings/users";
 
 export const usersDesktopColumns = (
   navigate: NavigateFunction,
   rolesMap: Record<string, IRole>,
-  rolesOptions?: { text: string; value: string }[],
-  tableState?: IUsersSettingsState
+  citiesMap: Record<string, ICity>,
+  roleOptions?: { text: string; value: string }[],
+  cityOptions?: { text: string; value: string }[],
+  tableState?: IUsersSettingsState,
 ): ColumnsType<IUsersListColumn> => {
   const columns: ColumnsType<IUsersListColumn> = [
     {
@@ -63,7 +66,7 @@ export const usersDesktopColumns = (
       dataIndex: "role",
       key: "role",
       width: "20%",
-      filters: rolesOptions,
+      filters: roleOptions,
       onFilter: (value, record) => record.role.includes(value as string),
       sorter: (a, b) =>
         rolesMap[a.role]?.name > rolesMap[b.role]?.name ? 1 : -1,
@@ -71,6 +74,19 @@ export const usersDesktopColumns = (
         <div>
           <div>{rolesMap[record.role]?.name}</div>
         </div>
+      ),
+    },
+    {
+      title: "Город",
+      dataIndex: "city",
+      key: "city",
+      width: "15%",
+      filters: cityOptions,
+      onFilter: (value, record) => record.city?.includes(value as string),
+      sorter: (a, b) =>
+        citiesMap[a.city]?.name > citiesMap[b.city]?.name ? 1 : -1,
+      render: (text: string, record: IUsersListColumn) => (
+        <div>{record.city ? citiesMap[record.city]?.name : "—"}</div>
       ),
     },
   ];

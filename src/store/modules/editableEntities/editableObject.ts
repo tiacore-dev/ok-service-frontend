@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { IObject } from "../../../interfaces/objects/IObject";
+import type { IObject } from "../../../interfaces/objects/IObject";
 import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus";
 
 export interface IEditableObjectState extends IObject {
@@ -14,11 +14,12 @@ const initialState: IEditableObjectState = {
   description: "",
   manager: "",
   status: ObjectStatusId.WAITING,
+  city: undefined,
 };
 
 const setObjectData = (
   state: IEditableObjectState,
-  objectData: Partial<IObject>,
+  objectData: Partial<IObject>
 ) => {
   state.object_id = objectData.object_id;
   state.name = objectData.name;
@@ -26,6 +27,7 @@ const setObjectData = (
   state.description = objectData.description;
   state.status = objectData.status;
   state.manager = objectData.manager;
+  state.city = objectData.city;
   state.sent = false;
 };
 
@@ -35,7 +37,7 @@ const editableObjectSlice = createSlice({
   reducers: {
     setObjectData: (
       state: IEditableObjectState,
-      action: { payload: IObject },
+      action: { payload: IObject }
     ) => {
       setObjectData(state, action.payload);
     },
@@ -50,20 +52,27 @@ const editableObjectSlice = createSlice({
 
     setDescription: (
       state: IEditableObjectState,
-      action: { payload: string },
+      action: { payload: string }
     ) => {
       state.description = action.payload;
     },
 
     setStatus: (
       state: IEditableObjectState,
-      action: { payload: ObjectStatusId },
+      action: { payload: ObjectStatusId }
     ) => {
       state.status = action.payload;
     },
 
     setManager: (state: IEditableObjectState, action: { payload: string }) => {
       state.manager = action.payload;
+    },
+
+    setCity: (
+      state: IEditableObjectState,
+      action: { payload: string | undefined }
+    ) => {
+      state.city = action.payload;
     },
 
     sendObject: (state: IEditableObjectState) => {

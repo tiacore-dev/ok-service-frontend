@@ -11,6 +11,7 @@ import { Main } from "../../pages/main/main";
 import { isMobile } from "../../utils/isMobile";
 import { pageHeight } from "../../utils/pageSettings";
 import { Users } from "../../pages/users/users.page";
+import { Cities } from "../../pages/cities/cities.page";
 import { Login } from "../../pages/auth/component/login";
 import { Account } from "../../pages/auth/component/account";
 import { Objects } from "../../pages/objects/objects.page";
@@ -36,6 +37,7 @@ import { objectStatusesKeys } from "../../queries/objectStatuses";
 import { rolesKeys } from "../../queries/roles";
 import { fetchObjectStatuses } from "../../api/object-statuses.api";
 import { fetchRoles } from "../../api/roles.api";
+import { citiesKeys } from "../../queries/cities";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -55,6 +57,7 @@ export const useloadSourse = (): {
       queryKey: ["shiftReport"],
     });
     queryClient.removeQueries({ queryKey: usersKeys.all() });
+    queryClient.removeQueries({ queryKey: citiesKeys.all() });
     queryClient.removeQueries({ queryKey: objectsKeys.all() });
     queryClient.removeQueries({ queryKey: projectsKeys.all() });
     queryClient.removeQueries({ queryKey: projectWorksKeys.all() });
@@ -65,33 +68,36 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: rolesKeys.all() });
   }, [queryClient]);
 
-  const load = React.useCallback(async (_accessToken?: string) => {
-    try {
-      await queryClient.prefetchQuery({
-        queryKey: objectStatusesKeys.list(),
-        queryFn: fetchObjectStatuses,
-      });
-    } catch (err) {
-      notificationApi.error({
-        message: "Ошибка",
-        description: "Ошибка при загрузке справочника статусов объектов",
-      });
-      console.error("fetchObjectStatuses", err);
-    }
+  const load = React.useCallback(
+    async (_accessToken?: string) => {
+      try {
+        await queryClient.prefetchQuery({
+          queryKey: objectStatusesKeys.list(),
+          queryFn: fetchObjectStatuses,
+        });
+      } catch (err) {
+        notificationApi.error({
+          message: "Ошибка",
+          description: "Ошибка при загрузке справочника статусов объектов",
+        });
+        console.error("fetchObjectStatuses", err);
+      }
 
-    try {
-      await queryClient.prefetchQuery({
-        queryKey: rolesKeys.list(),
-        queryFn: fetchRoles,
-      });
-    } catch (err) {
-      notificationApi.error({
-        message: "Ошибка",
-        description: "Ошибка при загрузке справочника ролей",
-      });
-      console.error("fetchRoles", err);
-    }
-  }, [notificationApi, queryClient]);
+      try {
+        await queryClient.prefetchQuery({
+          queryKey: rolesKeys.list(),
+          queryFn: fetchRoles,
+        });
+      } catch (err) {
+        notificationApi.error({
+          message: "Ошибка",
+          description: "Ошибка при загрузке справочника ролей",
+        });
+        console.error("fetchRoles", err);
+      }
+    },
+    [notificationApi, queryClient],
+  );
 
   return { load, clearStates };
 };
@@ -148,6 +154,9 @@ export const App = () => {
               </Route>
               <Route path="projects">
                 <Route path=":projectId" element={<Project />} />
+              </Route>
+              <Route path="cities">
+                <Route index={true} element={<Cities />} />
               </Route>
               <Route path="users">
                 <Route index={true} element={<Users />} />

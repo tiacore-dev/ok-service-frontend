@@ -1,0 +1,5466 @@
+{
+  "swagger": "2.0",
+  "basePath": "/",
+  "paths": {
+    "/auth/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_health_check",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Tokens"
+            }
+          }
+        },
+        "operationId": "post_auth_login",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Tokens"
+            }
+          }
+        },
+        "operationId": "post_auth_refresh",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/RefreshToken"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/cities/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CityMessage"
+            }
+          }
+        },
+        "operationId": "post_city_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CityCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "cities"
+        ]
+      }
+    },
+    "/cities/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CityAllResponse"
+            }
+          }
+        },
+        "operationId": "get_city_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Смещение для пагинации",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Лимит записей",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Поле для сортировки"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Порядок сортировки",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по названию города"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по удаленным записям"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "cities"
+        ]
+      }
+    },
+    "/cities/{city_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "city_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CityMessage"
+            }
+          }
+        },
+        "operationId": "delete_city_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "cities"
+        ]
+      }
+    },
+    "/cities/{city_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "city_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CityMessage"
+            }
+          }
+        },
+        "operationId": "patch_city_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "cities"
+        ]
+      }
+    },
+    "/cities/{city_id}/edit": {
+      "parameters": [
+        {
+          "name": "city_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CityMessage"
+            }
+          }
+        },
+        "operationId": "patch_city_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CityCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "cities"
+        ]
+      }
+    },
+    "/cities/{city_id}/view": {
+      "parameters": [
+        {
+          "name": "city_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/CityResponse"
+            }
+          }
+        },
+        "operationId": "get_city_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "cities"
+        ]
+      }
+    },
+    "/leaves/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LeaveMessage"
+            }
+          }
+        },
+        "operationId": "post_leave_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/LeaveEdit"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "leaves"
+        ]
+      }
+    },
+    "/leaves/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LeaveAllResponse"
+            }
+          }
+        },
+        "operationId": "get_leave_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Смещение",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Лимит",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Поле сортировки"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Направление сортировки",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по сотруднику"
+          },
+          {
+            "name": "responsible",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по ответственному"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по причине"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "type": "integer",
+            "description": "Дата начала периода"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "type": "integer",
+            "description": "Дата конца периода"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по удаленным листам"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "leaves"
+        ]
+      }
+    },
+    "/leaves/{leave_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "leave_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LeaveMessage"
+            }
+          }
+        },
+        "operationId": "delete_leave_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "leaves"
+        ]
+      }
+    },
+    "/leaves/{leave_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "leave_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LeaveMessage"
+            }
+          }
+        },
+        "operationId": "patch_leave_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "leaves"
+        ]
+      }
+    },
+    "/leaves/{leave_id}/edit": {
+      "parameters": [
+        {
+          "name": "leave_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LeaveMessage"
+            }
+          }
+        },
+        "operationId": "patch_leave_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/LeaveCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "leaves"
+        ]
+      }
+    },
+    "/leaves/{leave_id}/view": {
+      "parameters": [
+        {
+          "name": "leave_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LeaveResponse"
+            }
+          }
+        },
+        "operationId": "get_leave_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "leaves"
+        ]
+      }
+    },
+    "/object_statuses/all": {
+      "get": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectStatusAllResponse"
+            }
+          }
+        },
+        "operationId": "get_object_status_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Смещение для пагинации.",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Лимит записей.",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Поле для сортировки."
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Порядок сортировки.",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "object_status_id",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по идентификатору статуса объекта."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по названию статуса объекта."
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "object_statuses"
+        ]
+      }
+    },
+    "/objects/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectMessage"
+            }
+          }
+        },
+        "operationId": "post_object_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ObjectCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
+    "/objects/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectAllResponse"
+            }
+          }
+        },
+        "operationId": "get_object_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Поле для сортировки"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Порядок сортировки",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by name"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by address"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by object status"
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by city"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
+    "/objects/{object_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "object_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectMessage"
+            }
+          }
+        },
+        "operationId": "delete_object_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
+    "/objects/{object_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "object_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectMessage"
+            }
+          }
+        },
+        "operationId": "patch_object_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
+    "/objects/{object_id}/edit": {
+      "parameters": [
+        {
+          "name": "object_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectMessage"
+            }
+          }
+        },
+        "operationId": "patch_object_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ObjectCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
+    "/objects/{object_id}/view": {
+      "parameters": [
+        {
+          "name": "object_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectResponse"
+            }
+          }
+        },
+        "operationId": "get_object_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
+    "/project_schedules/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectScheduleMessage"
+            }
+          }
+        },
+        "operationId": "post_project_schedule_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectScheduleCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_schedules"
+        ]
+      }
+    },
+    "/project_schedules/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectScheduleAllResponse"
+            }
+          }
+        },
+        "operationId": "get_project_schedule_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "work",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by work ID"
+          },
+          {
+            "name": "project",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by project ID"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter by date"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_schedules"
+        ]
+      }
+    },
+    "/project_schedules/{schedule_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "schedule_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectScheduleMessage"
+            }
+          }
+        },
+        "operationId": "delete_project_schedule_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_schedules"
+        ]
+      }
+    },
+    "/project_schedules/{schedule_id}/edit": {
+      "parameters": [
+        {
+          "name": "schedule_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectScheduleMessage"
+            }
+          }
+        },
+        "operationId": "patch_project_schedule_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectScheduleCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_schedules"
+        ]
+      }
+    },
+    "/project_schedules/{schedule_id}/view": {
+      "parameters": [
+        {
+          "name": "schedule_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectScheduleResponse"
+            }
+          }
+        },
+        "operationId": "get_project_schedule_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_schedules"
+        ]
+      }
+    },
+    "/project_works/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkMessage"
+            }
+          }
+        },
+        "operationId": "post_project_work_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_works"
+        ]
+      }
+    },
+    "/project_works/add/many": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkMessage"
+            }
+          }
+        },
+        "operationId": "post_project_work_add_bulk",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProjectWorkCreate"
+              }
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_works"
+        ]
+      }
+    },
+    "/project_works/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkAllResponse"
+            }
+          }
+        },
+        "operationId": "get_project_work_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Order of sorting",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "signed",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by signed status"
+          },
+          {
+            "name": "work",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by work ID"
+          },
+          {
+            "name": "project",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by project ID"
+          },
+          {
+            "name": "project_work_name",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by project work name"
+          },
+          {
+            "name": "min_quantity",
+            "in": "query",
+            "type": "number",
+            "description": "Minimum quantity filter"
+          },
+          {
+            "name": "max_quantity",
+            "in": "query",
+            "type": "number",
+            "description": "Maximum quantity filter"
+          },
+          {
+            "name": "min_summ",
+            "in": "query",
+            "type": "number",
+            "description": "Minimum summ filter"
+          },
+          {
+            "name": "max_summ",
+            "in": "query",
+            "type": "number",
+            "description": "Maximum summ filter"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_works"
+        ]
+      }
+    },
+    "/project_works/{project_work_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "project_work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkMessage"
+            }
+          }
+        },
+        "operationId": "delete_project_work_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_works"
+        ]
+      }
+    },
+    "/project_works/{project_work_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "project_work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkMessage"
+            }
+          }
+        },
+        "operationId": "patch_project_work_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_works"
+        ]
+      }
+    },
+    "/project_works/{project_work_id}/edit": {
+      "parameters": [
+        {
+          "name": "project_work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkMessage"
+            }
+          }
+        },
+        "operationId": "patch_project_work_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_works"
+        ]
+      }
+    },
+    "/project_works/{project_work_id}/view": {
+      "parameters": [
+        {
+          "name": "project_work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectWorkResponse"
+            }
+          }
+        },
+        "operationId": "get_project_work_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_works"
+        ]
+      }
+    },
+    "/projects/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectMessage"
+            }
+          }
+        },
+        "operationId": "post_project_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/projects/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectAllResponse"
+            }
+          }
+        },
+        "operationId": "get_project_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Поле для сортировки"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Порядок сортировки",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "object",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by object ID"
+          },
+          {
+            "name": "project_leader",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by project leader ID"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by name"
+          },
+          {
+            "name": "night_shift_available",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "extreme_conditions_available",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/projects/{project_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectMessage"
+            }
+          }
+        },
+        "operationId": "delete_project_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/projects/{project_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectMessage"
+            }
+          }
+        },
+        "operationId": "patch_project_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/projects/{project_id}/edit": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectMessage"
+            }
+          }
+        },
+        "operationId": "patch_project_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/projects/{project_id}/get-stat": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectStatsResponse"
+            }
+          }
+        },
+        "operationId": "get_project_stats",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/projects/{project_id}/get-stat-by-project-work": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectStatsResponse"
+            }
+          }
+        },
+        "operationId": "get_project_stats_by_project_work",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/projects/{project_id}/view": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectResponse"
+            }
+          }
+        },
+        "operationId": "get_project_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/roles/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RolesAllResponse"
+            }
+          }
+        },
+        "operationId": "get_role_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Смещение для пагинации.",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Лимит записей.",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Поле для сортировки."
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Порядок сортировки.",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "role_id",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по идентификатору роли."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по названию роли."
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "roles"
+        ]
+      }
+    },
+    "/shift_report_details/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsMessage"
+            }
+          }
+        },
+        "operationId": "post_shift_report_details_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_details"
+        ]
+      }
+    },
+    "/shift_report_details/add/many": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsManyMessage"
+            }
+          }
+        },
+        "operationId": "post_shift_report_details_add_bulk",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ShiftReportDetailsCreate"
+              }
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_details"
+        ]
+      }
+    },
+    "/shift_report_details/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsAllResponse"
+            }
+          }
+        },
+        "operationId": "get_shift_report_details_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "shift_report",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by shift report ID"
+          },
+          {
+            "name": "project_work",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by project work id"
+          },
+          {
+            "name": "work",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by work ID"
+          },
+          {
+            "name": "min_quantity",
+            "in": "query",
+            "type": "number",
+            "description": "Minimum quantity filter"
+          },
+          {
+            "name": "max_quantity",
+            "in": "query",
+            "type": "number",
+            "description": "Maximum quantity filter"
+          },
+          {
+            "name": "min_summ",
+            "in": "query",
+            "type": "number",
+            "description": "Minimum summ filter"
+          },
+          {
+            "name": "max_summ",
+            "in": "query",
+            "type": "number",
+            "description": "Maximum summ filter"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_details"
+        ]
+      }
+    },
+    "/shift_report_details/all-by-reports": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsAllResponse"
+            }
+          }
+        },
+        "operationId": "post_shift_report_details_by_reports",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsByIds"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_details"
+        ]
+      }
+    },
+    "/shift_report_details/{detail_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "detail_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsMessage"
+            }
+          }
+        },
+        "operationId": "delete_shift_report_details_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_details"
+        ]
+      }
+    },
+    "/shift_report_details/{detail_id}/edit": {
+      "parameters": [
+        {
+          "name": "detail_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsMessage"
+            }
+          }
+        },
+        "operationId": "patch_shift_report_details_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_details"
+        ]
+      }
+    },
+    "/shift_report_details/{detail_id}/view": {
+      "parameters": [
+        {
+          "name": "detail_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportDetailsResponse"
+            }
+          }
+        },
+        "operationId": "get_shift_report_details_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_details"
+        ]
+      }
+    },
+    "/shift_reports/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportMessage"
+            }
+          }
+        },
+        "operationId": "post_shift_report_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_reports"
+        ]
+      }
+    },
+    "/shift_reports/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportAllResponse"
+            }
+          }
+        },
+        "operationId": "get_shift_report_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by user ID"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter by date"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter by date"
+          },
+          {
+            "name": "project",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by project ID"
+          },
+          {
+            "name": "night_shift",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "extreme_conditions",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_reports"
+        ]
+      }
+    },
+    "/shift_reports/{report_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "report_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportMessage"
+            }
+          }
+        },
+        "operationId": "delete_shift_report_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_reports"
+        ]
+      }
+    },
+    "/shift_reports/{report_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "report_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportMessage"
+            }
+          }
+        },
+        "operationId": "patch_shift_report_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_reports"
+        ]
+      }
+    },
+    "/shift_reports/{report_id}/edit": {
+      "parameters": [
+        {
+          "name": "report_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportMessage"
+            }
+          }
+        },
+        "operationId": "patch_shift_report_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_reports"
+        ]
+      }
+    },
+    "/shift_reports/{report_id}/view": {
+      "parameters": [
+        {
+          "name": "report_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportResponse"
+            }
+          }
+        },
+        "operationId": "get_shift_report_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_reports"
+        ]
+      }
+    },
+    "/subscriptions/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionAllResponse"
+            }
+          }
+        },
+        "operationId": "get_get_all_subscriptions",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Sorting order",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by user"
+          },
+          {
+            "name": "endpoint",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by endpoint"
+          },
+          {
+            "name": "keys",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by keys"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/subscriptions/send_notification": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionMessage"
+            }
+          }
+        },
+        "operationId": "post_send_notification",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Notification"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/subscriptions/subscribe": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionMessage"
+            }
+          }
+        },
+        "operationId": "post_subscribe",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/subscriptions/{subscription_id}/unsubscribe": {
+      "parameters": [
+        {
+          "name": "subscription_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SubscriptionMessage"
+            }
+          }
+        },
+        "operationId": "delete_unsubscribe",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/templates/generate": {
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Файл успешно сгенерирован",
+            "headers": {
+              "Content-Disposition": {
+                "description": "attachment; filename=\"yourfile.docx\"",
+                "type": "string"
+              },
+              "Content-Type": {
+                "description": "application/vnd.openxmlformats-officedocument.\n            wordprocessingml.document",
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "400": {
+            "description": "Bad request, invalid data."
+          }
+        },
+        "description": "Генерация файла по шаблону",
+        "operationId": "post_template_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/templateCreate"
+            }
+          }
+        ],
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/users/add": {
+      "post": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "400": {
+            "description": "Bad request, invalid data."
+          },
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RefreshToken"
+            }
+          }
+        },
+        "operationId": "post_user_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UserCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/all": {
+      "get": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          }
+        },
+        "operationId": "get_user_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Смещение для пагинации",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Лимит записей",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Поле для сортировки"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Порядок сортировки",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "login",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по логину"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по имени"
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по роли"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "integer",
+            "description": "Фильтр по категории"
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по городу"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Фильтр по удаленному статусу"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{user_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "user_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RefreshToken"
+            }
+          }
+        },
+        "operationId": "delete_user_delete_hard",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{user_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "user_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RefreshToken"
+            }
+          }
+        },
+        "operationId": "patch_user_delete_soft",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{user_id}/edit": {
+      "parameters": [
+        {
+          "name": "user_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "400": {
+            "description": "Bad request, invalid data."
+          },
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/RefreshToken"
+            }
+          }
+        },
+        "operationId": "patch_user_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UserCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{user_id}/view": {
+      "parameters": [
+        {
+          "name": "user_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Tokens"
+            }
+          }
+        },
+        "operationId": "get_user_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/work_categories/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryMessage"
+            }
+          }
+        },
+        "operationId": "post_work_category_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_categories"
+        ]
+      }
+    },
+    "/work_categories/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryAllResponse"
+            }
+          }
+        },
+        "operationId": "get_work_category_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Sorting order",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by name"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by deleted status"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_categories"
+        ]
+      }
+    },
+    "/work_categories/{work_category_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "work_category_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryMessage"
+            }
+          }
+        },
+        "operationId": "delete_work_category_delete_hard",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_categories"
+        ]
+      }
+    },
+    "/work_categories/{work_category_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "work_category_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryMessage"
+            }
+          }
+        },
+        "operationId": "patch_work_category_delete_soft",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_categories"
+        ]
+      }
+    },
+    "/work_categories/{work_category_id}/edit": {
+      "parameters": [
+        {
+          "name": "work_category_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryMessage"
+            }
+          }
+        },
+        "operationId": "patch_work_category_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_categories"
+        ]
+      }
+    },
+    "/work_categories/{work_category_id}/view": {
+      "parameters": [
+        {
+          "name": "work_category_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkCategoryresponse"
+            }
+          }
+        },
+        "operationId": "get_work_category_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_categories"
+        ]
+      }
+    },
+    "/work_prices/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceMessage"
+            }
+          }
+        },
+        "operationId": "post_work_price_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_prices"
+        ]
+      }
+    },
+    "/work_prices/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceAllResponse"
+            }
+          }
+        },
+        "operationId": "get_work_price_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "work",
+            "in": "query",
+            "type": "string",
+            "description": "Work ID"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "integer",
+            "description": "Category filter"
+          },
+          {
+            "name": "price",
+            "in": "query",
+            "type": "number",
+            "description": "Price filter"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Флаг для фильтрации по удаленным отчетам"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Order of sorting",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_prices"
+        ]
+      }
+    },
+    "/work_prices/{work_price_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "work_price_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceMessage"
+            }
+          }
+        },
+        "operationId": "delete_work_price_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_prices"
+        ]
+      }
+    },
+    "/work_prices/{work_price_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "work_price_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceMessage"
+            }
+          }
+        },
+        "operationId": "patch_work_price_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_prices"
+        ]
+      }
+    },
+    "/work_prices/{work_price_id}/edit": {
+      "parameters": [
+        {
+          "name": "work_price_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceMessage"
+            }
+          }
+        },
+        "operationId": "patch_work_price_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_prices"
+        ]
+      }
+    },
+    "/work_prices/{work_price_id}/view": {
+      "parameters": [
+        {
+          "name": "work_price_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkPriceResponse"
+            }
+          }
+        },
+        "operationId": "get_work_price_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_prices"
+        ]
+      }
+    },
+    "/works/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkMessage"
+            }
+          }
+        },
+        "operationId": "post_work_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "works"
+        ]
+      }
+    },
+    "/works/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkAllResponse"
+            }
+          }
+        },
+        "operationId": "get_work_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "description": "Offset for pagination",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Limit for pagination",
+            "default": 10
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by name"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by deletion status"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "description": "Field for sorting"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "description": "Order of sorting",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "works"
+        ]
+      }
+    },
+    "/works/{work_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkMessage"
+            }
+          }
+        },
+        "operationId": "delete_work_hard_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "works"
+        ]
+      }
+    },
+    "/works/{work_id}/delete/soft": {
+      "parameters": [
+        {
+          "name": "work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkMessage"
+            }
+          }
+        },
+        "operationId": "patch_work_soft_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "works"
+        ]
+      }
+    },
+    "/works/{work_id}/edit": {
+      "parameters": [
+        {
+          "name": "work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkMessage"
+            }
+          }
+        },
+        "operationId": "patch_work_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkCreate"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "works"
+        ]
+      }
+    },
+    "/works/{work_id}/view": {
+      "parameters": [
+        {
+          "name": "work_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/WorkResponse"
+            }
+          }
+        },
+        "operationId": "get_work_view",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "works"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "API",
+    "version": "1.0"
+  },
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "Authorization",
+      "description": "Добавьте JWT-токен в формате: Bearer \u003Cjwt_token\u003E"
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication related operations"
+    },
+    {
+      "name": "users",
+      "description": "User management operations"
+    },
+    {
+      "name": "cities",
+      "description": "City management operations"
+    },
+    {
+      "name": "leaves",
+      "description": "Leaves management operations"
+    },
+    {
+      "name": "object_statuses",
+      "description": "Object Status management operations"
+    },
+    {
+      "name": "work_categories",
+      "description": "Work category management operations"
+    },
+    {
+      "name": "objects",
+      "description": "Objects management operations"
+    },
+    {
+      "name": "projects",
+      "description": "Projects management operations"
+    },
+    {
+      "name": "works",
+      "description": "Works management operations"
+    },
+    {
+      "name": "work_prices",
+      "description": "Work Prices management operations"
+    },
+    {
+      "name": "project_works",
+      "description": "Project Works management operations"
+    },
+    {
+      "name": "project_schedules",
+      "description": "Project schedules management operations"
+    },
+    {
+      "name": "shift_reports",
+      "description": "Shift reports management operations"
+    },
+    {
+      "name": "roles",
+      "description": "Role management operations"
+    },
+    {
+      "name": "shift_report_details",
+      "description": "Shift report details management operations"
+    },
+    {
+      "name": "subscriptions",
+      "description": "Subscription actions"
+    },
+    {
+      "name": "templates",
+      "description": "template management operations"
+    }
+  ],
+  "definitions": {
+    "Login": {
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Tokens": {
+      "required": [
+        "msg",
+        "user"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение."
+        },
+        "user": {
+          "description": "Данные о пользователе.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/User"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "User": {
+      "required": [
+        "created_at",
+        "created_by",
+        "deleted",
+        "login",
+        "name",
+        "role",
+        "user_id"
+      ],
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "ID пользователя"
+        },
+        "login": {
+          "type": "string",
+          "description": "Логин пользователя."
+        },
+        "name": {
+          "type": "string",
+          "description": "Имя пользователя."
+        },
+        "role": {
+          "type": "string",
+          "description": "Роль пользователя."
+        },
+        "category": {
+          "type": "integer",
+          "description": "Категория."
+        },
+        "city": {
+          "type": "string",
+          "description": "Город пользователя."
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date user was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of user"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Удален ли пользователь."
+        }
+      },
+      "type": "object"
+    },
+    "RefreshToken": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение."
+        },
+        "user_id": {
+          "type": "string",
+          "description": "ID of user"
+        }
+      },
+      "type": "object"
+    },
+    "UserCreate": {
+      "properties": {
+        "login": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "category": {
+          "type": "integer"
+        },
+        "city": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UserResponse": {
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "users": {
+          "type": "array",
+          "description": "Список пользователей",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "CityCreate": {
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "CityMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "city_id": {
+          "type": "string",
+          "description": "ID города"
+        }
+      },
+      "type": "object"
+    },
+    "CityResponse": {
+      "required": [
+        "city",
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "city": {
+          "description": "Данные города",
+          "allOf": [
+            {
+              "$ref": "#/definitions/City"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "City": {
+      "required": [
+        "city_id",
+        "created_at",
+        "created_by",
+        "deleted",
+        "name"
+      ],
+      "properties": {
+        "city_id": {
+          "type": "string",
+          "description": "ID города"
+        },
+        "name": {
+          "type": "string",
+          "description": "Название города"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Автор создания"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Дата создания"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Признак удаления"
+        }
+      },
+      "type": "object"
+    },
+    "CityAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "cities": {
+          "type": "array",
+          "description": "Список доступных городов",
+          "items": {
+            "$ref": "#/definitions/City"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "LeaveEdit": {
+      "properties": {
+        "start_date": {
+          "type": "integer"
+        },
+        "end_date": {
+          "type": "integer"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        },
+        "responsible": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "updated_by": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LeaveMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "leave_id": {
+          "type": "string",
+          "description": "ID листа отсутствия"
+        }
+      },
+      "type": "object"
+    },
+    "LeaveResponse": {
+      "required": [
+        "leave",
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "leave": {
+          "description": "Лист отсутствия",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Leave"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Leave": {
+      "required": [
+        "created_at",
+        "created_by",
+        "deleted",
+        "end_date",
+        "leave_id",
+        "reason",
+        "responsible",
+        "start_date",
+        "user"
+      ],
+      "properties": {
+        "leave_id": {
+          "type": "string",
+          "description": "ID листа отсутствия"
+        },
+        "start_date": {
+          "type": "integer",
+          "description": "Дата начала"
+        },
+        "end_date": {
+          "type": "integer",
+          "description": "Дата окончания"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Причина отсутствия"
+        },
+        "user": {
+          "type": "string",
+          "description": "Сотрудник"
+        },
+        "responsible": {
+          "type": "string",
+          "description": "Ответственный"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Комментарий"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Кем создан"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Когда создан"
+        },
+        "updated_by": {
+          "type": "string",
+          "description": "Кем изменен"
+        },
+        "updated_at": {
+          "type": "integer",
+          "description": "Когда изменен"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Удален ли лист"
+        }
+      },
+      "type": "object"
+    },
+    "LeaveCreate": {
+      "properties": {
+        "start_date": {
+          "type": "integer"
+        },
+        "end_date": {
+          "type": "integer"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        },
+        "responsible": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "LeaveAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "leaves": {
+          "type": "array",
+          "description": "Список листов отсутствия",
+          "items": {
+            "$ref": "#/definitions/Leave"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatusAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение."
+        },
+        "object_statuses": {
+          "type": "array",
+          "description": "Список статусов объектов.",
+          "items": {
+            "$ref": "#/definitions/ObjectStatus"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatus": {
+      "required": [
+        "name",
+        "object_status_id"
+      ],
+      "properties": {
+        "object_status_id": {
+          "type": "string",
+          "description": "Идентификатор статуса объекта."
+        },
+        "name": {
+          "type": "string",
+          "description": "Название статуса объекта."
+        }
+      },
+      "type": "object"
+    },
+    "WorkCategoryCreate": {
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "WorkCategoryMessage": {
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work_category_id": {
+          "type": "string",
+          "description": "ID of work category"
+        }
+      },
+      "type": "object"
+    },
+    "WorkCategoryresponse": {
+      "required": [
+        "work_category"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work_category": {
+          "description": "Данные о категории.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/WorkCategory"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "WorkCategory": {
+      "required": [
+        "created_at",
+        "created_by",
+        "deleted",
+        "name",
+        "work_category_id"
+      ],
+      "properties": {
+        "work_category_id": {
+          "type": "string",
+          "description": "ID of the work category"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the work category"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date work category was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of work category"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Deleted status of the work category"
+        }
+      },
+      "type": "object"
+    },
+    "WorkCategoryAllResponse": {
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work_categories": {
+          "type": "array",
+          "description": "List of work categories",
+          "items": {
+            "$ref": "#/definitions/WorkCategory"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ObjectCreate": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "manager": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "object_id": {
+          "type": "string",
+          "description": "ID of object"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectResponse": {
+      "required": [
+        "msg",
+        "object"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "object": {
+          "$ref": "#/definitions/Object"
+        }
+      },
+      "type": "object"
+    },
+    "Object": {
+      "required": [
+        "created_at",
+        "created_by",
+        "deleted",
+        "manager",
+        "name",
+        "object_id"
+      ],
+      "properties": {
+        "object_id": {
+          "type": "string",
+          "description": "ID of the object"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the object"
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the object"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the object"
+        },
+        "city": {
+          "type": "string",
+          "description": "City of the object"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the object"
+        },
+        "manager": {
+          "type": "string",
+          "description": "Manager of the object"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Time object was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of object"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Deletion status"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "objects": {
+          "type": "array",
+          "description": "List of objects",
+          "items": {
+            "$ref": "#/definitions/Object"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectCreate": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string"
+        },
+        "project_leader": {
+          "type": "string"
+        },
+        "night_shift_available": {
+          "type": "boolean"
+        },
+        "extreme_conditions_available": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project_id": {
+          "type": "string",
+          "description": "ID of project"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectResponse": {
+      "required": [
+        "msg",
+        "project"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project": {
+          "$ref": "#/definitions/Project"
+        }
+      },
+      "type": "object"
+    },
+    "Project": {
+      "required": [
+        "created_at",
+        "created_by",
+        "deleted",
+        "extreme_conditions_available",
+        "name",
+        "night_shift_available",
+        "object",
+        "project_id"
+      ],
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "description": "ID of the project"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the project"
+        },
+        "object": {
+          "type": "string",
+          "description": "Object data associated with the project"
+        },
+        "project_leader": {
+          "type": "string",
+          "description": "User data of the project leader"
+        },
+        "night_shift_available": {
+          "type": "boolean",
+          "description": "If night shifts are available"
+        },
+        "extreme_conditions_available": {
+          "type": "boolean",
+          "description": "If extreme conditions are available"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date project was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of project"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Deletion status"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "projects": {
+          "type": "array",
+          "description": "List of projects",
+          "items": {
+            "$ref": "#/definitions/Project"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectStatsResponse": {
+      "required": [
+        "msg",
+        "stats"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "stats": {
+          "type": "object",
+          "description": "Dict of work_id or project_work_id -\u003E stat"
+        }
+      },
+      "type": "object"
+    },
+    "WorkCreate": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "measurement_unit": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "WorkMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work_id": {
+          "type": "string",
+          "description": "ID of work"
+        }
+      },
+      "type": "object"
+    },
+    "WorkResponse": {
+      "required": [
+        "msg",
+        "work"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work": {
+          "$ref": "#/definitions/Work"
+        }
+      },
+      "type": "object"
+    },
+    "Work": {
+      "required": [
+        "created_at",
+        "created_by",
+        "deleted",
+        "name",
+        "work_id"
+      ],
+      "properties": {
+        "work_id": {
+          "type": "string",
+          "description": "ID of the work"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the work"
+        },
+        "category": {
+          "description": "Work category data",
+          "allOf": [
+            {
+              "$ref": "#/definitions/WorkCategory"
+            }
+          ]
+        },
+        "measurement_unit": {
+          "type": "string",
+          "description": "Measurement unit of the work"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date work was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of work"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Deletion status"
+        },
+        "work_prices": {
+          "type": "array",
+          "description": "List of prices",
+          "items": {
+            "$ref": "#/definitions/WorkPrice"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "WorkPrice": {
+      "required": [
+        "category",
+        "created_at",
+        "created_by",
+        "deleted",
+        "price",
+        "work",
+        "work_price_id"
+      ],
+      "properties": {
+        "work_price_id": {
+          "type": "string",
+          "description": "ID of the work price"
+        },
+        "work": {
+          "type": "string",
+          "description": "Associated work data"
+        },
+        "category": {
+          "type": "integer",
+          "description": "Category of the work price"
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the work"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date work price was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of work price"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Deletion status"
+        }
+      },
+      "type": "object"
+    },
+    "WorkAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "works": {
+          "type": "array",
+          "description": "List of works",
+          "items": {
+            "$ref": "#/definitions/Work"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "WorkPriceCreate": {
+      "properties": {
+        "work": {
+          "type": "string"
+        },
+        "category": {
+          "type": "integer"
+        },
+        "price": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "WorkPriceMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work_price_id": {
+          "type": "string",
+          "description": "ID of work price"
+        }
+      },
+      "type": "object"
+    },
+    "WorkPriceResponse": {
+      "required": [
+        "msg",
+        "work_price"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work_price": {
+          "$ref": "#/definitions/WorkPrice"
+        }
+      },
+      "type": "object"
+    },
+    "WorkPriceAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "work_prices": {
+          "type": "array",
+          "description": "List of work prices",
+          "items": {
+            "$ref": "#/definitions/WorkPrice"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectWorkCreate": {
+      "properties": {
+        "project": {
+          "type": "string"
+        },
+        "project_work_name": {
+          "type": "string"
+        },
+        "work": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "summ": {
+          "type": "number"
+        },
+        "signed": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectWorkMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project_work_ids": {
+          "type": "array",
+          "description": "List of project work IDs",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectWorkResponse": {
+      "required": [
+        "msg",
+        "project_work"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project_work": {
+          "$ref": "#/definitions/ProjectWork"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectWork": {
+      "required": [
+        "created_at",
+        "created_by",
+        "project",
+        "project_work_id",
+        "quantity",
+        "signed",
+        "work"
+      ],
+      "properties": {
+        "project_work_id": {
+          "type": "string",
+          "description": "ID of the project work"
+        },
+        "project_work_name": {
+          "type": "string",
+          "description": "Name of the projet work"
+        },
+        "project": {
+          "type": "string",
+          "description": "Project data associated with the project work"
+        },
+        "work": {
+          "type": "string",
+          "description": "Work data associated with the project work"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of the work"
+        },
+        "summ": {
+          "type": "number",
+          "description": "Sum of the project work"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date project work was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of project work"
+        },
+        "signed": {
+          "type": "boolean",
+          "description": "If the project work is signed"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectWorkAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project_works": {
+          "type": "array",
+          "description": "List of project works",
+          "items": {
+            "$ref": "#/definitions/ProjectWork"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectScheduleCreate": {
+      "properties": {
+        "work": {
+          "type": "string"
+        },
+        "project": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "date": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectScheduleMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project_schedule_id": {
+          "type": "string",
+          "description": "ID of project schedule"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectScheduleResponse": {
+      "required": [
+        "msg",
+        "project_schedule"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project_schedule": {
+          "$ref": "#/definitions/ProjectSchedule"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectSchedule": {
+      "required": [
+        "created_at",
+        "created_by",
+        "project",
+        "project_schedule_id",
+        "quantity",
+        "work"
+      ],
+      "properties": {
+        "project_schedule_id": {
+          "type": "string",
+          "description": "ID of the project schedule"
+        },
+        "project": {
+          "type": "string",
+          "description": "Project details"
+        },
+        "work": {
+          "type": "string",
+          "description": "Work details"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of work"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date project schedule was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of project schedule"
+        },
+        "date": {
+          "type": "integer",
+          "description": "Scheduled date"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectScheduleAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "project_schedules": {
+          "type": "array",
+          "description": "List of project schedules",
+          "items": {
+            "$ref": "#/definitions/ProjectSchedule"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportCreate": {
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "date": {
+          "type": "integer"
+        },
+        "project": {
+          "type": "string"
+        },
+        "signed": {
+          "type": "boolean"
+        },
+        "night_shift": {
+          "type": "boolean"
+        },
+        "extreme_conditions": {
+          "type": "boolean"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ShiftReportDetail"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetail": {
+      "properties": {
+        "work": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "summ": {
+          "type": "number"
+        },
+        "project_work": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "shift_report_id": {
+          "type": "string",
+          "description": "ID of shift report"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportResponse": {
+      "required": [
+        "msg",
+        "shift_report"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "shift_report": {
+          "$ref": "#/definitions/ShiftReport"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReport": {
+      "required": [
+        "created_at",
+        "created_by",
+        "date",
+        "deleted",
+        "extreme_conditions",
+        "night_shift",
+        "number",
+        "project",
+        "shift_report_id",
+        "signed",
+        "user"
+      ],
+      "properties": {
+        "shift_report_id": {
+          "type": "string",
+          "description": "ID of the shift report"
+        },
+        "user": {
+          "type": "string",
+          "description": "User details"
+        },
+        "date": {
+          "type": "integer",
+          "description": "Report date"
+        },
+        "project": {
+          "type": "string",
+          "description": "Project details"
+        },
+        "signed": {
+          "type": "boolean",
+          "description": "Is the report signed"
+        },
+        "deleted": {
+          "type": "boolean",
+          "description": "Deletion status of the shift report"
+        },
+        "number": {
+          "type": "integer",
+          "description": "Number of shift report"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date shift report was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of shift report"
+        },
+        "night_shift": {
+          "type": "boolean",
+          "description": "Night shift"
+        },
+        "extreme_conditions": {
+          "type": "boolean",
+          "description": "Extreme conditions"
+        },
+        "shift_report_details_sum": {
+          "type": "number",
+          "description": "Sum of shift_report_details"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "shift_reports": {
+          "type": "array",
+          "description": "List of shift reports",
+          "items": {
+            "$ref": "#/definitions/ShiftReport"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "description": "Total count of shift reports"
+        }
+      },
+      "type": "object"
+    },
+    "RolesAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение."
+        },
+        "roles": {
+          "type": "array",
+          "description": "Список ролей.",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "Role": {
+      "required": [
+        "name",
+        "role_id"
+      ],
+      "properties": {
+        "role_id": {
+          "type": "string",
+          "description": "Идентификатор роли."
+        },
+        "name": {
+          "type": "string",
+          "description": "Название роли."
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetailsCreate": {
+      "properties": {
+        "shift_report": {
+          "type": "string"
+        },
+        "project_work": {
+          "type": "string"
+        },
+        "work": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetailsManyMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "shift_report_detail_ids": {
+          "type": "array",
+          "description": "List of shift report details",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetailsMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "shift_report_detail_id": {
+          "type": "string",
+          "description": "ID of shift report detail"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetailsResponse": {
+      "required": [
+        "msg",
+        "shift_report_detail"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "shift_report_detail": {
+          "$ref": "#/definitions/ShiftReportDetails"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetails": {
+      "required": [
+        "created_at",
+        "created_by",
+        "quantity",
+        "shift_report",
+        "shift_report_detail_id",
+        "summ",
+        "work"
+      ],
+      "properties": {
+        "shift_report_detail_id": {
+          "type": "string",
+          "description": "ID of the shift report detail"
+        },
+        "shift_report": {
+          "type": "string",
+          "description": "Shift report details"
+        },
+        "project_work": {
+          "type": "string",
+          "description": "Project work"
+        },
+        "work": {
+          "type": "string",
+          "description": "Work details"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of work"
+        },
+        "created_at": {
+          "type": "integer",
+          "description": "Date shift report detail was created at"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Creator of shift report detail"
+        },
+        "summ": {
+          "type": "number",
+          "description": "Total sum of work"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetailsAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "shift_report_details": {
+          "type": "array",
+          "description": "List of shift report details",
+          "items": {
+            "$ref": "#/definitions/ShiftReportDetails"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetailsByIds": {
+      "properties": {
+        "shift_report_ids": {
+          "type": "array",
+          "description": "List of shift reports to fetch details",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "SubscriptionCreate": {
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "keys": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "SubscriptionMessage": {
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "subscription_id": {
+          "type": "string",
+          "description": "ID of subscription"
+        }
+      },
+      "type": "object"
+    },
+    "Notification": {
+      "required": [
+        "message",
+        "subscription_id"
+      ],
+      "properties": {
+        "subscription_id": {
+          "type": "string",
+          "description": "Subscription ID"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message that you want to send in web-push"
+        }
+      },
+      "type": "object"
+    },
+    "SubscriptionAllResponse": {
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "subscriptions": {
+          "type": "array",
+          "description": "List of subscriptions",
+          "items": {
+            "$ref": "#/definitions/SubscriptionModel"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "SubscriptionModel": {
+      "required": [
+        "endpoint",
+        "keys",
+        "subscription_id",
+        "user"
+      ],
+      "properties": {
+        "subscription_id": {
+          "type": "string",
+          "description": "Subscription ID"
+        },
+        "user": {
+          "type": "string",
+          "description": "Subscription ID"
+        },
+        "endpoint": {
+          "type": "string",
+          "description": "Subscription ID"
+        },
+        "keys": {
+          "type": "string",
+          "description": "Subscription ID"
+        }
+      },
+      "type": "object"
+    },
+    "templateCreate": {
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "file_name": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "is_pdf": {
+          "type": "boolean"
+        },
+        "document_data": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "responses": {
+    "ParseError": {
+      "description": "When a mask can't be parsed"
+    },
+    "MaskError": {
+      "description": "When any error occurs on mask"
+    }
+  }
+}

@@ -30,6 +30,7 @@ export const useObjectStatuses = () => {
     () =>
       statuses.map((status) => ({
         text: status.name,
+        label: status.name,
         value: status.object_status_id,
       })),
     [statuses],

@@ -11,13 +11,11 @@ import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useUsersMap } from "../../queries/users";
 import { Projects } from "./projects/projects.page";
-import {
-  useDeleteObjectMutation,
-  useObjectQuery,
-} from "../../queries/objects";
+import { useDeleteObjectMutation, useObjectQuery } from "../../queries/objects";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { useObjectStatuses } from "../../queries/objectStatuses";
+import { useCitiesMap } from "../../queries/cities";
 
 export const Object = () => {
   const { Content } = Layout;
@@ -27,7 +25,11 @@ export const Object = () => {
   const { statusMap: objectStatusesMap } = useObjectStatuses();
   const notificationApi = useContext(NotificationContext);
   const objectId = routeParams.objectId;
-  const { data: objectData, isPending, isFetching } = useObjectQuery(objectId, {
+  const {
+    data: objectData,
+    isPending,
+    isFetching,
+  } = useObjectQuery(objectId, {
     enabled: Boolean(objectId),
   });
   const { mutateAsync: deleteObjectMutation } = useDeleteObjectMutation();
@@ -37,6 +39,8 @@ export const Object = () => {
     () => Boolean(objectData && objectId === objectData.object_id),
     [objectData, objectId],
   );
+
+  const { citiesMap } = useCitiesMap();
 
   const handleDelete = React.useCallback(async () => {
     if (!objectData?.object_id) return;
@@ -76,9 +80,7 @@ export const Object = () => {
           { title: objectData?.name },
         ]}
       />
-      {isLoaded &&
-      objectData &&
-      objectId === objectData.object_id ? (
+      {isLoaded && objectData && objectId === objectData.object_id ? (
         <Content
           style={{
             padding: "0 24px",
@@ -106,6 +108,9 @@ export const Object = () => {
             <p>Наименование: {objectData.name}</p>
             <p>Адрес: {objectData.address}</p>
             <p>Описание: {objectData.description}</p>
+            <p>
+              Город: {objectData.city ? citiesMap[objectData.city]?.name : "—"}
+            </p>
             <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
             <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>
           </Card>

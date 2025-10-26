@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { Form, Input, Select, Space } from "antd";
@@ -21,6 +21,7 @@ import {
 } from "../../../queries/users";
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useRoles } from "../../../queries/roles";
+import { useCitiesMap } from "../../../queries/cities";
 
 const modalContentWidth = getModalContentWidth();
 interface IEditableUserDialogProps {
@@ -31,6 +32,7 @@ interface IEditableUserDialogProps {
 export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const { user, iconOnly } = props;
   const [password, setPassword] = useState<string>("");
+  const { cityOptions } = useCitiesMap();
   const buttonText = user ? "Редактировать" : "Создать";
   const popoverText = user
     ? "Редактировать пользователя"
@@ -52,15 +54,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const notificationApi = useContext(NotificationContext);
   const createUserMutation = useCreateUserMutation();
   const updateUserMutation = useUpdateUserMutation();
-  const { roles } = useRoles();
-  const rolesMap = React.useMemo(
-    () =>
-      roles.map((role) => ({
-        label: role.name,
-        value: role.role_id,
-      })),
-    [roles],
-  );
+  const { roleOptions } = useRoles();
 
   const { sent: _sent, ...createUserData } = data;
 
@@ -205,7 +199,23 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
                 onChange={(value: RoleId) =>
                   dispatch(editUserAction.setRole(value))
                 }
-                options={rolesMap}
+                options={roleOptions}
+              />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Город"
+            >
+              <Select
+                value={data.city}
+                onChange={(value: string) =>
+                  dispatch(editUserAction.setCity(value))
+                }
+                options={cityOptions}
+                allowClear
+                placeholder="Выберите город"
               />
             </Form.Item>
           </Form>
