@@ -275,6 +275,7 @@ export const Main = () => {
             notSignedData: string[];
             signed: number;
             signedData: string[];
+            total: number;
           }
         >,
         key: string,
@@ -304,6 +305,10 @@ export const Main = () => {
           signedData: usersEusersSignedmpty?.length
             ? usersEusersSignedmpty.map((el) => usersMap[el]?.name)
             : [],
+          total:
+            (usersEmpty?.length || 0) +
+            (usersNotSigned?.length || 0) +
+            (usersEusersSignedmpty?.length || 0),
         };
         return acc;
       },

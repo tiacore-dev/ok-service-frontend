@@ -164,6 +164,9 @@ export const Charts = (props: IChartsProps) => {
                 name="Не заполнено"
                 stackId="a"
               />
+              <Bar stackId="a" dataKey="none" fill="transparent">
+                <LabelList dataKey="total" position="top" fill="black" />
+              </Bar>
             </BarChart>
           </Card>
         </Col>
