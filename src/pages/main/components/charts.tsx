@@ -6,12 +6,9 @@ import {
   BarChart,
   CartesianGrid,
   Tooltip,
-  Cell,
   Legend,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   XAxis,
   YAxis,
   LabelList,
@@ -19,9 +16,9 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentRole } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
-import { isMobile } from "../../../utils/isMobile";
-import { formatNumber } from "../../../utils/formatNumber";
 import { CustomTooltip } from "./customTooltip";
+import { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
+import { useUsersMap } from "../../../queries/users";
 
 export interface ITotalCost {
   date: string;
@@ -52,36 +49,27 @@ interface IChartsProps {
   totalCostArray: ITotalCost[];
   totalCountArray: ITotalCount[];
   averageCostArray: IAverageCost[];
-  clientData: IClientData[];
+  yesterdayData: {
+    empty?: IShiftReportsListColumn[];
+    signed?: IShiftReportsListColumn[];
+    notSigned?: IShiftReportsListColumn[];
+  };
   description: string;
 }
-
-const colors = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#8884d8",
-  "#82ca9d",
-  "#FF5733",
-  "#E91E63",
-  "#4CAF50",
-  "#9C27B0",
-];
 
 export const Charts = (props: IChartsProps) => {
   const {
     totalCostArray,
     totalCountArray,
     averageCostArray,
-    clientData,
+    yesterdayData,
     description,
   } = props;
 
+  const { usersMap } = useUsersMap();
   const containerRef = React.useRef(null);
   const [width, setWidth] = React.useState(0);
   const role = useSelector(getCurrentRole);
-  const mobile = isMobile();
   React.useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -201,43 +189,45 @@ export const Charts = (props: IChartsProps) => {
 
       <Col key={3} xs={24} sm={12}>
         <Card>
-          <Meta
-            title={"Cтоимость выполненных работ по объектам"}
-            description={description}
-          />
-          <PieChart width={width - 84} height={400}>
-            <Pie
-              data={clientData}
-              dataKey="value"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              fill="#6940ff"
-              label
-            >
-              {clientData.map((entry, index) => (
-                <Cell key={entry.name} fill={colors[index % colors.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            {!mobile && (
-              <Legend
-                layout="vertical"
-                align="right"
-                verticalAlign="middle"
-                formatter={(value) => {
-                  const dataItem = clientData.find(
-                    (item) => item.name === value,
-                  );
-                  return `${value}: ${formatNumber(dataItem?.value || 0)}`;
-                }}
-                wrapperStyle={{
-                  paddingLeft: "20px",
-                  fontSize: "16px",
-                }}
-              />
+          <Meta title={"Данные по сменам"} description={"за Вчера"} />
+          <div className="main__yesterday">
+            {!!yesterdayData?.empty && (
+              <div className="main__yesterday__el">
+                Не заполнено: {yesterdayData.empty.length}
+                <ul className="main__yesterday__ul">
+                  {yesterdayData.empty.map((el) => (
+                    <li className="main__yesterday__empty" key={el.key}>
+                      {usersMap[el.user].name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
-          </PieChart>
+            {!!yesterdayData?.notSigned && (
+              <div className="main__yesterday__el">
+                Не согласовано: {yesterdayData.notSigned.length}
+                <ul className="main__yesterday__ul">
+                  {yesterdayData.notSigned.map((el) => (
+                    <li className="main__yesterday__not-signed" key={el.key}>
+                      {usersMap[el.user].name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {!!yesterdayData?.signed && (
+              <div className="main__yesterday__el">
+                Согласовано: {yesterdayData.signed.length}
+                <ul className="main__yesterday__ul">
+                  {yesterdayData.signed.map((el) => (
+                    <li className="main__yesterday__signed" key={el.key}>
+                      {usersMap[el.user].name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </Card>
       </Col>
     </Row>

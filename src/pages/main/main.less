@@ -1,0 +1,31 @@
+.main {
+  &__yesterday {
+    height: 400px;
+    overflow-y: auto;
+
+    &__el {
+      margin: 8px 0;
+    }
+
+    &__ul {
+      font-size: 10pt;       
+      margin: 0;
+      padding-left: 18px;  
+      columns: 2;
+      column-gap: 1.5rem;   
+      list-style: disc; 
+    }
+
+    &__signed::marker {
+      color: #2bba23;
+    }
+
+    &__not-signed::marker {
+      color: #6940ff;
+    }
+
+    &__empty::marker {
+      color: #ffac40;
+    }
+  }
+}

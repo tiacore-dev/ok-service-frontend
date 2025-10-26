@@ -11,7 +11,6 @@ import {
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { IState } from "../../store/modules";
-import { IShiftReportsListColumn } from "../../interfaces/shiftReports/IShiftReportsList";
 import { toggleFullScreenMode } from "../../store/modules/settings/general";
 import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
@@ -27,6 +26,8 @@ import {
 } from "../../interfaces/objects/IObjectStat";
 import { IShiftReportQueryParams } from "../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
+import { reduceShiftReportData } from "./utils/reduceShiftReportData";
+import "./main.less";
 
 type DateRange = { date_from: number; date_to: number };
 
@@ -85,6 +86,19 @@ export const Main = () => {
   );
 
   const { data: shiftReportsData } = useShiftReportsQuery(queryParams);
+
+  const yesterdayShiftReportsData = (
+    shiftReportsData?.shift_reports || []
+  ).filter((el) => el.date >= range.date_from && el.date <= range.date_to);
+
+  const yesterdayReducedData = yesterdayShiftReportsData.reduce(
+    reduceShiftReportData,
+    {},
+  );
+
+  const yesterdayData = yesterdayReducedData
+    ? Object.values(yesterdayReducedData)[0]
+    : undefined;
 
   const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
     role === RoleId.USER ? RangeType.From21 : RangeType.Last10,
@@ -156,8 +170,7 @@ export const Main = () => {
     () =>
       (shiftReportsData?.shift_reports || [])
         .slice()
-        .sort((a, b) => a.date - b.date)
-        .filter((el) => el.date >= range.date_from && el.date <= range.date_to),
+        .sort((a, b) => a.date - b.date),
     [shiftReportsData, range],
   );
 
@@ -226,41 +239,7 @@ export const Main = () => {
     }
   > = React.useMemo(() => {
     const totalCostMap = filteredShiftReportsData.reduce(
-      (
-        acc: Record<
-          string,
-          {
-            empty?: IShiftReportsListColumn[];
-            signed?: IShiftReportsListColumn[];
-            notSigned?: IShiftReportsListColumn[];
-          }
-        >,
-        val,
-      ) => {
-        const date = dateTimestampToLocalString(val.date);
-        const report = { ...val, key: val.shift_report_id };
-        if (val.signed) {
-          acc[date] = acc[date]
-            ? acc[date].signed
-              ? { ...acc[date], signed: [...acc[date].signed, report] }
-              : { ...acc[date], signed: [report] }
-            : { signed: [report] };
-        } else if (val.shift_report_details_sum > 0) {
-          acc[date] = acc[date]
-            ? acc[date].notSigned
-              ? { ...acc[date], notSigned: [...acc[date].notSigned, report] }
-              : { ...acc[date], notSigned: [report] }
-            : { notSigned: [report] };
-        } else {
-          acc[date] = acc[date]
-            ? acc[date].empty
-              ? { ...acc[date], empty: [...acc[date].empty, report] }
-              : { ...acc[date], empty: [report] }
-            : { empty: [report] };
-        }
-
-        return acc;
-      },
+      reduceShiftReportData,
       {},
     );
 
@@ -338,33 +317,6 @@ export const Main = () => {
       })),
     [totalCostData, totalCountData],
   );
-
-  const clientData = React.useMemo(() => {
-    if (projectsMap && objectsMap) {
-      const reportsWithObject = filteredShiftReportsData.map((el) => {
-        const object = objectsMap[projectsMap[el.project]?.object]?.name;
-        return { ...el, object };
-      });
-
-      const dataWithObject = reportsWithObject.reduce(
-        (acc: Record<string, number>, val) => {
-          acc[val.object] =
-            (acc[val.object] ?? 0) + val.shift_report_details_sum;
-          return acc;
-        },
-        {},
-      );
-
-      const result = Object.entries(dataWithObject).map(([name, value]) => ({
-        name,
-        value: Math.round(value * 100) / 100,
-      }));
-
-      return result;
-    } else {
-      return [];
-    }
-  }, [filteredShiftReportsData, projectsMap, objectsMap]);
 
   const totalCostArrayByObjects = React.useMemo(() => {
     if (projectsMap && objectsMap) {
@@ -505,7 +457,7 @@ export const Main = () => {
           totalCostArray={totalCostArray}
           totalCountArray={totalCountArray}
           averageCostArray={averageCostArray}
-          clientData={clientData}
+          yesterdayData={yesterdayData}
         />
       )}
     </div>
