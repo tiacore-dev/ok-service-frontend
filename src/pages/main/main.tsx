@@ -373,7 +373,6 @@ export const Main = () => {
           return result;
         },
       );
-
       return result;
     } else {
       return [];
