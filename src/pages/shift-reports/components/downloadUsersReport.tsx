@@ -162,6 +162,7 @@ export const DownloadUsersReport = ({
 
   const isDisabled =
     !shiftReportsResponse ||
+    !shiftReportsResponse.shift_reports ||
     shiftReportsResponse.shift_reports.length === 0 ||
     !currentFilters?.date_from ||
     !currentFilters?.date_to;
