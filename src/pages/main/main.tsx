@@ -220,7 +220,7 @@ export const Main = () => {
     () =>
       Object.entries(totalCostData).map(([date, value]) => ({
         date,
-        value,
+        value: Math.round(value * 100) / 100,
       })),
     [totalCostData],
   );
