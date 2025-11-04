@@ -38,6 +38,8 @@ import { rolesKeys } from "../../queries/roles";
 import { fetchObjectStatuses } from "../../api/object-statuses.api";
 import { fetchRoles } from "../../api/roles.api";
 import { citiesKeys } from "../../queries/cities";
+import { Leaves } from "../../pages/leaves/leaves.page";
+import { Leave } from "../../pages/leave/leave";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -161,6 +163,10 @@ export const App = () => {
               <Route path="users">
                 <Route index={true} element={<Users />} />
                 <Route path=":userId" element={<User />} />
+              </Route>
+              <Route path="leaves">
+                <Route index={true} element={<Leaves />} />
+                <Route path=":leaveId" element={<Leave />} />
               </Route>
               <Route path="works">
                 <Route index={true} element={<Works />} />
