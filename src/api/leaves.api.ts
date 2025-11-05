@@ -40,5 +40,5 @@ export const updateLeave = async (
 };
 
 export const deleteLeave = async (leaveId: string): Promise<void> => {
-  await apiClient.patch(`/leaves/${leaveId}/delete/soft`);
+  await apiClient.delete(`/leaves/${leaveId}/delete/hard`);
 };

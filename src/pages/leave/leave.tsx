@@ -42,7 +42,7 @@ export const Leave = () => {
       await deleteLeaveMutation(leaveData.leave_id);
       notificationApi?.success({
         message: "Успешно",
-        description: "Лист отсутствияудалён",
+        description: "Лист отсутствия удалён",
         placement: "bottomRight",
         duration: 2,
       });

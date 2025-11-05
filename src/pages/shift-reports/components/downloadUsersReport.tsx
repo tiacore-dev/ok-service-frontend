@@ -106,11 +106,7 @@ export const DownloadUsersReport = ({
           const reasonName =
             leaveReasonesMap[leave.reason]?.name ?? String(leave.reason);
 
-          for (
-            let ts = Math.floor(from / DAY) * DAY;
-            ts <= Math.floor(to / DAY) * DAY;
-            ts += DAY
-          ) {
+          for (let ts = from; ts <= to; ts += DAY) {
             const dateStr = dateTimestampToLocalString(ts);
             const arr = byUserLeaves.get(leave.user) ?? [];
             arr.push({
