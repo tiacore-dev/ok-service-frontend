@@ -13,6 +13,12 @@ import {
   IUsersReport,
 } from "../../../interfaces/reports/IUsersReport";
 import { generateUsersReport } from "../../../api/users-report.api";
+import { useLeavesQuery } from "../../../queries/leaves";
+import { leaveReasonesMap } from "../../../queries/leaveReasons";
+
+const DAY = 24 * 60 * 60 * 1000;
+const clamp = (n: number, lo: number, hi: number) =>
+  Math.min(Math.max(n, lo), hi);
 
 interface DownloadUsersReportProps {
   currentFilters?: {
@@ -33,6 +39,7 @@ export const DownloadUsersReport = ({
     limit: 10000,
   });
 
+  const { data: leaveListsData } = useLeavesQuery();
   const { projectsMap } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
   const { usersMap } = useUsersMap();
@@ -61,36 +68,88 @@ export const DownloadUsersReport = ({
         params.user = currentFilters.user;
       }
 
-      const byUser = new Map<string, Map<string, number>>();
+      const byUserProjects = new Map<string, Map<string, number>>();
 
       for (const shiftReport of shiftReportsResponse.shift_reports) {
         const dateStr = dateTimestampToLocalString(shiftReport.date);
         const key = `${dateStr}||${shiftReport.project}`; // Если только по дате, то убрать второй ключ
 
         const userMap =
-          byUser.get(shiftReport.user) ?? new Map<string, number>();
+          byUserProjects.get(shiftReport.user) ?? new Map<string, number>();
 
         userMap.set(
           key,
           (userMap.get(key) ?? 0) + (shiftReport.shift_report_details_sum ?? 0),
         );
-        byUser.set(shiftReport.user, userMap);
+        byUserProjects.set(shiftReport.user, userMap);
       }
 
-      for (const [user, userData] of Array.from(byUser.entries())) {
+      const byUserLeaves = new Map<string, IUserProjectsReportData[]>();
+
+      const filterFrom = currentFilters?.date_from ?? Number.NEGATIVE_INFINITY;
+      const filterTo = currentFilters?.date_to ?? Number.POSITIVE_INFINITY;
+      const filterUser = currentFilters?.user;
+
+      if (leaveListsData?.length) {
+        for (const leave of leaveListsData) {
+          if (filterUser && leave.user !== filterUser) continue;
+
+          const start = leave.start_date ?? leave.end_date ?? null;
+          const end = leave.end_date ?? leave.start_date ?? null;
+          if (start == null || end == null) continue;
+
+          // пересечение с диапазоном фильтров
+          const from = clamp(start, filterFrom, filterTo);
+          const to = clamp(end, filterFrom, filterTo);
+          if (to < filterFrom || from > filterTo) continue;
+
+          const reasonName =
+            leaveReasonesMap[leave.reason]?.name ?? String(leave.reason);
+
+          for (
+            let ts = Math.floor(from / DAY) * DAY;
+            ts <= Math.floor(to / DAY) * DAY;
+            ts += DAY
+          ) {
+            const dateStr = dateTimestampToLocalString(ts);
+            const arr = byUserLeaves.get(leave.user) ?? [];
+            arr.push({
+              date: dateStr,
+              name: reasonName, // ← именно имя причины
+              summ: 0, // ← по требованию
+            });
+            byUserLeaves.set(leave.user, arr);
+          }
+        }
+      }
+
+      const allUsers = Array.from(
+        new Set<string>([
+          ...Array.from(byUserProjects.keys()),
+          ...Array.from(byUserLeaves.keys()),
+        ]),
+      );
+
+      allUsers.forEach((user) => {
         const projects: IUserProjectsReportData[] = [];
 
-        for (const [compoundKey, sum] of Array.from(userData.entries())) {
-          const [date, projectId] = compoundKey.split("||");
-          const project = projectsMap[projectId];
-          projects.push({
-            date,
-            name: `${objectsMap[project.object].name} (${project.name})`,
-            summ: sum,
-          });
-        }
+        const userProjectsMap = byUserProjects.get(user);
 
-        projects.sort((a, b) => {
+        if (userProjectsMap) {
+          for (const [compoundKey, sum] of userProjectsMap.entries()) {
+            const [date, projectId] = compoundKey.split("||");
+            const project = projectsMap[projectId];
+            projects.push({
+              date,
+              name: `${objectsMap[project.object].name} (${project.name})`,
+              summ: sum,
+            });
+          }
+        }
+        const leaveItems = byUserLeaves.get(user) ?? [];
+        const combined = [...projects, ...leaveItems];
+
+        combined.sort((a, b) => {
           if (a.date !== b.date) return a.date < b.date ? -1 : 1;
           return a.name.localeCompare(b.name, "ru");
         });
@@ -102,7 +161,7 @@ export const DownloadUsersReport = ({
           projects,
           total,
         });
-      }
+      });
 
       return reportData;
     }, [

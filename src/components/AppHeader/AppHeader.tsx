@@ -10,6 +10,7 @@ import {
   BarChartOutlined,
   BarsOutlined,
   FileDoneOutlined,
+  FileTextOutlined,
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -59,6 +60,21 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       onClick: () => {
         navigate("/objects");
       },
+    });
+
+    desktopItems.push({
+      label: "Документы",
+      key: "documents",
+      icon: <FileTextOutlined />,
+      children: [
+        {
+          key: "leaves",
+          label: "Листы отсутствия",
+          onClick: () => {
+            navigate("/leaves");
+          },
+        },
+      ],
     });
 
     desktopItems.push({

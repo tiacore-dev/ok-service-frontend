@@ -1,19 +1,23 @@
 import React from "react";
 import { Card, List, Space, Button, Popover, Select } from "antd";
-import { StatusIcon, ShiftStatus } from "./statusIcon";
-import { StopOutlined } from "@ant-design/icons";
+import { StatusIcon } from "./statusIcon";
+import {
+  ContactsOutlined,
+  FrownOutlined,
+  SmileOutlined,
+  StopOutlined,
+} from "@ant-design/icons";
+import { IUserShiftAssignment } from "../hooks/useAssignmentData";
+import { leaveReasonesMap } from "../../../queries/leaveReasons";
+import { LeaveReasonId } from "../../../interfaces/leaveReasones/ILeaveReason";
 
 type ObjectsMap = Record<string, { name: string }>;
 type ProjectsMap = Record<string, { name: string }>;
 type UsersMap = Record<string, { name: string }>;
 
-export interface IUserShiftAssignmentUI {
-  userId: string;
-  assignments: { objectId: string; projectId: string; status: ShiftStatus }[];
-}
 
 interface Props {
-  data: IUserShiftAssignmentUI[];
+  data: IUserShiftAssignment[];
   objectsMap: ObjectsMap;
   projectsMap: ProjectsMap;
   usersMap: UsersMap;
@@ -68,6 +72,28 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                       );
                     }}
                   />
+                ) : item.leaveReason ? (
+                  <Space direction="horizontal" align="center">
+                    {item.leaveReason === LeaveReasonId.SICK_LEAVE && (
+                      <FrownOutlined
+                        style={{ fontSize: 20, color: "#ff8484ff" }}
+                      />
+                    )}
+                    {item.leaveReason === LeaveReasonId.VACATION && (
+                      <ContactsOutlined
+                        style={{ fontSize: 20, color: "#ff8484ff" }}
+                      />
+                    )}
+                    {item.leaveReason === LeaveReasonId.DAY_OFF && (
+                      <SmileOutlined
+                        style={{ fontSize: 20, color: "#ff8484ff" }}
+                      />
+                    )}
+
+                    <span className="assignment-page__unassigned">
+                      {leaveReasonesMap[item.leaveReason].name}
+                    </span>
+                  </Space>
                 ) : (
                   <Space direction="horizontal" align="center">
                     <StopOutlined style={{ fontSize: 20, color: "#6940ff" }} />
