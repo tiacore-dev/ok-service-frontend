@@ -154,11 +154,11 @@ export const DownloadUsersReport = ({
           return a.name.localeCompare(b.name, "ru");
         });
 
-        const total = projects.reduce((acc, p) => acc + p.summ, 0);
+        const total = combined.reduce((acc, p) => acc + p.summ, 0);
 
         reportData.users.push({
           name: usersMap[user].name,
-          projects,
+          projects: combined,
           total,
         });
       });
