@@ -21,6 +21,7 @@ import { LeaveReasonId } from "../../../interfaces/leaveReasones/ILeaveReason";
 import { leaveReasonOptions } from "../../../queries/leaveReasons";
 import { dateFormat } from "../../../utils/dateConverter";
 import dayjs from "dayjs";
+import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 
 const modalContentWidth = getModalContentWidth();
 
@@ -117,14 +118,10 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
   }, [leave, setData]);
 
   const { users } = useUsersMap();
-  const userOptions = users
-    .filter(
-      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN,
-    )
-    .map((el) => ({
-      label: el.name,
-      value: el.user_id,
-    }));
+  const userOptions = users.map((el) => ({
+    label: el.name,
+    value: el.user_id,
+  }));
 
   return (
     <ActionDialog
@@ -140,17 +137,19 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
         <Space className="editable_leave_dialog">
           <Form layout="horizontal" style={{ width: modalContentWidth }}>
             <Form.Item
+              label="Сотрудник"
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
-              label="Комментарий"
             >
-              <Input
-                value={data.comment}
-                onChange={(event) =>
-                  setData((data) => ({ ...data, comment: event.target.value }))
+              <Select
+                showSearch
+                value={data.user}
+                filterOption={selectFilterHandler}
+                onChange={(value: string) =>
+                  setData((data) => ({ ...data, user: value }))
                 }
+                options={userOptions}
                 disabled={sent}
-                style={{ width: "100%" }}
               />
             </Form.Item>
             <Form.Item
@@ -168,22 +167,6 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
                 placeholder="Выберите город"
               />
             </Form.Item>
-
-            <Form.Item
-              label="Сотрудник"
-              labelCol={{ span: 6 }}
-              wrapperCol={{ span: 18 }}
-            >
-              <Select
-                value={data.user}
-                onChange={(value: string) =>
-                  setData((data) => ({ ...data, user: value }))
-                }
-                options={userOptions}
-                disabled={sent}
-              />
-            </Form.Item>
-
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
@@ -221,13 +204,28 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
             </Form.Item>
 
             <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Комментарий"
+            >
+              <Input
+                value={data.comment}
+                onChange={(event) =>
+                  setData((data) => ({ ...data, comment: event.target.value }))
+                }
+                disabled={sent}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+
+            <Form.Item
               label="Ответственный"
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
             >
               {
                 userOptions.find((user) => user.value === data.responsible)
-                  .label
+                  ?.label
               }
             </Form.Item>
           </Form>

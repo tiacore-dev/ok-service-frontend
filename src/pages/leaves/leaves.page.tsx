@@ -76,7 +76,7 @@ export const Leaves = () => {
         style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
-          { title: "Объекты" },
+          { title: "Листы отсутствия" },
         ]}
       />
       <Content

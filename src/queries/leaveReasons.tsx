@@ -8,11 +8,14 @@ export const leaveReasonesMap: Record<LeaveReasonId, ILeaveReason> = {
     reason_id: LeaveReasonId.VACATION,
     name: "Отпуск",
   },
-  [LeaveReasonId.TIME_OFF]: {
-    reason_id: LeaveReasonId.TIME_OFF,
+  [LeaveReasonId.DAY_OFF]: {
+    reason_id: LeaveReasonId.DAY_OFF,
     name: "Отгул",
   },
-  [LeaveReasonId.SICK]: { reason_id: LeaveReasonId.SICK, name: "Больничный" },
+  [LeaveReasonId.SICK_LEAVE]: {
+    reason_id: LeaveReasonId.SICK_LEAVE,
+    name: "Больничный",
+  },
 };
 
 export const leaveReasones: ILeaveReason[] = Object.values(leaveReasonesMap);

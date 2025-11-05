@@ -30,7 +30,7 @@ export const shiftReportsDesktopColumns = (
     project?: string;
     date_from?: number;
     date_to?: number;
-  }
+  },
 ): ColumnsType<IShiftReportsListColumn> => {
   const columns: ColumnsType<IShiftReportsListColumn> = [
     {
@@ -63,17 +63,17 @@ export const shiftReportsDesktopColumns = (
       filterIcon: <CalendarOutlined />,
       filterDropdown: ({ confirm }) => {
         const [dateFrom, setDateFrom] = React.useState<dayjs.Dayjs | null>(
-          filters?.date_from ? dayjs(filters.date_from) : null
+          filters?.date_from ? dayjs(filters.date_from) : null,
         );
         const [dateTo, setDateTo] = React.useState<dayjs.Dayjs | null>(
-          filters?.date_to ? dayjs(filters.date_to) : null
+          filters?.date_to ? dayjs(filters.date_to) : null,
         );
 
         const handleDateFromChange = (date: dayjs.Dayjs | null) => {
           setDateFrom(date);
           onFilterChange?.(
             "date_from",
-            date ? date.startOf("day").valueOf() : undefined
+            date ? date.startOf("day").valueOf() : undefined,
           );
 
           if (date && dateTo && date.isAfter(dateTo)) {
@@ -86,7 +86,7 @@ export const shiftReportsDesktopColumns = (
           setDateTo(date);
           onFilterChange?.(
             "date_to",
-            date ? date.endOf("day").valueOf() : undefined
+            date ? date.endOf("day").valueOf() : undefined,
           );
         };
 

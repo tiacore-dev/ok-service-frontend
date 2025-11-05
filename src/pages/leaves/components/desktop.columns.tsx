@@ -9,6 +9,7 @@ import {
   leaveReasonesMap,
   leaveReasonOptions,
 } from "../../../queries/leaveReasons";
+import { dateTimestampToLocalString } from "../../../utils/dateConverter";
 
 export const leavesDesktopColumns = (
   navigate: NavigateFunction,
@@ -16,6 +17,30 @@ export const leavesDesktopColumns = (
   tableState?: ILeavesSettingsState,
 ): ColumnsType<ILeaveListColumn> => {
   const columns: ColumnsType<ILeaveListColumn> = [
+    {
+      title: "Сотрудник",
+      dataIndex: "manager",
+      key: "manager",
+      width: "35%",
+      filterDropdown: filterDropdown,
+      onFilter: (value, record) =>
+        usersMap[record.user]?.name
+          .toString()
+          .toLowerCase()
+          .includes(value.toString().toLowerCase()),
+      sorter: (a, b) =>
+        usersMap[a.user]?.name > usersMap[b.user]?.name ? 1 : -1,
+      render: (text: string, record: ILeaveListColumn) => (
+        <div>
+          <a
+            className="leaves__table__number"
+            onClick={() => navigate && navigate(`/leaves/${record.key}`)}
+          >
+            {usersMap[record.user]?.name}
+          </a>
+        </div>
+      ),
+    },
     {
       title: "Причина",
       dataIndex: "reason",
@@ -26,10 +51,30 @@ export const leavesDesktopColumns = (
           ? 1
           : -1,
       key: "status",
-      width: "20%",
+      width: "15%",
       render: (text: string, record: ILeaveListColumn) => (
-        <div onClick={() => navigate && navigate(`/leaves/${record.key}`)}>
-          {leaveReasonesMap[record.reason]?.name}
+        <div>{leaveReasonesMap[record.reason]?.name}</div>
+      ),
+    },
+    {
+      title: "Дата от",
+      dataIndex: "start_date",
+      key: "start_date",
+      width: "15%",
+      render: (text: string, record: ILeaveListColumn) => (
+        <div>
+          <div>{dateTimestampToLocalString(record.start_date)}</div>
+        </div>
+      ),
+    },
+    {
+      title: "Дата от",
+      dataIndex: "end_date",
+      key: "end_date",
+      width: "15%",
+      render: (text: string, record: ILeaveListColumn) => (
+        <div>
+          <div>{dateTimestampToLocalString(record.end_date)}</div>
         </div>
       ),
     },
@@ -41,25 +86,6 @@ export const leavesDesktopColumns = (
       render: (text: string, record: ILeaveListColumn) => (
         <div>
           <div>{record.comment}</div>
-        </div>
-      ),
-    },
-    {
-      title: "Сотрудник",
-      dataIndex: "manager",
-      key: "manager",
-      width: "20%",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        usersMap[record.user]?.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) =>
-        usersMap[a.user]?.name > usersMap[b.user]?.name ? 1 : -1,
-      render: (text: string, record: ILeaveListColumn) => (
-        <div>
-          <div>{usersMap[record.user]?.name}</div>
         </div>
       ),
     },

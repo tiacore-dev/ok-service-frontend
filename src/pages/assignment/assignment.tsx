@@ -18,6 +18,7 @@ import { useAssignmentData } from "./hooks/useAssignmentData";
 import { useCreateShiftReportMutation } from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 import "./assignment.less";
 import { ObjectStatusId } from "../../interfaces/objectStatuses/IObjectStatus";
+import { useLeavesQuery } from "../../queries/leaves";
 
 export const Assignment = () => {
   const date_from = React.useMemo(() => getToday().getTime(), []);
@@ -32,7 +33,11 @@ export const Assignment = () => {
 
   const { data: shiftReportsData, isLoading } =
     useShiftReportsQuery(queryParams);
-
+  const { data: leaveListsData } = useLeavesQuery();
+  const filteredLeaveListsData = leaveListsData?.filter(
+    (leaveList) =>
+      leaveList.start_date <= date_from && leaveList.end_date >= date_from,
+  );
   const authData = useSelector((state: IState) => state.auth);
   const isAuth = authData.isAuth;
 
@@ -63,6 +68,7 @@ export const Assignment = () => {
   );
   const { objectsShiftData, userShiftData } = useAssignmentData({
     filteredShiftReportsData,
+    leaveListsData: filteredLeaveListsData,
     projects: projectsList,
     projectsMap,
     objectsMap,

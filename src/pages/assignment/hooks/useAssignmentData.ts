@@ -5,6 +5,8 @@ import {
   IProjectStatsItem,
   IUserStatsItem,
 } from "../../../interfaces/objects/IObjectStat";
+import { ILeaveList } from "../../../interfaces/leaves/ILeaveList";
+import { LeaveReasonId } from "../../../interfaces/leaveReasones/ILeaveReason";
 
 export interface IShiftAssignment {
   objectId: string;
@@ -15,6 +17,7 @@ export interface IShiftAssignment {
 export interface IUserShiftAssignment {
   userId: string;
   assignments: IShiftAssignment[];
+  leaveReason?: LeaveReasonId;
 }
 
 type Projects = {
@@ -30,6 +33,7 @@ export const useAssignmentData = (params: {
     shift_report_details_sum: number;
     signed: boolean;
   }>;
+  leaveListsData?: ILeaveList[];
   projects: Projects | undefined;
   projectsMap:
     | Record<
@@ -49,6 +53,7 @@ export const useAssignmentData = (params: {
 }) => {
   const {
     filteredShiftReportsData,
+    leaveListsData,
     projects,
     projectsMap,
     objectsMap,
@@ -151,9 +156,14 @@ export const useAssignmentData = (params: {
           };
         });
 
+        const leave = leaveListsData?.find(
+          (leaveList) => leaveList.user === user.user_id,
+        );
+
         return {
           userId: user.user_id,
           assignments: Object.values(assignmentsMap),
+          leaveReason: leave ? leave.reason : undefined,
         };
       });
   }, [filteredShiftReportsData, users, projectsMap, objectsMap]);

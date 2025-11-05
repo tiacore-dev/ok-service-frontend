@@ -1,7 +1,7 @@
 export enum LeaveReasonId {
   VACATION = "vacation",
-  TIME_OFF = "time-off",
-  SICK = "sick",
+  DAY_OFF = "day_off",
+  SICK_LEAVE = "sick_leave",
 }
 
 export interface ILeaveReason {
