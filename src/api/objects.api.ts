@@ -2,7 +2,8 @@ import { apiClient } from "./base";
 import type { IObject } from "../interfaces/objects/IObject";
 import type { IObjectsList } from "../interfaces/objects/IObjectsList";
 
-export interface EditableObjectPayload extends Omit<IObject, "object_id"> {}
+export interface EditableObjectPayload
+  extends Omit<IObject, "object_id" | "created_at" | "created_by" | "deleted"> {}
 
 export const fetchObjects = async (): Promise<IObjectsList[]> => {
   const { data } = await apiClient.get<{ objects: IObjectsList[] }>(

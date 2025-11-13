@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Form, Input, Select, Space } from "antd";
+import { Form, Input, InputNumber, Select, Space } from "antd";
 import { IObject } from "../../../interfaces/objects/IObject";
 import {
   clearCreateObjectState,
@@ -44,11 +44,18 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableObject,
+    (state: IState) => state.editableEntities.editableObject
   );
   const { statusOptions } = useObjectStatuses();
 
-  const { sent, object_id, ...objectData } = data;
+  const {
+    sent,
+    object_id,
+    created_at: _created_at,
+    created_by: _created_by,
+    deleted: _deleted,
+    ...objectData
+  } = data;
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
   const createObjectMutation = useCreateObjectMutation();
@@ -72,7 +79,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
         });
       } else {
         await createObjectMutation.mutateAsync(
-          objectData as EditableObjectPayload,
+          objectData as EditableObjectPayload
         );
         notificationApi?.success({
           message: "Успешно",
@@ -116,7 +123,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   const { users } = useUsersMap();
   const userOptions = users
     .filter(
-      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN,
+      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN
     )
     .map((el) => ({
       label: el.name,
@@ -178,6 +185,44 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                   dispatch(editObjectAction.setAddress(event.target.value))
                 }
                 disabled={sent}
+              />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Долгота"
+            >
+              <InputNumber
+                value={data.lng}
+                onChange={(value) =>
+                  dispatch(editObjectAction.setLng(value ?? 0))
+                }
+                disabled={sent}
+                style={{ width: "100%" }}
+                placeholder="Введите долготу"
+                min={-180}
+                max={180}
+                precision={6}
+              />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Широта"
+            >
+              <InputNumber
+                value={data.ltd}
+                onChange={(value) =>
+                  dispatch(editObjectAction.setLtd(value ?? 0))
+                }
+                disabled={sent}
+                style={{ width: "100%" }}
+                placeholder="Введите широту"
+                min={-90}
+                max={90}
+                precision={6}
               />
             </Form.Item>
 
