@@ -23,7 +23,7 @@ import {
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useObjectStatuses } from "../../../queries/objectStatuses";
 import { useCitiesMap } from "../../../queries/cities";
-import { MapPicker } from "../../../components/MapPicker/MapPicker";
+import { MapPicker } from "../../Map/MapPicker";
 
 const modalContentWidth = getModalContentWidth();
 

@@ -16,6 +16,7 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { useObjectStatuses } from "../../queries/objectStatuses";
 import { useCitiesMap } from "../../queries/cities";
+import { MapViewer } from "../../components/Map/MapViewer";
 const { Text } = Typography;
 
 export const Object = () => {
@@ -68,6 +69,8 @@ export const Object = () => {
     }
   }, [deleteObjectMutation, notificationApi, objectData, navigate]);
 
+  const hasCoordinates = objectData?.ltd && objectData?.lng;
+
   return (
     <>
       <Breadcrumb
@@ -109,10 +112,24 @@ export const Object = () => {
             <p>Наименование: {objectData.name}</p>
             <p>
               Адрес: {objectData.address}
-              <Text type="secondary">
-                {" ("} {objectData.ltd}, {objectData.lng}
-                {" )"}
-              </Text>
+              {hasCoordinates && (
+                <>
+                  <Text type="secondary">
+                    {" ("} {objectData.lng}, {objectData.ltd}
+                    {" )"}
+                  </Text>
+                  <MapViewer
+                    coordinates={{
+                      lat: objectData.ltd,
+                      lng: objectData.lng,
+                      title: objectData.name,
+                    }}
+                    buttonType="icon"
+                    buttonText="Посмотреть на карте"
+                    modalTitle={`Объект: ${objectData.name}`}
+                  />
+                </>
+              )}
             </p>
             <p>Описание: {objectData.description}</p>
             <p>
