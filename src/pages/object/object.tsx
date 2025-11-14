@@ -110,7 +110,7 @@ export const Object = () => {
             <p>
               Адрес: {objectData.address}
               <Text type="secondary">
-                {" ("} {objectData.lng}, {objectData.ltd}
+                {" ("} {objectData.ltd}, {objectData.lng}
                 {" )"}
               </Text>
             </p>
