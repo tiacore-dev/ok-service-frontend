@@ -258,12 +258,14 @@ export const ShiftReport = () => {
       const updatedReportData = {
         user: shiftReportData.user,
         date: shiftReportData.date,
-        date_from: shiftReportData.date_from,
-        date_to: shiftReportData.date_to,
+        date_start: shiftReportData.date_start,
+        date_end: shiftReportData.date_end,
         project: shiftReportData.project,
         signed: true,
         night_shift: shiftReportData.night_shift,
         extreme_conditions: shiftReportData.extreme_conditions,
+        lng: shiftReportData.lng,
+        ltd: shiftReportData.ltd,
       };
 
       editReportMutation({

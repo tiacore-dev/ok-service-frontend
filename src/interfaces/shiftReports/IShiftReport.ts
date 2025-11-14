@@ -3,14 +3,16 @@ export interface IShiftReport {
   number: number;
   user: string;
   date?: number;
-  date_to?: number;
-  date_from?: number;
+  date_start?: number;
+  date_end?: number;
   project: string;
   signed: boolean;
   night_shift: boolean;
   extreme_conditions: boolean;
   deleted?: boolean;
   shift_report_details_sum?: number;
+  lng?: number;
+  ltd?: number;
 }
 
 export interface IShiftReportQueryParams {
@@ -21,7 +23,13 @@ export interface IShiftReportQueryParams {
   user?: string;
   date_from?: number;
   date_to?: number;
+  date_start_from?: number;
+  date_start_to?: number;
+  date_end_from?: number;
+  date_end_to?: number;
   project?: string;
+  lng?: number;
+  ltd?: number;
 }
 
 export interface IShiftReportsResponse {
