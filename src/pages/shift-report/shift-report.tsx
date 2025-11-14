@@ -48,6 +48,7 @@ import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap, useProjectStatQuery } from "../../queries/projects";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { useWorksMap } from "../../queries/works";
+import { MapViewer } from "../../components/Map/MapViewer";
 
 const { Text } = Typography;
 
@@ -120,7 +121,7 @@ export const ShiftReport = () => {
   const { worksMap } = useWorksMap();
   const stat = projectStat ?? {};
 
-  const object = React.useMemo(
+  const objectId = React.useMemo(
     () => projectsMap[shiftReportData?.project]?.object,
     [projectsMap, shiftReportData?.project]
   );
@@ -158,9 +159,9 @@ export const ShiftReport = () => {
     if (!shiftReportData?.date_start) return null;
     if (typeof shiftReportData.lng !== "number") return null;
     if (typeof shiftReportData.ltd !== "number") return null;
-    if (!object) return null;
-    const relatedObject = objectsMap[object];
-    if (!relatedObject) return null;
+    if (!objectId) return null;
+    const relatedObject = objectsMap[objectId];
+    if (!relatedObject || !relatedObject.ltd || !relatedObject.lng) return null;
 
     return Math.round(
       calculateDistanceMeters(
@@ -174,9 +175,50 @@ export const ShiftReport = () => {
     shiftReportData?.date_start,
     shiftReportData?.lng,
     shiftReportData?.ltd,
-    object,
+    objectId,
     objectsMap,
   ]);
+
+  // Получаем координаты объекта для отображения на карте
+  const objectCoordinates = React.useMemo(() => {
+    if (!objectId) return null;
+    const relatedObject = objectsMap[objectId];
+    if (!relatedObject || !relatedObject.ltd || !relatedObject.lng) return null;
+
+    return {
+      lat: relatedObject.ltd,
+      lng: relatedObject.lng,
+      title: `Объект: ${relatedObject.name}`,
+      color: "blue" as const,
+    };
+  }, [objectId, objectsMap]);
+
+  // Получаем координаты смены для отображения на карте
+  const shiftCoordinates = React.useMemo(() => {
+    if (!shiftReportData?.date_start) return null;
+    if (typeof shiftReportData.lng !== "number") return null;
+    if (typeof shiftReportData.ltd !== "number") return null;
+
+    return {
+      lat: shiftReportData.ltd,
+      lng: shiftReportData.lng,
+      title: `Место начала смены (${distanceToObjectMeters} м от объекта)`,
+      color: "red" as const,
+    };
+  }, [shiftReportData, distanceToObjectMeters]);
+
+  // Формируем массив координат для карты
+  const mapCoordinates = React.useMemo(() => {
+    const coordinates = [];
+    if (objectCoordinates) coordinates.push(objectCoordinates);
+    if (shiftCoordinates) coordinates.push(shiftCoordinates);
+    return coordinates;
+  }, [objectCoordinates, shiftCoordinates]);
+
+  // Проверяем, можно ли показывать кнопку карты (только для администратора и когда есть обе координаты)
+  const canShowMapButton = React.useMemo(() => {
+    return currentRole === RoleId.ADMIN && mapCoordinates.length === 2;
+  }, [currentRole, mapCoordinates.length]);
 
   React.useEffect(() => {
     if (shiftReportDetailsData) {
@@ -473,7 +515,6 @@ export const ShiftReport = () => {
     return <div>Отчет не найден</div>;
   }
 
-  // const objectLink = `/objects/${object}`;
   return (
     <>
       <Breadcrumb
@@ -518,7 +559,7 @@ export const ShiftReport = () => {
           <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
           <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
           <p>Исполнитель: {usersMap[shiftReportData.user]?.name ?? ""}</p>
-          <p>Объект: {objectsMap[object]?.name}</p>
+          <p>Объект: {objectsMap[objectId]?.name}</p>
           <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
           <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name ?? ""}`}</p>
           <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
@@ -530,6 +571,15 @@ export const ShiftReport = () => {
                 distanceToObjectMeters !== null && (
                   <> ({distanceToObjectMeters} м)</>
                 )}
+              {/* Кнопка просмотра на карте для администратора */}
+              {canShowMapButton && (
+                <MapViewer
+                  coordinates={mapCoordinates}
+                  buttonType="icon"
+                  buttonText="Посмотреть на карте"
+                  modalTitle={`Смена № ${shiftReportData.number?.toString().padStart(5, "0")}`}
+                />
+              )}
             </p>
           )}
           {shiftReportData.date_end && (
@@ -545,7 +595,7 @@ export const ShiftReport = () => {
               onClick={handleStartShift}
               type="primary"
               loading={isStartingShift}
-              style={{ marginBottom: 12 }}
+              style={{ marginBottom: 12, marginRight: 12 }}
             >
               Начать смену
             </Button>
@@ -555,7 +605,11 @@ export const ShiftReport = () => {
               onClick={handleCompleteShift}
               type="primary"
               loading={isCompletingShift}
-              style={{ marginBottom: 12, marginLeft: canStartShift ? 8 : 0 }}
+              style={{
+                marginBottom: 12,
+                marginLeft: canStartShift ? 8 : 0,
+                marginRight: 12,
+              }}
             >
               Завершить смену
             </Button>

@@ -115,7 +115,9 @@ export const MapViewer: React.FC<MapViewerProps> = ({
             ? "islands#redIcon"
             : point.color === "blue"
               ? "islands#blueIcon"
-              : "islands#darkOrangeIcon";
+              : point.color === "green"
+                ? "islands#greenIcon"
+                : "islands#darkOrangeIcon";
 
         const marker = new window.ymaps.Placemark(
           [point.lat, point.lng],
@@ -270,6 +272,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
                   <Text>
                     {point.title || `Точка ${index + 1}`}: {point.lat},{" "}
                     {point.lng}
+                    {point.color && ` (${getColorName(point.color)})`}
                   </Text>
                 </li>
               ))}
@@ -279,4 +282,15 @@ export const MapViewer: React.FC<MapViewerProps> = ({
       </Modal>
     </>
   );
+};
+
+// Вспомогательная функция для получения названия цвета
+const getColorName = (color: string): string => {
+  const colorMap: Record<string, string> = {
+    red: "Красный",
+    blue: "Синий",
+    green: "Зеленый",
+    orange: "Оранжевый",
+  };
+  return colorMap[color] || color;
 };
