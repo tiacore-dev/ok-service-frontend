@@ -9,8 +9,8 @@ export interface IEditableShiftReportState
 const initialState: IEditableShiftReportState = {
   sent: false,
   user: "",
-  date_start: new Date().valueOf(),
-  date_end: new Date().valueOf(),
+  // date_start: null,
+  // date_end: null,
   project: "",
   signed: false,
   night_shift: false,
@@ -21,7 +21,7 @@ const initialState: IEditableShiftReportState = {
 
 const setShiftReportData = (
   state: IEditableShiftReportState,
-  shiftReportData: IEditableShiftReportState | IShiftReport,
+  shiftReportData: IEditableShiftReportState | IShiftReport
 ) => {
   state.user = shiftReportData.user;
   state.date_end = shiftReportData.date_end;
@@ -41,40 +41,40 @@ const editableShiftReportSlice = createSlice({
   reducers: {
     setShiftReportData: (
       state: IEditableShiftReportState,
-      action: { payload: IShiftReport },
+      action: { payload: IShiftReport }
     ) => {
       setShiftReportData(state, action.payload);
     },
 
     setUser: (
       state: IEditableShiftReportState,
-      action: { payload: string },
+      action: { payload: string }
     ) => {
       state.user = action.payload;
     },
 
     setDate: (
       state: IEditableShiftReportState,
-      action: { payload: number },
+      action: { payload: number }
     ) => {
       state.date = action.payload;
     },
     setDateTo: (
       state: IEditableShiftReportState,
-      action: { payload: number },
+      action: { payload: number }
     ) => {
       state.date_end = action.payload;
     },
     setDateFrom: (
       state: IEditableShiftReportState,
-      action: { payload: number },
+      action: { payload: number }
     ) => {
       state.date_start = action.payload;
     },
 
     setProject: (
       state: IEditableShiftReportState,
-      action: { payload: string },
+      action: { payload: string }
     ) => {
       state.project = action.payload;
     },

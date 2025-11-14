@@ -5224,8 +5224,6 @@
         "created_at",
         "created_by",
         "date",
-        "date_end",
-        "date_start",
         "deleted",
         "extreme_conditions",
         "night_shift",
@@ -5250,11 +5248,11 @@
         },
         "date_start": {
           "type": "integer",
-          "description": "Shift start timestamp"
+          "description": "Shift start timestamp (nullable)"
         },
         "date_end": {
           "type": "integer",
-          "description": "Shift end timestamp"
+          "description": "Shift end timestamp (nullable)"
         },
         "project": {
           "type": "string",
