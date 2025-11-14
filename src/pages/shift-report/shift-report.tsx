@@ -20,7 +20,10 @@ import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
-import { dateTimestampToLocalString } from "../../utils/dateConverter";
+import {
+  dateTimestampToLocalString,
+  dateTimestampToLocalDateTimeString,
+} from "../../utils/dateConverter";
 import type { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { useUsersMap } from "../../queries/users";
@@ -134,11 +137,20 @@ export const ShiftReport = () => {
   }));
 
   const [isStartingShift, setIsStartingShift] = React.useState(false);
+  const [isCompletingShift, setIsCompletingShift] = React.useState(false);
 
   const canStartShift = React.useMemo(() => {
     if (!shiftReportData) return false;
     if (shiftReportData.signed) return false;
     if (shiftReportData.date_start) return false;
+    return shiftReportData.user === currentUserId;
+  }, [shiftReportData, currentUserId]);
+
+  const canCompleteShift = React.useMemo(() => {
+    if (!shiftReportData) return false;
+    if (shiftReportData.signed) return false;
+    if (!shiftReportData.date_start) return false;
+    if (shiftReportData.date_end) return false;
     return shiftReportData.user === currentUserId;
   }, [shiftReportData, currentUserId]);
 
@@ -393,6 +405,37 @@ export const ShiftReport = () => {
     );
   }, [shiftReportData, editReportMutation]);
 
+  const handleCompleteShift = React.useCallback(() => {
+    if (!shiftReportData) {
+      return;
+    }
+
+    setIsCompletingShift(true);
+
+    const updatedReportData = {
+      user: shiftReportData.user,
+      date: shiftReportData.date,
+      date_start: shiftReportData.date_start,
+      date_end: Date.now(),
+      project: shiftReportData.project,
+      signed: shiftReportData.signed,
+      night_shift: shiftReportData.night_shift,
+      extreme_conditions: shiftReportData.extreme_conditions,
+      lng: shiftReportData.lng,
+      ltd: shiftReportData.ltd,
+    };
+
+    editReportMutation(
+      {
+        report_id: shiftReportData.shift_report_id,
+        reportData: updatedReportData,
+      },
+      {
+        onSettled: () => setIsCompletingShift(false),
+      }
+    );
+  }, [shiftReportData, editReportMutation]);
+
   const checedData = React.useMemo(() => {
     if (!stat || !dataSource) return dataSource;
 
@@ -482,11 +525,17 @@ export const ShiftReport = () => {
           {shiftReportData.date_start && (
             <p>
               Дата начала:{" "}
-              {dateTimestampToLocalString(shiftReportData.date_start)}
+              {dateTimestampToLocalDateTimeString(shiftReportData.date_start)}
               {currentRole === RoleId.ADMIN &&
                 distanceToObjectMeters !== null && (
                   <> ({distanceToObjectMeters} м)</>
                 )}
+            </p>
+          )}
+          {shiftReportData.date_end && (
+            <p>
+              Дата завершения:{" "}
+              {dateTimestampToLocalDateTimeString(shiftReportData.date_end)}
             </p>
           )}
           {shiftReportData.night_shift && <p>Ночная смена (+25%)</p>}
@@ -499,6 +548,16 @@ export const ShiftReport = () => {
               style={{ marginBottom: 12 }}
             >
               Начать смену
+            </Button>
+          )}
+          {canCompleteShift && (
+            <Button
+              onClick={handleCompleteShift}
+              type="primary"
+              loading={isCompletingShift}
+              style={{ marginBottom: 12, marginLeft: canStartShift ? 8 : 0 }}
+            >
+              Завершить смену
             </Button>
           )}
           {!shiftReportData.signed && currentRole !== RoleId.USER && (

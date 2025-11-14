@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const dateFormat = "DD.MM.YYYY";
 export const dateTimeFormat = "DD.MM.YYYY HH:mm";
 export const timeFormat = "HH:mm";
@@ -13,6 +15,10 @@ export const timeFormat = "HH:mm";
 export const dateTimestampToLocalString = (timestamp: number) => {
   const date = new Date(timestamp);
   return date.toLocaleDateString("ru");
+};
+
+export const dateTimestampToLocalDateTimeString = (timestamp: number) => {
+  return dayjs(timestamp).format(dateTimeFormat);
 };
 
 export const timeToLocalString = (string: string) => {
