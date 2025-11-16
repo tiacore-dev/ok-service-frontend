@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
+import { Breadcrumb, Card, Layout, Space, Spin, Typography } from "antd";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -16,6 +16,8 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { useObjectStatuses } from "../../queries/objectStatuses";
 import { useCitiesMap } from "../../queries/cities";
+import { MapViewer } from "../../components/Map/MapViewer";
+const { Text } = Typography;
 
 export const Object = () => {
   const { Content } = Layout;
@@ -37,7 +39,7 @@ export const Object = () => {
 
   const isLoaded = useMemo(
     () => Boolean(objectData && objectId === objectData.object_id),
-    [objectData, objectId],
+    [objectData, objectId]
   );
 
   const { citiesMap } = useCitiesMap();
@@ -66,6 +68,8 @@ export const Object = () => {
       });
     }
   }, [deleteObjectMutation, notificationApi, objectData, navigate]);
+
+  const hasCoordinates = objectData?.ltd && objectData?.lng;
 
   return (
     <>
@@ -106,7 +110,27 @@ export const Object = () => {
           </Space>
           <Card style={{ margin: "8px 0" }}>
             <p>Наименование: {objectData.name}</p>
-            <p>Адрес: {objectData.address}</p>
+            <p>
+              Адрес: {objectData.address}
+              {hasCoordinates && (
+                <>
+                  <Text type="secondary">
+                    {" ("} {objectData.lng}, {objectData.ltd}
+                    {" )"}
+                  </Text>
+                  <MapViewer
+                    coordinates={{
+                      lat: objectData.ltd,
+                      lng: objectData.lng,
+                      title: objectData.name,
+                    }}
+                    buttonType="icon"
+                    buttonText="Посмотреть на карте"
+                    modalTitle={`Объект: ${objectData.name}`}
+                  />
+                </>
+              )}
+            </p>
             <p>Описание: {objectData.description}</p>
             <p>
               Город: {objectData.city ? citiesMap[objectData.city]?.name : "—"}

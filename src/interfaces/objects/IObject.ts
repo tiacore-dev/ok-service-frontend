@@ -8,5 +8,9 @@ export interface IObject {
   status: ObjectStatusId;
   manager: string;
   city?: string;
-  deleted?: boolean;
+  lng: number;
+  ltd: number;
+  created_at: string;
+  created_by: string;
+  deleted: boolean;
 }

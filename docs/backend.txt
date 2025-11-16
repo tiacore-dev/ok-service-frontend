@@ -445,6 +445,31 @@
         ]
       }
     },
+    "/leaves/reasons/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/LeaveReasonAllResponse"
+            }
+          }
+        },
+        "operationId": "get_leave_reasons",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "leaves"
+        ]
+      }
+    },
     "/leaves/{leave_id}/delete/hard": {
       "parameters": [
         {
@@ -759,6 +784,18 @@
             "in": "query",
             "type": "string",
             "description": "Filter by city"
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by longitude"
+          },
+          {
+            "name": "ltd",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by latitude"
           },
           {
             "name": "X-Fields",
@@ -2092,7 +2129,7 @@
             "required": true,
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/ShiftReportDetailsCreate"
+              "$ref": "#/definitions/ShiftReportDetailsEdit"
             }
           },
           {
@@ -2235,10 +2272,46 @@
             "description": "Filter by date"
           },
           {
+            "name": "date_start_from",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter by shift start (from)"
+          },
+          {
+            "name": "date_start_to",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter by shift start (to)"
+          },
+          {
+            "name": "date_end_from",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter by shift end (from)"
+          },
+          {
+            "name": "date_end_to",
+            "in": "query",
+            "type": "integer",
+            "description": "Filter by shift end (to)"
+          },
+          {
             "name": "project",
             "in": "query",
             "type": "string",
             "description": "Filter by project ID"
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by longitude"
+          },
+          {
+            "name": "ltd",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by latitude"
           },
           {
             "name": "night_shift",
@@ -4152,6 +4225,42 @@
       },
       "type": "object"
     },
+    "LeaveReasonAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string",
+          "description": "Сообщение"
+        },
+        "reasons": {
+          "type": "array",
+          "description": "Список доступных причин отсутствия",
+          "items": {
+            "$ref": "#/definitions/LeaveReason"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "LeaveReason": {
+      "required": [
+        "name",
+        "reason_id"
+      ],
+      "properties": {
+        "reason_id": {
+          "type": "string",
+          "description": "Идентификатор причины (значение Enum)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Название причины"
+        }
+      },
+      "type": "object"
+    },
     "ObjectStatusAllResponse": {
       "required": [
         "msg"
@@ -4296,6 +4405,12 @@
         },
         "city": {
           "type": "string"
+        },
+        "lng": {
+          "type": "number"
+        },
+        "ltd": {
+          "type": "number"
         }
       },
       "type": "object"
@@ -4369,6 +4484,14 @@
         "manager": {
           "type": "string",
           "description": "Manager of the object"
+        },
+        "lng": {
+          "type": "number",
+          "description": "Longitude of the object"
+        },
+        "ltd": {
+          "type": "number",
+          "description": "Latitude of the object"
         },
         "created_at": {
           "type": "string",
@@ -5010,8 +5133,20 @@
         "date": {
           "type": "integer"
         },
+        "date_start": {
+          "type": "integer"
+        },
+        "date_end": {
+          "type": "integer"
+        },
         "project": {
           "type": "string"
+        },
+        "lng": {
+          "type": "number"
+        },
+        "ltd": {
+          "type": "number"
         },
         "signed": {
           "type": "boolean"
@@ -5060,6 +5195,10 @@
         "shift_report_id": {
           "type": "string",
           "description": "ID of shift report"
+        },
+        "detail": {
+          "type": "object",
+          "description": "Additional details (e.g., validation errors)"
         }
       },
       "type": "object"
@@ -5107,9 +5246,25 @@
           "type": "integer",
           "description": "Report date"
         },
+        "date_start": {
+          "type": "integer",
+          "description": "Shift start timestamp (nullable)"
+        },
+        "date_end": {
+          "type": "integer",
+          "description": "Shift end timestamp (nullable)"
+        },
         "project": {
           "type": "string",
           "description": "Project details"
+        },
+        "lng": {
+          "type": "number",
+          "description": "Longitude of the shift report"
+        },
+        "ltd": {
+          "type": "number",
+          "description": "Latitude of the shift report"
         },
         "signed": {
           "type": "boolean",
@@ -5165,6 +5320,10 @@
         "total": {
           "type": "integer",
           "description": "Total count of shift reports"
+        },
+        "detail": {
+          "type": "object",
+          "description": "Additional details (e.g., validation errors)"
         }
       },
       "type": "object"
@@ -5315,6 +5474,23 @@
         "summ": {
           "type": "number",
           "description": "Total sum of work"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportDetailsEdit": {
+      "properties": {
+        "shift_report": {
+          "type": "string"
+        },
+        "project_work": {
+          "type": "string"
+        },
+        "work": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
         }
       },
       "type": "object"

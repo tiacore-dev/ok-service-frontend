@@ -11,6 +11,7 @@ import {
   Spin,
   Table,
   Typography,
+  notification,
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
@@ -19,14 +20,17 @@ import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
-import { dateTimestampToLocalString } from "../../utils/dateConverter";
+import {
+  dateTimestampToLocalString,
+  dateTimestampToLocalDateTimeString,
+} from "../../utils/dateConverter";
 import type { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { useUsersMap } from "../../queries/users";
 import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { RoleId } from "../../interfaces/roles/IRole";
-import { getCurrentRole } from "../../store/modules/auth";
+import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import {
   useEditShiftReportMutation,
@@ -44,14 +48,36 @@ import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap, useProjectStatQuery } from "../../queries/projects";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { useWorksMap } from "../../queries/works";
+import { MapViewer } from "../../components/Map/MapViewer";
 
 const { Text } = Typography;
+
+const toRadians = (value: number) => (value * Math.PI) / 180;
+const calculateDistanceMeters = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+) => {
+  const R = 6371000; // Earth radius in meters
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
 
 export const ShiftReport = () => {
   const [dataSource, setDataSource] = React.useState<
     IShiftReportDetailsListColumn[]
   >([]);
   const currentRole = useSelector(getCurrentRole);
+  const currentUserId = useSelector(getCurrentUserId);
   const { Content } = Layout;
 
   // Query hooks
@@ -77,10 +103,12 @@ export const ShiftReport = () => {
   // API actions
   const { usersMap } = useUsersMap();
   const { objectsMap } = useObjectsMap();
-  const { projectsMap } = useProjectsMap({ enabled: Boolean(shiftReportData?.project) });
+  const { projectsMap } = useProjectsMap({
+    enabled: Boolean(shiftReportData?.project),
+  });
   const { data: projectStat } = useProjectStatQuery(
     shiftReportData?.project ?? "",
-    { enabled: Boolean(shiftReportData?.project) },
+    { enabled: Boolean(shiftReportData?.project) }
   );
   const {
     projectWorks,
@@ -93,9 +121,9 @@ export const ShiftReport = () => {
   const { worksMap } = useWorksMap();
   const stat = projectStat ?? {};
 
-  const object = React.useMemo(
+  const objectId = React.useMemo(
     () => projectsMap[shiftReportData?.project]?.object,
-    [projectsMap, shiftReportData?.project],
+    [projectsMap, shiftReportData?.project]
   );
 
   const canEdit = currentRole !== RoleId.USER || !shiftReportData?.signed;
@@ -109,13 +137,96 @@ export const ShiftReport = () => {
     value: el.project_work_id,
   }));
 
+  const [isStartingShift, setIsStartingShift] = React.useState(false);
+  const [isCompletingShift, setIsCompletingShift] = React.useState(false);
+
+  const canStartShift = React.useMemo(() => {
+    if (!shiftReportData) return false;
+    if (shiftReportData.signed) return false;
+    if (shiftReportData.date_start) return false;
+    return shiftReportData.user === currentUserId;
+  }, [shiftReportData, currentUserId]);
+
+  const canCompleteShift = React.useMemo(() => {
+    if (!shiftReportData) return false;
+    if (shiftReportData.signed) return false;
+    if (!shiftReportData.date_start) return false;
+    if (shiftReportData.date_end) return false;
+    return shiftReportData.user === currentUserId;
+  }, [shiftReportData, currentUserId]);
+
+  const distanceToObjectMeters = React.useMemo(() => {
+    if (!shiftReportData?.date_start) return null;
+    if (typeof shiftReportData.lng !== "number") return null;
+    if (typeof shiftReportData.ltd !== "number") return null;
+    if (!objectId) return null;
+    const relatedObject = objectsMap[objectId];
+    if (!relatedObject || !relatedObject.ltd || !relatedObject.lng) return null;
+
+    return Math.round(
+      calculateDistanceMeters(
+        relatedObject.ltd,
+        relatedObject.lng,
+        shiftReportData.ltd,
+        shiftReportData.lng
+      )
+    );
+  }, [
+    shiftReportData?.date_start,
+    shiftReportData?.lng,
+    shiftReportData?.ltd,
+    objectId,
+    objectsMap,
+  ]);
+
+  // Получаем координаты объекта для отображения на карте
+  const objectCoordinates = React.useMemo(() => {
+    if (!objectId) return null;
+    const relatedObject = objectsMap[objectId];
+    if (!relatedObject || !relatedObject.ltd || !relatedObject.lng) return null;
+
+    return {
+      lat: relatedObject.ltd,
+      lng: relatedObject.lng,
+      title: `Объект: ${relatedObject.name}`,
+      color: "blue" as const,
+    };
+  }, [objectId, objectsMap]);
+
+  // Получаем координаты смены для отображения на карте
+  const shiftCoordinates = React.useMemo(() => {
+    if (!shiftReportData?.date_start) return null;
+    if (typeof shiftReportData.lng !== "number") return null;
+    if (typeof shiftReportData.ltd !== "number") return null;
+
+    return {
+      lat: shiftReportData.ltd,
+      lng: shiftReportData.lng,
+      title: `Место начала смены (${distanceToObjectMeters} м от объекта)`,
+      color: "red" as const,
+    };
+  }, [shiftReportData, distanceToObjectMeters]);
+
+  // Формируем массив координат для карты
+  const mapCoordinates = React.useMemo(() => {
+    const coordinates = [];
+    if (objectCoordinates) coordinates.push(objectCoordinates);
+    if (shiftCoordinates) coordinates.push(shiftCoordinates);
+    return coordinates;
+  }, [objectCoordinates, shiftCoordinates]);
+
+  // Проверяем, можно ли показывать кнопку карты (только для администратора и когда есть обе координаты)
+  const canShowMapButton = React.useMemo(() => {
+    return currentRole === RoleId.ADMIN && mapCoordinates.length === 2;
+  }, [currentRole, mapCoordinates.length]);
+
   React.useEffect(() => {
     if (shiftReportDetailsData) {
       setDataSource(
         shiftReportDetailsData.map((doc) => ({
           ...doc,
           key: doc.shift_report_detail_id,
-        })),
+        }))
       );
     }
   }, [shiftReportDetailsData]);
@@ -129,7 +240,7 @@ export const ShiftReport = () => {
     if (!shiftReportDetailsData) return 0;
     return shiftReportDetailsData.reduce(
       (acc: number, val) => acc + (val.summ || 0),
-      0,
+      0
     );
   }, [shiftReportDetailsData]);
 
@@ -258,12 +369,14 @@ export const ShiftReport = () => {
       const updatedReportData = {
         user: shiftReportData.user,
         date: shiftReportData.date,
-        date_from: shiftReportData.date_from,
-        date_to: shiftReportData.date_to,
+        date_start: shiftReportData.date_start,
+        // date_end: shiftReportData.date_end,
         project: shiftReportData.project,
         signed: true,
         night_shift: shiftReportData.night_shift,
         extreme_conditions: shiftReportData.extreme_conditions,
+        lng: shiftReportData.lng,
+        ltd: shiftReportData.ltd,
       };
 
       editReportMutation({
@@ -271,6 +384,98 @@ export const ShiftReport = () => {
         reportData: updatedReportData,
       });
     }
+  }, [shiftReportData, editReportMutation]);
+
+  const handleStartShift = React.useCallback(() => {
+    if (!shiftReportData) {
+      return;
+    }
+
+    if (
+      typeof window === "undefined" ||
+      typeof navigator === "undefined" ||
+      !navigator.geolocation
+    ) {
+      notification.error({
+        message: "Не удалось определить местоположение",
+        description: "Браузер не поддерживает геолокацию",
+        placement: "bottomRight",
+      });
+      return;
+    }
+
+    setIsStartingShift(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const updatedReportData = {
+          user: shiftReportData.user,
+          date: shiftReportData.date,
+          date_start: Date.now(),
+          date_end: shiftReportData.date_end,
+          project: shiftReportData.project,
+          signed: shiftReportData.signed,
+          night_shift: shiftReportData.night_shift,
+          extreme_conditions: shiftReportData.extreme_conditions,
+          lng: longitude,
+          ltd: latitude,
+        };
+
+        editReportMutation(
+          {
+            report_id: shiftReportData.shift_report_id,
+            reportData: updatedReportData,
+          },
+          {
+            onSettled: () => setIsStartingShift(false),
+          }
+        );
+      },
+      (error) => {
+        notification.error({
+          message: "Не удалось определить местоположение",
+          description: error.message,
+          placement: "bottomRight",
+        });
+        setIsStartingShift(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  }, [shiftReportData, editReportMutation]);
+
+  const handleCompleteShift = React.useCallback(() => {
+    if (!shiftReportData) {
+      return;
+    }
+
+    setIsCompletingShift(true);
+
+    const updatedReportData = {
+      user: shiftReportData.user,
+      date: shiftReportData.date,
+      date_start: shiftReportData.date_start,
+      date_end: Date.now(),
+      project: shiftReportData.project,
+      signed: shiftReportData.signed,
+      night_shift: shiftReportData.night_shift,
+      extreme_conditions: shiftReportData.extreme_conditions,
+      lng: shiftReportData.lng,
+      ltd: shiftReportData.ltd,
+    };
+
+    editReportMutation(
+      {
+        report_id: shiftReportData.shift_report_id,
+        reportData: updatedReportData,
+      },
+      {
+        onSettled: () => setIsCompletingShift(false),
+      }
+    );
   }, [shiftReportData, editReportMutation]);
 
   const checedData = React.useMemo(() => {
@@ -281,7 +486,7 @@ export const ShiftReport = () => {
         const statEl = stat[el.work];
         const check = `Завершено: ${statEl.shift_report_details_quantity} из ${statEl.project_work_quantity} Доступно: ${Math.max(
           statEl.project_work_quantity - statEl.shift_report_details_quantity,
-          0,
+          0
         )}`;
 
         return {
@@ -299,7 +504,7 @@ export const ShiftReport = () => {
 
   const disabled = React.useMemo(
     () => checedData.some((el) => el?.blocked),
-    [checedData],
+    [checedData]
   );
 
   if (isShiftReportLoading || isDetailsLoading) {
@@ -310,7 +515,6 @@ export const ShiftReport = () => {
     return <div>Отчет не найден</div>;
   }
 
-  // const objectLink = `/objects/${object}`;
   return (
     <>
       <Breadcrumb
@@ -355,12 +559,61 @@ export const ShiftReport = () => {
           <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
           <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
           <p>Исполнитель: {usersMap[shiftReportData.user]?.name ?? ""}</p>
-          <p>Объект: {objectsMap[object]?.name}</p>
+          <p>Объект: {objectsMap[objectId]?.name}</p>
           <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
           <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name ?? ""}`}</p>
           <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
+          {shiftReportData.date_start && (
+            <p>
+              Дата начала:{" "}
+              {dateTimestampToLocalDateTimeString(shiftReportData.date_start)}
+              {currentRole === RoleId.ADMIN &&
+                distanceToObjectMeters !== null && (
+                  <> ({distanceToObjectMeters} м)</>
+                )}
+              {/* Кнопка просмотра на карте для администратора */}
+              {canShowMapButton && (
+                <MapViewer
+                  coordinates={mapCoordinates}
+                  buttonType="icon"
+                  buttonText="Посмотреть на карте"
+                  modalTitle={`Смена № ${shiftReportData.number?.toString().padStart(5, "0")}`}
+                />
+              )}
+            </p>
+          )}
+          {shiftReportData.date_end && (
+            <p>
+              Дата завершения:{" "}
+              {dateTimestampToLocalDateTimeString(shiftReportData.date_end)}
+            </p>
+          )}
           {shiftReportData.night_shift && <p>Ночная смена (+25%)</p>}
           {shiftReportData.extreme_conditions && <p>Особые условия (+25%)</p>}
+          {canStartShift && (
+            <Button
+              onClick={handleStartShift}
+              type="primary"
+              loading={isStartingShift}
+              style={{ marginBottom: 12, marginRight: 12 }}
+            >
+              Начать смену
+            </Button>
+          )}
+          {canCompleteShift && (
+            <Button
+              onClick={handleCompleteShift}
+              type="primary"
+              loading={isCompletingShift}
+              style={{
+                marginBottom: 12,
+                marginLeft: canStartShift ? 8 : 0,
+                marginRight: 12,
+              }}
+            >
+              Завершить смену
+            </Button>
+          )}
           {!shiftReportData.signed && currentRole !== RoleId.USER && (
             <Space direction="vertical">
               <Button onClick={handleOnSign} type="primary" disabled={disabled}>
