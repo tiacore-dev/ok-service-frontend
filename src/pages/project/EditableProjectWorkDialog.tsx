@@ -45,7 +45,6 @@ export const EditableProjectWorkDialog: React.FC<
     [],
   );
 
-
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue({
@@ -66,8 +65,11 @@ export const EditableProjectWorkDialog: React.FC<
         .map((el) => ({
           // Для выпадающего списка - многострочный вариант
           label: (
-            <span className="work-option-label" style={{ whiteSpace: "normal" }}>
-              {el.name}
+            <span
+              className="work-option-label"
+              style={{ whiteSpace: "normal" }}
+            >
+              {`${el.name} (${el.category.name})`}
             </span>
           ),
           // Для отображения в поле - просто текст
