@@ -271,7 +271,7 @@ jobs:
             for ID in ${OP_IDS}; do
               URL="${OPENPROJECT_URL%/}/work_packages/${ID}"
               TASKS_BLOCK="${TASKS_BLOCK}
-• [#${ID}](${URL})"
+              • [#${ID}](${URL})"
             done
           else
             TASKS_BLOCK="_No linked tasks (no OP#ID in commit message)_"
@@ -293,18 +293,18 @@ jobs:
 
           # --- 5. Текст сообщения для Mattermost (аналог GitLab-версии)
           TEXT=$(cat <<EOF
-${HEAD}
+          ${HEAD}
 
-**Service:** \`${SERVICE_NAME:-flow-frontend}\`
-**Env:** \`${ENV_NAME}\`
-**Branch:** \`${REF_NAME}\`
-**Commit:** \`${SHORT_SHA}\`
+          **Service:** \`${SERVICE_NAME:-flow-frontend}\`
+          **Env:** \`${ENV_NAME}\`
+          **Branch:** \`${REF_NAME}\`
+          **Commit:** \`${SHORT_SHA}\`
 
-${TASKS_BLOCK}
+          ${TASKS_BLOCK}
 
-[🔗 Open pipeline](${RUN_URL})
-EOF
-)
+          [🔗 Open pipeline](${RUN_URL})
+          EOF
+          )
 
           # --- 6. Отправка в Mattermost
           if ! command -v jq >/dev/null 2>&1; then
