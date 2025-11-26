@@ -7,6 +7,8 @@ import { projectsSettings } from "./projects";
 import { worksSettings } from "./works";
 import { shiftReportsSettings } from "./shift-reports";
 import { leavesSettings } from "./leaves";
+import { projectWorksSettings } from "./projectWorks";
+import { objectProjectsSettings } from "./objectProjects";
 
 export const settings = combineReducers({
   objectsSettings,
@@ -17,4 +19,6 @@ export const settings = combineReducers({
   worksSettings,
   shiftReportsSettings,
   leavesSettings,
+  projectWorksSettings,
+  objectProjectsSettings,
 });

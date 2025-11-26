@@ -14,7 +14,7 @@ import {
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableProjectDialog } from "../../components/ActionDialogs/EditableProjectDialog/EditableProjectDialog";
@@ -38,9 +38,18 @@ import {
   useUpdateProjectWorkMutation,
 } from "../../queries/projectWorks";
 import { NotificationContext } from "../../contexts/NotificationContext";
+import "./project.less";
+import { ProjectWorksFilters } from "./ProjectWorksFilters";
+import type { IProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
+import {
+  defaultProjectWorksFiltersState,
+} from "../../interfaces/projectWorks/IProjectWorksFiltersState";
+import { saveProjectWorksFiltersState } from "../../store/modules/settings/projectWorks";
+import type { IState } from "../../store/modules";
 
 export const Project = () => {
   const { Content } = Layout;
+  const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = React.useState(false);
   const [editingRecord, setEditingRecord] =
     React.useState<IProjectWorksListColumn | null>(null);
@@ -81,6 +90,86 @@ export const Project = () => {
       })),
     [projectWorksList],
   );
+  const projectFiltersKey = projectId ?? "unknown";
+  const projectWorksFilters = useSelector((state: IState) => {
+    const filtersByProject =
+      state.settings.projectWorksSettings.filtersByProject;
+    return (
+      filtersByProject[projectFiltersKey] ?? defaultProjectWorksFiltersState
+    );
+  });
+
+  const handleProjectWorksFiltersChange = React.useCallback(
+    (nextFilters: IProjectWorksFiltersState) => {
+      dispatch(
+        saveProjectWorksFiltersState({
+          projectId: projectFiltersKey,
+          filters: nextFilters,
+        }),
+      );
+    },
+    [dispatch, projectFiltersKey],
+  );
+
+  const workOptions = React.useMemo(() => {
+    return Object.values(worksMap)
+      .map((work) =>
+        work?.work_id
+          ? {
+              label: work.name,
+              value: work.work_id,
+            }
+          : null,
+      )
+      .filter(
+        (option): option is { label: string; value: string } =>
+          option !== null && option.value !== "",
+      );
+  }, [worksMap]);
+
+  const filteredProjectWorksData: IProjectWorksListColumn[] = React.useMemo(() => {
+    const searchValue = projectWorksFilters.search.trim().toLowerCase();
+
+    const filtered = projectWorksData.filter((item) => {
+      const name = item.project_work_name?.toLowerCase() ?? "";
+      const workName = item.work
+        ? worksMap[item.work]?.name?.toLowerCase() ?? ""
+        : "";
+      const matchesSearch = searchValue
+        ? name.includes(searchValue) || workName.includes(searchValue)
+        : true;
+      const matchesWork = projectWorksFilters.workId
+        ? item.work === projectWorksFilters.workId
+        : true;
+      const matchesSigned =
+        projectWorksFilters.signed === "all"
+          ? true
+          : projectWorksFilters.signed === "signed"
+            ? item.signed
+            : !item.signed;
+
+      return matchesSearch && matchesWork && matchesSigned;
+    });
+
+    const direction = projectWorksFilters.sortOrder === "ascend" ? 1 : -1;
+    const compareText = (a: string, b: string) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" }) * direction;
+
+    return filtered.sort((a, b) => {
+      switch (projectWorksFilters.sortField) {
+        case "quantity":
+          return (
+            (Number(a.quantity ?? 0) - Number(b.quantity ?? 0)) * direction
+          );
+        case "name":
+        default:
+          return compareText(
+            a.project_work_name ?? "",
+            b.project_work_name ?? "",
+          );
+      }
+    });
+  }, [projectWorksData, projectWorksFilters, worksMap]);
 
   const canEdit =
     Boolean(
@@ -346,10 +435,15 @@ export const Project = () => {
                 </Space>
               )}
 
+              <ProjectWorksFilters
+                filtersState={projectWorksFilters}
+                onFiltersChange={handleProjectWorksFiltersChange}
+                workOptions={workOptions}
+              />
               <Table
                 bordered={!isMobile()}
                 pagination={false}
-                dataSource={projectWorksData}
+                dataSource={filteredProjectWorksData}
                 columns={columns}
                 loading={isLoading}
               />

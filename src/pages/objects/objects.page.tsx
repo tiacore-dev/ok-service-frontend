@@ -13,10 +13,14 @@ import { minPageHeight } from "../../utils/pageSettings";
 import { IObjectsListColumn } from "../../interfaces/objects/IObjectsList";
 import { Link } from "react-router-dom";
 import { useUsersMap } from "../../queries/users";
-import { saveObjectsTableState } from "../../store/modules/settings/objects";
+import {
+  saveObjectsFiltersState,
+  saveObjectsTableState,
+} from "../../store/modules/settings/objects";
 import { useObjectsQuery } from "../../queries/objects";
 import { useObjectStatuses } from "../../queries/objectStatuses";
 import { useCitiesMap } from "../../queries/cities";
+import type { IObjectsFiltersState } from "../../interfaces/objects/IObjectsFiltersState";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -39,6 +43,9 @@ export const Objects = () => {
   );
   const { statusMap, statusOptions } = useObjectStatuses();
   const { citiesMap, cityOptions } = useCitiesMap();
+  const filtersState = useSelector(
+    (state: IState) => state.settings.objectsSettings.objectsFilters,
+  );
 
   const handleTableChange: TableProps<IObjectsListColumn>["onChange"] = (
     pagination,
@@ -70,25 +77,97 @@ export const Objects = () => {
     () =>
       isMobile()
         ? objectsMobileColumns(navigate, statusMap, citiesMap)
-        : objectsDesktopColumns(
-            navigate,
-            statusMap,
-            usersMap,
-            citiesMap,
-            statusOptions,
-            cityOptions,
-            tableState,
-          ),
-    [
-      navigate,
-      statusMap,
-      usersMap,
-      statusOptions,
-      cityOptions,
-      citiesMap,
-      tableState,
-    ],
+        : objectsDesktopColumns(navigate, statusMap, usersMap, citiesMap),
+    [navigate, statusMap, usersMap, citiesMap],
   );
+
+  const handleFiltersChange = React.useCallback(
+    (nextFilters: IObjectsFiltersState) => {
+      dispatch(saveObjectsFiltersState(nextFilters));
+    },
+    [dispatch],
+  );
+
+  const statusSelectOptions = React.useMemo(
+    () =>
+      statusOptions.map((option) => ({
+        label: option.label,
+        value: option.value,
+      })),
+    [statusOptions],
+  );
+
+  const citySelectOptions = React.useMemo(
+    () =>
+      cityOptions.map((option) => ({
+        label: option.label,
+        value: option.value,
+      })),
+    [cityOptions],
+  );
+
+  const managerSelectOptions = React.useMemo(() => {
+    return Object.values(usersMap).map((user) => ({
+      label: user.name,
+      value: user.user_id ?? user.name,
+    }));
+  }, [usersMap]);
+
+  const filteredObjectsData: IObjectsListColumn[] = React.useMemo(() => {
+    const searchValue = filtersState.search.trim().toLowerCase();
+
+    const filtered = objectsData.filter((object) => {
+      const name = (object.name ?? "").toLowerCase();
+      const address = (object.address ?? "").toLowerCase();
+      const description = (object.description ?? "").toLowerCase();
+      const managerName = (usersMap[object.manager]?.name ?? "").toLowerCase();
+
+      const matchesSearch = searchValue
+        ? name.includes(searchValue) ||
+          address.includes(searchValue) ||
+          description.includes(searchValue) ||
+          managerName.includes(searchValue)
+        : true;
+      const matchesStatus = filtersState.statusId
+        ? object.status === filtersState.statusId
+        : true;
+      const matchesCity = filtersState.cityId
+        ? object.city === filtersState.cityId
+        : true;
+      const matchesManager = filtersState.managerId
+        ? object.manager === filtersState.managerId
+        : true;
+
+      return matchesSearch && matchesStatus && matchesCity && matchesManager;
+    });
+
+    const direction = filtersState.sortOrder === "ascend" ? 1 : -1;
+    const compareText = (a: string, b: string) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" }) * direction;
+
+    return filtered.sort((a, b) => {
+      switch (filtersState.sortField) {
+        case "city":
+          return compareText(
+            a.city ? citiesMap[a.city]?.name ?? "" : "",
+            b.city ? citiesMap[b.city]?.name ?? "" : "",
+          );
+        case "status":
+          return compareText(
+            statusMap[a.status]?.name ?? "",
+            statusMap[b.status]?.name ?? "",
+          );
+        case "manager":
+          return compareText(
+            usersMap[a.manager]?.name ?? "",
+            usersMap[b.manager]?.name ?? "",
+          );
+        case "name":
+        default:
+          return compareText(a.name ?? "", b.name ?? "");
+      }
+    });
+  }, [objectsData, filtersState, usersMap, citiesMap, statusMap]);
   return (
     <>
       <Breadcrumb
@@ -107,9 +186,15 @@ export const Objects = () => {
           background: "#FFF",
         }}
       >
-        <Filters />
+        <Filters
+          filtersState={filtersState}
+          onFiltersChange={handleFiltersChange}
+          statusOptions={statusSelectOptions}
+          cityOptions={citySelectOptions}
+          managerOptions={managerSelectOptions}
+        />
         <Table
-          dataSource={objectsData}
+          dataSource={filteredObjectsData}
           columns={columns}
           loading={isFetching}
           pagination={paginationConfig}

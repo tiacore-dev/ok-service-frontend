@@ -1,144 +1,72 @@
 import * as React from "react";
-import { ColumnsType } from "antd/es/table";
-import { NavigateFunction } from "react-router-dom";
-import { IObjectsListColumn } from "../../../interfaces/objects/IObjectsList";
-import { IObjectStatus } from "../../../interfaces/objectStatuses/IObjectStatus";
-import { IUser } from "../../../interfaces/users/IUser";
-import { filterDropdown } from "../../../components/Table/filterDropdown";
-import { ICity } from "../../../interfaces/cities/ICity";
-import type { IObjectsSettingsState } from "../../../store/modules/settings/objects";
+import type { ColumnsType } from "antd/es/table";
+import type { NavigateFunction } from "react-router-dom";
+import type { IObjectsListColumn } from "../../../interfaces/objects/IObjectsList";
+import type { IObjectStatus } from "../../../interfaces/objectStatuses/IObjectStatus";
+import type { IUser } from "../../../interfaces/users/IUser";
+import type { ICity } from "../../../interfaces/cities/ICity";
 
 export const objectsDesktopColumns = (
   navigate: NavigateFunction,
   statusMap: Record<string, IObjectStatus>,
   usersMap: Record<string, IUser>,
   citiesMap: Record<string, ICity>,
-  statusOptions?: { text: string; value: string }[],
-  cityOptions?: { text: string; value: string }[],
-  tableState?: IObjectsSettingsState,
-): ColumnsType<IObjectsListColumn> => {
-  const columns: ColumnsType<IObjectsListColumn> = [
-    {
-      title: "Имя",
-      dataIndex: "name",
-      key: "name",
-      width: "20%",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        record.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) => (a.name > b.name ? 1 : -1),
-      render: (text: string, record: IObjectsListColumn) => (
-        <div>
-          <a
-            className="objects__table__number"
-            onClick={() => navigate && navigate(`/objects/${record.key}`)}
-          >
-            {record.name}
-          </a>
-        </div>
-      ),
-    },
-    {
-      title: "Адрес",
-      dataIndex: "address",
-      key: "address",
-      width: "20%",
-      render: (text: string, record: IObjectsListColumn) => (
-        <div>
-          <div>{record.address}</div>
-        </div>
-      ),
-    },
-    {
-      title: "Описание",
-      dataIndex: "description",
-      key: "description",
-      width: "20%",
-      render: (text: string, record: IObjectsListColumn) => (
-        <div>
-          <div>{record.description}</div>
-        </div>
-      ),
-    },
-    {
-      title: "Город",
-      dataIndex: "city",
-      key: "city",
-      width: "10%",
-      filters: cityOptions,
-      onFilter: (value, record) => record.city?.includes(value as string),
-      sorter: (a, b) => {
-        const cityA = a.city ? citiesMap[a.city]?.name || "" : "";
-        const cityB = b.city ? citiesMap[b.city]?.name || "" : "";
-        return cityA > cityB ? 1 : -1;
-      },
-      render: (text: string, record: IObjectsListColumn) => (
-        <div>
-          <div>{record.city ? citiesMap[record.city]?.name : "—"}</div>
-        </div>
-      ),
-    },
-    {
-      title: "Менеджер",
-      dataIndex: "manager",
-      key: "manager",
-      width: "20%",
-      filterDropdown: filterDropdown,
-      onFilter: (value, record) =>
-        usersMap[record.manager]?.name
-          .toString()
-          .toLowerCase()
-          .includes(value.toString().toLowerCase()),
-      sorter: (a, b) =>
-        usersMap[a.manager]?.name > usersMap[b.manager]?.name ? 1 : -1,
-      render: (text: string, record: IObjectsListColumn) => (
-        <div>
-          <div>{usersMap[record.manager]?.name}</div>
-        </div>
-      ),
-    },
-    {
-      title: "Статус",
-      dataIndex: "status",
-      filters: statusOptions,
-      onFilter: (value, record) => record.status.includes(value as string),
-      sorter: (a, b) =>
-        statusMap[a.status]?.name > statusMap[b.status]?.name ? 1 : -1,
-      key: "status",
-      width: "20%",
-      render: (text: string, record: IObjectsListColumn) => (
-        <div>{statusMap[record.status]?.name}</div>
-      ),
-    },
-  ];
-
-  return columns.map((column) => {
-    if ("children" in column) {
-      return column;
-    }
-
-    const columnKey =
-      typeof column.key === "string"
-        ? column.key
-        : "dataIndex" in column && typeof column.dataIndex === "string"
-          ? column.dataIndex
-          : undefined;
-
-    return {
-      ...column,
-      filteredValue:
-        columnKey && tableState?.filters
-          ? tableState.filters[columnKey] ?? null
-          : column.filteredValue ?? null,
-      sortOrder:
-        columnKey &&
-        (tableState?.sorter?.field === columnKey ||
-          tableState?.sorter?.columnKey === columnKey)
-          ? tableState?.sorter?.order ?? null
-          : column.sortOrder ?? null,
-    };
-  });
-};
+): ColumnsType<IObjectsListColumn> => [
+  {
+    title: "Имя",
+    dataIndex: "name",
+    key: "name",
+    width: "20%",
+    render: (text: string, record: IObjectsListColumn) => (
+      <div>
+        <a
+          className="objects__table__number"
+          onClick={() => navigate && navigate(`/objects/${record.key}`)}
+        >
+          {record.name}
+        </a>
+      </div>
+    ),
+  },
+  {
+    title: "Адрес",
+    dataIndex: "address",
+    key: "address",
+    width: "20%",
+    render: (text: string, record: IObjectsListColumn) => <div>{record.address}</div>,
+  },
+  {
+    title: "Описание",
+    dataIndex: "description",
+    key: "description",
+    width: "20%",
+    render: (text: string, record: IObjectsListColumn) => <div>{record.description}</div>,
+  },
+  {
+    title: "Город",
+    dataIndex: "city",
+    key: "city",
+    width: "10%",
+    render: (text: string, record: IObjectsListColumn) => (
+      <div>{record.city ? citiesMap[record.city]?.name : "-"}</div>
+    ),
+  },
+  {
+    title: "Прораб",
+    dataIndex: "manager",
+    key: "manager",
+    width: "20%",
+    render: (text: string, record: IObjectsListColumn) => (
+      <div>{usersMap[record.manager]?.name}</div>
+    ),
+  },
+  {
+    title: "Статус",
+    dataIndex: "status",
+    key: "status",
+    width: "20%",
+    render: (text: string, record: IObjectsListColumn) => (
+      <div>{statusMap[record.status]?.name}</div>
+    ),
+  },
+];
