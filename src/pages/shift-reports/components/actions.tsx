@@ -32,17 +32,20 @@ interface IExportedData {
 
 interface ActionsProps {
   currentFilters?: {
-    user?: string;
-    project?: string;
-    date_from?: number;
-    date_to?: number;
+    users?: string[];
+    projects?: string[];
+    date_from?: number | null;
+    date_to?: number | null;
   };
 }
 
 export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
   // Получаем данные из React Query
   const { data: shiftReportsResponse } = useShiftReportsQuery({
-    ...currentFilters,
+    user: currentFilters?.users,
+    project: currentFilters?.projects,
+    date_from: currentFilters?.date_from ?? undefined,
+    date_to: currentFilters?.date_to ?? undefined,
     offset: 0,
     limit: 10000,
   });

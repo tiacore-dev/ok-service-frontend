@@ -16,8 +16,8 @@ import { useProjectWorksMap } from "../../../queries/projectWorks";
 
 interface DownloadShiftReportsWithDetailsProps {
   currentFilters?: {
-    user?: string;
-    project?: string;
+    users?: string[];
+    projects?: string[];
     date_from?: number;
     date_to?: number;
   };
@@ -60,7 +60,10 @@ export const DownloadShiftReportsWithDetails = ({
   const [isExporting, setIsExporting] = React.useState(false);
 
   const { data: shiftReportsResponse } = useShiftReportsQuery({
-    ...currentFilters,
+    user: currentFilters?.users,
+    project: currentFilters?.projects,
+    date_from: currentFilters?.date_from ?? undefined,
+    date_to: currentFilters?.date_to ?? undefined,
     offset: 0,
     limit: 10000,
   });
@@ -89,12 +92,17 @@ export const DownloadShiftReportsWithDetails = ({
     return map;
   }, [allProjectWorks]);
 
+  const selectedUserId =
+    currentFilters?.users && currentFilters.users.length === 1
+      ? currentFilters.users[0]
+      : undefined;
+
   const createExportTemplate =
     React.useCallback(async (): Promise<ExportExcelTemplate> => {
       const exportData: ExportExcelTemplate = {
         date_from: dateTimestampToLocalString(currentFilters?.date_from) || "",
         date_to: dateTimestampToLocalString(currentFilters?.date_to) || "",
-        user: usersMap[currentFilters?.user]?.name || "",
+        user: selectedUserId ? usersMap[selectedUserId]?.name || "" : "",
         total_summ: 0,
         unique_days: 0,
         objects: [],
@@ -199,7 +207,7 @@ export const DownloadShiftReportsWithDetails = ({
     }, [
       currentFilters?.date_from,
       currentFilters?.date_to,
-      currentFilters?.user,
+      selectedUserId,
       objectsMap,
       projectWorksById,
       projectsMap,
@@ -227,7 +235,9 @@ export const DownloadShiftReportsWithDetails = ({
       setIsExporting(true);
       const exportTemplate = await createExportTemplate();
 
-      const userName = usersMap[currentFilters?.user]?.name || "unknown";
+      const userName = selectedUserId
+        ? usersMap[selectedUserId]?.name || "unknown"
+        : "unknown";
       const dateFrom =
         dateTimestampToLocalString(currentFilters?.date_from) || "";
       const dateTo = dateTimestampToLocalString(currentFilters?.date_to) || "";
@@ -251,7 +261,7 @@ export const DownloadShiftReportsWithDetails = ({
     createExportTemplate,
     currentFilters?.date_from,
     currentFilters?.date_to,
-    currentFilters?.user,
+    selectedUserId,
     usersMap,
   ]);
 
@@ -259,7 +269,7 @@ export const DownloadShiftReportsWithDetails = ({
     shiftReportsData.length === 0 ||
     !currentFilters?.date_from ||
     !currentFilters?.date_to ||
-    !currentFilters?.user;
+    !selectedUserId;
 
   const button = (
     <Button

@@ -22,7 +22,7 @@ const clamp = (n: number, lo: number, hi: number) =>
 
 interface DownloadUsersReportProps {
   currentFilters?: {
-    user?: string;
+    users?: string[];
     date_from?: number;
     date_to?: number;
   };
@@ -34,10 +34,13 @@ export const DownloadUsersReport = ({
   const [isExporting, setIsExporting] = React.useState(false);
 
   const { data: shiftReportsResponse } = useShiftReportsQuery({
-    ...currentFilters,
+    user: currentFilters?.users,
+    date_from: currentFilters?.date_from ?? undefined,
+    date_to: currentFilters?.date_to ?? undefined,
     offset: 0,
     limit: 10000,
   });
+  const shiftReports = shiftReportsResponse?.shift_reports ?? [];
 
   const { data: leaveListsData } = useLeavesQuery();
   const { projectsMap } = useProjectsMap();
@@ -52,25 +55,9 @@ export const DownloadUsersReport = ({
         users: [],
       };
 
-      const params: Record<string, string> = {
-        limit: "10000",
-      };
-
-      if (currentFilters?.date_from) {
-        params.date_from = String(currentFilters.date_from);
-      }
-
-      if (currentFilters?.date_to) {
-        params.date_to = String(currentFilters.date_to);
-      }
-
-      if (currentFilters?.user) {
-        params.user = currentFilters.user;
-      }
-
       const byUserProjects = new Map<string, Map<string, number>>();
 
-      for (const shiftReport of shiftReportsResponse.shift_reports) {
+      for (const shiftReport of shiftReports) {
         const dateStr = dateTimestampToLocalString(shiftReport.date);
         const key = `${dateStr}||${shiftReport.project}`; // Если только по дате, то убрать второй ключ
 
@@ -88,11 +75,11 @@ export const DownloadUsersReport = ({
 
       const filterFrom = currentFilters?.date_from ?? Number.NEGATIVE_INFINITY;
       const filterTo = currentFilters?.date_to ?? Number.POSITIVE_INFINITY;
-      const filterUser = currentFilters?.user;
+      const filterUsers = currentFilters?.users;
 
       if (leaveListsData?.length) {
         for (const leave of leaveListsData) {
-          if (filterUser && leave.user !== filterUser) continue;
+          if (filterUsers?.length && !filterUsers.includes(leave.user)) continue;
 
           const start = leave.start_date ?? leave.end_date ?? null;
           const end = leave.end_date ?? leave.start_date ?? null;
@@ -167,8 +154,8 @@ export const DownloadUsersReport = ({
     }, [
       currentFilters?.date_from,
       currentFilters?.date_to,
-      currentFilters?.user,
-      shiftReportsResponse,
+      currentFilters?.users,
+      shiftReports,
       objectsMap,
       projectsMap,
       usersMap,
@@ -220,9 +207,7 @@ export const DownloadUsersReport = ({
   ]);
 
   const isDisabled =
-    !shiftReportsResponse ||
-    !shiftReportsResponse.shift_reports ||
-    shiftReportsResponse.shift_reports.length === 0 ||
+    shiftReports.length === 0 ||
     !currentFilters?.date_from ||
     !currentFilters?.date_to;
 

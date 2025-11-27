@@ -20,14 +20,14 @@ export interface IShiftReportQueryParams {
   limit?: number;
   sort_by?: string;
   sort_order?: "asc" | "desc";
-  user?: string;
+  user?: string | string[];
   date_from?: number;
   date_to?: number;
   date_start_from?: number;
   date_start_to?: number;
   date_end_from?: number;
   date_end_to?: number;
-  project?: string;
+  project?: string | string[];
   lng?: number;
   ltd?: number;
 }

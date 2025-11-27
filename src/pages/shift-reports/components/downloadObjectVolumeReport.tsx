@@ -19,8 +19,8 @@ import { useProjectWorksMap } from "../../../queries/projectWorks";
 
 interface DownloadObjectVolumeReportProps {
   currentFilters?: {
-    user?: string;
-    project?: string;
+    users?: string[];
+    projects?: string[];
     date_from?: number;
     date_to?: number;
   };
@@ -32,7 +32,10 @@ export const DownloadObjectVolumeReport: React.FC<
   const [isExporting, setIsExporting] = React.useState(false);
 
   const { data: shiftReportsResponse } = useShiftReportsQuery({
-    ...currentFilters,
+    user: currentFilters?.users,
+    project: currentFilters?.projects,
+    date_from: currentFilters?.date_from ?? undefined,
+    date_to: currentFilters?.date_to ?? undefined,
     offset: 0,
     limit: 10000,
   });
@@ -81,12 +84,12 @@ export const DownloadObjectVolumeReport: React.FC<
         params.date_to = String(currentFilters.date_to);
       }
 
-      if (currentFilters?.user) {
-        params.user = currentFilters.user;
+      if (currentFilters?.users?.length) {
+        params.user = currentFilters.users.join(",");
       }
 
-      if (currentFilters?.project) {
-        params.project = currentFilters.project;
+      if (currentFilters?.projects?.length) {
+        params.project = currentFilters.projects.join(",");
       }
 
       let details: IShiftReportDetail[] = [];
@@ -181,8 +184,8 @@ export const DownloadObjectVolumeReport: React.FC<
     }, [
       currentFilters?.date_from,
       currentFilters?.date_to,
-      currentFilters?.project,
-      currentFilters?.user,
+      currentFilters?.projects,
+      currentFilters?.users,
       objectsMap,
       projectWorksById,
       projectsMap,

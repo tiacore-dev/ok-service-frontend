@@ -25,11 +25,18 @@ export const fetchShiftReports = async (
   try {
     // Получаем текущее состояние auth из store
     const { access_token, refresh_token } = store.getState().auth;
-    const params = {
-      ...Object.fromEntries(
-        Object.entries(queryParams).filter(([_, value]) => value !== undefined),
-      ),
-    };
+    const params = Object.entries(queryParams)
+      .filter(([, value]) => value !== undefined && value !== null)
+      .reduce<Record<string, string | number>>((acc, [key, value]) => {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            acc[key] = value.join(",");
+          }
+        } else {
+          acc[key] = value as string | number;
+        }
+        return acc;
+      }, {});
     // Первая попытка запроса
     let response = await axiosInstance.get("/shift_reports/all", {
       params,
