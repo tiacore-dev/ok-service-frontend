@@ -126,6 +126,20 @@ export const ShiftReports = () => {
     }, {});
   }, [projects]);
 
+  const projectNamesMap = React.useMemo<Record<string, string>>(
+    () =>
+      Object.values(projectsMap).reduce<Record<string, string>>(
+        (acc, project) => {
+          if (project.project_id) {
+            acc[project.project_id] = project.name;
+          }
+          return acc;
+        },
+        {},
+      ),
+    [projectsMap],
+  );
+
   const projectsTreeData = React.useMemo<DataNode[]>(() => {
     return Object.entries(objectProjectsMap)
       .map<DataNode | null>(([objectId, projectIds]) => {
@@ -240,6 +254,7 @@ export const ShiftReports = () => {
           userOptions={userOptions}
           projectsTreeData={projectsTreeData}
           objectProjectsMap={objectProjectsMap}
+          projectNamesMap={projectNamesMap}
         />
         <Actions currentFilters={currentFilters} />
         <Table<IShiftReportsListColumn>

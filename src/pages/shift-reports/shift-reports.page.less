@@ -53,6 +53,63 @@
         &_range {
             min-width: 260px;
         }
+
+        &_tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 6px;
+            background: #f2f2f2;
+            border-radius: 4px;
+            height: 24px;
+            font-size: 12px;
+        }
+
+        &_tag-close {
+            margin-left: 6px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        &_summary {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        &_summaryRow {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        &_summaryLabel {
+            font-weight: 500;
+        }
+
+        &_summaryChips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        &_summaryChip {
+            border: none;
+            border-radius: 12px;
+            background: #f3f3f3;
+            padding: 2px 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        &_summaryChip-close {
+            font-size: 12px;
+        }
     }
 
 }
