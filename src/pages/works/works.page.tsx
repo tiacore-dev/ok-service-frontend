@@ -150,7 +150,7 @@ export const Works = () => {
         }}
       >
         <Filters
-          works={filteredWorksData}
+          works={worksData}
           filtersState={filtersState}
           onFiltersChange={handleFiltersChange}
           workCategoriesOptions={workCategoriesOptions}

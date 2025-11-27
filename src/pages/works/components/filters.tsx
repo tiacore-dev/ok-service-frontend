@@ -31,13 +31,15 @@ export const Filters: React.FC<FiltersProps> = ({
   const currentRole = useSelector(getCurrentRole);
 
   const exportedData = React.useMemo(() => {
+    const activeWorks = works.filter((work) => !work.deleted);
     const formatPrice = (work: IWorksList, category: number) => {
       const price = work.work_prices?.find((item) => item.category === category)
         ?.price;
       return typeof price === "number" ? price.toString().replace(".", ",") : "";
     };
 
-    return works.map((work) => ({
+    return activeWorks.map((work) => ({
+      id: work.work_id ?? "",
       name: work.name ?? "",
       category: work.category?.name ?? "",
       measurement_unit: work.measurement_unit ?? "",
@@ -54,6 +56,7 @@ export const Filters: React.FC<FiltersProps> = ({
     }
 
     const headers = [
+      "id",
       "Наименование",
       "Категория",
       "Единица измерения",
@@ -66,6 +69,7 @@ export const Filters: React.FC<FiltersProps> = ({
     const rows = exportedData
       .map((row) =>
         [
+          row.id,
           row.name,
           row.category,
           row.measurement_unit,
