@@ -45,7 +45,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableObject
+    (state: IState) => state.editableEntities.editableObject,
   );
   const { statusOptions } = useObjectStatuses();
 
@@ -82,7 +82,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
         });
       } else {
         await createObjectMutation.mutateAsync(
-          objectData as EditableObjectPayload
+          objectData as EditableObjectPayload,
         );
         notificationApi?.success({
           message: "Успешно",
@@ -129,13 +129,13 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
       dispatch(editObjectAction.setLng(lng));
       setIsMapPickerVisible(false);
     },
-    [dispatch]
+    [dispatch],
   );
 
   const { users } = useUsersMap();
   const userOptions = users
     .filter(
-      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN
+      (user) => user.role === RoleId.MANAGER || user.role === RoleId.ADMIN,
     )
     .map((el) => ({
       label: el.name,
@@ -250,7 +250,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                   value={data.description}
                   onChange={(event) =>
                     dispatch(
-                      editObjectAction.setDescription(event.target.value)
+                      editObjectAction.setDescription(event.target.value),
                     )
                   }
                   disabled={sent}

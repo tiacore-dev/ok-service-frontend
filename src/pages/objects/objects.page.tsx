@@ -21,6 +21,7 @@ import { useObjectsQuery } from "../../queries/objects";
 import { useObjectStatuses } from "../../queries/objectStatuses";
 import { useCitiesMap } from "../../queries/cities";
 import type { IObjectsFiltersState } from "../../interfaces/objects/IObjectsFiltersState";
+import { Actions } from "./components/actions";
 
 export const Objects = () => {
   const { Content } = Layout;
@@ -186,6 +187,7 @@ export const Objects = () => {
           background: "#FFF",
         }}
       >
+        <Actions />
         <Filters
           filtersState={filtersState}
           onFiltersChange={handleFiltersChange}

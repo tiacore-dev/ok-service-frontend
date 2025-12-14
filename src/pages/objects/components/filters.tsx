@@ -1,11 +1,10 @@
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { Button, Input, Select, Space } from "antd";
 import * as React from "react";
-import { useSelector } from "react-redux";
-import { EditableObjectDialog } from "../../../components/ActionDialogs/EditableObjectDialog/EditableObjectDialog";
-import type { IObjectsFiltersState, ObjectsSortField } from "../../../interfaces/objects/IObjectsFiltersState";
-import { RoleId } from "../../../interfaces/roles/IRole";
-import { getCurrentRole } from "../../../store/modules/auth";
+import type {
+  IObjectsFiltersState,
+  ObjectsSortField,
+} from "../../../interfaces/objects/IObjectsFiltersState";
 import { isMobile } from "../../../utils/isMobile";
 
 interface ObjectsFiltersProps {
@@ -23,13 +22,16 @@ export const Filters: React.FC<ObjectsFiltersProps> = ({
   cityOptions,
   managerOptions,
 }) => {
-  const currentRole = useSelector(getCurrentRole);
   const changeFilters = (patch: Partial<IObjectsFiltersState>) => {
     onFiltersChange({ ...filtersState, ...patch });
   };
 
   const sortButtonIcon =
-    filtersState.sortOrder === "ascend" ? <ArrowUpOutlined /> : <ArrowDownOutlined />;
+    filtersState.sortOrder === "ascend" ? (
+      <ArrowUpOutlined />
+    ) : (
+      <ArrowDownOutlined />
+    );
 
   return (
     <Space
@@ -79,7 +81,9 @@ export const Filters: React.FC<ObjectsFiltersProps> = ({
       <Select
         className="objects_filters_sort"
         value={filtersState.sortField}
-        onChange={(value: ObjectsSortField) => changeFilters({ sortField: value })}
+        onChange={(value: ObjectsSortField) =>
+          changeFilters({ sortField: value })
+        }
         options={[
           { label: "Сортировка: по названию", value: "name" },
           { label: "Сортировка: по городу", value: "city" },
@@ -90,14 +94,14 @@ export const Filters: React.FC<ObjectsFiltersProps> = ({
       <Button
         onClick={() =>
           changeFilters({
-            sortOrder: filtersState.sortOrder === "ascend" ? "descend" : "ascend",
+            sortOrder:
+              filtersState.sortOrder === "ascend" ? "descend" : "ascend",
           })
         }
         icon={sortButtonIcon}
       >
         {filtersState.sortOrder === "ascend" ? "По возрастанию" : "По убыванию"}
       </Button>
-      {currentRole === RoleId.ADMIN && <EditableObjectDialog />}
     </Space>
   );
 };
