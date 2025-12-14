@@ -1,23 +1,28 @@
 "use client";
 
-import { Button, Space } from "antd";
+import { Button, Dropdown, Space } from "antd";
 import * as React from "react";
 import { isMobile } from "../../../utils/isMobile";
-import { FileExcelOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import {
+  DownOutlined,
+  FileExcelOutlined,
+  UsergroupAddOutlined,
+} from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { EditableShiftReportDialog } from "../../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
 import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { DownloadShiftReportsWithDetails } from "./downloadShiftReportsWithDetails";
+import { useDownloadShiftReportsWithDetails } from "./export/useDownloadShiftReportsWithDetails";
 import { useNavigate } from "react-router-dom";
 import { getCurrentRole } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
-import { DownloadObjectVolumeReport } from "./downloadObjectVolumeReport";
+import { useDownloadObjectVolumeReport } from "./export/useDownloadObjectVolumeReport";
 import { useUsersMap } from "../../../queries/users";
 import { useObjectsMap } from "../../../queries/objects";
 import { useProjectsMap } from "../../../queries/projects";
-import { DownloadUsersReport } from "./downloadUsersReport";
+import { useDownloadUsersReport } from "./export/useDownloadUsersReport";
+import { MenuProps } from "antd/lib";
 
 interface IExportedData {
   number: number;
@@ -52,6 +57,12 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
 
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
   const role = useSelector(getCurrentRole);
+
+  const shiftReportsWithDetails = useDownloadShiftReportsWithDetails({
+    currentFilters,
+  });
+  const objectVolumeReport = useDownloadObjectVolumeReport({ currentFilters });
+  const usersReport = useDownloadUsersReport({ currentFilters });
 
   const { projectsMap } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
@@ -113,26 +124,38 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
     [],
   );
 
+  const reportsMenu: MenuProps = {
+    items: [
+      {
+        key: "report",
+        icon: <FileExcelOutlined />,
+        label: "Скачать отчет",
+        onClick: () => exportToCSV(exportedData, "report.csv"),
+      },
+    ],
+  };
+
+  if (role !== RoleId.USER) {
+    reportsMenu.items.push({
+      key: "shiftReportsWithDetails",
+      ...shiftReportsWithDetails,
+    });
+
+    reportsMenu.items.push({
+      key: "objectVolumeReport",
+      ...objectVolumeReport,
+    });
+
+    reportsMenu.items.push({
+      key: "usersReport",
+      ...usersReport,
+    });
+  }
+
   return (
     <div className="shift-reports_actions">
       <Space direction={isMobile() ? "vertical" : "horizontal"}>
         {role !== RoleId.USER && <EditableShiftReportDialog />}
-        <Button
-          icon={<FileExcelOutlined />}
-          onClick={() => exportToCSV(exportedData, "report.csv")}
-          style={{ marginRight: 8 }}
-        >
-          Скачать отчет
-        </Button>
-        {role !== RoleId.USER && (
-          <DownloadShiftReportsWithDetails currentFilters={currentFilters} />
-        )}
-        {role !== RoleId.USER && (
-          <DownloadObjectVolumeReport currentFilters={currentFilters} />
-        )}
-        {role !== RoleId.USER && (
-          <DownloadUsersReport currentFilters={currentFilters} />
-        )}
         {role !== RoleId.USER && (
           <Button
             icon={<UsergroupAddOutlined />}
@@ -143,6 +166,11 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
           </Button>
         )}
       </Space>
+      <Dropdown menu={reportsMenu} trigger={["click"]} placement="bottomRight">
+        <Button icon={<FileExcelOutlined />}>
+          Отчеты <DownOutlined />
+        </Button>
+      </Dropdown>
     </div>
   );
 };

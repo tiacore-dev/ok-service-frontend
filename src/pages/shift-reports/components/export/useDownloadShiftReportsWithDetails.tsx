@@ -1,18 +1,29 @@
 "use client";
 
-import { Button, Tooltip } from "antd";
 import * as React from "react";
-import { FileExcelOutlined } from "@ant-design/icons";
-import { useObjectsMap } from "../../../queries/objects";
-import { useProjectsMap } from "../../../queries/projects";
-import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
-import { useWorksMap } from "../../../queries/works";
-import { generateDocument } from "../../../api/download.api";
-import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
-import { useUsersMap } from "../../../queries/users";
-import { useProjectWorksMap } from "../../../queries/projectWorks";
+import { FileExcelOutlined, LoadingOutlined } from "@ant-design/icons";
+import { useObjectsMap } from "../../../../queries/objects";
+import { useProjectsMap } from "../../../../queries/projects";
+import { dateTimestampToLocalString } from "../../../../utils/dateConverter";
+import { useShiftReportsQuery } from "../../../../hooks/QueryActions/shift-reports/shift-reports.query";
+import { fetchShiftReportDetails } from "../../../../api/shift-report-details.api";
+import { useWorksMap } from "../../../../queries/works";
+import { generateDocument } from "../../../../api/download.api";
+import type { IProjectWorksList } from "../../../../interfaces/projectWorks/IProjectWorksList";
+import { useUsersMap } from "../../../../queries/users";
+import { useProjectWorksMap } from "../../../../queries/projectWorks";
+import { useLeavesQuery } from "../../../../queries/leaves";
+import { leaveReasonesMap } from "../../../../queries/leaveReasons";
+
+const DAY = 24 * 60 * 60 * 1000;
+const clamp = (n: number, lo: number, hi: number) =>
+  Math.min(Math.max(n, lo), hi);
+
+const toLocalMidnightTs = (ts: number) => {
+  const d = new Date(ts);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+};
 
 interface DownloadShiftReportsWithDetailsProps {
   currentFilters?: {
@@ -54,7 +65,7 @@ type ShiftReportDetail = {
   project_work?: string;
 };
 
-export const DownloadShiftReportsWithDetails = ({
+export const useDownloadShiftReportsWithDetails = ({
   currentFilters,
 }: DownloadShiftReportsWithDetailsProps) => {
   const [isExporting, setIsExporting] = React.useState(false);
@@ -75,6 +86,7 @@ export const DownloadShiftReportsWithDetails = ({
   const { worksMap } = useWorksMap();
 
   const { projectWorks: allProjectWorks = [] } = useProjectWorksMap();
+  const { data: leaveListsData } = useLeavesQuery();
 
   const projectWorksById = React.useMemo(() => {
     const map: Record<string, IProjectWorksList> = {};
@@ -203,6 +215,67 @@ export const DownloadShiftReportsWithDetails = ({
       }
 
       exportData.unique_days = uniqueDatesWithDetails.size;
+
+      if (selectedUserId && leaveListsData?.length) {
+        const filterFrom = currentFilters?.date_from ?? 0;
+        const filterTo = currentFilters?.date_to ?? 0;
+
+        const leavesObject: ExportExcelObject = {
+          name: "Отсутствовал",
+          details_summ: 0,
+          details: [],
+        };
+
+        for (const leave of leaveListsData) {
+          if (leave.user !== selectedUserId) {
+            continue;
+          }
+          const start = leave.start_date ?? leave.end_date ?? null;
+          const end = leave.end_date ?? leave.start_date ?? null;
+          if (start == null || end == null) {
+            continue;
+          }
+
+          const from = clamp(start, filterFrom, filterTo);
+          const to = clamp(end, filterFrom, filterTo);
+
+          const startTs = toLocalMidnightTs(from);
+          const endTs = toLocalMidnightTs(to);
+
+          if (to < filterFrom || from > filterTo) {
+          }
+
+          const reasonName =
+            leaveReasonesMap[leave.reason]?.name ?? String(leave.reason);
+
+          for (let ts = startTs; ts <= endTs; ts += DAY) {
+            const dateStr = dateTimestampToLocalString(ts);
+
+            // чтобы unique_days учитывал отсутствия тоже
+            uniqueDatesWithDetails.add(dateStr);
+
+            leavesObject.details.push({
+              date: dateStr,
+              work_name: reasonName,
+              work_category: "",
+              quantity: 0,
+              coast: 0,
+              detail_summ: 0,
+            });
+          }
+
+          if (leavesObject.details.length) {
+            // сортировка по дате/причине
+            leavesObject.details.sort((a, b) => {
+              if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+              return a.work_name.localeCompare(b.work_name, "ru");
+            });
+
+            exportData.objects.push(leavesObject);
+          }
+        }
+      }
+
       return exportData;
     }, [
       currentFilters?.date_from,
@@ -265,28 +338,18 @@ export const DownloadShiftReportsWithDetails = ({
     usersMap,
   ]);
 
-  const isDisabled =
+  const disabled =
     shiftReportsData.length === 0 ||
     !currentFilters?.date_from ||
     !currentFilters?.date_to ||
     !selectedUserId;
 
-  const button = (
-    <Button
-      icon={<FileExcelOutlined />}
-      onClick={exportToXLSX}
-      loading={isExporting}
-      disabled={isDisabled}
-    >
-      Скачать детализированный отчет
-    </Button>
-  );
-
-  return isDisabled ? (
-    <Tooltip title="Для скачивания отчета необходимо выбрать фильтры по дате и пользователю">
-      {button}
-    </Tooltip>
-  ) : (
-    button
-  );
+  return {
+    disabled,
+    tooltipTitle:
+      "Для скачивания отчета необходимо выбрать фильтры по дате и пользователю",
+    icon: isExporting ? <LoadingOutlined /> : <FileExcelOutlined />,
+    label: "Зарплатная ведомость",
+    onClick: exportToXLSX,
+  };
 };

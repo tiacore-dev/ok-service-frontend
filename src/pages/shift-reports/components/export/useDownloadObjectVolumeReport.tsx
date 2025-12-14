@@ -1,21 +1,20 @@
 "use client";
 
-import { Button, Tooltip } from "antd";
 import * as React from "react";
-import { FileExcelOutlined } from "@ant-design/icons";
-import { useObjectsMap } from "../../../queries/objects";
-import { useProjectsMap } from "../../../queries/projects";
-import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
-import { generateObjectVolumeReport } from "../../../api/object-volume-report.api";
+import { FileExcelOutlined, LoadingOutlined } from "@ant-design/icons";
+import { useObjectsMap } from "../../../../queries/objects";
+import { useProjectsMap } from "../../../../queries/projects";
+import { dateTimestampToLocalString } from "../../../../utils/dateConverter";
+import { useShiftReportsQuery } from "../../../../hooks/QueryActions/shift-reports/shift-reports.query";
+import { fetchShiftReportDetails } from "../../../../api/shift-report-details.api";
+import { generateObjectVolumeReport } from "../../../../api/object-volume-report.api";
 import type {
   IObjectVolumeReport,
   IObjectVolumeReportObject,
-} from "../../../interfaces/reports/IObjectVolumeReport";
-import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
-import type { IShiftReportDetail } from "../../../interfaces/shiftReportDetails/IShiftReportDetail";
-import { useProjectWorksMap } from "../../../queries/projectWorks";
+} from "../../../../interfaces/reports/IObjectVolumeReport";
+import type { IProjectWorksList } from "../../../../interfaces/projectWorks/IProjectWorksList";
+import type { IShiftReportDetail } from "../../../../interfaces/shiftReportDetails/IShiftReportDetail";
+import { useProjectWorksMap } from "../../../../queries/projectWorks";
 
 interface DownloadObjectVolumeReportProps {
   currentFilters?: {
@@ -26,9 +25,18 @@ interface DownloadObjectVolumeReportProps {
   };
 }
 
-export const DownloadObjectVolumeReport: React.FC<
-  DownloadObjectVolumeReportProps
-> = ({ currentFilters }) => {
+// interface DownloadObjectVolumeReportResponse {
+//     loading: boolean;
+//     isDisabled: boolean;
+//     tooltipTitle: string;
+//     icon: React.JSX.Element;
+//     label: string;
+//     onClick: () => Promise<void>;
+// }
+
+export const useDownloadObjectVolumeReport = ({
+  currentFilters,
+}: DownloadObjectVolumeReportProps) => {
   const [isExporting, setIsExporting] = React.useState(false);
 
   const { data: shiftReportsResponse } = useShiftReportsQuery({
@@ -235,28 +243,16 @@ export const DownloadObjectVolumeReport: React.FC<
     currentFilters?.date_to,
   ]);
 
-  const isDisabled =
+  const disabled =
     shiftReportsData.length === 0 ||
     !currentFilters?.date_from ||
     !currentFilters?.date_to;
 
-  const button = (
-    <Button
-      icon={<FileExcelOutlined />}
-      onClick={exportToXLSX}
-      loading={isExporting}
-      disabled={isDisabled}
-      type="default"
-    >
-      Скачать отчет по объектам
-    </Button>
-  );
-
-  return isDisabled ? (
-    <Tooltip title="Для скачивания отчета необходимо выбрать фильтры по дате">
-      {button}
-    </Tooltip>
-  ) : (
-    button
-  );
+  return {
+    disabled,
+    tooltipTitle: "Для скачивания отчета необходимо выбрать фильтры по дате",
+    icon: isExporting ? <LoadingOutlined /> : <FileExcelOutlined />,
+    label: "Отчет по объектам",
+    onClick: exportToXLSX,
+  };
 };

@@ -1,20 +1,19 @@
 "use client";
 
-import { Button, Tooltip } from "antd";
 import * as React from "react";
-import { FileExcelOutlined } from "@ant-design/icons";
-import { useObjectsMap } from "../../../queries/objects";
-import { useProjectsMap } from "../../../queries/projects";
-import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { useUsersMap } from "../../../queries/users";
+import { FileExcelOutlined, LoadingOutlined } from "@ant-design/icons";
+import { useObjectsMap } from "../../../../queries/objects";
+import { useProjectsMap } from "../../../../queries/projects";
+import { dateTimestampToLocalString } from "../../../../utils/dateConverter";
+import { useShiftReportsQuery } from "../../../../hooks/QueryActions/shift-reports/shift-reports.query";
+import { useUsersMap } from "../../../../queries/users";
 import {
   IUserProjectsReportData,
   IUsersReport,
-} from "../../../interfaces/reports/IUsersReport";
-import { generateUsersReport } from "../../../api/users-report.api";
-import { useLeavesQuery } from "../../../queries/leaves";
-import { leaveReasonesMap } from "../../../queries/leaveReasons";
+} from "../../../../interfaces/reports/IUsersReport";
+import { generateUsersReport } from "../../../../api/users-report.api";
+import { useLeavesQuery } from "../../../../queries/leaves";
+import { leaveReasonesMap } from "../../../../queries/leaveReasons";
 
 const DAY = 24 * 60 * 60 * 1000;
 const clamp = (n: number, lo: number, hi: number) =>
@@ -28,7 +27,7 @@ interface DownloadUsersReportProps {
   };
 }
 
-export const DownloadUsersReport = ({
+export const useDownloadUsersReport = ({
   currentFilters,
 }: DownloadUsersReportProps) => {
   const [isExporting, setIsExporting] = React.useState(false);
@@ -79,7 +78,8 @@ export const DownloadUsersReport = ({
 
       if (leaveListsData?.length) {
         for (const leave of leaveListsData) {
-          if (filterUsers?.length && !filterUsers.includes(leave.user)) continue;
+          if (filterUsers?.length && !filterUsers.includes(leave.user))
+            continue;
 
           const start = leave.start_date ?? leave.end_date ?? null;
           const end = leave.end_date ?? leave.start_date ?? null;
@@ -206,28 +206,16 @@ export const DownloadUsersReport = ({
     currentFilters?.date_to,
   ]);
 
-  const isDisabled =
+  const disabled =
     shiftReports.length === 0 ||
     !currentFilters?.date_from ||
     !currentFilters?.date_to;
 
-  const button = (
-    <Button
-      icon={<FileExcelOutlined />}
-      onClick={exportToXLSX}
-      loading={isExporting}
-      disabled={isDisabled}
-      type="default"
-    >
-      Скачать отчет по монтажникам
-    </Button>
-  );
-
-  return isDisabled ? (
-    <Tooltip title="Для скачивания отчета необходимо выбрать фильтры по дате">
-      {button}
-    </Tooltip>
-  ) : (
-    button
-  );
+  return {
+    disabled,
+    tooltipTitle: "Для скачивания отчета необходимо выбрать фильтры по дате",
+    icon: isExporting ? <LoadingOutlined /> : <FileExcelOutlined />,
+    label: "Отчет по монтажникам",
+    onClick: exportToXLSX,
+  };
 };

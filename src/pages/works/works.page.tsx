@@ -4,7 +4,7 @@ import { Breadcrumb, Layout, Table } from "antd";
 import * as React from "react";
 import { worksDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
-import { Filters } from "./components/filters";
+import { WorksFilters } from "./components/filters";
 import "./works.page.less";
 import { useNavigate, Link } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
@@ -17,6 +17,7 @@ import { getCurrentRole } from "../../store/modules/auth";
 import { saveWorksFiltersState } from "../../store/modules/settings/works";
 import { useWorksMap } from "../../queries/works";
 import { useWorkCategoriesQuery } from "../../queries/workCategories";
+import { WorksActions } from "./components/actions";
 
 export const Works = () => {
   const { Content } = Layout;
@@ -74,8 +75,9 @@ export const Works = () => {
     });
 
     const getPriceByCategory = (work: IWorksListColumn, category: number) => {
-      const price = work.work_prices?.find((item) => item.category === category)
-        ?.price;
+      const price = work.work_prices?.find(
+        (item) => item.category === category,
+      )?.price;
       return typeof price === "number" ? price : null;
     };
 
@@ -149,8 +151,8 @@ export const Works = () => {
           background: "#FFF",
         }}
       >
-        <Filters
-          works={worksData}
+        <WorksActions works={worksData} />
+        <WorksFilters
           filtersState={filtersState}
           onFiltersChange={handleFiltersChange}
           workCategoriesOptions={workCategoriesOptions}

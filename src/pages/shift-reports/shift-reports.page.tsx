@@ -178,13 +178,7 @@ export const ShiftReports = () => {
         objectsMap,
         tableState.sorter,
       ),
-    [
-      navigate,
-      projectsMap,
-      usersMap,
-      tableState.sorter,
-      objectsMap,
-    ],
+    [navigate, projectsMap, usersMap, tableState.sorter, objectsMap],
   );
 
   const paginationConfig = React.useMemo(
@@ -248,6 +242,8 @@ export const ShiftReports = () => {
           background: "#FFF",
         }}
       >
+        <Actions currentFilters={currentFilters} />
+
         <ShiftReportsFilters
           filtersState={shiftReportsFilters}
           onFiltersChange={handleFiltersChange}
@@ -256,7 +252,6 @@ export const ShiftReports = () => {
           objectProjectsMap={objectProjectsMap}
           projectNamesMap={projectNamesMap}
         />
-        <Actions currentFilters={currentFilters} />
         <Table<IShiftReportsListColumn>
           onChange={handleTableChange}
           dataSource={tableData as IShiftReportsListColumn[]}

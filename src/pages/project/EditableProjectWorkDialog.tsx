@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { Form, Input, InputNumber, Modal, Checkbox } from "antd";
 import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
 import { isMobile } from "../../utils/isMobile";
-import "./EditableProjectWorkDialog.less"; // Импорт стилей
+import "./EditableProjectWorkDialog.less";
 import { EnhancedSelect } from "../../components/EnhancedSelect";
 import {
   useCreateProjectWorkMutation,
@@ -45,7 +45,6 @@ export const EditableProjectWorkDialog: React.FC<
     [],
   );
 
-
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue({
@@ -66,7 +65,10 @@ export const EditableProjectWorkDialog: React.FC<
         .map((el) => ({
           // Для выпадающего списка - многострочный вариант
           label: (
-            <span className="work-option-label" style={{ whiteSpace: "normal" }}>
+            <span
+              className="work-option-label"
+              style={{ whiteSpace: "normal" }}
+            >
               {el.name}
             </span>
           ),
