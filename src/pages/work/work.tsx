@@ -29,10 +29,7 @@ import {
 } from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
-import {
-  useDeleteWorkMutation,
-  useWorkQuery,
-} from "../../queries/works";
+import { useDeleteWorkMutation, useWorkQuery } from "../../queries/works";
 import {
   useCreateWorkPriceMutation,
   useDeleteWorkPriceMutation,
@@ -47,7 +44,7 @@ export const Work = () => {
   const [newRecordKey, setNewRecordKey] = React.useState("");
   const [actualData, setActualData] = React.useState<boolean>(false);
   const [dataSource, setDataSource] = React.useState<IWorkPricesListColumn[]>(
-    []
+    [],
   );
 
   const routeParams = useParams();
