@@ -11,6 +11,7 @@ import {
   BarsOutlined,
   FileDoneOutlined,
   FileTextOutlined,
+  InfoCircleOutlined,
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -108,6 +109,15 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       ],
     });
   }
+
+  desktopItems.push({
+    key: "manual",
+    label: "Справка",
+    icon: <InfoCircleOutlined />,
+    onClick: () => {
+      navigate("/manual");
+    },
+  });
 
   desktopItems.push({
     key: "account",
