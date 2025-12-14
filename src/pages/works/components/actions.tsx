@@ -11,9 +11,10 @@ import { WorksExport } from "./export";
 
 interface IActionsProps {
   works: IWorksList[];
+  onImportClick?: () => void;
 }
 
-export const WorksActions = ({ works }: IActionsProps) => {
+export const WorksActions = ({ works, onImportClick }: IActionsProps) => {
   const navigate = useNavigate();
   const currentRole = useSelector(getCurrentRole);
 
@@ -31,6 +32,9 @@ export const WorksActions = ({ works }: IActionsProps) => {
       </Space>
 
       <Space direction={isMobile() ? "vertical" : "horizontal"} wrap>
+        {currentRole === RoleId.ADMIN && (
+          <Button onClick={onImportClick}>Импорт CSV</Button>
+        )}
         {currentRole === RoleId.ADMIN && <WorksExport works={works} />}
       </Space>
     </div>

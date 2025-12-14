@@ -18,11 +18,13 @@ import { saveWorksFiltersState } from "../../store/modules/settings/works";
 import { useWorksMap } from "../../queries/works";
 import { useWorkCategoriesQuery } from "../../queries/workCategories";
 import { WorksActions } from "./components/actions";
+import { ImportWorks } from "./components/import";
 
 export const Works = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [importMode, setImportMode] = React.useState(false);
   const { works, isPending, isFetching } = useWorksMap();
   const { data: workCategoriesData } = useWorkCategoriesQuery();
   const filtersState = useSelector(
@@ -151,18 +153,28 @@ export const Works = () => {
           background: "#FFF",
         }}
       >
-        <WorksActions works={worksData} />
-        <WorksFilters
-          filtersState={filtersState}
-          onFiltersChange={handleFiltersChange}
-          workCategoriesOptions={workCategoriesOptions}
+        <WorksActions
+          works={worksData}
+          onImportClick={() => setImportMode(true)}
         />
-        <Table
-          pagination={false}
-          dataSource={filteredWorksData}
-          columns={columns}
-          loading={isLoading}
-        />
+
+        {importMode ? (
+          <ImportWorks works={worksData} onClose={() => setImportMode(false)} />
+        ) : (
+          <>
+            <WorksFilters
+              filtersState={filtersState}
+              onFiltersChange={handleFiltersChange}
+              workCategoriesOptions={workCategoriesOptions}
+            />
+            <Table
+              pagination={false}
+              dataSource={filteredWorksData}
+              columns={columns}
+              loading={isLoading}
+            />
+          </>
+        )}
       </Content>
     </>
   );
