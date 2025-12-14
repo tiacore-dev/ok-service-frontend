@@ -19,7 +19,11 @@ import {
   saveLeavesTableState,
 } from "../../store/modules/settings/leaves";
 import type { ILeavesFiltersState } from "../../interfaces/leaves/ILeavesFiltersState";
-import { leaveReasonesMap, leaveReasonOptions } from "../../queries/leaveReasons";
+import {
+  leaveReasonesMap,
+  leaveReasonOptions,
+} from "../../queries/leaveReasons";
+import { Actions } from "./components/actions";
 
 export const Leaves = () => {
   const { Content } = Layout;
@@ -163,6 +167,7 @@ export const Leaves = () => {
           background: "#FFF",
         }}
       >
+        <Actions />
         <Filters
           filtersState={filtersState}
           onFiltersChange={handleFiltersChange}

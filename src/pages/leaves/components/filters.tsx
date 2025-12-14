@@ -6,15 +6,11 @@ import {
 import { Button, DatePicker, Input, Select, Space } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import * as React from "react";
-import { useSelector } from "react-redux";
-import { EditableLeaveDialog } from "../../../components/ActionDialogs/EditableLeaveDialog/EditableLeaveDialog";
 import type {
   ILeavesFiltersState,
   LeavesSortField,
 } from "../../../interfaces/leaves/ILeavesFiltersState";
 import type { LeaveReasonId } from "../../../interfaces/leaveReasones/ILeaveReason";
-import { RoleId } from "../../../interfaces/roles/IRole";
-import { getCurrentRole } from "../../../store/modules/auth";
 import { isMobile } from "../../../utils/isMobile";
 
 const { RangePicker } = DatePicker;
@@ -30,13 +26,16 @@ export const Filters: React.FC<LeavesFiltersProps> = ({
   onFiltersChange,
   reasonOptions,
 }) => {
-  const currentRole = useSelector(getCurrentRole);
   const changeFilters = (patch: Partial<ILeavesFiltersState>) => {
     onFiltersChange({ ...filtersState, ...patch });
   };
 
   const sortButtonIcon =
-    filtersState.sortOrder === "ascend" ? <ArrowUpOutlined /> : <ArrowDownOutlined />;
+    filtersState.sortOrder === "ascend" ? (
+      <ArrowUpOutlined />
+    ) : (
+      <ArrowDownOutlined />
+    );
 
   const rangeValue = React.useMemo<[Dayjs | null, Dayjs | null]>(() => {
     if (!filtersState.dateFrom && !filtersState.dateTo) {
@@ -88,7 +87,9 @@ export const Filters: React.FC<LeavesFiltersProps> = ({
       <Select
         className="leaves_filters_sort"
         value={filtersState.sortField}
-        onChange={(value: LeavesSortField) => changeFilters({ sortField: value })}
+        onChange={(value: LeavesSortField) =>
+          changeFilters({ sortField: value })
+        }
         options={[
           { label: "Сортировка: по сотруднику", value: "user" },
           { label: "Сортировка: по причине", value: "reason" },
@@ -99,14 +100,14 @@ export const Filters: React.FC<LeavesFiltersProps> = ({
       <Button
         onClick={() =>
           changeFilters({
-            sortOrder: filtersState.sortOrder === "ascend" ? "descend" : "ascend",
+            sortOrder:
+              filtersState.sortOrder === "ascend" ? "descend" : "ascend",
           })
         }
         icon={sortButtonIcon}
       >
         {filtersState.sortOrder === "ascend" ? "По возрастанию" : "По убыванию"}
       </Button>
-      {currentRole === RoleId.ADMIN && <EditableLeaveDialog />}
     </Space>
   );
 };
