@@ -1,0 +1,466 @@
+1: "use client";
+2: 
+3: import * as React from "react";
+4: import {
+5:   Breadcrumb,
+6:   Button,
+7:   Card,
+8:   Checkbox,
+9:   Layout,
+10:   Popconfirm,
+11:   Space,
+12:   Spin,
+13:   Table,
+14: } from "antd";
+15: import Title from "antd/es/typography/Title";
+16: import { Link, useNavigate, useParams } from "react-router-dom";
+17: import { useDispatch, useSelector } from "react-redux";
+18: import { minPageHeight } from "../../utils/pageSettings";
+19: import { isMobile } from "../../utils/isMobile";
+20: import { EditableProjectDialog } from "../../components/ActionDialogs/EditableProjectDialog/EditableProjectDialog";
+21: import { DeleteProjectDialog } from "../../components/ActionDialogs/DeleteProjectDialog";
+22: import type { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
+23: import { useUsersMap } from "../../queries/users";
+24: import { useObjectsMap } from "../../queries/objects";
+25: import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+26: import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
+27: import { RoleId } from "../../interfaces/roles/IRole";
+28: import { ImportProjectWorks } from "./ImportProjectWorks";
+29: import { EditableProjectWorkDialog } from "./EditableProjectWorkDialog";
+30: import { useWorksMap } from "../../queries/works";
+31: import {
+32:   useDeleteProjectMutation,
+33:   useProjectQuery,
+34: } from "../../queries/projects";
+35: import {
+36:   useDeleteProjectWorkMutation,
+37:   useProjectWorksMap,
+38:   useUpdateProjectWorkMutation,
+39: } from "../../queries/projectWorks";
+40: import { NotificationContext } from "../../contexts/NotificationContext";
+41: import "./project.less";
+42: import { ProjectWorksFilters } from "./ProjectWorksFilters";
+43: import type { IProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
+44: import {
+45:   defaultProjectWorksFiltersState,
+46: } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
+47: import { saveProjectWorksFiltersState } from "../../store/modules/settings/projectWorks";
+48: import type { IState } from "../../store/modules";
+49: 
+50: export const Project = () => {
+51:   const { Content } = Layout;
+52:   const dispatch = useDispatch();
+53:   const [modalVisible, setModalVisible] = React.useState(false);
+54:   const [editingRecord, setEditingRecord] =
+55:     React.useState<IProjectWorksListColumn | null>(null);
+56:   const currentRole = useSelector(getCurrentRole);
+57:   const { usersMap } = useUsersMap();
+58:   const { objectsMap } = useObjectsMap();
+59:   const [importMode, setImportMode] = React.useState(false);
+60:   const routeParams = useParams();
+61:   const navigate = useNavigate();
+62:   const notificationApi = React.useContext(NotificationContext);
+63:   const projectId = routeParams.projectId;
+64:   const {
+65:     data: projectData,
+66:     isPending: isProjectPending,
+67:     isFetching: isProjectFetching,
+68:   } = useProjectQuery(projectId, { enabled: Boolean(projectId) });
+69:   const {
+70:     projectWorks,
+71:     isPending: isProjectWorksPending,
+72:     isFetching: isProjectWorksFetching,
+73:   } = useProjectWorksMap(projectId, { enabled: Boolean(projectId) });
+74:   const deleteProjectMutation = useDeleteProjectMutation();
+75:   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
+76:   const deleteProjectWorkMutation = useDeleteProjectWorkMutation();
+77: 
+78: 
+79:   const currentUserId = useSelector(getCurrentUserId);
+80:   const isProjectLoading = isProjectPending || isProjectFetching;
+81:   const projectWorksLoading = isProjectWorksPending || isProjectWorksFetching;
+82:   const projectWorksList = projectWorks ?? [];
+83:   const { worksMap } = useWorksMap();
+84: 
+85:   const projectWorksData: IProjectWorksListColumn[] = React.useMemo(
+86:     () =>
+87:       projectWorksList.map((doc) => ({
+88:         ...doc,
+89:         key: doc.project_work_id,
+90:       })),
+91:     [projectWorksList],
+92:   );
+93:   const projectFiltersKey = projectId ?? "unknown";
+94:   const projectWorksFilters = useSelector((state: IState) => {
+95:     const filtersByProject =
+96:       state.settings.projectWorksSettings.filtersByProject;
+97:     return (
+98:       filtersByProject[projectFiltersKey] ?? defaultProjectWorksFiltersState
+99:     );
+100:   });
+101: 
+102:   const canEdit =
+103:     Boolean(
+104:       projectData?.project_leader &&
+105:         currentRole === RoleId.PROJECT_LEADER &&
+106:         currentUserId === projectData.project_leader,
+107:     ) ||
+108:     currentRole === RoleId.MANAGER ||
+109:     currentRole === RoleId.ADMIN;
+110: 
+111:   const handleSignedChange = React.useCallback(
+112:     async (record: IProjectWorksListColumn, checked: boolean) => {
+113:       if (!projectData?.project_id) return;
+114:       try {
+115:         await updateProjectWorkMutation.mutateAsync({
+116:           projectWorkId: record.project_work_id,
+117:           payload: {
+118:             project: projectData.project_id,
+119:             project_work_name: record.project_work_name,
+120:             work: record.work,
+121:             quantity: Number(record.quantity),
+122:             signed: checked,
+123:           },
+124:         });
+125:       } catch (error) {
+126:         const description =
+127:           error instanceof Error
+128:             ? error.message
+129:             : "Не удалось обновить работу спецификации";
+130:         notificationApi?.error({
+131:           message: "Ошибка",
+132:           description,
+133:           placement: "bottomRight",
+134:           duration: 2,
+135:         });
+136:       }
+137:     },
+138:     [projectData, updateProjectWorkMutation, notificationApi],
+139:   );
+140: 
+141:   const handleAdd = () => {
+142:     setEditingRecord(null);
+143:     setModalVisible(true);
+144:   };
+145: 
+146:   const handleEdit = (record: IProjectWorksListColumn) => {
+147:     setEditingRecord(record);
+148:     setModalVisible(true);
+149:   };
+150: 
+151:   const handleDelete = React.useCallback(
+152:     async (projectWorkId: string) => {
+153:       if (!projectData?.project_id) return;
+154:       try {
+155:         await deleteProjectWorkMutation.mutateAsync({
+156:           projectWorkId,
+157:           projectId: projectData.project_id,
+158:         });
+159:         notificationApi?.success({
+160:           message: "Удалено",
+161:           description: "Работа удалена из спецификации",
+162:           placement: "bottomRight",
+163:           duration: 2,
+164:         });
+165:       } catch (error) {
+166:         const description =
+167:           error instanceof Error
+168:             ? error.message
+169:             : "Не удалось удалить работу спецификации";
+170:         notificationApi?.error({
+171:           message: "Ошибка",
+172:           description,
+173:           placement: "bottomRight",
+174:           duration: 2,
+175:         });
+176:       }
+177:     },
+178:     [projectData, deleteProjectWorkMutation, notificationApi],
+179:   );
+180: 
+181:   const handleDeleteProject = React.useCallback(async () => {
+182:     if (!projectData?.project_id) return;
+183:     try {
+184:       await deleteProjectMutation.mutateAsync(projectData.project_id);
+185:       notificationApi?.success({
+186:         message: "Удалено",
+187:         description: "Спецификация удалена",
+188:         placement: "bottomRight",
+189:         duration: 2,
+190:       });
+191:       navigate("/projects");
+192:     } catch (error) {
+193:       const description =
+194:         error instanceof Error
+195:           ? error.message
+196:           : "Не удалось удалить спецификацию";
+197:       notificationApi?.error({
+198:         message: "Ошибка",
+199:         description,
+200:         placement: "bottomRight",
+201:         duration: 2,
+202:       });
+203:     }
+204:   }, [projectData, deleteProjectMutation, notificationApi, navigate]);
+205: 
+206:   const handleModalCancel = () => {
+207:     setModalVisible(false);
+208:     setEditingRecord(null);
+209:   };
+210: 
+211:   const handleModalSave = () => {
+212:     setModalVisible(false);
+213:     setEditingRecord(null);
+214:   };
+215: 
+216:   const columns = [
+217:     {
+218:       title: "Наименование",
+219:       dataIndex: "project_work_name",
+220:       key: "project_work_name",
+221:     },
+222:     {
+223:       title: "Работа",
+224:       dataIndex: "work",
+225:       key: "work",
+226:       render: (value: string) => {
+227:         const work = worksMap[value];
+228:         return work?.name || value;
+229:       },
+230:     },
+231:     {
+232:       title: "Количество",
+233:       dataIndex: "quantity",
+234:       key: "quantity",
+235:       width: "100px",
+236:     },
+237:     {
+238:       title: "Согласовано",
+239:       dataIndex: "signed",
+240:       key: "signed",
+241:       width: "80px",
+242:       render: (value: boolean, record: IProjectWorksListColumn) => (
+243:         <Checkbox
+244:           checked={value}
+245:           onChange={(e) => handleSignedChange(record, e.target.checked)}
+246:           disabled={
+247:             !canEdit || (currentRole === RoleId.PROJECT_LEADER && value)
+248:           }
+249:         />
+250:       ),
+251:     },
+252:     ...(canEdit
+253:       ? [
+254:           {
+255:             title: "Действия",
+256:             dataIndex: "operation",
+257:             width: !isMobile() && "116px",
+258:             render: (_: string, record: IProjectWorksListColumn) => (
+259:               <Space>
+260:                 <Button
+261:                   disabled={
+262:                     currentRole === RoleId.PROJECT_LEADER && record.signed
+263:                   }
+264:                   icon={<EditTwoTone twoToneColor="#e40808" />}
+265:                   type="link"
+266:                   onClick={() => handleEdit(record)}
+267:                 />
+268:                 <Popconfirm
+269:                   title="Удалить?"
+270:                   onConfirm={() => handleDelete(record.project_work_id)}
+271:                 >
+272:                   <Button
+273:                     disabled={
+274:                       currentRole === RoleId.PROJECT_LEADER && record.signed
+275:                     }
+276:                     icon={<DeleteTwoTone twoToneColor="#e40808" />}
+277:                     type="link"
+278:                   />
+279:                 </Popconfirm>
+280:               </Space>
+281:             ),
+282:           },
+283:         ]
+284:       : []),
+285:   ];
+286: 
+287:   const isLoading = projectWorksLoading;
+288:   const object = projectData ? objectsMap[projectData.object] : undefined;
+289:   const objectLink = projectData ? `/objects/${projectData.object}` : "/objects";
+290:   const isLoaded =
+291:     !isProjectLoading &&
+292:     Boolean(projectData && projectId === projectData.project_id);
+293: 
+294:   return (
+295:     <>
+296:       <Breadcrumb
+297:         className="breadcrumb"
+298:         style={isMobile() && { backgroundColor: "#F8F8F8" }}
+299:         items={[
+300:           { title: <Link to="/home">Главная</Link> },
+301:           { title: <Link to="/objects">Объекты</Link> },
+302:           { title: <Link to={objectLink}>{object?.name}</Link> },
+303:           { title: projectData?.name || "Проект" },
+304:         ]}
+305:       />
+306:       {isLoaded &&
+307:       projectData &&
+308:       routeParams.projectId === projectData.project_id ? (
+309:         <Content
+310:           style={{
+311:             padding: "0 24px",
+312:             margin: 0,
+313:             minHeight: minPageHeight(),
+314:             background: "#FFF",
+315:           }}
+316:         >
+317:           <Title level={3}>{projectData.name}</Title>
+318:           <Space
+319:             direction={isMobile() ? "vertical" : "horizontal"}
+320:             size="small"
+321:           >
+322:             {canEdit && <EditableProjectDialog project={projectData} />}
+323:             {canEdit && (
+324:               <DeleteProjectDialog
+325:                 onDelete={handleDeleteProject}
+326:                 name={projectData.name}
+327:               />
+328:             )}
+329:           </Space>
+330:           <Card style={{ margin: "8px 0" }}>
+331:             <p>Наименование: {projectData.name}</p>
+332:             <p>Объект: {objectsMap[projectData.object]?.name}</p>
+333:             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
+334:           </Card>
+335: 
+336:           {importMode ? (
+337:             <ImportProjectWorks
+338:               project={projectData}
+339:               close={() => {
+340:                 setImportMode(false);
+341:               }}
+342:             />
+343:           ) : (
+344:             <>
+345:               {canEdit && (
+346:                 <Space
+347:                   direction={isMobile() ? "vertical" : "horizontal"}
+348:                   className="works_filters"
+349:                   style={{ marginBottom: 16 }}
+350:                 >
+351:                   <Button onClick={handleAdd} type="primary">
+352:                     Добавить запись в спецификацию
+353:                   </Button>
+354:                   <Button
+355:                     loading={projectWorksLoading}
+356:                     onClick={() => {
+357:                       setImportMode(true);
+358:                     }}
+359:                     type="default"
+360:                   >
+361:                     Загрузить
+362:                   </Button>
+363:                 </Space>
+364:               )}
+365: 
+366:               <ProjectWorksFilters
+367:                 filtersState={projectWorksFilters}
+368:                 onFiltersChange={handleProjectWorksFiltersChange}
+369:                 workOptions={workOptions}
+370:               />
+371:               <Table
+372:                 bordered={!isMobile()}
+373:                 pagination={false}
+374:                 dataSource={filteredProjectWorksData}
+375:                 columns={columns}
+376:                 loading={isLoading}
+377:               />
+378:             </>
+379:           )}
+380: 
+381:           <EditableProjectWorkDialog
+382:             visible={modalVisible}
+383:             onCancel={handleModalCancel}
+384:             onSave={handleModalSave}
+385:             initialValues={editingRecord}
+386:             projectId={projectData?.project_id ?? ""}
+387:             isEditing={!!editingRecord}
+388:           />
+389:         </Content>
+390:       ) : (
+391:         <Spin spinning={isProjectLoading || projectWorksLoading} />
+392:       )}
+393:     </>
+394:   );
+395: };
+396:   const handleProjectWorksFiltersChange = React.useCallback(
+397:     (nextFilters: IProjectWorksFiltersState) => {
+398:       dispatch(
+399:         saveProjectWorksFiltersState({
+400:           projectId: projectFiltersKey,
+401:           filters: nextFilters,
+402:         }),
+403:       );
+404:     },
+405:     [dispatch, projectFiltersKey],
+406:   );
+407: 
+408:   const workOptions = React.useMemo(() => {
+409:     return Object.values(worksMap)
+410:       .map((work) =>
+411:         work.work_id
+412:           ? {
+413:               label: work.name,
+414:               value: work.work_id,
+415:             }
+416:           : null,
+417:       )
+418:       .filter(
+419:         (option): option is { label: string; value: string } =>
+420:           option !== null && option.value !== "",
+421:       );
+422:   }, [worksMap]);
+423: 
+424:   const filteredProjectWorksData: IProjectWorksListColumn[] = React.useMemo(() => {
+425:     const searchValue = projectWorksFilters.search.trim().toLowerCase();
+426: 
+427:     const filtered = projectWorksData.filter((item) => {
+428:       const name = item.project_work_name?.toLowerCase() ?? "";
+429:       const workName = item.work
+430:         ? worksMap[item.work]?.name?.toLowerCase() ?? ""
+431:         : "";
+432:       const matchesSearch = searchValue
+433:         ? name.includes(searchValue) || workName.includes(searchValue)
+434:         : true;
+435:       const matchesWork = projectWorksFilters.workId
+436:         ? item.work === projectWorksFilters.workId
+437:         : true;
+438:       const matchesSigned =
+439:         projectWorksFilters.signed === "all"
+440:           ? true
+441:           : projectWorksFilters.signed === "signed"
+442:             ? item.signed
+443:             : !item.signed;
+444: 
+445:       return matchesSearch && matchesWork && matchesSigned;
+446:     });
+447: 
+448:     const direction = projectWorksFilters.sortOrder === "ascend" ? 1 : -1;
+449:     const compareText = (a: string, b: string) =>
+450:       a.localeCompare(b, undefined, { sensitivity: "base" }) * direction;
+451: 
+452:     return filtered.sort((a, b) => {
+453:       switch (projectWorksFilters.sortField) {
+454:         case "quantity":
+455:           return (
+456:             (Number(a.quantity ?? 0) - Number(b.quantity ?? 0)) * direction
+457:           );
+458:         case "name":
+459:         default:
+460:           return compareText(
+461:             a.project_work_name ?? "",
+462:             b.project_work_name ?? "",
+463:           );
+464:       }
+465:     });
+466:   }, [projectWorksData, projectWorksFilters, worksMap]);

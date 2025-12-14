@@ -1,38 +1,49 @@
 "use client";
 
-import { Button, Tooltip } from "antd";
 import * as React from "react";
-import { FileExcelOutlined } from "@ant-design/icons";
-import { useObjectsMap } from "../../../queries/objects";
-import { useProjectsMap } from "../../../queries/projects";
-import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import { useShiftReportsQuery } from "../../../hooks/QueryActions/shift-reports/shift-reports.query";
-import { fetchShiftReportDetails } from "../../../api/shift-report-details.api";
-import { generateObjectVolumeReport } from "../../../api/object-volume-report.api";
+import { FileExcelOutlined, LoadingOutlined } from "@ant-design/icons";
+import { useObjectsMap } from "../../../../queries/objects";
+import { useProjectsMap } from "../../../../queries/projects";
+import { dateTimestampToLocalString } from "../../../../utils/dateConverter";
+import { useShiftReportsQuery } from "../../../../hooks/QueryActions/shift-reports/shift-reports.query";
+import { fetchShiftReportDetails } from "../../../../api/shift-report-details.api";
+import { generateObjectVolumeReport } from "../../../../api/object-volume-report.api";
 import type {
   IObjectVolumeReport,
   IObjectVolumeReportObject,
-} from "../../../interfaces/reports/IObjectVolumeReport";
-import type { IProjectWorksList } from "../../../interfaces/projectWorks/IProjectWorksList";
-import type { IShiftReportDetail } from "../../../interfaces/shiftReportDetails/IShiftReportDetail";
-import { useProjectWorksMap } from "../../../queries/projectWorks";
+} from "../../../../interfaces/reports/IObjectVolumeReport";
+import type { IProjectWorksList } from "../../../../interfaces/projectWorks/IProjectWorksList";
+import type { IShiftReportDetail } from "../../../../interfaces/shiftReportDetails/IShiftReportDetail";
+import { useProjectWorksMap } from "../../../../queries/projectWorks";
 
 interface DownloadObjectVolumeReportProps {
   currentFilters?: {
-    user?: string;
-    project?: string;
+    users?: string[];
+    projects?: string[];
     date_from?: number;
     date_to?: number;
   };
 }
 
-export const DownloadObjectVolumeReport: React.FC<
-  DownloadObjectVolumeReportProps
-> = ({ currentFilters }) => {
+// interface DownloadObjectVolumeReportResponse {
+//     loading: boolean;
+//     isDisabled: boolean;
+//     tooltipTitle: string;
+//     icon: React.JSX.Element;
+//     label: string;
+//     onClick: () => Promise<void>;
+// }
+
+export const useDownloadObjectVolumeReport = ({
+  currentFilters,
+}: DownloadObjectVolumeReportProps) => {
   const [isExporting, setIsExporting] = React.useState(false);
 
   const { data: shiftReportsResponse } = useShiftReportsQuery({
-    ...currentFilters,
+    user: currentFilters?.users,
+    project: currentFilters?.projects,
+    date_from: currentFilters?.date_from ?? undefined,
+    date_to: currentFilters?.date_to ?? undefined,
     offset: 0,
     limit: 10000,
   });
@@ -81,12 +92,12 @@ export const DownloadObjectVolumeReport: React.FC<
         params.date_to = String(currentFilters.date_to);
       }
 
-      if (currentFilters?.user) {
-        params.user = currentFilters.user;
+      if (currentFilters?.users?.length) {
+        params.user = currentFilters.users.join(",");
       }
 
-      if (currentFilters?.project) {
-        params.project = currentFilters.project;
+      if (currentFilters?.projects?.length) {
+        params.project = currentFilters.projects.join(",");
       }
 
       let details: IShiftReportDetail[] = [];
@@ -181,8 +192,8 @@ export const DownloadObjectVolumeReport: React.FC<
     }, [
       currentFilters?.date_from,
       currentFilters?.date_to,
-      currentFilters?.project,
-      currentFilters?.user,
+      currentFilters?.projects,
+      currentFilters?.users,
       objectsMap,
       projectWorksById,
       projectsMap,
@@ -232,28 +243,16 @@ export const DownloadObjectVolumeReport: React.FC<
     currentFilters?.date_to,
   ]);
 
-  const isDisabled =
+  const disabled =
     shiftReportsData.length === 0 ||
     !currentFilters?.date_from ||
     !currentFilters?.date_to;
 
-  const button = (
-    <Button
-      icon={<FileExcelOutlined />}
-      onClick={exportToXLSX}
-      loading={isExporting}
-      disabled={isDisabled}
-      type="default"
-    >
-      Скачать отчет по объектам
-    </Button>
-  );
-
-  return isDisabled ? (
-    <Tooltip title="Для скачивания отчета необходимо выбрать фильтры по дате">
-      {button}
-    </Tooltip>
-  ) : (
-    button
-  );
+  return {
+    disabled,
+    tooltipTitle: "Для скачивания отчета необходимо выбрать фильтры по дате",
+    icon: isExporting ? <LoadingOutlined /> : <FileExcelOutlined />,
+    label: "Отчет по объектам",
+    onClick: exportToXLSX,
+  };
 };

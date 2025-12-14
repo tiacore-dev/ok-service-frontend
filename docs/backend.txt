@@ -2256,8 +2256,12 @@
           {
             "name": "user",
             "in": "query",
-            "type": "string",
-            "description": "Filter by user ID"
+            "type": "array",
+            "description": "Filter by user IDs (can be passed multiple times or comma-separated)",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           },
           {
             "name": "date_from",
@@ -2298,8 +2302,12 @@
           {
             "name": "project",
             "in": "query",
-            "type": "string",
-            "description": "Filter by project ID"
+            "type": "array",
+            "description": "Filter by project IDs (can be passed multiple times or comma-separated)",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           },
           {
             "name": "lng",

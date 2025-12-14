@@ -1,6 +1,6 @@
 import axios from "axios";
 import { authlogout, refreshToken } from "../store/modules/auth";
-import { ExportExcelTemplate } from "../pages/shift-reports/components/downloadShiftReportsWithDetails";
+import { ExportExcelTemplate } from "../pages/shift-reports/components/export/useDownloadShiftReportsWithDetails";
 import { store } from "../store/appStore"; // Импортируем store для доступа к токенам
 
 const axiosInstance = axios.create({

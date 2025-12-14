@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { Form, Input, InputNumber, Modal, Checkbox } from "antd";
 import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
 import { isMobile } from "../../utils/isMobile";
-import "./EditableProjectWorkDialog.less"; // Импорт стилей
+import "./EditableProjectWorkDialog.less";
 import { EnhancedSelect } from "../../components/EnhancedSelect";
 import {
   useCreateProjectWorkMutation,
