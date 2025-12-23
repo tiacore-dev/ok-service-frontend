@@ -170,45 +170,45 @@ export const ShiftReport = () => {
     [objectId, objectsMap]
   );
 
-  const startDistanceToObjectMeters = React.useMemo(() => {
-    if (!shiftReportData?.date_start) return null;
-    if (typeof shiftReportData.distance_start === "number") {
-      return Math.round(shiftReportData.distance_start);
-    }
-    if (typeof shiftReportData.ltd_start !== "number") return null;
-    if (typeof shiftReportData.lng_start !== "number") return null;
+  // const startDistanceToObjectMeters = React.useMemo(() => {
+  //   if (!shiftReportData?.date_start) return null;
+  //   if (typeof shiftReportData.distance_start === "number") {
+  //     return Math.round(shiftReportData.distance_start);
+  //   }
+  //   if (typeof shiftReportData.ltd_start !== "number") return null;
+  //   if (typeof shiftReportData.lng_start !== "number") return null;
 
-    return getDistanceToObjectMeters(
-      shiftReportData.ltd_start,
-      shiftReportData.lng_start
-    );
-  }, [
-    shiftReportData?.date_start,
-    shiftReportData?.distance_start,
-    shiftReportData?.ltd_start,
-    shiftReportData?.lng_start,
-    getDistanceToObjectMeters,
-  ]);
+  //   return getDistanceToObjectMeters(
+  //     shiftReportData.ltd_start,
+  //     shiftReportData.lng_start
+  //   );
+  // }, [
+  //   shiftReportData?.date_start,
+  //   shiftReportData?.distance_start,
+  //   shiftReportData?.ltd_start,
+  //   shiftReportData?.lng_start,
+  //   getDistanceToObjectMeters,
+  // ]);
 
-  const endDistanceToObjectMeters = React.useMemo(() => {
-    if (!shiftReportData?.date_end) return null;
-    if (typeof shiftReportData.distance_end === "number") {
-      return Math.round(shiftReportData.distance_end);
-    }
-    if (typeof shiftReportData.ltd_end !== "number") return null;
-    if (typeof shiftReportData.lng_end !== "number") return null;
+  // const endDistanceToObjectMeters = React.useMemo(() => {
+  //   if (!shiftReportData?.date_end) return null;
+  //   if (typeof shiftReportData.distance_end === "number") {
+  //     return Math.round(shiftReportData.distance_end);
+  //   }
+  //   if (typeof shiftReportData.ltd_end !== "number") return null;
+  //   if (typeof shiftReportData.lng_end !== "number") return null;
 
-    return getDistanceToObjectMeters(
-      shiftReportData.ltd_end,
-      shiftReportData.lng_end
-    );
-  }, [
-    shiftReportData?.date_end,
-    shiftReportData?.distance_end,
-    shiftReportData?.ltd_end,
-    shiftReportData?.lng_end,
-    getDistanceToObjectMeters,
-  ]);
+  //   return getDistanceToObjectMeters(
+  //     shiftReportData.ltd_end,
+  //     shiftReportData.lng_end
+  //   );
+  // }, [
+  //   shiftReportData?.date_end,
+  //   shiftReportData?.distance_end,
+  //   shiftReportData?.ltd_end,
+  //   shiftReportData?.lng_end,
+  //   getDistanceToObjectMeters,
+  // ]);
 
   // Получаем координаты объекта для отображения на карте
   const objectCoordinates = React.useMemo(() => {
@@ -229,10 +229,9 @@ export const ShiftReport = () => {
     if (!shiftReportData?.date_start) return null;
     if (typeof shiftReportData.lng_start !== "number") return null;
     if (typeof shiftReportData.ltd_start !== "number") return null;
-    const distanceLabel =
-      startDistanceToObjectMeters !== null
-        ? ` (${startDistanceToObjectMeters} м от объекта)`
-        : "";
+    const distanceLabel = shiftReportData.distance_start
+      ? ` (${shiftReportData.distance_start} м от объекта)`
+      : "";
 
     return {
       lat: shiftReportData.ltd_start,
@@ -240,16 +239,15 @@ export const ShiftReport = () => {
       title: `Место начала смены${distanceLabel}`,
       color: "red" as const,
     };
-  }, [shiftReportData, startDistanceToObjectMeters]);
+  }, [shiftReportData, shiftReportData?.distance_start]);
 
   const shiftEndCoordinates = React.useMemo(() => {
     if (!shiftReportData?.date_end) return null;
     if (typeof shiftReportData.lng_end !== "number") return null;
     if (typeof shiftReportData.ltd_end !== "number") return null;
-    const distanceLabel =
-      endDistanceToObjectMeters !== null
-        ? ` (${endDistanceToObjectMeters} м от объекта)`
-        : "";
+    const distanceLabel = shiftReportData.distance_end
+      ? ` (${shiftReportData.distance_end} м от объекта)`
+      : "";
 
     return {
       lat: shiftReportData.ltd_end,
@@ -257,7 +255,7 @@ export const ShiftReport = () => {
       title: `Место окончания смены${distanceLabel}`,
       color: "green" as const,
     };
-  }, [shiftReportData, endDistanceToObjectMeters]);
+  }, [shiftReportData, shiftReportData?.distance_end]);
 
   // Формируем массив координат для карты
   const mapCoordinates = React.useMemo(() => {
@@ -268,10 +266,32 @@ export const ShiftReport = () => {
     return coordinates;
   }, [objectCoordinates, shiftStartCoordinates, shiftEndCoordinates]);
 
+  const mapStartCoordinates = React.useMemo(() => {
+    const coordinates = [];
+    if (objectCoordinates) coordinates.push(objectCoordinates);
+    if (shiftStartCoordinates) coordinates.push(shiftStartCoordinates);
+    return coordinates;
+  }, [objectCoordinates, shiftStartCoordinates]);
+
+  const mapEndCoordinates = React.useMemo(() => {
+    const coordinates = [];
+    if (objectCoordinates) coordinates.push(objectCoordinates);
+    if (shiftEndCoordinates) coordinates.push(shiftEndCoordinates);
+    return coordinates;
+  }, [objectCoordinates, shiftEndCoordinates]);
+
   // Проверяем, можно ли показывать кнопку карты (только для администратора и когда есть обе координаты)
   const canShowMapButton = React.useMemo(() => {
     return currentRole === RoleId.ADMIN && mapCoordinates.length >= 2;
   }, [currentRole, mapCoordinates.length]);
+
+  const canShowStartMapButton = React.useMemo(() => {
+    return currentRole === RoleId.ADMIN && mapStartCoordinates.length === 2;
+  }, [currentRole, mapStartCoordinates.length]);
+
+  const canShowEndMapButton = React.useMemo(() => {
+    return currentRole === RoleId.ADMIN && mapEndCoordinates.length === 2;
+  }, [currentRole, mapEndCoordinates.length]);
 
   React.useEffect(() => {
     if (shiftReportDetailsData) {
@@ -665,13 +685,21 @@ export const ShiftReport = () => {
               Дата начала:{" "}
               {dateTimestampToLocalDateTimeString(shiftReportData.date_start)}
               {currentRole === RoleId.ADMIN &&
-                startDistanceToObjectMeters !== null && (
-                  <> ({startDistanceToObjectMeters} м)</>
+                shiftReportData.distance_start !== null && (
+                  <> ({shiftReportData.distance_start} м)</>
                 )}
               {/* Кнопка просмотра на карте для администратора */}
-              {canShowMapButton && (
+              {/* {canShowMapButton && (
                 <MapViewer
                   coordinates={mapCoordinates}
+                  buttonType="icon"
+                  buttonText="Посмотреть на карте"
+                  modalTitle={`Смена № ${shiftReportData.number?.toString().padStart(5, "0")}`}
+                />
+              )} */}
+              {canShowStartMapButton && (
+                <MapViewer
+                  coordinates={mapStartCoordinates}
                   buttonType="icon"
                   buttonText="Посмотреть на карте"
                   modalTitle={`Смена № ${shiftReportData.number?.toString().padStart(5, "0")}`}
@@ -684,9 +712,17 @@ export const ShiftReport = () => {
               Дата завершения:{" "}
               {dateTimestampToLocalDateTimeString(shiftReportData.date_end)}
               {currentRole === RoleId.ADMIN &&
-                endDistanceToObjectMeters !== null && (
-                  <> ({endDistanceToObjectMeters} м)</>
+                shiftReportData.distance_end !== null && (
+                  <> ({shiftReportData.distance_end} м)</>
                 )}
+              {canShowEndMapButton && (
+                <MapViewer
+                  coordinates={mapEndCoordinates}
+                  buttonType="icon"
+                  buttonText="Посмотреть на карте"
+                  modalTitle={`Смена № ${shiftReportData.number?.toString().padStart(5, "0")}`}
+                />
+              )}
             </p>
           )}
           {shiftReportData.night_shift && <p>Ночная смена (+25%)</p>}

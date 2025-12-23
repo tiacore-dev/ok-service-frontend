@@ -42,16 +42,26 @@ export const MapViewer: React.FC<MapViewerProps> = ({
 
   const points = Array.isArray(coordinates) ? coordinates : [coordinates];
 
-  useEffect(() => {
+  const initAttemptsRef = useRef(0);
+
+  const scheduleInitializeMap = () => {
     if (!isModalVisible) return;
 
-    // Проверяем, не загружены ли уже Яндекс Карты
-    if (window.ymaps) {
-      initializeMap();
+    if (!mapContainerRef.current) {
+      if (initAttemptsRef.current < 10) {
+        initAttemptsRef.current += 1;
+        setTimeout(scheduleInitializeMap, 100);
+      }
       return;
     }
 
-    // Проверяем, не загружается ли уже скрипт
+    if (window.ymaps) {
+      window.ymaps.ready(() => {
+        initializeMap();
+      });
+      return;
+    }
+
     if (scriptLoadedRef.current) {
       return;
     }
@@ -59,7 +69,6 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     scriptLoadedRef.current = true;
     setIsLoading(true);
 
-    // Загружаем Яндекс Карты
     const script = document.createElement("script");
     script.src = "https://api-maps.yandex.ru/2.1/?lang=ru_RU";
     script.async = true;
@@ -76,9 +85,14 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     };
 
     document.head.appendChild(script);
+  };
+
+  useEffect(() => {
+    if (!isModalVisible) return;
+    initAttemptsRef.current = 0;
+    scheduleInitializeMap();
 
     return () => {
-      // Очистка при размонтировании компонента
       if (mapRef.current) {
         mapRef.current.destroy();
         mapRef.current = null;
@@ -159,12 +173,17 @@ export const MapViewer: React.FC<MapViewerProps> = ({
   };
 
   const handleOpenModal = () => {
+    setIsLoading(true);
     setIsModalVisible(true);
   };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
     setError(null);
+    if (mapRef.current) {
+      mapRef.current.destroy();
+      mapRef.current = null;
+    }
   };
 
   const renderButton = () => {

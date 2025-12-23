@@ -4,6 +4,7 @@
 import { Breadcrumb, Layout, Table, type TablePaginationConfig } from "antd";
 import * as React from "react";
 import { shiftReportsDesktopColumns } from "./components/desktop.columns";
+import { shiftReportsMobileColumns } from "./components/mobile.columns";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
 import "./shift-reports.page.less";
@@ -29,11 +30,13 @@ import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap } from "../../queries/projects";
 import { ShiftReportsFilters } from "./ShiftReportsFilters";
 import type { IShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
+import { getCurrentRole } from "../../store/modules/auth";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const currentRole = useSelector(getCurrentRole);
 
   const tableState = useSelector(
     (state: IState) => state.settings.shiftReportsSettings,
@@ -171,14 +174,23 @@ export const ShiftReports = () => {
 
   const columns = React.useMemo(
     () =>
-      shiftReportsDesktopColumns(
-        navigate,
-        projectsMap,
-        usersMap,
-        objectsMap,
-        tableState.sorter,
-      ),
-    [navigate, projectsMap, usersMap, tableState.sorter, objectsMap],
+      isMobile()
+        ? shiftReportsMobileColumns(navigate, projectsMap, usersMap, currentRole)
+        : shiftReportsDesktopColumns(
+            navigate,
+            projectsMap,
+            usersMap,
+            objectsMap,
+            tableState.sorter,
+          ),
+    [
+      navigate,
+      projectsMap,
+      usersMap,
+      objectsMap,
+      tableState.sorter,
+      currentRole,
+    ],
   );
 
   const paginationConfig = React.useMemo(
