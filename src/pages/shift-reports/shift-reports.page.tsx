@@ -31,6 +31,7 @@ import { useProjectsMap } from "../../queries/projects";
 import { ShiftReportsFilters } from "./ShiftReportsFilters";
 import type { IShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
 import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 export const ShiftReports = () => {
   const { Content } = Layout;
@@ -39,10 +40,63 @@ export const ShiftReports = () => {
   const currentRole = useSelector(getCurrentRole);
 
   const tableState = useSelector(
-    (state: IState) => state.settings.shiftReportsSettings,
+    (state: IState) => state.settings.shiftReportsSettings
   );
 
   const shiftReportsFilters = tableState.shiftReportsFilters;
+
+  const { projectsMap, projects } = useProjectsMap();
+  const { objectsMap } = useObjectsMap();
+  const { usersMap } = useUsersMap();
+
+  const handleFiltersChange = React.useCallback(
+    (nextFilters: IShiftReportsFiltersState) => {
+      dispatch(saveShiftReportsFiltersState(nextFilters));
+      dispatch(
+        saveShiftReportsTableState({
+          pagination: {
+            ...(tableState.pagination || {}),
+            current: 1,
+          },
+          filters: tableState.filters,
+          sorter: tableState.sorter,
+          shiftReportsFilters: nextFilters,
+        })
+      );
+    },
+    [dispatch, tableState]
+  );
+
+  const projectLeaderProjectIds = React.useMemo(() => {
+    if (!shiftReportsFilters.projectLeaders.length) {
+      return [];
+    }
+    const leaderIds = new Set(shiftReportsFilters.projectLeaders);
+    return projects
+      .filter(
+        (project) => project.project_id && leaderIds.has(project.project_leader)
+      )
+      .map((project) => project.project_id as string);
+  }, [projects, shiftReportsFilters.projectLeaders]);
+
+  const resolvedProjectFilter = React.useMemo(() => {
+    if (!shiftReportsFilters.projectLeaders.length) {
+      return shiftReportsFilters.projects;
+    }
+
+    if (!shiftReportsFilters.projects.length) {
+      return projectLeaderProjectIds;
+    }
+
+    const selected = new Set(shiftReportsFilters.projects);
+    return projectLeaderProjectIds.filter((projectId) =>
+      selected.has(projectId)
+    );
+  }, [
+    projectLeaderProjectIds,
+    shiftReportsFilters.projectLeaders,
+    shiftReportsFilters.projects,
+  ]);
 
   const queryParams: IShiftReportQueryParams = React.useMemo(() => {
     const params: IShiftReportQueryParams = {
@@ -61,9 +115,14 @@ export const ShiftReports = () => {
     if (shiftReportsFilters.users.length) {
       params.user = shiftReportsFilters.users;
     }
-    if (shiftReportsFilters.projects.length) {
+
+    if (shiftReportsFilters.projectLeaders.length) {
+      params.project =
+        resolvedProjectFilter.length > 0 ? resolvedProjectFilter : [null];
+    } else if (shiftReportsFilters.projects.length) {
       params.project = shiftReportsFilters.projects;
     }
+
     if (shiftReportsFilters.dateFrom) {
       params.date_from = shiftReportsFilters.dateFrom;
     }
@@ -72,28 +131,10 @@ export const ShiftReports = () => {
     }
 
     return params;
-  }, [tableState, shiftReportsFilters]);
+  }, [tableState, shiftReportsFilters, resolvedProjectFilter]);
 
   const { data: shiftReportsResponse, isLoading } =
     useShiftReportsQuery(queryParams);
-
-  const handleFiltersChange = React.useCallback(
-    (nextFilters: IShiftReportsFiltersState) => {
-      dispatch(saveShiftReportsFiltersState(nextFilters));
-      dispatch(
-        saveShiftReportsTableState({
-          pagination: {
-            ...(tableState.pagination || {}),
-            current: 1,
-          },
-          filters: tableState.filters,
-          sorter: tableState.sorter,
-          shiftReportsFilters: nextFilters,
-        }),
-      );
-    },
-    [dispatch, tableState],
-  );
 
   const tableData = React.useMemo(() => {
     if (!shiftReportsResponse?.shift_reports) return [];
@@ -104,17 +145,28 @@ export const ShiftReports = () => {
     }));
   }, [shiftReportsResponse]);
 
-  const { projectsMap, projects } = useProjectsMap();
-  const { objectsMap } = useObjectsMap();
-  const { usersMap } = useUsersMap();
-
   const userOptions = React.useMemo(
     () =>
       Object.values(usersMap).map((user) => ({
         label: user.name,
         value: user.user_id,
       })),
-    [usersMap],
+    [usersMap]
+  );
+
+  const projectLeaderOptions = React.useMemo(
+    () =>
+      Object.values(usersMap)
+        .filter((user) =>
+          [RoleId.ADMIN, RoleId.MANAGER, RoleId.PROJECT_LEADER].includes(
+            user.role
+          )
+        )
+        .map((user) => ({
+          label: user.name,
+          value: user.user_id,
+        })),
+    [usersMap]
   );
 
   const objectProjectsMap = React.useMemo(() => {
@@ -138,9 +190,9 @@ export const ShiftReports = () => {
           }
           return acc;
         },
-        {},
+        {}
       ),
-    [projectsMap],
+    [projectsMap]
   );
 
   const projectsTreeData = React.useMemo<DataNode[]>(() => {
@@ -175,13 +227,18 @@ export const ShiftReports = () => {
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? shiftReportsMobileColumns(navigate, projectsMap, usersMap, currentRole)
+        ? shiftReportsMobileColumns(
+            navigate,
+            projectsMap,
+            usersMap,
+            currentRole
+          )
         : shiftReportsDesktopColumns(
             navigate,
             projectsMap,
             usersMap,
             objectsMap,
-            tableState.sorter,
+            tableState.sorter
           ),
     [
       navigate,
@@ -190,7 +247,7 @@ export const ShiftReports = () => {
       objectsMap,
       tableState.sorter,
       currentRole,
-    ],
+    ]
   );
 
   const paginationConfig = React.useMemo(
@@ -200,25 +257,31 @@ export const ShiftReports = () => {
       showSizeChanger: true,
       pageSizeOptions: ["10", "20", "50", "100"],
     }),
-    [tableState.pagination, shiftReportsResponse?.total],
+    [tableState.pagination, shiftReportsResponse?.total]
   );
 
-  const currentFilters = React.useMemo(
-    () => ({
+  const currentFilters = React.useMemo(() => {
+    const projects =
+      shiftReportsFilters.projectLeaders.length > 0
+        ? resolvedProjectFilter.length > 0
+          ? resolvedProjectFilter
+          : ["__none__"]
+        : shiftReportsFilters.projects;
+
+    return {
       users: shiftReportsFilters.users,
-      projects: shiftReportsFilters.projects,
+      projects,
       date_from: shiftReportsFilters.dateFrom ?? undefined,
       date_to: shiftReportsFilters.dateTo ?? undefined,
-    }),
-    [shiftReportsFilters],
-  );
+    };
+  }, [shiftReportsFilters, resolvedProjectFilter]);
 
   const handleTableChange = (
     pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>,
     sorter:
       | SorterResult<IShiftReportsListColumn>
-      | SorterResult<IShiftReportsListColumn>[],
+      | SorterResult<IShiftReportsListColumn>[]
   ) => {
     // Сохраняем текущие фильтры и объединяем с новыми
     const mergedFilters = {
@@ -232,7 +295,7 @@ export const ShiftReports = () => {
         filters: mergedFilters,
         sorter: Array.isArray(sorter) ? sorter[0] : sorter,
         shiftReportsFilters,
-      }),
+      })
     );
   };
 
@@ -260,6 +323,7 @@ export const ShiftReports = () => {
           filtersState={shiftReportsFilters}
           onFiltersChange={handleFiltersChange}
           userOptions={userOptions}
+          projectLeaderOptions={projectLeaderOptions}
           projectsTreeData={projectsTreeData}
           objectProjectsMap={objectProjectsMap}
           projectNamesMap={projectNamesMap}

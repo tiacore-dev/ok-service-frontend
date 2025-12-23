@@ -16,6 +16,7 @@ interface ShiftReportsFiltersProps {
   filtersState: IShiftReportsFiltersState;
   onFiltersChange: (next: IShiftReportsFiltersState) => void;
   userOptions: Array<{ label: string; value: string }>;
+  projectLeaderOptions: Array<{ label: string; value: string }>;
   projectsTreeData: DataNode[];
   objectProjectsMap: Record<string, string[]>;
   projectNamesMap: Record<string, string>;
@@ -25,6 +26,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
   filtersState,
   onFiltersChange,
   userOptions,
+  projectLeaderOptions,
   projectsTreeData,
   objectProjectsMap,
   projectNamesMap,
@@ -42,6 +44,17 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
 
   const handleUsersChange = (value: string[]) => {
     changeFilters({ users: value });
+  };
+
+  const projectLeaderNamesMap = React.useMemo(() => {
+    return projectLeaderOptions.reduce<Record<string, string>>((acc, option) => {
+      acc[option.value] = option.label;
+      return acc;
+    }, {});
+  }, [projectLeaderOptions]);
+
+  const handleProjectLeadersChange = (value: string[]) => {
+    changeFilters({ projectLeaders: value });
   };
 
   const handleDateChange = (dates: null | [Dayjs | null, Dayjs | null]) => {
@@ -173,6 +186,33 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
             );
           }}
         />
+        <Select
+          mode="multiple"
+          allowClear
+          placeholder="Выберите прорабов"
+          className="shift-reports_filters_select"
+          options={projectLeaderOptions}
+          value={filtersState.projectLeaders}
+          onChange={handleProjectLeadersChange}
+          showSearch
+          optionFilterProp="label"
+          maxTagCount={1}
+          tagRender={(props) => {
+            if (!filtersState.projectLeaders.length) return null;
+            const first = filtersState.projectLeaders[0];
+            if (props.value !== first) {
+              return null;
+            }
+            const label = projectLeaderNamesMap[first] || "Прораб";
+            const extra = filtersState.projectLeaders.length - 1;
+            return renderCompactTag(
+              label,
+              extra,
+              props.closable,
+              props.onClose
+            );
+          }}
+        />
         <TreeSelect
           treeCheckable
           showCheckedStrategy={TreeSelect.SHOW_CHILD}
@@ -217,7 +257,9 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
           Сбросить
         </Button>
       </Space>
-      {(filtersState.users.length > 0 || filtersState.projects.length > 0) && (
+      {(filtersState.users.length > 0 ||
+        filtersState.projectLeaders.length > 0 ||
+        filtersState.projects.length > 0) && (
         <div className="shift-reports_filters_summary">
           {filtersState.users.length > 0 && (
             <div className="shift-reports_filters_summaryRow">
@@ -232,6 +274,27 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
                     () =>
                       changeFilters({
                         users: filtersState.users.filter((id) => id !== userId),
+                      })
+                  )
+                )}
+              </div>
+            </div>
+          )}
+          {filtersState.projectLeaders.length > 0 && (
+            <div className="shift-reports_filters_summaryRow">
+              <span className="shift-reports_filters_summaryLabel">
+                Прорабы:
+              </span>
+              <div className="shift-reports_filters_summaryChips">
+                {filtersState.projectLeaders.map((leaderId) =>
+                  renderSummaryChip(
+                    leaderId,
+                    projectLeaderNamesMap[leaderId] || leaderId,
+                    () =>
+                      changeFilters({
+                        projectLeaders: filtersState.projectLeaders.filter(
+                          (id) => id !== leaderId
+                        ),
                       })
                   )
                 )}
