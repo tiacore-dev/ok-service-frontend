@@ -155,28 +155,59 @@ export const ShiftReport = () => {
     return shiftReportData.user === currentUserId;
   }, [shiftReportData, currentUserId]);
 
-  const distanceToObjectMeters = React.useMemo(() => {
-    if (!shiftReportData?.date_start) return null;
-    if (typeof shiftReportData.lng !== "number") return null;
-    if (typeof shiftReportData.ltd !== "number") return null;
-    if (!objectId) return null;
-    const relatedObject = objectsMap[objectId];
-    if (!relatedObject || !relatedObject.ltd || !relatedObject.lng) return null;
+  const getDistanceToObjectMeters = React.useCallback(
+    (lat: number, lng: number) => {
+      if (!objectId) return null;
+      const relatedObject = objectsMap[objectId];
+      if (!relatedObject || !relatedObject.ltd || !relatedObject.lng) {
+        return null;
+      }
 
-    return Math.round(
-      calculateDistanceMeters(
-        relatedObject.ltd,
-        relatedObject.lng,
-        shiftReportData.ltd,
-        shiftReportData.lng
-      )
+      return Math.round(
+        calculateDistanceMeters(relatedObject.ltd, relatedObject.lng, lat, lng)
+      );
+    },
+    [objectId, objectsMap]
+  );
+
+  const startDistanceToObjectMeters = React.useMemo(() => {
+    if (!shiftReportData?.date_start) return null;
+    if (typeof shiftReportData.distance_start === "number") {
+      return Math.round(shiftReportData.distance_start);
+    }
+    if (typeof shiftReportData.ltd_start !== "number") return null;
+    if (typeof shiftReportData.lng_start !== "number") return null;
+
+    return getDistanceToObjectMeters(
+      shiftReportData.ltd_start,
+      shiftReportData.lng_start
     );
   }, [
     shiftReportData?.date_start,
-    shiftReportData?.lng,
-    shiftReportData?.ltd,
-    objectId,
-    objectsMap,
+    shiftReportData?.distance_start,
+    shiftReportData?.ltd_start,
+    shiftReportData?.lng_start,
+    getDistanceToObjectMeters,
+  ]);
+
+  const endDistanceToObjectMeters = React.useMemo(() => {
+    if (!shiftReportData?.date_end) return null;
+    if (typeof shiftReportData.distance_end === "number") {
+      return Math.round(shiftReportData.distance_end);
+    }
+    if (typeof shiftReportData.ltd_end !== "number") return null;
+    if (typeof shiftReportData.lng_end !== "number") return null;
+
+    return getDistanceToObjectMeters(
+      shiftReportData.ltd_end,
+      shiftReportData.lng_end
+    );
+  }, [
+    shiftReportData?.date_end,
+    shiftReportData?.distance_end,
+    shiftReportData?.ltd_end,
+    shiftReportData?.lng_end,
+    getDistanceToObjectMeters,
   ]);
 
   // Получаем координаты объекта для отображения на карте
@@ -194,30 +225,52 @@ export const ShiftReport = () => {
   }, [objectId, objectsMap]);
 
   // Получаем координаты смены для отображения на карте
-  const shiftCoordinates = React.useMemo(() => {
+  const shiftStartCoordinates = React.useMemo(() => {
     if (!shiftReportData?.date_start) return null;
-    if (typeof shiftReportData.lng !== "number") return null;
-    if (typeof shiftReportData.ltd !== "number") return null;
+    if (typeof shiftReportData.lng_start !== "number") return null;
+    if (typeof shiftReportData.ltd_start !== "number") return null;
+    const distanceLabel =
+      startDistanceToObjectMeters !== null
+        ? ` (${startDistanceToObjectMeters} м от объекта)`
+        : "";
 
     return {
-      lat: shiftReportData.ltd,
-      lng: shiftReportData.lng,
-      title: `Место начала смены (${distanceToObjectMeters} м от объекта)`,
+      lat: shiftReportData.ltd_start,
+      lng: shiftReportData.lng_start,
+      title: `Место начала смены${distanceLabel}`,
       color: "red" as const,
     };
-  }, [shiftReportData, distanceToObjectMeters]);
+  }, [shiftReportData, startDistanceToObjectMeters]);
+
+  const shiftEndCoordinates = React.useMemo(() => {
+    if (!shiftReportData?.date_end) return null;
+    if (typeof shiftReportData.lng_end !== "number") return null;
+    if (typeof shiftReportData.ltd_end !== "number") return null;
+    const distanceLabel =
+      endDistanceToObjectMeters !== null
+        ? ` (${endDistanceToObjectMeters} м от объекта)`
+        : "";
+
+    return {
+      lat: shiftReportData.ltd_end,
+      lng: shiftReportData.lng_end,
+      title: `Место окончания смены${distanceLabel}`,
+      color: "green" as const,
+    };
+  }, [shiftReportData, endDistanceToObjectMeters]);
 
   // Формируем массив координат для карты
   const mapCoordinates = React.useMemo(() => {
     const coordinates = [];
     if (objectCoordinates) coordinates.push(objectCoordinates);
-    if (shiftCoordinates) coordinates.push(shiftCoordinates);
+    if (shiftStartCoordinates) coordinates.push(shiftStartCoordinates);
+    if (shiftEndCoordinates) coordinates.push(shiftEndCoordinates);
     return coordinates;
-  }, [objectCoordinates, shiftCoordinates]);
+  }, [objectCoordinates, shiftStartCoordinates, shiftEndCoordinates]);
 
   // Проверяем, можно ли показывать кнопку карты (только для администратора и когда есть обе координаты)
   const canShowMapButton = React.useMemo(() => {
-    return currentRole === RoleId.ADMIN && mapCoordinates.length === 2;
+    return currentRole === RoleId.ADMIN && mapCoordinates.length >= 2;
   }, [currentRole, mapCoordinates.length]);
 
   React.useEffect(() => {
@@ -370,13 +423,17 @@ export const ShiftReport = () => {
         user: shiftReportData.user,
         date: shiftReportData.date,
         date_start: shiftReportData.date_start,
-        // date_end: shiftReportData.date_end,
+        date_end: shiftReportData.date_end,
         project: shiftReportData.project,
         signed: true,
         night_shift: shiftReportData.night_shift,
         extreme_conditions: shiftReportData.extreme_conditions,
-        lng: shiftReportData.lng,
-        ltd: shiftReportData.ltd,
+        lng_start: shiftReportData.lng_start,
+        ltd_start: shiftReportData.ltd_start,
+        lng_end: shiftReportData.lng_end,
+        ltd_end: shiftReportData.ltd_end,
+        distance_start: shiftReportData.distance_start,
+        distance_end: shiftReportData.distance_end,
       };
 
       editReportMutation({
@@ -384,7 +441,7 @@ export const ShiftReport = () => {
         reportData: updatedReportData,
       });
     }
-  }, [shiftReportData, editReportMutation]);
+  }, [shiftReportData, editReportMutation, getDistanceToObjectMeters]);
 
   const handleStartShift = React.useCallback(() => {
     if (!shiftReportData) {
@@ -408,6 +465,7 @@ export const ShiftReport = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
+        const distanceStart = getDistanceToObjectMeters(latitude, longitude);
         const updatedReportData = {
           user: shiftReportData.user,
           date: shiftReportData.date,
@@ -417,8 +475,12 @@ export const ShiftReport = () => {
           signed: shiftReportData.signed,
           night_shift: shiftReportData.night_shift,
           extreme_conditions: shiftReportData.extreme_conditions,
-          lng: longitude,
-          ltd: latitude,
+          lng_start: longitude,
+          ltd_start: latitude,
+          lng_end: shiftReportData.lng_end,
+          ltd_end: shiftReportData.ltd_end,
+          distance_start: distanceStart ?? undefined,
+          distance_end: shiftReportData.distance_end,
         };
 
         editReportMutation(
@@ -452,31 +514,66 @@ export const ShiftReport = () => {
       return;
     }
 
+    if (
+      typeof window === "undefined" ||
+      typeof navigator === "undefined" ||
+      !navigator.geolocation
+    ) {
+      notification.error({
+        message: "Не удалось определить местоположение",
+        description: "Браузер не поддерживает геолокацию",
+        placement: "bottomRight",
+      });
+      return;
+    }
+
     setIsCompletingShift(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const distanceEnd = getDistanceToObjectMeters(latitude, longitude);
+        const updatedReportData = {
+          user: shiftReportData.user,
+          date: shiftReportData.date,
+          date_start: shiftReportData.date_start,
+          date_end: Date.now(),
+          project: shiftReportData.project,
+          signed: shiftReportData.signed,
+          night_shift: shiftReportData.night_shift,
+          extreme_conditions: shiftReportData.extreme_conditions,
+          lng_start: shiftReportData.lng_start,
+          ltd_start: shiftReportData.ltd_start,
+          lng_end: longitude,
+          ltd_end: latitude,
+          distance_start: shiftReportData.distance_start,
+          distance_end: distanceEnd ?? undefined,
+        };
 
-    const updatedReportData = {
-      user: shiftReportData.user,
-      date: shiftReportData.date,
-      date_start: shiftReportData.date_start,
-      date_end: Date.now(),
-      project: shiftReportData.project,
-      signed: shiftReportData.signed,
-      night_shift: shiftReportData.night_shift,
-      extreme_conditions: shiftReportData.extreme_conditions,
-      lng: shiftReportData.lng,
-      ltd: shiftReportData.ltd,
-    };
-
-    editReportMutation(
-      {
-        report_id: shiftReportData.shift_report_id,
-        reportData: updatedReportData,
+        editReportMutation(
+          {
+            report_id: shiftReportData.shift_report_id,
+            reportData: updatedReportData,
+          },
+          {
+            onSettled: () => setIsCompletingShift(false),
+          }
+        );
+      },
+      (error) => {
+        notification.error({
+          message: "Не удалось определить местоположение",
+          description: error.message,
+          placement: "bottomRight",
+        });
+        setIsCompletingShift(false);
       },
       {
-        onSettled: () => setIsCompletingShift(false),
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
-  }, [shiftReportData, editReportMutation]);
+  }, [shiftReportData, editReportMutation, getDistanceToObjectMeters]);
 
   const checedData = React.useMemo(() => {
     if (!stat || !dataSource) return dataSource;
@@ -568,8 +665,8 @@ export const ShiftReport = () => {
               Дата начала:{" "}
               {dateTimestampToLocalDateTimeString(shiftReportData.date_start)}
               {currentRole === RoleId.ADMIN &&
-                distanceToObjectMeters !== null && (
-                  <> ({distanceToObjectMeters} м)</>
+                startDistanceToObjectMeters !== null && (
+                  <> ({startDistanceToObjectMeters} м)</>
                 )}
               {/* Кнопка просмотра на карте для администратора */}
               {canShowMapButton && (
@@ -586,6 +683,10 @@ export const ShiftReport = () => {
             <p>
               Дата завершения:{" "}
               {dateTimestampToLocalDateTimeString(shiftReportData.date_end)}
+              {currentRole === RoleId.ADMIN &&
+                endDistanceToObjectMeters !== null && (
+                  <> ({endDistanceToObjectMeters} м)</>
+                )}
             </p>
           )}
           {shiftReportData.night_shift && <p>Ночная смена (+25%)</p>}

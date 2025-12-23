@@ -2310,16 +2310,40 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "lng",
+            "name": "lng_start",
             "in": "query",
             "type": "number",
-            "description": "Filter by longitude"
+            "description": "Filter by start longitude"
           },
           {
-            "name": "ltd",
+            "name": "ltd_start",
             "in": "query",
             "type": "number",
-            "description": "Filter by latitude"
+            "description": "Filter by start latitude"
+          },
+          {
+            "name": "lng_end",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by end longitude"
+          },
+          {
+            "name": "ltd_end",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by end latitude"
+          },
+          {
+            "name": "distance_start",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by start distance"
+          },
+          {
+            "name": "distance_end",
+            "in": "query",
+            "type": "number",
+            "description": "Filter by end distance"
           },
           {
             "name": "night_shift",
@@ -5150,10 +5174,22 @@
         "project": {
           "type": "string"
         },
-        "lng": {
+        "lng_start": {
           "type": "number"
         },
-        "ltd": {
+        "ltd_start": {
+          "type": "number"
+        },
+        "lng_end": {
+          "type": "number"
+        },
+        "ltd_end": {
+          "type": "number"
+        },
+        "distance_start": {
+          "type": "number"
+        },
+        "distance_end": {
           "type": "number"
         },
         "signed": {
@@ -5266,13 +5302,29 @@
           "type": "string",
           "description": "Project details"
         },
-        "lng": {
+        "lng_start": {
           "type": "number",
-          "description": "Longitude of the shift report"
+          "description": "Longitude of the shift start"
         },
-        "ltd": {
+        "ltd_start": {
           "type": "number",
-          "description": "Latitude of the shift report"
+          "description": "Latitude of the shift start"
+        },
+        "lng_end": {
+          "type": "number",
+          "description": "Longitude of the shift end"
+        },
+        "ltd_end": {
+          "type": "number",
+          "description": "Latitude of the shift end"
+        },
+        "distance_start": {
+          "type": "number",
+          "description": "Distance at the shift start"
+        },
+        "distance_end": {
+          "type": "number",
+          "description": "Distance at the shift end"
         },
         "signed": {
           "type": "boolean",
@@ -5460,8 +5512,7 @@
           "description": "Shift report details"
         },
         "project_work": {
-          "type": "string",
-          "description": "Project work"
+          "$ref": "#/definitions/ProjectWorkBrief"
         },
         "work": {
           "type": "string",
@@ -5482,6 +5533,22 @@
         "summ": {
           "type": "number",
           "description": "Total sum of work"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectWorkBrief": {
+      "required": [
+        "project_work_id"
+      ],
+      "properties": {
+        "project_work_id": {
+          "type": "string",
+          "description": "Project work ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Project work name"
         }
       },
       "type": "object"

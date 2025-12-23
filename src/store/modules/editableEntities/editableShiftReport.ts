@@ -15,8 +15,12 @@ const initialState: IEditableShiftReportState = {
   signed: false,
   night_shift: false,
   extreme_conditions: false,
-  lng: undefined,
-  ltd: undefined,
+  lng_start: undefined,
+  ltd_start: undefined,
+  lng_end: undefined,
+  ltd_end: undefined,
+  distance_start: undefined,
+  distance_end: undefined,
 };
 
 const setShiftReportData = (
@@ -30,8 +34,12 @@ const setShiftReportData = (
   state.signed = shiftReportData.signed;
   state.night_shift = shiftReportData.night_shift;
   state.extreme_conditions = shiftReportData.extreme_conditions;
-  state.lng = shiftReportData.lng;
-  state.ltd = shiftReportData.ltd;
+  state.lng_start = shiftReportData.lng_start;
+  state.ltd_start = shiftReportData.ltd_start;
+  state.lng_end = shiftReportData.lng_end;
+  state.ltd_end = shiftReportData.ltd_end;
+  state.distance_start = shiftReportData.distance_start;
+  state.distance_end = shiftReportData.distance_end;
   state.sent = false;
 };
 
