@@ -19,6 +19,7 @@ import { RoleId } from "../../../interfaces/roles/IRole";
 import { CustomTooltip } from "./customTooltip";
 import { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
 import { useUsersMap } from "../../../queries/users";
+import { DayCard } from "./dayCard";
 
 export interface ITotalCost {
   date: string;
@@ -222,126 +223,20 @@ export const Charts = (props: IChartsProps) => {
         </Col>
       )}
 
-      <Col key={3} xs={24} sm={8}>
-        {yesterdayData ? (
-          <Card>
-            <Meta
-              title={`Данные по сменам за ${yesterdayData[0]}`}
-              // description={`Данные по сменам за ${yesterdayData[0]}`}
-            />
-            <div className="main__day">
-              {!!yesterdayData[1]?.notOpened && (
-                <div className="main__day__el">
-                  Не открыто: {yesterdayData[1].notOpened.length}
-                  <ul className="main__day__ul-yesterday">
-                    {yesterdayData[1].notOpened.map((el) => (
-                      <li className="main__day__not-opened" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {!!yesterdayData[1]?.empty && (
-                <div className="main__day__el">
-                  Не заполнено: {yesterdayData[1].empty.length}
-                  <ul className="main__day__ul-yesterday">
-                    {yesterdayData[1].empty.map((el) => (
-                      <li className="main__day__empty" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {!!yesterdayData[1]?.notSigned && (
-                <div className="main__day__el">
-                  Не согласовано: {yesterdayData[1].notSigned.length}
-                  <ul className="main__day__ul-yesterday">
-                    {yesterdayData[1].notSigned.map((el) => (
-                      <li className="main__day__not-signed" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {!!yesterdayData[1]?.signed && (
-                <div className="main__day__el">
-                  Согласовано: {yesterdayData[1].signed.length}
-                  <ul className="main__day__ul-yesterday">
-                    {yesterdayData[1].signed.map((el) => (
-                      <li className="main__day__signed" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </Card>
-        ) : null}
+      <Col key="yesterday" xs={24} sm={8}>
+        <DayCard
+          data={yesterdayData}
+          usersMap={usersMap}
+          ulClassName="main__day__ul-yesterday"
+        />
       </Col>
 
-      <Col key={3} xs={24} sm={16}>
-        {todayData ? (
-          <Card>
-            <Meta
-              title={`Данные по сменам за ${todayData[0]}`}
-              // description={`Данные по сменам за ${yesterdayData[0]}`}
-            />
-            <div className="main__day">
-              {!!todayData[1]?.notOpened && (
-                <div className="main__day__el">
-                  Не открыто: {todayData[1].notOpened.length}
-                  <ul className="main__day__ul-today">
-                    {todayData[1].notOpened.map((el) => (
-                      <li className="main__day__not-opened" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {!!todayData[1]?.empty && (
-                <div className="main__day__el">
-                  Не заполнено: {todayData[1].empty.length}
-                  <ul className="main__day__ul-today">
-                    {todayData[1].empty.map((el) => (
-                      <li className="main__day__empty" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {!!todayData[1]?.notSigned && (
-                <div className="main__day__el">
-                  Не согласовано: {todayData[1].notSigned.length}
-                  <ul className="main__day__ul-today">
-                    {todayData[1].notSigned.map((el) => (
-                      <li className="main__day__not-signed" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {!!todayData[1]?.signed && (
-                <div className="main__day__el">
-                  Согласовано: {todayData[1].signed.length}
-                  <ul className="main__day__ul-today">
-                    {todayData[1].signed.map((el) => (
-                      <li className="main__day__signed" key={el.key}>
-                        {usersMap[el.user]?.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </Card>
-        ) : null}
+      <Col key="today" xs={24} sm={16}>
+        <DayCard
+          data={todayData}
+          usersMap={usersMap}
+          ulClassName="main__day__ul-today"
+        />
       </Col>
     </Row>
   );
