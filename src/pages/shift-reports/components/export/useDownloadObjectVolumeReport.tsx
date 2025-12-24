@@ -12,9 +12,7 @@ import type {
   IObjectVolumeReport,
   IObjectVolumeReportObject,
 } from "../../../../interfaces/reports/IObjectVolumeReport";
-import type { IProjectWorksList } from "../../../../interfaces/projectWorks/IProjectWorksList";
-import type { IShiftReportDetail } from "../../../../interfaces/shiftReportDetails/IShiftReportDetail";
-import { useProjectWorksMap } from "../../../../queries/projectWorks";
+import type { IPopulatedShiftReportDetail } from "../../../../interfaces/shiftReportDetails/IShiftReportDetail";
 
 interface DownloadObjectVolumeReportProps {
   currentFilters?: {
@@ -24,15 +22,6 @@ interface DownloadObjectVolumeReportProps {
     date_to?: number;
   };
 }
-
-// interface DownloadObjectVolumeReportResponse {
-//     loading: boolean;
-//     isDisabled: boolean;
-//     tooltipTitle: string;
-//     icon: React.JSX.Element;
-//     label: string;
-//     onClick: () => Promise<void>;
-// }
 
 export const useDownloadObjectVolumeReport = ({
   currentFilters,
@@ -51,25 +40,6 @@ export const useDownloadObjectVolumeReport = ({
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
   const { projectsMap } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
-
-  const { projectWorks: allProjectWorks = [] } = useProjectWorksMap();
-
-  const projectWorksById = React.useMemo(() => {
-    const map: Record<string, IProjectWorksList> = {};
-    const projectWorksArray = Array.isArray(allProjectWorks)
-      ? (allProjectWorks as IProjectWorksList[])
-      : [];
-
-    for (const projectWork of projectWorksArray) {
-      const projectWorkId = projectWork?.project_work_id;
-      if (projectWorkId) {
-        map[projectWorkId] = projectWork;
-      }
-    }
-
-    return map;
-  }, [allProjectWorks]);
-
   const createObjectVolumeReport =
     React.useCallback(async (): Promise<IObjectVolumeReport> => {
       const reportData: IObjectVolumeReport = {
@@ -100,12 +70,12 @@ export const useDownloadObjectVolumeReport = ({
         params.project = currentFilters.projects.join(",");
       }
 
-      let details: IShiftReportDetail[] = [];
+      let details: IPopulatedShiftReportDetail[] = [];
 
       try {
         const detailsResponse = await fetchShiftReportDetails(params);
         details = (detailsResponse.shift_report_details ||
-          []) as IShiftReportDetail[];
+          []) as IPopulatedShiftReportDetail[];
       } catch (error) {
         console.error("Ошибка при загрузке деталей отчетов:", error);
         return reportData;
@@ -116,7 +86,7 @@ export const useDownloadObjectVolumeReport = ({
       }
 
       const detailsByShiftReportId = details.reduce(
-        (acc: Record<string, IShiftReportDetail[]>, detail) => {
+        (acc: Record<string, IPopulatedShiftReportDetail[]>, detail) => {
           if (!detail?.shift_report) {
             return acc;
           }
@@ -168,10 +138,7 @@ export const useDownloadObjectVolumeReport = ({
         }
 
         for (const detail of reportDetails) {
-          const projectWork = projectWorksById[detail.project_work];
-          const projectDetailName =
-            projectWork?.project_work_name || "Неизвестная запись";
-
+          const projectDetailName = detail.project_work.name;
           let projectDetail = projectData.project_details.find(
             (pd) => pd.name === projectDetailName,
           );
@@ -195,7 +162,6 @@ export const useDownloadObjectVolumeReport = ({
       currentFilters?.projects,
       currentFilters?.users,
       objectsMap,
-      projectWorksById,
       projectsMap,
       shiftReportsData,
     ]);

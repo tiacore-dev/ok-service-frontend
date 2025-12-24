@@ -52,6 +52,16 @@ interface IChartsProps {
   yesterdayData: [
     string,
     {
+      notOpened?: IShiftReportsListColumn[];
+      empty?: IShiftReportsListColumn[];
+      signed?: IShiftReportsListColumn[];
+      notSigned?: IShiftReportsListColumn[];
+    },
+  ];
+  todayData: [
+    string,
+    {
+      notOpened?: IShiftReportsListColumn[];
       empty?: IShiftReportsListColumn[];
       signed?: IShiftReportsListColumn[];
       notSigned?: IShiftReportsListColumn[];
@@ -66,6 +76,7 @@ export const Charts = (props: IChartsProps) => {
     totalCountArray,
     averageCostArray,
     yesterdayData,
+    todayData,
     description,
   } = props;
 
@@ -88,7 +99,7 @@ export const Charts = (props: IChartsProps) => {
 
   return (
     <Row gutter={[16, 16]}>
-      <Col ref={containerRef} key={0} xs={24} sm={12}>
+      <Col ref={containerRef} key={0} xs={24} sm={8}>
         <Card style={{ padding: "0 24px" }}>
           <Meta
             title="Общая стоимость выполненных работ"
@@ -111,14 +122,51 @@ export const Charts = (props: IChartsProps) => {
             <Tooltip />
             <Legend />
             <Bar dataKey="value" fill="#6940ff" name="Сумма">
-              <LabelList dataKey="value" position="top" fill="black" />
+              <LabelList
+                dataKey="value"
+                position="top"
+                fill="#404040"
+                fontSize="10px"
+              />
             </Bar>
           </BarChart>
         </Card>
       </Col>
 
       {role !== RoleId.USER && (
-        <Col key={1} xs={24} sm={12}>
+        <Col key={2} xs={24} sm={8}>
+          <Card>
+            <Meta title="Средняя стоимость смены" description={description} />
+            <LineChart width={width - 84} height={400} data={averageCostArray}>
+              <XAxis
+                padding={{ left: 30, right: 30 }}
+                tick={{ fill: "black" }}
+                dataKey="date"
+              />
+              <YAxis tick={{ fill: "black" }} />
+              <Tooltip />
+              <Legend />
+              <Line
+                name="Средняя стоимость"
+                type="monotone"
+                dataKey="value"
+                stroke="#6940ff"
+                strokeWidth={2}
+              >
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  fill="#404040"
+                  fontSize="10px"
+                />
+              </Line>
+            </LineChart>
+          </Card>
+        </Col>
+      )}
+
+      {role !== RoleId.USER && (
+        <Col key={1} xs={24} sm={8}>
           <Card>
             <Meta title="Количество монтажников" description={description} />
             <BarChart
@@ -155,55 +203,51 @@ export const Charts = (props: IChartsProps) => {
                 name="Не заполнено"
                 stackId="a"
               />
+              <Bar
+                dataKey="notOpened"
+                fill="#a0a0b0"
+                name="Не открыто"
+                stackId="a"
+              />
               <Bar stackId="a" dataKey="none" fill="transparent">
-                <LabelList dataKey="total" position="top" fill="black" />
+                <LabelList
+                  dataKey="total"
+                  position="top"
+                  fill="#404040"
+                  fontSize="10px"
+                />
               </Bar>
             </BarChart>
           </Card>
         </Col>
       )}
 
-      {role !== RoleId.USER && (
-        <Col key={2} xs={24} sm={12}>
-          <Card>
-            <Meta title="Средняя стоимость смены" description={description} />
-            <LineChart width={width - 84} height={400} data={averageCostArray}>
-              <XAxis
-                padding={{ left: 30, right: 30 }}
-                tick={{ fill: "black" }}
-                dataKey="date"
-              />
-              <YAxis tick={{ fill: "black" }} />
-              <Tooltip />
-              <Legend />
-              <Line
-                name="Средняя стоимость"
-                type="monotone"
-                dataKey="value"
-                stroke="#6940ff"
-                strokeWidth={2}
-              >
-                <LabelList dataKey="value" position="top" fill="black" />
-              </Line>
-            </LineChart>
-          </Card>
-        </Col>
-      )}
-
-      <Col key={3} xs={24} sm={12}>
+      <Col key={3} xs={24} sm={8}>
         {yesterdayData ? (
           <Card>
             <Meta
               title={`Данные по сменам за ${yesterdayData[0]}`}
               // description={`Данные по сменам за ${yesterdayData[0]}`}
             />
-            <div className="main__yesterday">
+            <div className="main__day">
+              {!!yesterdayData[1]?.notOpened && (
+                <div className="main__day__el">
+                  Не открыто: {yesterdayData[1].notOpened.length}
+                  <ul className="main__day__ul-yesterday">
+                    {yesterdayData[1].notOpened.map((el) => (
+                      <li className="main__day__not-opened" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {!!yesterdayData[1]?.empty && (
-                <div className="main__yesterday__el">
+                <div className="main__day__el">
                   Не заполнено: {yesterdayData[1].empty.length}
-                  <ul className="main__yesterday__ul">
+                  <ul className="main__day__ul-yesterday">
                     {yesterdayData[1].empty.map((el) => (
-                      <li className="main__yesterday__empty" key={el.key}>
+                      <li className="main__day__empty" key={el.key}>
                         {usersMap[el.user]?.name}
                       </li>
                     ))}
@@ -211,11 +255,11 @@ export const Charts = (props: IChartsProps) => {
                 </div>
               )}
               {!!yesterdayData[1]?.notSigned && (
-                <div className="main__yesterday__el">
+                <div className="main__day__el">
                   Не согласовано: {yesterdayData[1].notSigned.length}
-                  <ul className="main__yesterday__ul">
+                  <ul className="main__day__ul-yesterday">
                     {yesterdayData[1].notSigned.map((el) => (
-                      <li className="main__yesterday__not-signed" key={el.key}>
+                      <li className="main__day__not-signed" key={el.key}>
                         {usersMap[el.user]?.name}
                       </li>
                     ))}
@@ -223,11 +267,72 @@ export const Charts = (props: IChartsProps) => {
                 </div>
               )}
               {!!yesterdayData[1]?.signed && (
-                <div className="main__yesterday__el">
+                <div className="main__day__el">
                   Согласовано: {yesterdayData[1].signed.length}
-                  <ul className="main__yesterday__ul">
+                  <ul className="main__day__ul-yesterday">
                     {yesterdayData[1].signed.map((el) => (
-                      <li className="main__yesterday__signed" key={el.key}>
+                      <li className="main__day__signed" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </Card>
+        ) : null}
+      </Col>
+
+      <Col key={3} xs={24} sm={16}>
+        {todayData ? (
+          <Card>
+            <Meta
+              title={`Данные по сменам за ${todayData[0]}`}
+              // description={`Данные по сменам за ${yesterdayData[0]}`}
+            />
+            <div className="main__day">
+              {!!todayData[1]?.notOpened && (
+                <div className="main__day__el">
+                  Не открыто: {todayData[1].notOpened.length}
+                  <ul className="main__day__ul-today">
+                    {todayData[1].notOpened.map((el) => (
+                      <li className="main__day__not-opened" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!!todayData[1]?.empty && (
+                <div className="main__day__el">
+                  Не заполнено: {todayData[1].empty.length}
+                  <ul className="main__day__ul-today">
+                    {todayData[1].empty.map((el) => (
+                      <li className="main__day__empty" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!!todayData[1]?.notSigned && (
+                <div className="main__day__el">
+                  Не согласовано: {todayData[1].notSigned.length}
+                  <ul className="main__day__ul-today">
+                    {todayData[1].notSigned.map((el) => (
+                      <li className="main__day__not-signed" key={el.key}>
+                        {usersMap[el.user]?.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!!todayData[1]?.signed && (
+                <div className="main__day__el">
+                  Согласовано: {todayData[1].signed.length}
+                  <ul className="main__day__ul-today">
+                    {todayData[1].signed.map((el) => (
+                      <li className="main__day__signed" key={el.key}>
                         {usersMap[el.user]?.name}
                       </li>
                     ))}

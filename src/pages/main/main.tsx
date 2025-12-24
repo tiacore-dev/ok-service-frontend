@@ -98,6 +98,10 @@ export const Main = () => {
     ? Object.entries(yesterdayReducedData)[1]
     : undefined;
 
+  const todayData = yesterdayReducedData
+    ? Object.entries(yesterdayReducedData)[0]
+    : undefined;
+
   const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
     role === RoleId.USER ? RangeType.From21 : RangeType.Last10,
   );
@@ -220,7 +224,7 @@ export const Main = () => {
     () =>
       Object.entries(totalCostData).map(([date, value]) => ({
         date,
-        value: Math.round(value * 100) / 100,
+        value: Math.round(value),
       })),
     [totalCostData],
   );
@@ -228,6 +232,8 @@ export const Main = () => {
   const totalCountData: Record<
     string,
     {
+      notOpened: number;
+      notOpenedData: string[];
       empty: number;
       emptyData: string[];
       notSigned: number;
@@ -246,6 +252,8 @@ export const Main = () => {
         acc: Record<
           string,
           {
+            notOpened: number;
+            notOpenedData: string[];
             empty: number;
             emptyData: string[];
             notSigned: number;
@@ -257,6 +265,10 @@ export const Main = () => {
         >,
         key: string,
       ) => {
+        const usersNotOpened = Array.from(
+          new Set(totalCostMap[key].notOpened?.map((el) => el.user)),
+        );
+
         const usersEmpty = Array.from(
           new Set(totalCostMap[key].empty?.map((el) => el.user)),
         );
@@ -270,6 +282,10 @@ export const Main = () => {
         );
 
         acc[key] = {
+          notOpened: usersNotOpened?.length || 0,
+          notOpenedData: usersNotOpened?.length
+            ? usersNotOpened.map((el) => usersMap[el]?.name)
+            : [],
           empty: usersEmpty?.length || 0,
           emptyData: usersEmpty?.length
             ? usersEmpty.map((el) => usersMap[el]?.name)
@@ -310,7 +326,9 @@ export const Main = () => {
         date,
         value: Math.round(
           value /
-            (totalCountData[date].signed + totalCountData[date].notSigned),
+            (totalCountData[date].signed +
+              totalCountData[date].notSigned +
+              totalCountData[date].notOpened),
         ),
       })),
     [totalCostData, totalCountData],
@@ -455,6 +473,7 @@ export const Main = () => {
           totalCountArray={totalCountArray}
           averageCostArray={averageCostArray}
           yesterdayData={yesterdayData}
+          todayData={todayData}
         />
       )}
     </div>

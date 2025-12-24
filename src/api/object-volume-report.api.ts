@@ -28,12 +28,6 @@ export const generateObjectVolumeReport = async (
       name: name,
     };
 
-    console.log(" API Payload:", JSON.stringify(payload, null, 2));
-    console.log(
-      " Document data objects count:",
-      documentData.objects?.length || 0,
-    );
-
     // Первая попытка запроса
     const response = await axiosInstance.post("/templates/generate", payload, {
       responseType: "blob",
@@ -41,10 +35,6 @@ export const generateObjectVolumeReport = async (
         Authorization: `Bearer ${access_token}`,
       },
     });
-
-    console.log(" API Response status:", response.status);
-    console.log(" API Response headers:", response.headers);
-    console.log(" API Response data size:", response.data?.size || 0);
 
     return response.data;
   } catch (error) {
@@ -80,7 +70,6 @@ export const generateObjectVolumeReport = async (
             name: name,
           };
 
-          console.log(" Retrying with new token...");
           const retryResponse = await axiosInstance.post(
             "/templates/generate",
             payload,
@@ -90,12 +79,6 @@ export const generateObjectVolumeReport = async (
                 Authorization: `Bearer ${newTokenResponse.data.access_token}`,
               },
             },
-          );
-
-          console.log(" Retry response status:", retryResponse.status);
-          console.log(
-            " Retry response data size:",
-            retryResponse.data?.size || 0,
           );
 
           return retryResponse.data;

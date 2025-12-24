@@ -1,12 +1,12 @@
 import React from "react";
 import { Form, Modal, Select, InputNumber } from "antd";
-import { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
+import { IShiftReportDetail } from "../../interfaces/shiftReportDetails/IShiftReportDetail";
 
 interface EditableShiftReportDetailDialogProps {
   visible: boolean;
   onCancel: () => void;
   onSave: (values: any) => void;
-  initialValues?: Partial<IShiftReportDetailsListColumn>;
+  initialValues?: Partial<IShiftReportDetail>;
   projectWorksOptions: Array<{ label: string; value: string }>;
   loading?: boolean;
 }

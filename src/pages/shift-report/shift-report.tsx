@@ -16,7 +16,6 @@ import {
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import type { IState } from "../../store/modules";
 import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
@@ -57,7 +56,7 @@ const calculateDistanceMeters = (
   lat1: number,
   lon1: number,
   lat2: number,
-  lon2: number
+  lon2: number,
 ) => {
   const R = 6371000; // Earth radius in meters
   const dLat = toRadians(lat2 - lat1);
@@ -108,22 +107,20 @@ export const ShiftReport = () => {
   });
   const { data: projectStat } = useProjectStatQuery(
     shiftReportData?.project ?? "",
-    { enabled: Boolean(shiftReportData?.project) }
+    { enabled: Boolean(shiftReportData?.project) },
   );
-  const {
-    projectWorks,
-    projectWorksMap,
-    isPending: isProjectWorksPending,
-    isFetching: isProjectWorksFetching,
-  } = useProjectWorksMap(shiftReportData?.project, {
-    enabled: Boolean(shiftReportData?.project),
-  });
+  const { projectWorks, projectWorksMap } = useProjectWorksMap(
+    shiftReportData?.project,
+    {
+      enabled: Boolean(shiftReportData?.project),
+    },
+  );
   const { worksMap } = useWorksMap();
   const stat = projectStat ?? {};
 
   const objectId = React.useMemo(
     () => projectsMap[shiftReportData?.project]?.object,
-    [projectsMap, shiftReportData?.project]
+    [projectsMap, shiftReportData?.project],
   );
 
   const canEdit = currentRole !== RoleId.USER || !shiftReportData?.signed;
@@ -164,51 +161,11 @@ export const ShiftReport = () => {
       }
 
       return Math.round(
-        calculateDistanceMeters(relatedObject.ltd, relatedObject.lng, lat, lng)
+        calculateDistanceMeters(relatedObject.ltd, relatedObject.lng, lat, lng),
       );
     },
-    [objectId, objectsMap]
+    [objectId, objectsMap],
   );
-
-  // const startDistanceToObjectMeters = React.useMemo(() => {
-  //   if (!shiftReportData?.date_start) return null;
-  //   if (typeof shiftReportData.distance_start === "number") {
-  //     return Math.round(shiftReportData.distance_start);
-  //   }
-  //   if (typeof shiftReportData.ltd_start !== "number") return null;
-  //   if (typeof shiftReportData.lng_start !== "number") return null;
-
-  //   return getDistanceToObjectMeters(
-  //     shiftReportData.ltd_start,
-  //     shiftReportData.lng_start
-  //   );
-  // }, [
-  //   shiftReportData?.date_start,
-  //   shiftReportData?.distance_start,
-  //   shiftReportData?.ltd_start,
-  //   shiftReportData?.lng_start,
-  //   getDistanceToObjectMeters,
-  // ]);
-
-  // const endDistanceToObjectMeters = React.useMemo(() => {
-  //   if (!shiftReportData?.date_end) return null;
-  //   if (typeof shiftReportData.distance_end === "number") {
-  //     return Math.round(shiftReportData.distance_end);
-  //   }
-  //   if (typeof shiftReportData.ltd_end !== "number") return null;
-  //   if (typeof shiftReportData.lng_end !== "number") return null;
-
-  //   return getDistanceToObjectMeters(
-  //     shiftReportData.ltd_end,
-  //     shiftReportData.lng_end
-  //   );
-  // }, [
-  //   shiftReportData?.date_end,
-  //   shiftReportData?.distance_end,
-  //   shiftReportData?.ltd_end,
-  //   shiftReportData?.lng_end,
-  //   getDistanceToObjectMeters,
-  // ]);
 
   // Получаем координаты объекта для отображения на карте
   const objectCoordinates = React.useMemo(() => {
@@ -257,15 +214,6 @@ export const ShiftReport = () => {
     };
   }, [shiftReportData, shiftReportData?.distance_end]);
 
-  // Формируем массив координат для карты
-  const mapCoordinates = React.useMemo(() => {
-    const coordinates = [];
-    if (objectCoordinates) coordinates.push(objectCoordinates);
-    if (shiftStartCoordinates) coordinates.push(shiftStartCoordinates);
-    if (shiftEndCoordinates) coordinates.push(shiftEndCoordinates);
-    return coordinates;
-  }, [objectCoordinates, shiftStartCoordinates, shiftEndCoordinates]);
-
   const mapStartCoordinates = React.useMemo(() => {
     const coordinates = [];
     if (objectCoordinates) coordinates.push(objectCoordinates);
@@ -279,11 +227,6 @@ export const ShiftReport = () => {
     if (shiftEndCoordinates) coordinates.push(shiftEndCoordinates);
     return coordinates;
   }, [objectCoordinates, shiftEndCoordinates]);
-
-  // Проверяем, можно ли показывать кнопку карты (только для администратора и когда есть обе координаты)
-  const canShowMapButton = React.useMemo(() => {
-    return currentRole === RoleId.ADMIN && mapCoordinates.length >= 2;
-  }, [currentRole, mapCoordinates.length]);
 
   const canShowStartMapButton = React.useMemo(() => {
     return currentRole === RoleId.ADMIN && mapStartCoordinates.length === 2;
@@ -299,7 +242,7 @@ export const ShiftReport = () => {
         shiftReportDetailsData.map((doc) => ({
           ...doc,
           key: doc.shift_report_detail_id,
-        }))
+        })),
       );
     }
   }, [shiftReportDetailsData]);
@@ -313,7 +256,7 @@ export const ShiftReport = () => {
     if (!shiftReportDetailsData) return 0;
     return shiftReportDetailsData.reduce(
       (acc: number, val) => acc + (val.summ || 0),
-      0
+      0,
     );
   }, [shiftReportDetailsData]);
 
@@ -371,9 +314,8 @@ export const ShiftReport = () => {
       title: "Наименование",
       dataIndex: "project_work",
       key: "project_work",
-      render: (value: string) => {
-        const option = projectWorksOptions.find((opt) => opt.value === value);
-        return option?.label || value;
+      render: (value: { project_work_id: string; name: string }) => {
+        return value.name;
       },
     },
     {
@@ -510,7 +452,7 @@ export const ShiftReport = () => {
           },
           {
             onSettled: () => setIsStartingShift(false),
-          }
+          },
         );
       },
       (error) => {
@@ -525,7 +467,7 @@ export const ShiftReport = () => {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   }, [shiftReportData, editReportMutation]);
 
@@ -576,7 +518,7 @@ export const ShiftReport = () => {
           },
           {
             onSettled: () => setIsCompletingShift(false),
-          }
+          },
         );
       },
       (error) => {
@@ -591,7 +533,7 @@ export const ShiftReport = () => {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   }, [shiftReportData, editReportMutation, getDistanceToObjectMeters]);
 
@@ -603,7 +545,7 @@ export const ShiftReport = () => {
         const statEl = stat[el.work];
         const check = `Завершено: ${statEl.shift_report_details_quantity} из ${statEl.project_work_quantity} Доступно: ${Math.max(
           statEl.project_work_quantity - statEl.shift_report_details_quantity,
-          0
+          0,
         )}`;
 
         return {
@@ -621,7 +563,7 @@ export const ShiftReport = () => {
 
   const disabled = React.useMemo(
     () => checedData.some((el) => el?.blocked),
-    [checedData]
+    [checedData],
   );
 
   if (isShiftReportLoading || isDetailsLoading) {
@@ -797,7 +739,10 @@ export const ShiftReport = () => {
           visible={modalVisible}
           onCancel={() => setModalVisible(false)}
           onSave={handleSave}
-          initialValues={currentRecord || undefined}
+          initialValues={{
+            ...currentRecord,
+            project_work: currentRecord?.project_work.project_work_id,
+          }}
           projectWorksOptions={projectWorksOptions}
           loading={loading}
         />

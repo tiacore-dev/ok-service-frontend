@@ -38,7 +38,7 @@ module.exports = () => {
     devServer: {
       static: "./build",
       historyApiFallback: true,
-      port: 8082,
+      port: 8083,
     },
     module: {
       rules: [

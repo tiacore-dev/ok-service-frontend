@@ -130,7 +130,7 @@ export const EditableProjectWorkDialog: React.FC<
         }
       })
       .catch((info) => {
-        console.log("Validate Failed:", info);
+        console.error("Validate Failed:", info);
       });
   }, [
     form,

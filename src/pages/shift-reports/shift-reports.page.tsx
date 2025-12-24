@@ -1,6 +1,5 @@
 "use client";
 
-//shift-reports.page.tsx
 import { Breadcrumb, Layout, Table, type TablePaginationConfig } from "antd";
 import * as React from "react";
 import { shiftReportsDesktopColumns } from "./components/desktop.columns";
@@ -40,7 +39,7 @@ export const ShiftReports = () => {
   const currentRole = useSelector(getCurrentRole);
 
   const tableState = useSelector(
-    (state: IState) => state.settings.shiftReportsSettings
+    (state: IState) => state.settings.shiftReportsSettings,
   );
 
   const shiftReportsFilters = tableState.shiftReportsFilters;
@@ -61,10 +60,10 @@ export const ShiftReports = () => {
           filters: tableState.filters,
           sorter: tableState.sorter,
           shiftReportsFilters: nextFilters,
-        })
+        }),
       );
     },
-    [dispatch, tableState]
+    [dispatch, tableState],
   );
 
   const projectLeaderProjectIds = React.useMemo(() => {
@@ -74,7 +73,8 @@ export const ShiftReports = () => {
     const leaderIds = new Set(shiftReportsFilters.projectLeaders);
     return projects
       .filter(
-        (project) => project.project_id && leaderIds.has(project.project_leader)
+        (project) =>
+          project.project_id && leaderIds.has(project.project_leader),
       )
       .map((project) => project.project_id as string);
   }, [projects, shiftReportsFilters.projectLeaders]);
@@ -90,7 +90,7 @@ export const ShiftReports = () => {
 
     const selected = new Set(shiftReportsFilters.projects);
     return projectLeaderProjectIds.filter((projectId) =>
-      selected.has(projectId)
+      selected.has(projectId),
     );
   }, [
     projectLeaderProjectIds,
@@ -151,7 +151,7 @@ export const ShiftReports = () => {
         label: user.name,
         value: user.user_id,
       })),
-    [usersMap]
+    [usersMap],
   );
 
   const projectLeaderOptions = React.useMemo(
@@ -159,14 +159,14 @@ export const ShiftReports = () => {
       Object.values(usersMap)
         .filter((user) =>
           [RoleId.ADMIN, RoleId.MANAGER, RoleId.PROJECT_LEADER].includes(
-            user.role
-          )
+            user.role,
+          ),
         )
         .map((user) => ({
           label: user.name,
           value: user.user_id,
         })),
-    [usersMap]
+    [usersMap],
   );
 
   const objectProjectsMap = React.useMemo(() => {
@@ -190,9 +190,9 @@ export const ShiftReports = () => {
           }
           return acc;
         },
-        {}
+        {},
       ),
-    [projectsMap]
+    [projectsMap],
   );
 
   const projectsTreeData = React.useMemo<DataNode[]>(() => {
@@ -227,18 +227,13 @@ export const ShiftReports = () => {
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? shiftReportsMobileColumns(
-            navigate,
-            projectsMap,
-            usersMap,
-            currentRole
-          )
+        ? shiftReportsMobileColumns(navigate, projectsMap, usersMap)
         : shiftReportsDesktopColumns(
             navigate,
             projectsMap,
             usersMap,
             objectsMap,
-            tableState.sorter
+            tableState.sorter,
           ),
     [
       navigate,
@@ -247,7 +242,7 @@ export const ShiftReports = () => {
       objectsMap,
       tableState.sorter,
       currentRole,
-    ]
+    ],
   );
 
   const paginationConfig = React.useMemo(
@@ -257,7 +252,7 @@ export const ShiftReports = () => {
       showSizeChanger: true,
       pageSizeOptions: ["10", "20", "50", "100"],
     }),
-    [tableState.pagination, shiftReportsResponse?.total]
+    [tableState.pagination, shiftReportsResponse?.total],
   );
 
   const currentFilters = React.useMemo(() => {
@@ -281,7 +276,7 @@ export const ShiftReports = () => {
     filters: Record<string, FilterValue | null>,
     sorter:
       | SorterResult<IShiftReportsListColumn>
-      | SorterResult<IShiftReportsListColumn>[]
+      | SorterResult<IShiftReportsListColumn>[],
   ) => {
     // Сохраняем текущие фильтры и объединяем с новыми
     const mergedFilters = {
@@ -295,7 +290,7 @@ export const ShiftReports = () => {
         filters: mergedFilters,
         sorter: Array.isArray(sorter) ? sorter[0] : sorter,
         shiftReportsFilters,
-      })
+      }),
     );
   };
 

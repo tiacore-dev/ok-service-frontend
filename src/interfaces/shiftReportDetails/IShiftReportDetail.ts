@@ -6,3 +6,11 @@ export interface IShiftReportDetail {
   quantity: number;
   summ: number;
 }
+
+export interface IPopulatedShiftReportDetail
+  extends Omit<IShiftReportDetail, "project_work"> {
+  project_work: {
+    project_work_id: string;
+    name: string;
+  };
+}

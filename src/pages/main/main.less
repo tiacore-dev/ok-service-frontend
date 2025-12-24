@@ -1,5 +1,5 @@
 .main {
-  &__yesterday {
+  &__day {
     height: 430px;
     overflow-y: auto;
 
@@ -7,11 +7,20 @@
       margin: 8px 0;
     }
 
-    &__ul {
+    &__ul-yesterday {
       font-size: 10pt;       
       margin: 0;
       padding-left: 18px;  
       columns: 2;
+      column-gap: 1.5rem;   
+      list-style: disc; 
+    }
+
+    &__ul-today {
+      font-size: 10pt;       
+      margin: 0;
+      padding-left: 18px;  
+      columns: 3;
       column-gap: 1.5rem;   
       list-style: disc; 
     }
@@ -26,6 +35,10 @@
 
     &__empty::marker {
       color: #ffac40;
+    }
+
+    &__not-opened::marker {
+      color: #a0a0b0;
     }
   }
 }

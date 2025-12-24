@@ -84,7 +84,7 @@ export const DownloadShiftReport: React.FC<DownloadProps> = ({
     if (!shiftReportDetailsData) return [];
 
     return shiftReportDetailsData.map((detail) => ({
-      project_work: projectWorksNameMap[detail.project_work] || "",
+      project_work: detail.project_work.name || "",
       work: worksMap[detail.work]?.name || "",
       quantity: detail.quantity,
       sum: detail.summ,
@@ -110,7 +110,7 @@ export const DownloadShiftReport: React.FC<DownloadProps> = ({
       .map((obj) =>
         Object.values(obj)
           .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-          .join(";")
+          .join(";"),
       )
       .join("\r\n");
 
@@ -126,7 +126,7 @@ export const DownloadShiftReport: React.FC<DownloadProps> = ({
       .map((detail) =>
         [detail.project_work, detail.work, detail.quantity, detail.sum]
           .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-          .join(";")
+          .join(";"),
       )
       .join("\r\n");
 

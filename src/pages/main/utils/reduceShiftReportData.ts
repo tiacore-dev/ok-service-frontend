@@ -8,6 +8,7 @@ export const reduceShiftReportData = (
   acc: Record<
     string,
     {
+      notOpened?: IShiftReportsListColumn[];
       empty?: IShiftReportsListColumn[];
       signed?: IShiftReportsListColumn[];
       notSigned?: IShiftReportsListColumn[];
@@ -17,7 +18,13 @@ export const reduceShiftReportData = (
 ) => {
   const date = dateTimestampToLocalString(val.date);
   const report = { ...val, key: val.shift_report_id };
-  if (val.signed) {
+  if (!val.date_start) {
+    acc[date] = acc[date]
+      ? acc[date].notOpened
+        ? { ...acc[date], notOpened: [...acc[date].notOpened, report] }
+        : { ...acc[date], notOpened: [report] }
+      : { notOpened: [report] };
+  } else if (val.signed) {
     acc[date] = acc[date]
       ? acc[date].signed
         ? { ...acc[date], signed: [...acc[date].signed, report] }
