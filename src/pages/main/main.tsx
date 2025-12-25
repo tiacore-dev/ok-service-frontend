@@ -473,7 +473,7 @@ export const Main = () => {
           totalCountArray={totalCountArray}
           averageCostArray={averageCostArray}
           yesterdayData={yesterdayData}
-          todayData={todayData}
+          dayData={todayData}
         />
       )}
     </div>

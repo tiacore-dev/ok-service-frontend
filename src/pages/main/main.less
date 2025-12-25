@@ -1,6 +1,6 @@
 .main {
   &__day {
-    height: 430px;
+    // height: 430px;
     overflow-y: auto;
 
     &__el {
@@ -8,21 +8,21 @@
     }
 
     &__ul-yesterday {
-      font-size: 10pt;       
+      font-size: 10pt;
       margin: 0;
-      padding-left: 18px;  
+      padding-left: 18px;
       columns: 2;
-      column-gap: 1.5rem;   
-      list-style: disc; 
+      column-gap: 1.5rem;
+      list-style: disc;
     }
 
     &__ul-today {
-      font-size: 10pt;       
+      font-size: 10pt;
       margin: 0;
-      padding-left: 18px;  
-      columns: 3;
-      column-gap: 1.5rem;   
-      list-style: disc; 
+      padding-left: 18px;
+      columns: 2;
+      column-gap: 1.5rem;
+      list-style: disc;
     }
 
     &__signed::marker {
@@ -40,5 +40,28 @@
     &__not-opened::marker {
       color: #a0a0b0;
     }
+  }
+}
+
+.leadersMasonry {
+  column-count: 3;
+  column-gap: 16px;
+}
+
+.leadersMasonry__item {
+  break-inside: avoid;
+  margin-bottom: 16px;
+}
+
+/* адаптив */
+@media (max-width: 992px) {
+  .leadersMasonry {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 576px) {
+  .leadersMasonry {
+    column-count: 1;
   }
 }
