@@ -12,6 +12,8 @@ import {
   deleteUser,
   fetchUser,
   fetchUsers,
+  hardDeleteUser,
+  restoreUser,
   updateUser,
   type EditableUserPayload,
 } from "../api/users.api";
@@ -117,6 +119,36 @@ export const useDeleteUserMutation = (): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (userId) => deleteUser(userId),
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: usersKeys.list() });
+      queryClient.removeQueries({ queryKey: usersKeys.detail(userId) });
+    },
+  });
+};
+
+export const useRestoreUserMutation = (): UseMutationResult<
+  void,
+  Error,
+  string
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId) => restoreUser(userId),
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: usersKeys.list() });
+      queryClient.invalidateQueries({ queryKey: usersKeys.detail(userId) });
+    },
+  });
+};
+
+export const useHardDeleteUserMutation = (): UseMutationResult<
+  void,
+  Error,
+  string
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId) => hardDeleteUser(userId),
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: usersKeys.list() });
       queryClient.removeQueries({ queryKey: usersKeys.detail(userId) });

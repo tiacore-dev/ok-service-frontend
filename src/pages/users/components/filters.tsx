@@ -8,6 +8,7 @@ import { getCurrentRole } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import type {
   IUsersFiltersState,
+  UsersDeletedFilter,
   UsersSortField,
 } from "../../../interfaces/users/IUsersFiltersState";
 
@@ -74,6 +75,19 @@ export const Filters: React.FC<UsersFiltersProps> = ({
         value={filtersState.cityId}
         onChange={(value) => changeFilters({ cityId: value })}
         options={cityOptions}
+      />
+      <Select
+        className="users_filters_select"
+        placeholder="Статус"
+        value={filtersState.deletedFilter}
+        onChange={(value: UsersDeletedFilter) =>
+          changeFilters({ deletedFilter: value })
+        }
+        options={[
+          { label: "Активные", value: "active" },
+          { label: "Удаленные", value: "deleted" },
+          { label: "Все", value: "all" },
+        ]}
       />
       <Select
         className="users_filters_sort"
