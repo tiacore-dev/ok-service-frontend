@@ -294,9 +294,11 @@ jobs:
               for KEY in ${JIRA_KEYS}; do
                 if [ -n "${JIRA_URL:-}" ]; then
                   URL="${JIRA_URL%/}/browse/${KEY}"
-                  TASKS_BLOCK="${TASKS_BLOCK}\n• <a href=\"${URL}\">${KEY}</a>"
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • <a href=\"${URL}\">${KEY}</a>"
                 else
-                  TASKS_BLOCK="${TASKS_BLOCK}\n• ${KEY}"
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • ${KEY}"
                 fi
               done
             fi
