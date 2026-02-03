@@ -214,7 +214,7 @@ jobs:
           OPENPROJECT_API_TOKEN: ${{ secrets.OPENPROJECT_API_TOKEN }}
 
           # optional: имя сервиса
-          SERVICE_NAME: flow-frontend
+          SERVICE_NAME: ok-frontend
 
         run: |
           set -euo pipefail
