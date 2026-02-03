@@ -290,7 +290,8 @@ jobs:
             TASKS_BLOCK="📌 <b>Задачи:</b>"
 
             if [ -n "${JIRA_KEYS:-}" ]; then
-              TASKS_BLOCK="${TASKS_BLOCK}\n<b>Jira:</b>"
+              TASKS_BLOCK="${TASKS_BLOCK}
+              <b>Jira:</b>"
               for KEY in ${JIRA_KEYS}; do
                 if [ -n "${JIRA_URL:-}" ]; then
                   URL="${JIRA_URL%/}/browse/${KEY}"
@@ -304,13 +305,16 @@ jobs:
             fi
 
             if [ -n "${OP_IDS:-}" ]; then
-              TASKS_BLOCK="${TASKS_BLOCK}\n<b>OpenProject:</b>"
+              TASKS_BLOCK="${TASKS_BLOCK}
+              <b>OpenProject:</b>"
               for ID in ${OP_IDS}; do
                 if [ -n "${OPENPROJECT_URL:-}" ]; then
                   URL="${OPENPROJECT_URL%/}/work_packages/${ID}"
-                  TASKS_BLOCK="${TASKS_BLOCK}\n• <a href=\"${URL}\">OP#${ID}</a>"
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • <a href=\"${URL}\">OP#${ID}</a>"
                 else
-                  TASKS_BLOCK="${TASKS_BLOCK}\n• OP#${ID}"
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • OP#${ID}"
                 fi
               done
             fi
@@ -320,7 +324,7 @@ jobs:
 
           EXTRA_LINK=""
           if [ "${RESULT}" != "success" ]; then
-            EXTRA_LINK="\n\n<a href=\"${RUN_URL}\">🔍 Открыть GitHub Actions</a>"
+            EXTRA_LINK="<a href=\"${RUN_URL}\">🔍 Открыть GitHub Actions</a>"
           fi
 
           TEXT="$(cat <<EOF
@@ -338,7 +342,8 @@ jobs:
           ${TASKS_BLOCK}
 
           <a href="${RUN_URL}">🔗 Открыть GitHub Actions</a>
-          <a href="${REPO_URL}">📦 Репозиторий</a>${EXTRA_LINK}
+          <a href="${REPO_URL}">📦 Репозиторий</a>
+          ${EXTRA_LINK}
           EOF
           )"
 
