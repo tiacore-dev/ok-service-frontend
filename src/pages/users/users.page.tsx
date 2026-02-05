@@ -35,7 +35,6 @@ export const Users = () => {
   const usersData: IUsersListColumn[] = React.useMemo(
     () =>
       (usersList ?? [])
-        .filter((user) => !user.deleted)
         .map((doc) => ({ ...doc, key: doc.user_id })),
     [usersList],
   );
@@ -123,8 +122,20 @@ export const Users = () => {
         filtersState.category !== null && filtersState.category !== undefined
           ? user.category === filtersState.category
           : true;
+      const matchesDeleted =
+        filtersState.deletedFilter === "all"
+          ? true
+          : filtersState.deletedFilter === "deleted"
+            ? user.deleted
+            : !user.deleted;
 
-      return matchesSearch && matchesRole && matchesCity && matchesCategory;
+      return (
+        matchesSearch &&
+        matchesRole &&
+        matchesCity &&
+        matchesCategory &&
+        matchesDeleted
+      );
     });
 
     const compareText = (first: string, second: string, direction: number) =>
@@ -169,6 +180,7 @@ export const Users = () => {
         ]}
       />
       <Content
+        className="users"
         style={{
           padding: isMobile() ? 4 : 8,
           margin: 0,
@@ -189,6 +201,9 @@ export const Users = () => {
           loading={isFetching}
           pagination={paginationConfig}
           onChange={handleTableChange}
+          rowClassName={(record) =>
+            record.deleted ? "users__table__row--deleted" : ""
+          }
         />
       </Content>
     </>

@@ -39,3 +39,11 @@ export const updateUser = async (
 export const deleteUser = async (userId: string): Promise<void> => {
   await apiClient.patch(`/users/${userId}/delete/soft`);
 };
+
+export const restoreUser = async (userId: string): Promise<void> => {
+  await apiClient.patch(`/users/${userId}/restore`);
+};
+
+export const hardDeleteUser = async (userId: string): Promise<void> => {
+  await apiClient.delete(`/users/${userId}/delete/hard`);
+};

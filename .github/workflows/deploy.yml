@@ -180,73 +180,70 @@ jobs:
   notify:
     name: 📬 Notifications
     runs-on: ubuntu-latest
-    needs: [ build-and-push, deploy ]
+    needs: [build-and-push, deploy]
     if: always()
+
     steps:
-      - name: 📬 Telegram Notification
+      - name: Checkout (for commit message fallback)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install jq (if missing)
         run: |
-          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
-          REF_NAME="${{ github.ref_name }}"
-          SHA="${{ github.sha }}"
-          AUTHOR="${{ github.event.head_commit.author.name }}"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          DEPLOY_STATUS="${{ needs.deploy.result }}"
-
-          if [ "$DEPLOY_STATUS" != "success" ]; then
-            STATUS="🛑 *Ошибка деплоя*"
-            EXTRA_LINK="[🔍 Открыть GitHub Actions]($RUN_URL)"
-          else
-            STATUS="✅ Деплой *успешен*"
-            EXTRA_LINK=""
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y >/dev/null
+            sudo apt-get install -y jq >/dev/null
           fi
 
-          CHAT_ID="${{ secrets.TELEGRAM_CHAT_ID }}"
-          THREAD_ID="${{ secrets.TELEGRAM_THREAD_ID }}"
+      - name: 📬 Telegram + Jira/OpenProject comments
+        continue-on-error: true
+        env:
+          # Telegram
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
 
-          TEXT="${STATUS}
+          # Jira
+          JIRA_URL: ${{ secrets.JIRA_URL }}                 # https://your-domain.atlassian.net
+          JIRA_USER: ${{ secrets.JIRA_USER }}               # обычно email
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
-          📦 *Ветка:* \`$REF_NAME\`
-          🔖 *Тег:* \`$SHA\`
-          👤 *Автор деплоя:* [$AUTHOR](https://github.com/$AUTHOR)
-          📝 *Коммит:* $COMMIT_MESSAGE
-          $EXTRA_LINK"
+          # OpenProject
+          OPENPROJECT_URL: ${{ secrets.OPENPROJECT_URL }}
+          OPENPROJECT_API_TOKEN: ${{ secrets.OPENPROJECT_API_TOKEN }}
 
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="$CHAT_ID" \
-            -d message_thread_id=$THREAD_ID \
-            -d parse_mode=Markdown \
-            -d "text=$TEXT"
+          # optional: имя сервиса
+          SERVICE_NAME: ok-frontend
 
-      - name: 📥 Mattermost & OpenProject notification
-        continue-on-error: true     # чтобы не ломать пайплайн из-за уведомления
         run: |
           set -euo pipefail
 
-          MATTERMOST_WEBHOOK_URL="${{ secrets.MATTERMOST_WEBHOOK_URL }}"
-          OPENPROJECT_URL="${{ secrets.OPENPROJECT_URL }}"
-          OPENPROJECT_API_TOKEN="${{ secrets.OPENPROJECT_API_TOKEN }}"
+          REF_NAME="${{ github.ref_name }}"
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:8}"
+          REPO="${{ github.repository }}"
+          RUN_URL="https://github.com/${REPO}/actions/runs/${{ github.run_id }}"
+          REPO_URL="https://github.com/${REPO}"
 
-          if [ -z "${MATTERMOST_WEBHOOK_URL:-}" ]; then
-            echo "No MATTERMOST_WEBHOOK_URL, skip"
-            exit 0
-          fi
-
-          # --- 0. Статусы джобов (build & deploy) через needs.*
           BUILD_STATUS="${{ needs['build-and-push'].result }}"
           DEPLOY_STATUS="${{ needs.deploy.result }}"
-          RESULT="unknown"
 
-          if [ "$BUILD_STATUS" = "success" ] && [ "$DEPLOY_STATUS" = "success" ]; then
+          # агрегируем итог как у тебя было
+          if [ "${BUILD_STATUS}" = "success" ] && [ "${DEPLOY_STATUS}" = "success" ]; then
             RESULT="success"
-          elif [ "$BUILD_STATUS" = "failure" ] || [ "$DEPLOY_STATUS" = "failure" ]; then
+          elif [ "${BUILD_STATUS}" = "failure" ] || [ "${DEPLOY_STATUS}" = "failure" ]; then
             RESULT="failed"
           else
             RESULT="partial"
           fi
 
-          # --- 1. Определяем окружение по ветке
-          REF_NAME="${{ github.ref_name }}"
+          # commit message / author (фолбэк, чтобы не зависеть от head_commit.*)
+          COMMIT_MESSAGE="$(git log -1 --pretty=%B || true)"
+          AUTHOR_NAME="$(git log -1 --pretty=%an || true)"
+          AUTHOR_LOGIN="${{ github.actor }}"
+
+          # окружение по ветке
           case "${REF_NAME}" in
             dev)    ENV_NAME="dev" ;;
             stage)  ENV_NAME="stage" ;;
@@ -254,8 +251,22 @@ jobs:
             *)      ENV_NAME="${REF_NAME}" ;;
           esac
 
-          # --- 2. Достаём ID задач из сообщения коммита (OP#123)
-          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          # HTML escape для Telegram
+          html_escape() {
+            printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'
+          }
+
+          SAFE_MSG="$(html_escape "${COMMIT_MESSAGE}")"
+          SAFE_AUTHOR="$(html_escape "${AUTHOR_NAME:-$AUTHOR_LOGIN}")"
+
+          # extract Jira keys + OP ids
+          extract_jira_keys() {
+            printf '%s\n' "${COMMIT_MESSAGE}" \
+              | grep -oiE '\b[A-Z][A-Z0-9]+-[0-9]+\b' \
+              | tr '[:lower:]' '[:upper:]' \
+              | sort -u
+          }
+
           extract_op_ids() {
             printf '%s\n' "${COMMIT_MESSAGE}" \
               | grep -oE 'OP#[0-9]+' \
@@ -263,76 +274,132 @@ jobs:
               | sort -u
           }
 
+          JIRA_KEYS="$(extract_jira_keys || true)"
           OP_IDS="$(extract_op_ids || true)"
 
-          TASKS_BLOCK=""
-          if [ -n "${OP_IDS:-}" ]; then
-            TASKS_BLOCK="**Tasks (OpenProject):**"
-            for ID in ${OP_IDS}; do
-              URL="${OPENPROJECT_URL%/}/work_packages/${ID}"
-              TASKS_BLOCK="${TASKS_BLOCK}
-              • [#${ID}](${URL})"
-            done
-          else
-            TASKS_BLOCK="_No linked tasks (no OP#ID in commit message)_"
-          fi
-
-          # --- 3. Заголовок по статусу деплоя
+          # --- Telegram header
           case "${RESULT}" in
-            success) HEAD="✅ Deploy successful" ;;
-            failed)  HEAD="🛑 Deploy failed" ;;
-            partial) HEAD="ℹ️ Deploy partial (build=${BUILD_STATUS}, deploy=${DEPLOY_STATUS})" ;;
-            *)       HEAD="ℹ️ Deploy status: ${RESULT}" ;;
+            success) HEAD="✅ <b>Frontend deploy успешен</b>" ;;
+            failed)  HEAD="🛑 <b>Ошибка фронтового деплоя</b>" ;;
+            partial) HEAD="ℹ️ <b>Deploy partial</b> (build=${BUILD_STATUS}, deploy=${DEPLOY_STATUS})" ;;
+            *)       HEAD="ℹ️ <b>Deploy status:</b> ${RESULT}" ;;
           esac
 
-          # --- 4. Общие данные
-          SHA="${{ github.sha }}"
-          SHORT_SHA="${SHA::8}"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          REPO_URL="https://github.com/${{ github.repository }}"
+          TASKS_BLOCK=""
+          if [ -n "${JIRA_KEYS:-}" ] || [ -n "${OP_IDS:-}" ]; then
+            TASKS_BLOCK="📌 <b>Задачи:</b>"
 
-          # --- 5. Текст сообщения для Mattermost (аналог GitLab-версии)
-          TEXT=$(cat <<EOF
+            if [ -n "${JIRA_KEYS:-}" ]; then
+              TASKS_BLOCK="${TASKS_BLOCK}
+              <b>Jira:</b>"
+              for KEY in ${JIRA_KEYS}; do
+                if [ -n "${JIRA_URL:-}" ]; then
+                  URL="${JIRA_URL%/}/browse/${KEY}"
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • <a href=\"${URL}\">${KEY}</a>"
+                else
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • ${KEY}"
+                fi
+              done
+            fi
+
+            if [ -n "${OP_IDS:-}" ]; then
+              TASKS_BLOCK="${TASKS_BLOCK}
+              <b>OpenProject:</b>"
+              for ID in ${OP_IDS}; do
+                if [ -n "${OPENPROJECT_URL:-}" ]; then
+                  URL="${OPENPROJECT_URL%/}/work_packages/${ID}"
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • <a href=\"${URL}\">OP#${ID}</a>"
+                else
+                  TASKS_BLOCK="${TASKS_BLOCK}
+                  • OP#${ID}"
+                fi
+              done
+            fi
+          else
+            TASKS_BLOCK="📌 <b>Задачи:</b> нет (не найдено ни OP#123, ни ABC-123)"
+          fi
+
+          EXTRA_LINK=""
+          if [ "${RESULT}" != "success" ]; then
+            EXTRA_LINK="<a href=\"${RUN_URL}\">🔍 Открыть GitHub Actions</a>"
+          fi
+
+          TEXT="$(cat <<EOF
           ${HEAD}
 
-          **Service:** \`${SERVICE_NAME:-flow-frontend}\`
-          **Env:** \`${ENV_NAME}\`
-          **Branch:** \`${REF_NAME}\`
-          **Commit:** \`${SHORT_SHA}\`
+          🧩 <b>Сервис:</b> <code>${SERVICE_NAME}</code>
+          🧩 <b>Env:</b> <code>${ENV_NAME}</code>
+          📦 <b>Ветка:</b> <code>${REF_NAME}</code>
+          🔖 <b>Коммит:</b> <code>${SHORT_SHA}</code>
+          👤 <b>Автор:</b> <a href="https://github.com/${AUTHOR_LOGIN}">${SAFE_AUTHOR}</a>
+
+          📝 <b>Сообщение:</b>
+          <code>${SAFE_MSG}</code>
 
           ${TASKS_BLOCK}
 
-          [🔗 Open pipeline](${RUN_URL})
+          <a href="${RUN_URL}">🔗 Открыть GitHub Actions</a>
+          <a href="${REPO_URL}">📦 Репозиторий</a>
+          ${EXTRA_LINK}
           EOF
-          )
+          )"
 
-          # --- 6. Отправка в Mattermost
-          if ! command -v jq >/dev/null 2>&1; then
-            sudo apt-get update -y >/dev/null
-            sudo apt-get install -y jq >/dev/null
+          # --- 1) Telegram send
+          if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+            curl -sS "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              -d chat_id="${TELEGRAM_CHAT_ID}" \
+              ${TELEGRAM_THREAD_ID:+-d message_thread_id="${TELEGRAM_THREAD_ID}"} \
+              -d parse_mode=HTML \
+              -d disable_web_page_preview=true \
+              --data-urlencode "text=${TEXT}" >/dev/null || true
+          else
+            echo "Telegram creds missing, skip"
           fi
 
-          payload=$(jq -n --arg text "$TEXT" '{text: $text, username: "github-actions", icon_emoji: ":rocket:"}')
-
-          curl -sS -X POST \
-            -H "Content-Type: application/json" \
-            -d "$payload" \
-            "${MATTERMOST_WEBHOOK_URL}"
-
-          # --- 7. Комментарии в OpenProject (если есть OP# и токен)
-          if [ -n "${OP_IDS:-}" ] && [ -n "${OPENPROJECT_API_TOKEN:-}" ] && [ -n "${OPENPROJECT_URL:-}" ]; then
+          # --- 2) Jira comments
+          if [ -n "${JIRA_URL:-}" ] && [ -n "${JIRA_USER:-}" ] && [ -n "${JIRA_API_TOKEN:-}" ] && [ -n "${JIRA_KEYS:-}" ]; then
             COMMENT="Frontend deployed to ${ENV_NAME} via GitHub Actions run ${RUN_URL}"
+            PAYLOAD="$(jq -n --arg body "$COMMENT" '{body:$body}')"
 
+            for KEY in ${JIRA_KEYS}; do
+              echo "Post comment to Jira ${KEY}"
+
+              code="$(curl -s -o /tmp/jira_out -w "%{http_code}" \
+                -u "${JIRA_USER}:${JIRA_API_TOKEN}" \
+                -H "Content-Type: application/json" \
+                -X POST "${JIRA_URL%/}/rest/api/3/issue/${KEY}/comment" \
+                -d "${PAYLOAD}" || true)"
+
+              if [ "$code" = "404" ] || [ "$code" = "400" ]; then
+                code2="$(curl -s -o /tmp/jira_out2 -w "%{http_code}" \
+                  -u "${JIRA_USER}:${JIRA_API_TOKEN}" \
+                  -H "Content-Type: application/json" \
+                  -X POST "${JIRA_URL%/}/rest/api/2/issue/${KEY}/comment" \
+                  -d "${PAYLOAD}" || true)"
+                [ "$code2" -ge 200 ] && [ "$code2" -lt 300 ] || echo "Jira comment failed for ${KEY} (http ${code2})"
+              else
+                [ "$code" -ge 200 ] && [ "$code" -lt 300 ] || echo "Jira comment failed for ${KEY} (http ${code})"
+              fi
+            done
+          else
+            echo "Jira creds or keys missing, skip Jira comments"
+          fi
+
+          # --- 3) OpenProject comments
+          if [ -n "${OPENPROJECT_URL:-}" ] && [ -n "${OPENPROJECT_API_TOKEN:-}" ] && [ -n "${OP_IDS:-}" ]; then
+            COMMENT="Frontend deployed to ${ENV_NAME} via GitHub Actions run ${RUN_URL}"
             for ID in ${OP_IDS}; do
-              echo "Post comment to OP#${ID}"
+              echo "Post comment to OpenProject OP#${ID}"
               curl -sS -X POST \
                 -u "apikey:${OPENPROJECT_API_TOKEN}" \
                 -H "Content-Type: application/json" \
                 "${OPENPROJECT_URL%/}/api/v3/work_packages/${ID}/activities" \
-                -d "$(jq -n --arg c "$COMMENT" '{comment: {raw: $c}}')" \
-                || echo "Failed to comment on ${ID}"
+                -d "$(jq -n --arg c "$COMMENT" '{comment:{raw:$c}}')" \
+                >/dev/null || echo "OpenProject comment failed for OP#${ID}"
             done
           else
-            echo "No OP_IDS or OPENPROJECT credentials, skip OpenProject comments"
+            echo "OpenProject creds or ids missing, skip OpenProject comments"
           fi
-          
