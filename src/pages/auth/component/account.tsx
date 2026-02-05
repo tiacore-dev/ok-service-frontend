@@ -4,41 +4,10 @@ import { useDispatch } from "react-redux";
 import { useAuthData } from "../../../hooks/useAuth";
 import { authlogout } from "../../../store/modules/auth";
 import { useloadSourse } from "../../../components/App/App";
-import { useApi } from "../../../hooks/useApi";
-
-interface notificationsSubscribeData {
-  endpoint: string;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-}
-interface notificationsSubscribeResponse {
-  status: boolean;
-}
 
 export const Account = () => {
   const data = useAuthData();
   const dispatch = useDispatch();
-  const { apiPost } = useApi();
-
-  const handleSubscribe = React.useCallback(async () => {
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: process.env.REACT_APP_WP,
-      });
-      const subscriptionData = JSON.parse(JSON.stringify(subscription));
-      apiPost<notificationsSubscribeResponse, notificationsSubscribeData>(
-        "subscriptions",
-        "subscribe",
-        subscriptionData,
-      );
-    } catch (error) {
-      console.error("Error subscribing to Push:", error);
-    }
-  }, []);
 
   const { load, clearStates } = useloadSourse();
   const refresh = () => {
@@ -58,8 +27,6 @@ export const Account = () => {
       </Descriptions>
       <Space direction="vertical">
         <Button onClick={refresh}>Обновить данные</Button>
-        <Button onClick={handleSubscribe}>Подписаться</Button>
-
         <Button
           onClick={() => {
             dispatch(authlogout());
