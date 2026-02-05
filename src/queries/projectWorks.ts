@@ -18,6 +18,7 @@ import {
 export type { EditableProjectWorkPayload } from "../api/project-works.api";
 import type { IProjectWorksList } from "../interfaces/projectWorks/IProjectWorksList";
 import { createQueryKeys } from "../queryKeys";
+import { projectMaterialsKeys } from "./projectMaterials";
 
 const baseProjectWorksKeys = createQueryKeys("projectWorks");
 
@@ -77,6 +78,9 @@ export const useCreateProjectWorkMutation = (): UseMutationResult<
       queryClient.invalidateQueries({
         queryKey: projectWorksKeys.listByProject(variables.project),
       });
+      queryClient.invalidateQueries({
+        queryKey: projectMaterialsKeys.listByProject(variables.project),
+      });
     },
   });
 };
@@ -97,6 +101,9 @@ export const useCreateProjectWorksMutation = (): UseMutationResult<
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: projectWorksKeys.listByProject(variables.projectId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: projectMaterialsKeys.listByProject(variables.projectId),
       });
     },
   });
@@ -121,6 +128,9 @@ export const useUpdateProjectWorkMutation = (): UseMutationResult<
         queryKey: projectWorksKeys.listByProject(variables.payload.project),
       });
       queryClient.invalidateQueries({
+        queryKey: projectMaterialsKeys.listByProject(variables.payload.project),
+      });
+      queryClient.invalidateQueries({
         queryKey: projectWorksKeys.listByProject(undefined),
       });
     },
@@ -143,6 +153,9 @@ export const useDeleteProjectWorkMutation = (): UseMutationResult<
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: projectWorksKeys.listByProject(variables.projectId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: projectMaterialsKeys.listByProject(variables.projectId),
       });
       queryClient.invalidateQueries({
         queryKey: projectWorksKeys.listByProject(undefined),

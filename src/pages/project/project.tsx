@@ -27,6 +27,7 @@ import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { ImportProjectWorks } from "./ImportProjectWorks";
 import { EditableProjectWorkDialog } from "./EditableProjectWorkDialog";
+import { ProjectMaterialsTable } from "./ProjectMaterialsTable";
 import { useWorksMap } from "../../queries/works";
 import {
   useDeleteProjectMutation,
@@ -41,9 +42,7 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import "./project.less";
 import { ProjectWorksFilters } from "./ProjectWorksFilters";
 import type { IProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
-import {
-  defaultProjectWorksFiltersState,
-} from "../../interfaces/projectWorks/IProjectWorksFiltersState";
+import { defaultProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
 import { saveProjectWorksFiltersState } from "../../store/modules/settings/projectWorks";
 import type { IState } from "../../store/modules";
 
@@ -74,7 +73,6 @@ export const Project = () => {
   const deleteProjectMutation = useDeleteProjectMutation();
   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
   const deleteProjectWorkMutation = useDeleteProjectWorkMutation();
-
 
   const currentUserId = useSelector(getCurrentUserId);
   const isProjectLoading = isProjectPending || isProjectFetching;
@@ -127,49 +125,50 @@ export const Project = () => {
       );
   }, [worksMap]);
 
-  const filteredProjectWorksData: IProjectWorksListColumn[] = React.useMemo(() => {
-    const searchValue = projectWorksFilters.search.trim().toLowerCase();
+  const filteredProjectWorksData: IProjectWorksListColumn[] =
+    React.useMemo(() => {
+      const searchValue = projectWorksFilters.search.trim().toLowerCase();
 
-    const filtered = projectWorksData.filter((item) => {
-      const name = item.project_work_name?.toLowerCase() ?? "";
-      const workName = item.work
-        ? worksMap[item.work]?.name?.toLowerCase() ?? ""
-        : "";
-      const matchesSearch = searchValue
-        ? name.includes(searchValue) || workName.includes(searchValue)
-        : true;
-      const matchesWork = projectWorksFilters.workId
-        ? item.work === projectWorksFilters.workId
-        : true;
-      const matchesSigned =
-        projectWorksFilters.signed === "all"
-          ? true
-          : projectWorksFilters.signed === "signed"
-            ? item.signed
-            : !item.signed;
+      const filtered = projectWorksData.filter((item) => {
+        const name = item.project_work_name?.toLowerCase() ?? "";
+        const workName = item.work
+          ? worksMap[item.work]?.name?.toLowerCase() ?? ""
+          : "";
+        const matchesSearch = searchValue
+          ? name.includes(searchValue) || workName.includes(searchValue)
+          : true;
+        const matchesWork = projectWorksFilters.workId
+          ? item.work === projectWorksFilters.workId
+          : true;
+        const matchesSigned =
+          projectWorksFilters.signed === "all"
+            ? true
+            : projectWorksFilters.signed === "signed"
+              ? item.signed
+              : !item.signed;
 
-      return matchesSearch && matchesWork && matchesSigned;
-    });
+        return matchesSearch && matchesWork && matchesSigned;
+      });
 
-    const direction = projectWorksFilters.sortOrder === "ascend" ? 1 : -1;
-    const compareText = (a: string, b: string) =>
-      a.localeCompare(b, undefined, { sensitivity: "base" }) * direction;
+      const direction = projectWorksFilters.sortOrder === "ascend" ? 1 : -1;
+      const compareText = (a: string, b: string) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" }) * direction;
 
-    return filtered.sort((a, b) => {
-      switch (projectWorksFilters.sortField) {
-        case "quantity":
-          return (
-            (Number(a.quantity ?? 0) - Number(b.quantity ?? 0)) * direction
-          );
-        case "name":
-        default:
-          return compareText(
-            a.project_work_name ?? "",
-            b.project_work_name ?? "",
-          );
-      }
-    });
-  }, [projectWorksData, projectWorksFilters, worksMap]);
+      return filtered.sort((a, b) => {
+        switch (projectWorksFilters.sortField) {
+          case "quantity":
+            return (
+              (Number(a.quantity ?? 0) - Number(b.quantity ?? 0)) * direction
+            );
+          case "name":
+          default:
+            return compareText(
+              a.project_work_name ?? "",
+              b.project_work_name ?? "",
+            );
+        }
+      });
+    }, [projectWorksData, projectWorksFilters, worksMap]);
 
   const canEdit =
     Boolean(
@@ -358,7 +357,9 @@ export const Project = () => {
 
   const isLoading = projectWorksLoading;
   const object = projectData ? objectsMap[projectData.object] : undefined;
-  const objectLink = projectData ? `/objects/${projectData.object}` : "/objects";
+  const objectLink = projectData
+    ? `/objects/${projectData.object}`
+    : "/objects";
   const isLoaded =
     !isProjectLoading &&
     Boolean(projectData && projectId === projectData.project_id);
@@ -449,6 +450,14 @@ export const Project = () => {
               />
             </>
           )}
+
+          <Title level={4} style={{ marginTop: 24 }}>
+            Материалы
+          </Title>
+          <ProjectMaterialsTable
+            projectId={projectData.project_id}
+            canManage={canEdit}
+          />
 
           <EditableProjectWorkDialog
             visible={modalVisible}
