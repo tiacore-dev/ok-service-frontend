@@ -6,6 +6,7 @@ export interface IShiftReport {
   date_start?: number;
   date_end?: number;
   project: string;
+  comment?: string;
   signed: boolean;
   night_shift: boolean;
   extreme_conditions: boolean;

@@ -387,6 +387,7 @@ export const ShiftReport = () => {
         date_start: shiftReportData.date_start,
         date_end: shiftReportData.date_end,
         project: shiftReportData.project,
+        comment: shiftReportData.comment,
         signed: true,
         night_shift: shiftReportData.night_shift,
         extreme_conditions: shiftReportData.extreme_conditions,
@@ -434,6 +435,7 @@ export const ShiftReport = () => {
           date_start: Date.now(),
           date_end: shiftReportData.date_end,
           project: shiftReportData.project,
+          comment: shiftReportData.comment,
           signed: shiftReportData.signed,
           night_shift: shiftReportData.night_shift,
           extreme_conditions: shiftReportData.extreme_conditions,
@@ -500,6 +502,7 @@ export const ShiftReport = () => {
           date_start: shiftReportData.date_start,
           date_end: Date.now(),
           project: shiftReportData.project,
+          comment: shiftReportData.comment,
           signed: shiftReportData.signed,
           night_shift: shiftReportData.night_shift,
           extreme_conditions: shiftReportData.extreme_conditions,
@@ -621,6 +624,7 @@ export const ShiftReport = () => {
           <p>Объект: {objectsMap[objectId]?.name}</p>
           <p>Спецификация: {projectsMap[shiftReportData.project]?.name}</p>
           <p>{`Прораб: ${usersMap[projectsMap[shiftReportData.project]?.project_leader]?.name ?? ""}`}</p>
+          <p>Комментарий: {shiftReportData.comment || "-"}</p>
           <p>{shiftReportData.signed ? "Согласовано" : "Не согласовано"}</p>
           {shiftReportData.date_start && (
             <p>

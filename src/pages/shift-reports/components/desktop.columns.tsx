@@ -9,6 +9,11 @@ import type { IProject } from "../../../interfaces/projects/IProject";
 import type { IObject } from "../../../interfaces/objects/IObject";
 import type { SorterResult } from "antd/es/table/interface";
 
+const formatComment = (value?: string | null) => {
+  if (!value) return "";
+  return value.length > 30 ? `${value.slice(0, 30)}...` : value;
+};
+
 export const shiftReportsDesktopColumns = (
   navigate: NavigateFunction,
   projectMap: Record<string, IProject>,
@@ -65,6 +70,14 @@ export const shiftReportsDesktopColumns = (
       sorter: true,
       render: (_text: string, record: IShiftReportsListColumn) => (
         <div>{projectMap[record.project]?.name}</div>
+      ),
+    },
+    {
+      title: "Комментарий",
+      dataIndex: "comment",
+      key: "comment",
+      render: (_text: string, record: IShiftReportsListColumn) => (
+        <div>{record.comment ? formatComment(record.comment) : "-"}</div>
       ),
     },
     {

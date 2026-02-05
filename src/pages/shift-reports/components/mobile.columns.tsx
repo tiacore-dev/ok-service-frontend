@@ -11,6 +11,10 @@ import { IProject } from "../../../interfaces/projects/IProject";
 
 const formatDistance = (meters?: number | null) =>
   meters ? ` (${meters} м)` : null;
+const formatComment = (value?: string | null) => {
+  if (!value) return "";
+  return value.length > 30 ? `${value.slice(0, 30)}...` : value;
+};
 
 export const shiftReportsMobileColumns = (
   navigate: NavigateFunction,
@@ -40,6 +44,9 @@ export const shiftReportsMobileColumns = (
 
           <div>Спецификация: {projectName}</div>
           <div>Прораб: {leaderName}</div>
+          <div>
+            Комментарий: {record.comment ? formatComment(record.comment) : "-"}
+          </div>
 
           <div>
             {`Начало: ${

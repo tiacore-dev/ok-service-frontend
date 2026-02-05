@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Checkbox, DatePicker, Form, Select, Space } from "antd";
+import { Checkbox, DatePicker, Form, Input, Select, Space } from "antd";
 import { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import {
   clearCreateShiftReportState,
@@ -91,6 +91,8 @@ export const EditableShiftReportDialog = (
     }));
 
   const { sent, ...shiftReportData } = data;
+  const canEditComment =
+    !shiftReport || (shiftReport.user === userId && !data.signed);
 
   const handleConfirm = useCallback(() => {
     if (shiftReport) {
@@ -167,7 +169,6 @@ export const EditableShiftReportDialog = (
                 />
               </Form.Item>
             )}
-
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
@@ -180,7 +181,6 @@ export const EditableShiftReportDialog = (
                 onFocus={(e) => e.target.blur()}
               />
             </Form.Item>
-
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
@@ -195,7 +195,6 @@ export const EditableShiftReportDialog = (
                 disabled={sent}
               />
             </Form.Item>
-
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
@@ -210,6 +209,21 @@ export const EditableShiftReportDialog = (
                 }
                 options={projectMap}
                 disabled={sent}
+              />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Комментарий"
+            >
+              <Input.TextArea
+                value={data.comment}
+                onChange={(event) =>
+                  dispatch(editShiftReportAction.setComment(event.target.value))
+                }
+                autoSize={{ minRows: 3, maxRows: 6 }}
+                disabled={sent || !canEditComment}
               />
             </Form.Item>
             {role !== RoleId.USER && (
@@ -242,7 +256,6 @@ export const EditableShiftReportDialog = (
                 />
               </Form.Item>
             )}
-
             {role !== RoleId.USER && shiftReport?.signed && (
               <Form.Item
                 labelCol={{ span: 10 }}

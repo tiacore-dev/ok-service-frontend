@@ -12,6 +12,7 @@ const initialState: IEditableShiftReportState = {
   // date_start: null,
   // date_end: null,
   project: "",
+  comment: "",
   signed: false,
   night_shift: false,
   extreme_conditions: false,
@@ -31,6 +32,7 @@ const setShiftReportData = (
   state.date_end = shiftReportData.date_end;
   state.date_start = shiftReportData.date_start;
   state.project = shiftReportData.project;
+  state.comment = shiftReportData.comment ?? "";
   state.signed = shiftReportData.signed;
   state.night_shift = shiftReportData.night_shift;
   state.extreme_conditions = shiftReportData.extreme_conditions;
@@ -85,6 +87,12 @@ const editableShiftReportSlice = createSlice({
       action: { payload: string }
     ) => {
       state.project = action.payload;
+    },
+    setComment: (
+      state: IEditableShiftReportState,
+      action: { payload: string }
+    ) => {
+      state.comment = action.payload;
     },
 
     toggleSigned: (state: IEditableShiftReportState) => {
