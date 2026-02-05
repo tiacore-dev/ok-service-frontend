@@ -23,6 +23,9 @@ export const useCreateShiftReportDetailMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportDetails", variables.shift_report],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["shiftReportMaterials", variables.shift_report],
+      });
       notification.success({
         message: "Успешно",
         description: "Запись отчета по смене создана",
@@ -60,6 +63,9 @@ export const useEditShiftReportDetailMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReport", variables.id], // Добавьте эту строку
       });
+      queryClient.invalidateQueries({
+        queryKey: ["shiftReportMaterials", variables.data.shift_report],
+      });
       notification.success({
         message: "Успешно",
         description: "Отчет по смене изменён",
@@ -88,6 +94,9 @@ export const useDeleteShiftReportDetailMutation = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportDetails", variables.shiftReportId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["shiftReportMaterials", variables.shiftReportId],
       });
       notification.success({
         message: "Успешно",

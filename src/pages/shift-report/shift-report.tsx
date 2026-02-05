@@ -48,6 +48,7 @@ import { useProjectsMap, useProjectStatQuery } from "../../queries/projects";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { useWorksMap } from "../../queries/works";
 import { MapViewer } from "../../components/Map/MapViewer";
+import { ShiftReportMaterialsTable } from "./ShiftReportMaterialsTable";
 
 const { Text } = Typography;
 
@@ -634,15 +635,6 @@ export const ShiftReport = () => {
                 shiftReportData.distance_start !== null && (
                   <> ({shiftReportData.distance_start} м)</>
                 )}
-              {/* Кнопка просмотра на карте для администратора */}
-              {/* {canShowMapButton && (
-                <MapViewer
-                  coordinates={mapCoordinates}
-                  buttonType="icon"
-                  buttonText="Посмотреть на карте"
-                  modalTitle={`Смена № ${shiftReportData.number?.toString().padStart(5, "0")}`}
-                />
-              )} */}
               {canShowStartMapButton && (
                 <MapViewer
                   coordinates={mapStartCoordinates}
@@ -737,6 +729,14 @@ export const ShiftReport = () => {
           columns={columns}
           loading={isDetailsLoading}
           footer={footer}
+        />
+
+        <Title level={4} style={{ marginTop: 24 }}>
+          Материалы
+        </Title>
+        <ShiftReportMaterialsTable
+          shiftReportId={shiftReportData.shift_report_id}
+          canManage={canEdit}
         />
 
         <EditableShiftReportDetailDialog
