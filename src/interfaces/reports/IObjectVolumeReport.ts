@@ -17,5 +17,5 @@ export interface IObjectVolumeReportProject {
 
 export interface IObjectVolumeReportProjectDetail {
   name: string; // Наименование записи спецификации
-  quantity: number; // Количество суммированное по всем записям отчетов по смене за период
+  quantity: number | null; // Количество суммированное по всем записям отчетов по смене за период
 }

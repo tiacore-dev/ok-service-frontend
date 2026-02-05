@@ -7,12 +7,17 @@ import { useProjectsMap } from "../../../../queries/projects";
 import { dateTimestampToLocalString } from "../../../../utils/dateConverter";
 import { useShiftReportsQuery } from "../../../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { fetchShiftReportDetails } from "../../../../api/shift-report-details.api";
+import { fetchShiftReportMaterials } from "../../../../api/shift-report-materials.api";
 import { generateObjectVolumeReport } from "../../../../api/object-volume-report.api";
+import { useMaterialsMap } from "../../../../queries/materials";
 import type {
   IObjectVolumeReport,
   IObjectVolumeReportObject,
+  IObjectVolumeReportProject,
+  IObjectVolumeReportProjectDetail,
 } from "../../../../interfaces/reports/IObjectVolumeReport";
 import type { IPopulatedShiftReportDetail } from "../../../../interfaces/shiftReportDetails/IShiftReportDetail";
+import type { IShiftReportMaterialsList } from "../../../../interfaces/shiftReportMaterials/IShiftReportMaterialsList";
 
 interface DownloadObjectVolumeReportProps {
   currentFilters?: {
@@ -40,6 +45,7 @@ export const useDownloadObjectVolumeReport = ({
   const shiftReportsData = shiftReportsResponse?.shift_reports || [];
   const { projectsMap } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
+  const { materialsMap } = useMaterialsMap();
   const createObjectVolumeReport =
     React.useCallback(async (): Promise<IObjectVolumeReport> => {
       const reportData: IObjectVolumeReport = {
@@ -71,6 +77,7 @@ export const useDownloadObjectVolumeReport = ({
       }
 
       let details: IPopulatedShiftReportDetail[] = [];
+      let materials: IShiftReportMaterialsList[] = [];
 
       try {
         const detailsResponse = await fetchShiftReportDetails(params);
@@ -78,10 +85,16 @@ export const useDownloadObjectVolumeReport = ({
           []) as IPopulatedShiftReportDetail[];
       } catch (error) {
         console.error("Ошибка при загрузке деталей отчетов:", error);
-        return reportData;
       }
 
-      if (details.length === 0) {
+      try {
+        const materialsResponse = await fetchShiftReportMaterials(params);
+        materials = materialsResponse.shift_report_materials || [];
+      } catch (error) {
+        console.error("Ошибка при загрузке материалов отчетов:", error);
+      }
+
+      if (details.length === 0 && materials.length === 0) {
         return reportData;
       }
 
@@ -101,20 +114,37 @@ export const useDownloadObjectVolumeReport = ({
         {},
       );
 
-      for (const report of shiftReportsData) {
-        const shiftReportId = report.shift_report_id as string;
-        const reportDetails = detailsByShiftReportId[shiftReportId] || [];
+      const materialsByShiftReportId = materials.reduce(
+        (acc: Record<string, IShiftReportMaterialsList[]>, material) => {
+          if (!material?.shift_report) {
+            return acc;
+          }
 
-        if (reportDetails.length === 0) {
-          continue;
+          if (!acc[material.shift_report]) {
+            acc[material.shift_report] = [];
+          }
+
+          acc[material.shift_report].push(material);
+          return acc;
+        },
+        {},
+      );
+
+      const projectDataById: Record<string, IObjectVolumeReportProject> = {};
+      const projectDetailsAccumulator: Record<
+        string,
+        {
+          work: Map<string, IObjectVolumeReportProjectDetail>;
+          material: Map<string, IObjectVolumeReportProjectDetail>;
         }
+      > = {};
 
-        const project = projectsMap[report.project];
-        if (!project) continue;
-
-        const objectName =
-          objectsMap[project.object]?.name || "Неизвестный объект";
-        const projectName = project.name || "Неизвестный проект";
+      const ensureProjectData = (params: {
+        objectName: string;
+        projectName: string;
+        projectId: string;
+      }) => {
+        const { objectName, projectName, projectId } = params;
 
         let objectData = objectsMapLocal[objectName];
         if (!objectData) {
@@ -126,33 +156,109 @@ export const useDownloadObjectVolumeReport = ({
           reportData.objects.push(objectData);
         }
 
-        let projectData = objectData.projects.find(
-          (p) => p.name === projectName,
-        );
+        let projectData = projectDataById[projectId];
         if (!projectData) {
           projectData = {
             name: projectName,
             project_details: [],
           };
+          projectDataById[projectId] = projectData;
+          objectData.projects.push(projectData);
+        } else if (!objectData.projects.includes(projectData)) {
           objectData.projects.push(projectData);
         }
 
+        if (!projectDetailsAccumulator[projectId]) {
+          projectDetailsAccumulator[projectId] = {
+            work: new Map(),
+            material: new Map(),
+          };
+        }
+
+        return {
+          objectData,
+          projectData,
+          accumulator: projectDetailsAccumulator[projectId],
+        };
+      };
+
+      for (const report of shiftReportsData) {
+        const shiftReportId = report.shift_report_id as string;
+        const reportDetails = detailsByShiftReportId[shiftReportId] || [];
+        const reportMaterials = materialsByShiftReportId[shiftReportId] || [];
+
+        if (reportDetails.length === 0 && reportMaterials.length === 0) {
+          continue;
+        }
+
+        const project = projectsMap[report.project];
+        if (!project) continue;
+
+        const objectName =
+          objectsMap[project.object]?.name || "Неизвестный объект";
+        const projectName = project.name || "Неизвестный проект";
+
+        const { accumulator } = ensureProjectData({
+          objectName,
+          projectName,
+          projectId: report.project as string,
+        });
+
         for (const detail of reportDetails) {
           const projectDetailName = detail.project_work.name;
-          let projectDetail = projectData.project_details.find(
-            (pd) => pd.name === projectDetailName,
-          );
+          let projectDetail = accumulator.work.get(projectDetailName);
 
           if (!projectDetail) {
             projectDetail = {
               name: projectDetailName,
               quantity: 0,
             };
-            projectData.project_details.push(projectDetail);
+            accumulator.work.set(projectDetailName, projectDetail);
           }
 
           projectDetail.quantity += detail.quantity;
         }
+
+        for (const material of reportMaterials) {
+          const materialName =
+            materialsMap[material.material]?.name || "Неизвестный материал";
+          let materialDetail = accumulator.material.get(materialName);
+
+          if (!materialDetail) {
+            materialDetail = {
+              name: materialName,
+              quantity: 0,
+            };
+            accumulator.material.set(materialName, materialDetail);
+          }
+
+          materialDetail.quantity += material.quantity;
+        }
+      }
+
+      for (const [projectId, accumulator] of Object.entries(
+        projectDetailsAccumulator,
+      )) {
+        const projectData = projectDataById[projectId];
+        if (!projectData) {
+          continue;
+        }
+
+        const workDetails = Array.from(accumulator.work.values());
+        const workTitle: IObjectVolumeReportProjectDetail[] =
+          workDetails.length > 0 ? [{ name: "Работы:", quantity: null }] : [];
+        const materialDetails = Array.from(accumulator.material.values());
+        const materialTitle: IObjectVolumeReportProjectDetail[] =
+          materialDetails.length > 0
+            ? [{ name: "Материалы:", quantity: null }]
+            : [];
+
+        projectData.project_details = [
+          ...workTitle,
+          ...workDetails,
+          ...materialTitle,
+          ...materialDetails,
+        ];
       }
 
       return reportData;
@@ -161,6 +267,7 @@ export const useDownloadObjectVolumeReport = ({
       currentFilters?.date_to,
       currentFilters?.projects,
       currentFilters?.users,
+      materialsMap,
       objectsMap,
       projectsMap,
       shiftReportsData,
