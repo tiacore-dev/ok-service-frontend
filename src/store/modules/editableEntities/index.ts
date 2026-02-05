@@ -5,6 +5,7 @@ import { editableCity } from "./editableCity";
 import { editableProject } from "./editableProject";
 import { editableWork } from "./editableWork";
 import { editableShiftReport } from "./editableShiftReport";
+import { editableMaterial } from "./editableMaterial";
 
 export const editableEntities = combineReducers({
   editableProject,
@@ -12,5 +13,6 @@ export const editableEntities = combineReducers({
   editableUser,
   editableCity,
   editableWork,
+  editableMaterial,
   editableShiftReport,
 });

@@ -33,9 +33,7 @@ export const Users = () => {
   const dispatch = useDispatch();
 
   const usersData: IUsersListColumn[] = React.useMemo(
-    () =>
-      (usersList ?? [])
-        .map((doc) => ({ ...doc, key: doc.user_id })),
+    () => (usersList ?? []).map((doc) => ({ ...doc, key: doc.user_id })),
     [usersList],
   );
   const { rolesMap, roleOptions } = useRoles();
@@ -95,12 +93,20 @@ export const Users = () => {
   );
 
   const roleSelectOptions = React.useMemo(
-    () => roleOptions.map((option) => ({ label: option.label, value: option.value })),
+    () =>
+      roleOptions.map((option) => ({
+        label: option.label,
+        value: option.value,
+      })),
     [roleOptions],
   );
 
   const citySelectOptions = React.useMemo(
-    () => cityOptions.map((option) => ({ label: option.label, value: option.value })),
+    () =>
+      cityOptions.map((option) => ({
+        label: option.label,
+        value: option.value,
+      })),
     [cityOptions],
   );
 
@@ -139,7 +145,8 @@ export const Users = () => {
     });
 
     const compareText = (first: string, second: string, direction: number) =>
-      first.localeCompare(second, undefined, { sensitivity: "base" }) * direction;
+      first.localeCompare(second, undefined, { sensitivity: "base" }) *
+      direction;
 
     const sorted = [...filtered].sort((a, b) => {
       const direction = filtersState.sortOrder === "ascend" ? 1 : -1;

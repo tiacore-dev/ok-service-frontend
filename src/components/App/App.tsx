@@ -21,6 +21,8 @@ import { Object } from "../../pages/object/object";
 import { Project } from "../../pages/project/project";
 import { Works } from "../../pages/works/works.page";
 import { Work } from "../../pages/work/work";
+import { Materials } from "../../pages/materials/materials.page";
+import { Material } from "../../pages/material/material";
 import { WorkCategories } from "../../pages/work-categories/work-categories.page";
 import { ShiftReports } from "../../pages/shift-reports/shift-reports.page";
 import { ShiftReport } from "../../pages/shift-report/shift-report";
@@ -33,6 +35,7 @@ import { projectWorksKeys } from "../../queries/projectWorks";
 import { worksKeys } from "../../queries/works";
 import { workPricesKeys } from "../../queries/workPrices";
 import { workCategoriesKeys } from "../../queries/workCategories";
+import { materialsKeys } from "../../queries/materials";
 import { objectStatusesKeys } from "../../queries/objectStatuses";
 import { rolesKeys } from "../../queries/roles";
 import { fetchObjectStatuses } from "../../api/object-statuses.api";
@@ -65,6 +68,7 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: projectsKeys.all() });
     queryClient.removeQueries({ queryKey: projectWorksKeys.all() });
     queryClient.removeQueries({ queryKey: worksKeys.all() });
+    queryClient.removeQueries({ queryKey: materialsKeys.all() });
     queryClient.removeQueries({ queryKey: workPricesKeys.all() });
     queryClient.removeQueries({ queryKey: workCategoriesKeys.all() });
     queryClient.removeQueries({ queryKey: objectStatusesKeys.all() });
@@ -174,6 +178,10 @@ export const App = () => {
                 <Route index={true} element={<Works />} />
                 <Route path="categories" element={<WorkCategories />} />
                 <Route path=":workId" element={<Work />} />
+              </Route>
+              <Route path="materials">
+                <Route index={true} element={<Materials />} />
+                <Route path=":materialId" element={<Material />} />
               </Route>
               <Route path="shifts">
                 <Route index={true} element={<ShiftReports />} />

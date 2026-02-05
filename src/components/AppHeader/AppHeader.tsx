@@ -106,6 +106,13 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/works");
           },
         },
+        {
+          key: "materials",
+          label: "Материалы",
+          onClick: () => {
+            navigate("/materials");
+          },
+        },
       ],
     });
   }
@@ -148,6 +155,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
         theme="light"
         mode="horizontal"
         defaultSelectedKeys={["2"]}
+        _internalDisableMenuItemTitleTooltip
         items={desktopItems}
       />
     </Header>
