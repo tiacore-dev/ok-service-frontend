@@ -32,6 +32,16 @@ export const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
       <div>
         <strong>{label}</strong>
       </div>
+      {!!data.notOpened && (
+        <div>
+          Не открыто: {data.notOpened}
+          <ul style={{ fontSize: "9pt" }}>
+            {data.notOpenedData.map((el: string) => (
+              <li>{el}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       {!!data.empty && (
         <div>
           Не заполнено: {data.empty}

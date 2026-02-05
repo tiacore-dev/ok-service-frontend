@@ -37,16 +37,24 @@ export const DayCard: React.FC<DayCardProps> = ({
   }> = [
     {
       key: "notOpened",
-      title: "Не открыто",
+      title: "Смена не открыта",
       liClassName: "main__day__not-opened",
     },
-    { key: "empty", title: "Не заполнено", liClassName: "main__day__empty" },
+    {
+      key: "empty",
+      title: "Смена не заполнена",
+      liClassName: "main__day__empty",
+    },
     {
       key: "notSigned",
-      title: "Не согласовано",
+      title: "Смена не согласована",
       liClassName: "main__day__not-signed",
     },
-    { key: "signed", title: "Согласовано", liClassName: "main__day__signed" },
+    {
+      key: "signed",
+      title: "Смена согласована",
+      liClassName: "main__day__signed",
+    },
   ];
 
   return (
