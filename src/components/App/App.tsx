@@ -36,6 +36,7 @@ import { worksKeys } from "../../queries/works";
 import { workPricesKeys } from "../../queries/workPrices";
 import { workCategoriesKeys } from "../../queries/workCategories";
 import { materialsKeys } from "../../queries/materials";
+import { workMaterialRelationsKeys } from "../../queries/workMaterialRelations";
 import { objectStatusesKeys } from "../../queries/objectStatuses";
 import { rolesKeys } from "../../queries/roles";
 import { fetchObjectStatuses } from "../../api/object-statuses.api";
@@ -69,6 +70,7 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: projectWorksKeys.all() });
     queryClient.removeQueries({ queryKey: worksKeys.all() });
     queryClient.removeQueries({ queryKey: materialsKeys.all() });
+    queryClient.removeQueries({ queryKey: workMaterialRelationsKeys.all() });
     queryClient.removeQueries({ queryKey: workPricesKeys.all() });
     queryClient.removeQueries({ queryKey: workCategoriesKeys.all() });
     queryClient.removeQueries({ queryKey: objectStatusesKeys.all() });

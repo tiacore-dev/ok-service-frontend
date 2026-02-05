@@ -30,6 +30,7 @@ import {
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useDeleteWorkMutation, useWorkQuery } from "../../queries/works";
+import { WorkMaterialRelationsTable } from "../components/WorkMaterialRelationsTable";
 import {
   useCreateWorkPriceMutation,
   useDeleteWorkPriceMutation,
@@ -375,18 +376,15 @@ export const Work = () => {
             <p>{workData.deleted && "Удалено"}</p>
           </Card>
 
-          <Space
-            direction={isMobile() ? "vertical" : "horizontal"}
-            className="works_filters"
+          <Title level={4}>Цены</Title>
+
+          <Button
+            onClick={handleAdd}
+            type="primary"
+            style={{ marginBottom: 16 }}
           >
-            <Button
-              onClick={handleAdd}
-              type="primary"
-              style={{ marginBottom: 16 }}
-            >
-              Добавить цену работ
-            </Button>
-          </Space>
+            Добавить цену работ
+          </Button>
 
           <Form form={form} component={false}>
             <Table
@@ -402,6 +400,12 @@ export const Work = () => {
               loading={isLoading}
             />
           </Form>
+
+          <Title level={4}>Материалы на 1 ед. работы</Title>
+          <WorkMaterialRelationsTable
+            workId={workData.work_id}
+            canManage={currentRole === RoleId.ADMIN}
+          />
         </Content>
       ) : (
         <Spin />

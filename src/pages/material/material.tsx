@@ -21,6 +21,7 @@ import {
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
+import { WorkMaterialRelationsTable } from "../components/WorkMaterialRelationsTable";
 
 export const Material = () => {
   const { Content } = Layout;
@@ -165,6 +166,11 @@ export const Material = () => {
             </p>
             {materialData.deleted && <p>Удалено</p>}
           </Card>
+
+          <WorkMaterialRelationsTable
+            materialId={materialData.material_id}
+            canManage={currentRole === RoleId.ADMIN}
+          />
         </Content>
       ) : (
         <Spin spinning={isLoading} />
