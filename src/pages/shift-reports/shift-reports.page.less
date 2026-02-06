@@ -129,5 +129,34 @@
     .shift-reports {
         padding: 4px;
         min-height: calc(100vh - 110px);
+
+        &_actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+
+            &_select {
+                min-width: 0;
+                width: 100%;
+            }
+        }
+
+        &_filters {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+
+            &_select,
+            &_projectTree,
+            &_range {
+                min-width: 0;
+                width: 100%;
+            }
+
+            &_summaryRow {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
     }
 }

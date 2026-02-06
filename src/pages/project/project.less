@@ -35,5 +35,18 @@
 @media (max-width: 768px) {
   .project__content {
     min-height: calc(100vh - 110px);
+    padding: 0 12px;
+  }
+
+  .project-works_filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+
+    &_input,
+    &_select {
+      min-width: 0;
+      width: 100%;
+    }
   }
 }

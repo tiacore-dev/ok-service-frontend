@@ -51,6 +51,7 @@
 .app-layout--mobile {
     padding: 0;
     padding-bottom: calc(var(--app-footer-height) + env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
 }
 
 .app-layout--fullscreen {
@@ -87,8 +88,10 @@
   
     .ant-table-tbody td {
       display: block;
-      text-align: right;
+      text-align: left;
       border-bottom: none;
+      line-height: 1.4;
+      word-break: break-word;
     }
   
     .ant-table-row {
@@ -101,7 +104,16 @@
 
     .ant-table-tbody td::before {
       content: attr(data-label);
-      float: left;
+      float: none;
+      display: block;
+      margin-bottom: 4px;
       font-weight: 500;
+      font-size: 12px;
+      color: #8a8a8a;
+    }
+
+    .ant-table-tbody td > div {
+      display: grid;
+      row-gap: 6px;
     }
   }
