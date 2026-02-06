@@ -243,7 +243,7 @@ export const ShiftReportMaterialsTable = ({
 
   const renderSource = (value: string | null) => {
     if (!value) {
-      return "Вручную";
+      return "—";
     }
     const detail = detailsMap[value];
     if (!detail) {
