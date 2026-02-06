@@ -155,10 +155,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   return isMobile ? (
     <Header className={"header"}>
       {showBackButton && (
-        <ArrowLeftOutlined
-          onClick={back}
-          className="header__back"
-        />
+        <ArrowLeftOutlined onClick={back} className="header__back" />
       )}
       <Title level={3} className="header__title">
         {appHeaderTitle}
@@ -166,7 +163,14 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
     </Header>
   ) : (
     <Header className={"header"}>
-      <img className="header__logo" src={logo} />
+      <button
+        type="button"
+        className="header__logo-button"
+        onClick={() => navigate("/home")}
+        aria-label="На главную"
+      >
+        <img className="header__logo" src={logo} />
+      </button>
       <Menu
         className={"header__menu"}
         theme="light"
