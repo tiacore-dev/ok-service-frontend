@@ -5,6 +5,7 @@ import {
   CloseCircleTwoTone,
   DeleteTwoTone,
   EditTwoTone,
+  PlusCircleTwoTone,
 } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
 import { EditableCell } from "../components/editableCell";
@@ -326,7 +327,8 @@ export const ProjectMaterialsTable = ({
       {canManage && (
         <Button
           onClick={handleAdd}
-          type="primary"
+          type="default"
+          icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
           className="project-materials__add-button"
         >
           Добавить материал
@@ -345,6 +347,7 @@ export const ProjectMaterialsTable = ({
           dataSource={dataSource}
           columns={tableColumns}
           loading={isPending || isFetching}
+          className="project__materials-table"
         />
       </Form>
     </>

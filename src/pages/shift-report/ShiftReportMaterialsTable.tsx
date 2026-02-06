@@ -5,6 +5,7 @@ import {
   CloseCircleTwoTone,
   DeleteTwoTone,
   EditTwoTone,
+  PlusCircleTwoTone,
 } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
 import { EditableCell } from "../components/editableCell";
@@ -350,7 +351,8 @@ export const ShiftReportMaterialsTable = ({
       {canManage && (
         <Button
           onClick={handleAdd}
-          type="primary"
+          type="default"
+          icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
           className="shift-report-materials__add-button"
         >
           Добавить материал
@@ -369,6 +371,7 @@ export const ShiftReportMaterialsTable = ({
           dataSource={dataSource}
           columns={tableColumns}
           loading={isLoading}
+          className="shift-report__materials-table"
         />
       </Form>
     </>

@@ -377,13 +377,12 @@ export const Project = () => {
       {isLoaded &&
       projectData &&
       routeParams.projectId === projectData.project_id ? (
-        <Content
-          className="project__content"
-        >
+        <Content className="project__content">
           <Title level={3}>{projectData.name}</Title>
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"
+            className="project__header-actions"
           >
             {canEdit && <EditableProjectDialog project={projectData} />}
             {canEdit && (
@@ -439,6 +438,7 @@ export const Project = () => {
                 dataSource={filteredProjectWorksData}
                 columns={columns}
                 loading={isLoading}
+                className="project__table"
               />
             </>
           )}

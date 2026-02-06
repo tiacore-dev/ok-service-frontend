@@ -594,11 +594,15 @@ export const ShiftReport = () => {
       />
 
       <Content className="shift-report__content">
-        <Title level={3}>
+        <Title level={3} className="shift-report__title">
           {`Отчет по смене № ${shiftReportData.number?.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name ?? ""}`}
         </Title>
 
-        <Space direction="horizontal" size="small">
+        <Space
+          direction="horizontal"
+          size="small"
+          className="shift-report__header-actions"
+        >
           {canEdit && (
             <EditableShiftReportDialog shiftReport={shiftReportData} />
           )}
@@ -659,30 +663,29 @@ export const ShiftReport = () => {
           )}
           {shiftReportData.night_shift && <p>Ночная смена (+25%)</p>}
           {shiftReportData.extreme_conditions && <p>Особые условия (+25%)</p>}
-          {canStartShift && (
-            <Button
-              onClick={handleStartShift}
-              type="primary"
-              loading={isStartingShift}
-              className="shift-report__start-button"
-            >
-              Начать смену
-            </Button>
-          )}
-          {canCompleteShift && (
-            <Button
-              onClick={handleCompleteShift}
-              type="primary"
-              loading={isCompletingShift}
-              className={[
-                "shift-report__complete-button",
-                canStartShift ? "shift-report__complete-button--spaced" : null,
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              Завершить смену
-            </Button>
+          {(canStartShift || canCompleteShift) && (
+            <div className="shift-report__shift-actions">
+              {canStartShift && (
+                <Button
+                  onClick={handleStartShift}
+                  type="primary"
+                  loading={isStartingShift}
+                  className="shift-report__start-button"
+                >
+                  Начать смену
+                </Button>
+              )}
+              {canCompleteShift && (
+                <Button
+                  onClick={handleCompleteShift}
+                  type="primary"
+                  loading={isCompletingShift}
+                  className="shift-report__complete-button"
+                >
+                  Завершить смену
+                </Button>
+              )}
+            </div>
           )}
           {!shiftReportData.signed && currentRole !== RoleId.USER && (
             <Space direction="vertical">
@@ -724,6 +727,7 @@ export const ShiftReport = () => {
           columns={columns}
           loading={isDetailsLoading}
           footer={footer}
+          className="shift-report__table"
         />
 
         <Title level={4} className="shift-report__materials-title">

@@ -1,12 +1,10 @@
-import { Button, Space } from "antd";
+import { Button } from "antd";
 import * as React from "react";
-import { isMobile } from "../../utils/isMobile";
 import { FileExcelOutlined } from "@ant-design/icons";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
 import { useUsersMap } from "../../queries/users";
 import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap } from "../../queries/projects";
-// import { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { useProjectWorksMap } from "../../queries/projectWorks";
@@ -156,16 +154,12 @@ export const DownloadShiftReport: React.FC<DownloadProps> = ({
   }, [exportedData, exportedDetailsData, shiftReportData]);
 
   return (
-    <div className="shift-reports_filters">
-      <Space direction={isMobile() ? "vertical" : "horizontal"}>
-        <Button
-          icon={<FileExcelOutlined />}
-          onClick={exportToCSV}
-          disabled={!shiftReportData}
-        >
-          Скачать отчет смены
-        </Button>
-      </Space>
-    </div>
+    <Button
+      icon={<FileExcelOutlined />}
+      onClick={exportToCSV}
+      disabled={!shiftReportData}
+    >
+      Скачать отчет смены
+    </Button>
   );
 };

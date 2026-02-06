@@ -44,7 +44,7 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
 
   const dispatch = useDispatch();
   const data = useSelector(
-    (state: IState) => state.editableEntities.editableProject
+    (state: IState) => state.editableEntities.editableProject,
   );
   const { objects } = useObjectsMap();
   const objectMap = objects.map((el) => ({
