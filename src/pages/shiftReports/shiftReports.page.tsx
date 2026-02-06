@@ -6,7 +6,7 @@ import { shiftReportsDesktopColumns } from "./components/desktop.columns";
 import { shiftReportsMobileColumns } from "./components/mobile.columns";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
-import "./shift-reports.page.less";
+import "./shiftReports.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";

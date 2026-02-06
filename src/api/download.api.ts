@@ -1,5 +1,5 @@
 import { apiClient } from "./base";
-import { ExportExcelTemplate } from "../pages/shift-reports/components/export/useDownloadShiftReportsWithDetails";
+import { ExportExcelTemplate } from "../pages/shiftReports/components/export/useDownloadShiftReportsWithDetails";
 
 interface GenerateDocumentParams {
   file_name: string;

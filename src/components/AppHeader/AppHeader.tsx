@@ -1,8 +1,9 @@
 import * as React from "react";
-import { Layout, Menu, Typography } from "antd";
+import { Dropdown, Layout, Menu, Typography } from "antd";
 import { ItemType } from "antd/es/menu/hooks/useItems";
+import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import logo from "./logo.png";
 import { IState } from "../../store/modules";
 import {
@@ -15,7 +16,7 @@ import {
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { getCurrentRole } from "../../store/modules/auth";
+import { authlogout, getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 
 const { Header } = Layout;
@@ -24,16 +25,20 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const desktopItems: ItemType[] = [];
   const role = useSelector(getCurrentRole);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { Title } = Typography;
   const showBackButton = useSelector(
     (state: IState) => state.settings.generalSettings?.showBackButton,
   );
+  const userName = useSelector((state: IState) => state.auth.name);
+  const userLogin = useSelector((state: IState) => state.auth.login);
   const back = () => {
     navigate(-1);
   };
   const appHeaderTitle = useSelector(
     (state: IState) => state.settings.generalSettings?.appHeaderTitle,
   );
+  const userDisplayName = userName ?? userLogin ?? "Пользователь";
 
   desktopItems.push({
     key: "main",
@@ -126,14 +131,26 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
     },
   });
 
-  desktopItems.push({
-    key: "account",
-    label: "Профиль",
-    icon: <UserOutlined />,
-    onClick: () => {
-      navigate("/account");
+  const accountMenuItems: MenuProps["items"] = [
+    {
+      key: "account",
+      label: "Аккаунт",
     },
-  });
+    {
+      key: "logout",
+      label: "Выйти",
+    },
+  ];
+
+  const handleAccountMenuClick: MenuProps["onClick"] = ({ key }) => {
+    if (key === "account") {
+      navigate("/account");
+      return;
+    }
+    if (key === "logout") {
+      dispatch(authlogout());
+    }
+  };
 
   return isMobile ? (
     <Header className={"header"}>
@@ -158,6 +175,24 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
         _internalDisableMenuItemTitleTooltip
         items={desktopItems}
       />
+      <div className="header__user">
+        <span className="header__user-name" title={userDisplayName}>
+          {userDisplayName}
+        </span>
+        <Dropdown
+          placement="bottomRight"
+          trigger={["click"]}
+          menu={{ items: accountMenuItems, onClick: handleAccountMenuClick }}
+        >
+          <button
+            type="button"
+            className="header__user-avatar"
+            aria-label="Пользователь"
+          >
+            <UserOutlined />
+          </button>
+        </Dropdown>
+      </div>
     </Header>
   );
 });
