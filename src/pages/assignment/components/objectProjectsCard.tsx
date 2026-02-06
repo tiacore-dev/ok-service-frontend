@@ -4,6 +4,7 @@ import Meta from "antd/es/card/Meta";
 import { IProjectStatsItem } from "../../../interfaces/objects/IObjectStat";
 import { StatusIcon } from "./statusIcon";
 import "./objectProjectsCard.less";
+import { CaretDownOutlined, CaretRightOutlined } from "@ant-design/icons";
 
 type ObjectsMap = Record<string, { name: string }>;
 type ProjectsMap = Record<string, { name: string; project_leader: string }>;
@@ -32,92 +33,112 @@ export const ObjectProjectsCard: React.FC<Props> = ({
   onAssignUser,
   assigning = false,
 }) => {
+  const [openProject, setOpenProject] = React.useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = React.useState(true);
+
   const title = (
-    <Space direction="horizontal">{objectsMap[objectId]?.name}</Space>
+    <div className="object-projects__title">
+      <button
+        type="button"
+        className="object-projects__toggle"
+        aria-label={isExpanded ? "Свернуть объект" : "Развернуть объект"}
+        onClick={() =>
+          setIsExpanded((prev) => {
+            if (prev) {
+              setOpenProject(null);
+            }
+            return !prev;
+          })
+        }
+      >
+        {isExpanded ? <CaretDownOutlined /> : <CaretRightOutlined />}
+      </button>
+      <span>{objectsMap[objectId]?.name}</span>
+    </div>
   );
 
-  const [openProject, setOpenProject] = React.useState<string | null>(null);
-
   return (
-    <Card key={objectId} title={title} size="small">
-      <List
-        loading={loading}
-        itemLayout="vertical"
-        dataSource={projects}
-        renderItem={(el) => {
-          const projectInfo = projectsMap[el.project];
-          const leaderName = projectInfo
-            ? usersMap[projectInfo.project_leader]?.name
-            : undefined;
-          const description = projectInfo
-            ? `${projectInfo.name}${leaderName ? ` (${leaderName})` : ""}`
-            : "";
+    <Card key={objectId} title={title} size="small" className="object-projects__card">
+      {isExpanded && (
+        <List
+          loading={loading}
+          itemLayout="vertical"
+          dataSource={projects}
+          renderItem={(el) => {
+            const projectInfo = projectsMap[el.project];
+            const leaderName = projectInfo
+              ? usersMap[projectInfo.project_leader]?.name
+              : undefined;
+            const description = projectInfo
+              ? `${projectInfo.name}${leaderName ? ` (${leaderName})` : ""}`
+              : "";
 
-          return (
-            <List.Item key={el.project}>
-              <Meta description={description} />
-              <Space direction="vertical">
-                <Space
-                  direction="horizontal"
-                  align="center"
-                  className="assignment-page__assignRow"
-                >
-                  <Popover
-                    trigger="click"
-                    open={openProject === el.project}
-                    onOpenChange={(o) => {
-                      if (assigning) {
-                        return;
-                      }
-                      setOpenProject(o ? el.project : null);
-                    }}
-                    content={
-                      <Select
-                        showSearch
-                        placeholder="Выбрать сотрудника"
-                        className="object-projects__assign-select"
-                        options={userOptions}
-                        loading={assigning}
-                        disabled={assigning}
-                        filterOption={(input, option) =>
-                          (option?.label as string)
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        onChange={(userId) => {
-                          onAssignUser?.(el.project, userId as string);
-                          setOpenProject(null);
-                        }}
-                      />
-                    }
-                  >
-                    <Button
-                      type="default"
-                      loading={assigning}
-                      disabled={assigning}
-                    >
-                      Добавить сотрудника
-                    </Button>
-                  </Popover>
-                </Space>
-                {el.users.map((user) => (
+            return (
+              <List.Item key={el.project}>
+                <Meta description={description} />
+                <Space direction="vertical">
                   <Space
-                    key={`${el.project}-${user.user}`}
                     direction="horizontal"
                     align="center"
-                    className="assignment-page__statusItem"
+                    className="assignment-page__assignRow"
                   >
-                    <StatusIcon status={user.status} />
-                    <p className="object-projects__user">
-                      {usersMap[user.user]?.name ?? user.user}
-                    </p>
+                    <Popover
+                      trigger="click"
+                      open={openProject === el.project}
+                      onOpenChange={(o) => {
+                        if (assigning) {
+                          return;
+                        }
+                        setOpenProject(o ? el.project : null);
+                      }}
+                      content={
+                        <Select
+                          showSearch
+                          placeholder="Выбрать сотрудника"
+                          className="object-projects__assign-select"
+                          options={userOptions}
+                          loading={assigning}
+                          disabled={assigning}
+                          filterOption={(input, option) =>
+                            (option?.label as string)
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          onChange={(userId) => {
+                            onAssignUser?.(el.project, userId as string);
+                            setOpenProject(null);
+                          }}
+                        />
+                      }
+                    >
+                      <Button
+                        type="default"
+                        loading={assigning}
+                        disabled={assigning}
+                      >
+                        Добавить сотрудника
+                      </Button>
+                    </Popover>
                   </Space>
-                ))}
-              </Space>
-            </List.Item>
-          );
-        }}
-      />
+                  {el.users.map((user) => (
+                    <Space
+                      key={`${el.project}-${user.user}`}
+                      direction="horizontal"
+                      align="center"
+                      className="assignment-page__statusItem"
+                    >
+                      <StatusIcon status={user.status} />
+                      <p className="object-projects__user">
+                        {usersMap[user.user]?.name ?? user.user}
+                      </p>
+                    </Space>
+                  ))}
+                </Space>
+              </List.Item>
+            );
+          }}
+        />
+      )}
     </Card>
   );
 };

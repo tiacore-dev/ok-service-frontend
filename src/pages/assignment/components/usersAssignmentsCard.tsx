@@ -16,7 +16,6 @@ type ObjectsMap = Record<string, { name: string }>;
 type ProjectsMap = Record<string, { name: string }>;
 type UsersMap = Record<string, { name: string }>;
 
-
 interface Props {
   data: IUserShiftAssignment[];
   objectsMap: ObjectsMap;
@@ -44,6 +43,7 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
       <List
         loading={loading}
         itemLayout="vertical"
+        rowKey={(item) => item.userId}
         dataSource={data}
         renderItem={(item) => {
           const userName = usersMap[item.userId]?.name ?? item.userId;
@@ -59,8 +59,9 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                       const objectName = objectsMap[assignment.objectId]?.name;
                       const projectName =
                         projectsMap[assignment.projectId]?.name;
+                      const assignmentKey = `${assignment.objectId}-${assignment.projectId}`;
                       return (
-                        <List.Item>
+                        <List.Item key={assignmentKey}>
                           <Space
                             direction="horizontal"
                             align="center"
@@ -92,7 +93,8 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                     )}
 
                     <span className="assignment-page__unassigned">
-                      {leaveReasonesMap[item.leaveReason].name}
+                      {leaveReasonesMap[item.leaveReason]?.name ??
+                        "Отсутствует"}
                     </span>
                   </Space>
                 ) : (
