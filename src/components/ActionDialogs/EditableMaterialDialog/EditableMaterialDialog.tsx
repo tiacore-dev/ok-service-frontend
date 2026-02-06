@@ -15,11 +15,9 @@ import {
   useUpdateMaterialMutation,
 } from "../../../queries/materials";
 import type { EditableMaterialPayload } from "../../../queries/materials";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useNavigate } from "react-router-dom";
 
-const modalContentWidth = getModalContentWidth();
 interface IEditableMaterialDialogProps {
   material?: IMaterial;
   iconOnly?: boolean;
@@ -145,7 +143,7 @@ export const EditableMaterialDialog = (
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_material_dialog">
-          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+          <Form layout="horizontal" className="editable-material-dialog__form">
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}

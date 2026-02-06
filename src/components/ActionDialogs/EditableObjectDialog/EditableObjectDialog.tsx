@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus";
 import "./EditableObjectDialog.less";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { useUsersMap } from "../../../queries/users";
 import { useNavigate } from "react-router-dom";
@@ -24,8 +23,6 @@ import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useObjectStatuses } from "../../../queries/objectStatuses";
 import { useCitiesMap } from "../../../queries/cities";
 import { MapPicker } from "../../Map/MapPicker";
-
-const modalContentWidth = getModalContentWidth();
 
 interface IEditableObjectDialogProps {
   object?: IObject;
@@ -157,7 +154,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
         modalTitle={modalTitle}
         modalText={
           <Space className="editable_object_dialog">
-            <Form layout="horizontal" style={{ width: modalContentWidth }}>
+            <Form layout="horizontal" className="editable-object-dialog__form">
               <Form.Item
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
@@ -169,7 +166,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                     dispatch(editObjectAction.setName(event.target.value))
                   }
                   disabled={sent}
-                  style={{ width: "100%" }}
+                  className="editable-object-dialog__input"
                 />
               </Form.Item>
               <Form.Item
@@ -206,14 +203,14 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 wrapperCol={{ span: 18 }}
                 label="Координаты"
               >
-                <Space.Compact style={{ width: "100%" }}>
+                <Space.Compact className="editable-object-dialog__coords">
                   <InputNumber
                     value={data.ltd}
                     onChange={(value) =>
                       dispatch(editObjectAction.setLtd(value ?? 0))
                     }
                     disabled={sent}
-                    style={{ width: "30%" }}
+                    className="editable-object-dialog__coord-input"
                     placeholder="Широта"
                     min={-90}
                     max={90}
@@ -225,7 +222,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                       dispatch(editObjectAction.setLng(value ?? 0))
                     }
                     disabled={sent}
-                    style={{ width: "30%" }}
+                    className="editable-object-dialog__coord-input"
                     placeholder="Долгота"
                     min={-180}
                     max={180}
@@ -235,7 +232,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 <Button
                   type="primary"
                   onClick={() => setIsMapPickerVisible(true)}
-                  style={{ width: "40%", marginTop: 8 }}
+                  className="editable-object-dialog__map-button"
                 >
                   Выбрать на карте
                 </Button>
@@ -297,7 +294,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
         onCancel={() => setIsMapPickerVisible(false)}
         footer={null}
         width="90%"
-        style={{ maxWidth: 1200 }}
+        className="editable-object-dialog__map-modal"
         destroyOnClose={true}
       >
         <MapPicker

@@ -9,7 +9,6 @@ import "./works.page.less";
 import { useNavigate, Link } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { worksMobileColumns } from "./components/mobile.columns";
-import { minPageHeight } from "../../utils/pageSettings";
 import type { IWorksListColumn } from "../../interfaces/works/IWorksList";
 import type { WorksFiltersState } from "../../interfaces/works/IWorksFiltersState";
 import type { IState } from "../../store/modules";
@@ -139,20 +138,12 @@ export const Works = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: "Работы" },
         ]}
       />
-      <Content
-        style={{
-          padding: isMobile() ? 4 : 8,
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
-      >
+      <Content className="works__content">
         <WorksActions
           works={worksData}
           onImportClick={() => setImportMode(true)}

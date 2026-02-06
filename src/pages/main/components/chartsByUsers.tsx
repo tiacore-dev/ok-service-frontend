@@ -11,6 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { useUsersMap } from "../../../queries/users";
+import "./chartsByUsers.less";
 
 interface IChartsByUsersProps {
   totalCostArrayByUser: {
@@ -47,7 +48,7 @@ export const ChartsByUsers = (props: IChartsByUsersProps) => {
     <Row gutter={[16, 16]}>
       {totalCostArrayByUser.map((element) => (
         <Col ref={containerRef} key={element.user} xs={24} sm={12} md={8}>
-          <Card hoverable style={{ padding: "0 24px" }}>
+          <Card hoverable className="charts-by-users__card">
             <Meta
               title={usersMap[element.user]?.name}
               description={description}

@@ -10,6 +10,7 @@ import {
 import { IUserShiftAssignment } from "../hooks/useAssignmentData";
 import { leaveReasonesMap } from "../../../queries/leaveReasons";
 import { LeaveReasonId } from "../../../interfaces/leaveReasones/ILeaveReason";
+import "./usersAssignmentsCard.less";
 
 type ObjectsMap = Record<string, { name: string }>;
 type ProjectsMap = Record<string, { name: string }>;
@@ -48,7 +49,7 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
           const userName = usersMap[item.userId]?.name ?? item.userId;
           return (
             <List.Item>
-              <Space direction="vertical" style={{ width: "100%" }}>
+              <Space direction="vertical" className="users-assignments__full">
                 <strong>{userName}</strong>
                 {item.assignments.length ? (
                   <List
@@ -76,17 +77,17 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                   <Space direction="horizontal" align="center">
                     {item.leaveReason === LeaveReasonId.SICK_LEAVE && (
                       <FrownOutlined
-                        style={{ fontSize: 20, color: "#ff8484ff" }}
+                        className="users-assignments__leave-icon"
                       />
                     )}
                     {item.leaveReason === LeaveReasonId.VACATION && (
                       <ContactsOutlined
-                        style={{ fontSize: 20, color: "#ff8484ff" }}
+                        className="users-assignments__leave-icon"
                       />
                     )}
                     {item.leaveReason === LeaveReasonId.DAY_OFF && (
                       <SmileOutlined
-                        style={{ fontSize: 20, color: "#ff8484ff" }}
+                        className="users-assignments__leave-icon"
                       />
                     )}
 
@@ -96,7 +97,7 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                   </Space>
                 ) : (
                   <Space direction="horizontal" align="center">
-                    <StopOutlined style={{ fontSize: 20, color: "#6940ff" }} />
+                    <StopOutlined className="users-assignments__stop-icon" />
                     <span className="assignment-page__unassigned">
                       Не назначен
                     </span>
@@ -113,7 +114,7 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                         <Select
                           showSearch
                           placeholder="Выбрать объект и спецификацию"
-                          style={{ minWidth: 420 }}
+                          className="users-assignments__assign-select"
                           options={assignOptions}
                           loading={assigning}
                           disabled={assigning}

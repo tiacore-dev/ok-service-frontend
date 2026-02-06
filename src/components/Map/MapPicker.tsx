@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Space, InputNumber, Typography, Alert } from "antd";
 import { EnvironmentOutlined } from "@ant-design/icons";
+import "./MapPicker.less";
 
 const { Text } = Typography;
 
@@ -197,8 +198,8 @@ export const MapPicker: React.FC<MapPickerProps> = ({
   };
 
   return (
-    <div style={{ padding: "16px 0" }}>
-      <Space direction="vertical" style={{ width: "100%" }} size="middle">
+    <div className="map-picker">
+      <Space direction="vertical" className="map-picker__content" size="middle">
         {error && (
           <Alert
             message="Ошибка"
@@ -225,7 +226,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
             max={90}
             precision={6}
             step={0.0001}
-            style={{ width: 150 }}
+            className="map-picker__coordinate-input"
           />
           <InputNumber
             value={lng}
@@ -235,7 +236,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
             max={180}
             precision={6}
             step={0.0001}
-            style={{ width: 150 }}
+            className="map-picker__coordinate-input"
           />
           <Button onClick={handleManualCoordinateChange} disabled={isLoading}>
             Применить координаты
@@ -251,23 +252,16 @@ export const MapPicker: React.FC<MapPickerProps> = ({
 
         <div
           ref={mapContainerRef}
-          style={{
-            width: "100%",
-            height: "400px",
-            border: "1px solid #d9d9d9",
-            borderRadius: "6px",
-            opacity: isLoading ? 0.5 : 1,
-          }}
+          className={[
+            "map-picker__map",
+            isLoading ? "map-picker__map--loading" : null,
+          ]
+            .filter(Boolean)
+            .join(" ")}
         >
           {isLoading && (
             <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-                color: "#999",
-              }}
+              className="map-picker__loading"
             >
               Загрузка карты...
             </div>
@@ -280,7 +274,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
           </Text>
         </div>
 
-        <div style={{ textAlign: "right" }}>
+        <div className="map-picker__actions">
           <Button type="primary" onClick={handleConfirm} disabled={isLoading}>
             Использовать эти координаты
           </Button>

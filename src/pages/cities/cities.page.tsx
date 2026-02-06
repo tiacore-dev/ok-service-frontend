@@ -5,7 +5,6 @@ import { IState } from "../../store/modules";
 import { Filters } from "./components/filters";
 import "./cities.page.less";
 import { isMobile } from "../../utils/isMobile";
-import { minPageHeight } from "../../utils/pageSettings";
 import { citiesDesktopColumns } from "./components/desktop.columns";
 import { citiesMobileColumns } from "./components/mobile.columns";
 import { ICitiesListColumn } from "../../interfaces/cities/ICitiesList";
@@ -64,20 +63,12 @@ export const Cities = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={mobile && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: "Города" },
         ]}
       />
-      <Content
-        style={{
-          padding: mobile ? 4 : 8,
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
-      >
+      <Content className="cities">
         {canManage && <Filters />}
         <Table
           dataSource={citiesData}

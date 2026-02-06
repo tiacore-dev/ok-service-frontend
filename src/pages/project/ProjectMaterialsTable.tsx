@@ -19,6 +19,7 @@ import { useMaterialsMap } from "../../queries/materials";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { IProjectMaterial } from "../../interfaces/projectMaterials/IProjectMaterial";
+import "./ProjectMaterialsTable.less";
 
 interface ProjectMaterialsTableProps {
   projectId: string;
@@ -265,7 +266,7 @@ export const ProjectMaterialsTable = ({
           <span>
             <Button
               onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
+              className="project-materials__action-button"
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
             <Button
@@ -323,7 +324,11 @@ export const ProjectMaterialsTable = ({
   return (
     <>
       {canManage && (
-        <Button onClick={handleAdd} type="primary" style={{ marginBottom: 16 }}>
+        <Button
+          onClick={handleAdd}
+          type="primary"
+          className="project-materials__add-button"
+        >
           Добавить материал
         </Button>
       )}

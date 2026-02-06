@@ -9,7 +9,6 @@ import "./leaves.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { leavesMobileColumns } from "./components/mobile.columns";
-import { minPageHeight } from "../../utils/pageSettings";
 import { Link } from "react-router-dom";
 import { useUsersMap } from "../../queries/users";
 import { useLeavesQuery } from "../../queries/leaves";
@@ -153,20 +152,12 @@ export const Leaves = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: "Листы отсутствия" },
         ]}
       />
-      <Content
-        style={{
-          padding: isMobile() ? 4 : 8,
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
-      >
+      <Content className="leaves">
         <Actions />
         <Filters
           filtersState={filtersState}

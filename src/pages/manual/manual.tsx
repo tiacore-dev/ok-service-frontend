@@ -37,7 +37,7 @@ export const Manual: React.FC = () => {
       </div>
 
       {/* Основной контент */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="manual__content">
         <Typography>
           {/* Введение */}
           <Title id="intro" level={2}>
@@ -134,7 +134,7 @@ export const Manual: React.FC = () => {
             разделе <Text strong>«Каталог работ»</Text>.
           </Paragraph>
 
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img
               src={users}
               alt="Список пользователей"
@@ -174,7 +174,7 @@ export const Manual: React.FC = () => {
             спецификацию или отчёт по смене. Объекты создаются, редактируются и
             удаляются Менеджером в разделе <Text strong>«Объекты»</Text>.
           </Paragraph>
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img src={objects} alt="Список объекта" className="manual_img" />
           </div>
           <Paragraph>Объект содержит следующие данные:</Paragraph>
@@ -191,7 +191,7 @@ export const Manual: React.FC = () => {
             со статусом <Text strong>«Действующий»</Text>.
           </Paragraph>
 
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img src={object} alt="Карточка объекта" className="manual_img" />
           </div>
 
@@ -252,7 +252,7 @@ export const Manual: React.FC = () => {
             флага «Согласовано» и требуют отдельного согласования менеджером.
           </Paragraph>
 
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img
               src={project}
               alt="Спецификация объекта"
@@ -286,7 +286,7 @@ export const Manual: React.FC = () => {
             работа будет выбрана автоматически. В противном случае её можно
             выбрать вручную.
           </Paragraph>
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img
               src={importProjectWorks}
               alt="Спецификация объекта"
@@ -350,7 +350,7 @@ export const Manual: React.FC = () => {
             считаются выполненными, а вознаграждение — начисленным.
           </Paragraph>
 
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img
               src={shiftReportMobile}
               alt="Отчет по смене"
@@ -378,7 +378,7 @@ export const Manual: React.FC = () => {
             Если в отчёте указано количество, превышающее доступное,
             согласование смены будет заблокировано.
           </Paragraph>
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img
               src={shiftReportDesktop}
               alt="Отчет по смене"
@@ -407,7 +407,7 @@ export const Manual: React.FC = () => {
             <li>удалять виды работ и цены.</li>
           </ul>
 
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img src={works} alt="Каталог работ" className="manual_img" />
           </div>
 
@@ -417,7 +417,7 @@ export const Manual: React.FC = () => {
             сохранить историю и избежать потери данных.
           </Paragraph>
 
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img src={work} alt="Цены работ" className="manual_img" />
           </div>
 
@@ -446,7 +446,7 @@ export const Manual: React.FC = () => {
             <li>средняя стоимость смены.</li>
           </ul>
 
-          <div style={{ margin: "16px 0" }}>
+          <div className="manual__image-block">
             <img src={home} alt="Главная страница" className="manual_img" />
           </div>
 

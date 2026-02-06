@@ -9,7 +9,6 @@ import "./App.less";
 import { Route, Routes } from "react-router-dom";
 import { Main } from "../../pages/main/main";
 import { isMobile } from "../../utils/isMobile";
-import { pageHeight } from "../../utils/pageSettings";
 import { Users } from "../../pages/users/users.page";
 import { Cities } from "../../pages/cities/cities.page";
 import { Login } from "../../pages/auth/component/login";
@@ -134,7 +133,13 @@ export const App = () => {
     (state: IState) => state.settings.generalSettings.fullScreenMode,
   );
 
-  const height = fullScreenMode ? null : pageHeight();
+  const layoutClassName = [
+    "app-layout",
+    mobile ? "app-layout--mobile" : null,
+    fullScreenMode ? "app-layout--fullscreen" : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <>
@@ -143,14 +148,7 @@ export const App = () => {
           <AppHeader isMobile={mobile} />
         )}
 
-        <Layout
-          style={{
-            padding: mobile ? "0" : "0 24px",
-            height: height,
-            overflowX: "auto",
-            backgroundColor: "#FFFFFF",
-          }}
-        >
+        <Layout className={layoutClassName}>
           <Routes>
             <Route path="/">
               <Route index={true} element={<></>} />

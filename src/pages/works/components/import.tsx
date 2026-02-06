@@ -18,6 +18,7 @@ import {
 } from "../../../queries/workPrices";
 import { worksKeys } from "../../../queries/works";
 import { useQueryClient } from "@tanstack/react-query";
+import "./import.less";
 
 const { Dragger } = Upload;
 
@@ -398,7 +399,7 @@ export const ImportWorks = ({ works, onClose }: IImportWorksProps) => {
       key: "name",
       width: 240,
       render: (text: string) => (
-        <Typography.Text style={{ whiteSpace: "normal" }}>
+        <Typography.Text className="works-import__text-normal">
           {text}
         </Typography.Text>
       ),
@@ -453,21 +454,17 @@ export const ImportWorks = ({ works, onClose }: IImportWorksProps) => {
   );
 
   return (
-    <div
-      style={{
-        marginBottom: 16,
-        padding: 16,
-        border: "1px solid #f0f0f0",
-        borderRadius: 8,
-        background: "#fff",
-      }}
-    >
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+    <div className="works-import">
+      <Space
+        direction="vertical"
+        size="large"
+        className="works-import__content"
+      >
         <div>
-          <Typography.Title level={4} style={{ marginBottom: 8 }}>
+          <Typography.Title level={4} className="works-import__title">
             Импорт цен работ
           </Typography.Title>
-          <Typography.Paragraph style={{ marginBottom: 0 }}>
+          <Typography.Paragraph className="works-import__paragraph">
             Загрузите CSV, полученный через экспорт работ. Меняем только столбцы
             «Цена 1-4» — остальные данные используются для поиска работы.
           </Typography.Paragraph>

@@ -1,4 +1,9 @@
 .shift-reports {
+    padding: 8px;
+    margin: 0;
+    min-height: calc(100vh - 108px);
+    background: #fff;
+
     &__table {
         &__unviewed {
             color: #e40808;
@@ -36,6 +41,10 @@
         &_select {
             min-width: 300px;
         }
+    }
+
+    &__assignment-button {
+        margin-right: 8px;
     }
 
     &_filters {
@@ -114,4 +123,11 @@
         }
     }
 
+}
+
+@media (max-width: 768px) {
+    .shift-reports {
+        padding: 4px;
+        min-height: calc(100vh - 110px);
+    }
 }

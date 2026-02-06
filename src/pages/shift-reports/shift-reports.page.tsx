@@ -9,7 +9,6 @@ import { IState } from "../../store/modules";
 import "./shift-reports.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
-import { minPageHeight } from "../../utils/pageSettings";
 import { Link } from "react-router-dom";
 import type { FilterValue, SorterResult } from "antd/es/table/interface";
 import type { DataNode } from "antd/es/tree";
@@ -298,20 +297,12 @@ export const ShiftReports = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: "Отчеты по сменам" },
         ]}
       />
-      <Content
-        style={{
-          padding: isMobile() ? 4 : 8,
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
-      >
+      <Content className="shift-reports">
         <Actions currentFilters={currentFilters} />
 
         <ShiftReportsFilters

@@ -10,7 +10,6 @@ import {
 } from "antd";
 import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
-import { minPageHeight } from "../../utils/pageSettings";
 import { Link } from "react-router-dom";
 import { IWorkCategoriesListColumn } from "../../interfaces/workCategories/IWorkCategoriesList";
 import { EditableCell } from "../components/editableCell";
@@ -29,6 +28,7 @@ import {
   useWorkCategoriesQuery,
 } from "../../queries/workCategories";
 import { NotificationContext } from "../../contexts/NotificationContext";
+import "./work-categories.page.less";
 
 export const WorkCategories = () => {
   const { Content } = Layout;
@@ -192,7 +192,7 @@ export const WorkCategories = () => {
           <span>
             <Button
               onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
+              className="work-categories__action-button"
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
             <Button
@@ -243,7 +243,6 @@ export const WorkCategories = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: <Link to="/works">Работы</Link> },
@@ -251,22 +250,17 @@ export const WorkCategories = () => {
         ]}
       />
       <Content
-        style={{
-          padding: isMobile() ? 4 : 8,
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
+        className="work-categories__content"
       >
         {currentRole === RoleId.ADMIN && (
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}
-            className="works_filters"
+            className="work-categories__actions"
           >
             <Button
               onClick={handleAdd}
               type="primary"
-              style={{ marginBottom: 16 }}
+              className="work-categories__add-button"
             >
               Добавить категорию работ
             </Button>

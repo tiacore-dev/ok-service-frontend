@@ -20,7 +20,7 @@ export const materialsDesktopColumns = (
         return (
           <div>
             {record.deleted && (
-              <DeleteOutlined style={{ marginRight: "8px" }} />
+              <DeleteOutlined className="materials__deleted-icon" />
             )}
             {record.name}
           </div>
@@ -29,7 +29,9 @@ export const materialsDesktopColumns = (
 
       return (
         <div>
-          {record.deleted && <DeleteOutlined style={{ marginRight: "8px" }} />}
+          {record.deleted && (
+            <DeleteOutlined className="materials__deleted-icon" />
+          )}
           <a
             className="materials__table__number"
             onClick={() => navigate && navigate(`/materials/${record.key}`)}

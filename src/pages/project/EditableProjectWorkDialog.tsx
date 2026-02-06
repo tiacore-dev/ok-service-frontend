@@ -65,10 +65,7 @@ export const EditableProjectWorkDialog: React.FC<
         .map((el) => ({
           // Для выпадающего списка - многострочный вариант
           label: (
-            <span
-              className="work-option-label"
-              style={{ whiteSpace: "normal" }}
-            >
+            <span className="work-option-label">
               {`${el.name} (${el.category.name})`}
             </span>
           ),
@@ -178,7 +175,6 @@ export const EditableProjectWorkDialog: React.FC<
             optionFilterProp="title" // Используем title для поиска
             optionLabelProp="title" // Используем title для отображения в поле
             dropdownClassName="work-dropdown"
-            style={{ width: "100%" }}
           />
         </Form.Item>
 
@@ -189,7 +185,7 @@ export const EditableProjectWorkDialog: React.FC<
             { required: true, message: "Пожалуйста, введите количество" },
           ]}
         >
-          <InputNumber min={0} style={{ width: "100%" }} />
+          <InputNumber min={0} className="project-work-modal__input-number" />
         </Form.Item>
         <Form.Item
           name="signed"

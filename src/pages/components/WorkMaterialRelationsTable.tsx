@@ -18,6 +18,7 @@ import {
 import { useWorksMap } from "../../queries/works";
 import { useMaterialsMap } from "../../queries/materials";
 import { NotificationContext } from "../../contexts/NotificationContext";
+import "./WorkMaterialRelationsTable.less";
 
 interface WorkMaterialRelationsTableProps {
   materialId?: string;
@@ -274,7 +275,7 @@ export const WorkMaterialRelationsTable = ({
           <span>
             <Button
               onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
+              className="work-material-relations__action-button"
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
             <Button
@@ -330,7 +331,11 @@ export const WorkMaterialRelationsTable = ({
   return (
     <>
       {canManage && (
-        <Button onClick={handleAdd} type="primary" style={{ marginBottom: 16 }}>
+        <Button
+          onClick={handleAdd}
+          type="primary"
+          className="work-material-relations__add-button"
+        >
           Добавить расход материала
         </Button>
       )}

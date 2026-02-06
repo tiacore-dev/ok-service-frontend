@@ -11,6 +11,7 @@ import {
   useCreateProjectWorksMutation,
   type EditableProjectWorkPayload,
 } from "../../queries/projectWorks";
+import "./ImportProjectWorks.less";
 
 interface IImportProjectWorksProps {
   project?: IProject;
@@ -75,7 +76,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
       width: "650px",
       render: (text: string, record: IUploadData) => {
         const menu = (
-          <Menu style={{ maxHeight: "400px", overflowY: "auto" }}>
+          <Menu className="import-project-works__menu">
             <Input
               placeholder="Поиск"
               value={search}
@@ -98,9 +99,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
                     setSearch("");
                   }}
                 >
-                  <div
-                    style={{ whiteSpace: "normal", wordBreak: "break-word" }}
-                  >
+                  <div className="import-project-works__menu-item">
                     {opt.label}
                   </div>
                 </Menu.Item>
@@ -115,25 +114,10 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
         return (
           <Dropdown overlay={menu} trigger={["click"]}>
             <Button
-              style={{
-                width: "620px",
-                textAlign: "left",
-                whiteSpace: "normal",
-                wordBreak: "break-word",
-                height: "auto",
-                minHeight: "32px",
-                padding: "4px 12px",
-                display: "flex",
-                alignItems: "center",
-              }}
+              className="import-project-works__dropdown-button"
             >
               <span
-                style={{
-                  display: "inline-block",
-                  width: "100%",
-                  textOverflow: "ellipsis",
-                  overflow: "hidden",
-                }}
+                className="import-project-works__dropdown-text"
               >
                 {buttonText}
               </span>
@@ -258,40 +242,33 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
   ]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        padding: "16px",
-      }}
-    >
-      <div
-        style={{ display: "flex", flex: 1, gap: "16px", overflow: "hidden" }}
-      >
-        <div
-          style={{ display: "flex", flexDirection: "column", width: "300px" }}
-        >
+    <div className="import-project-works">
+      <div className="import-project-works__body">
+        <div className="import-project-works__sidebar">
           <TextArea
             value={uploadString}
             onChange={(e) => setUploadString(e.target.value)}
-            style={{ flex: 1, marginBottom: "16px" }}
+            className="import-project-works__textarea"
           />
-          <Button onClick={handleAnalysis} style={{ marginBottom: "16px" }}>
+          <Button
+            onClick={handleAnalysis}
+            className="import-project-works__analyze-button"
+          >
             Анализировать наименования работ
           </Button>
         </div>
 
-        <div style={{ flex: 1, overflow: "hidden" }}>
+        <div className="import-project-works__table-wrapper">
           <Table
             pagination={false}
-            style={{ width: "100%", height: "100%" }}
+            className="import-project-works__table"
             dataSource={uploadData}
             columns={columns}
           />
         </div>
       </div>
 
-      <div style={{ marginTop: "16px" }}>
+      <div className="import-project-works__footer">
         <Space>
           <Button onClick={handleConfirm} type="primary">
             {buttonLabel}

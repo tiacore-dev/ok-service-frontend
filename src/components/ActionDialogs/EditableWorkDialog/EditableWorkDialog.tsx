@@ -16,12 +16,10 @@ import {
 } from "../../../queries/works";
 import type { EditableWorkPayload } from "../../../queries/works";
 import { useWorkCategoriesQuery } from "../../../queries/workCategories";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useNavigate } from "react-router-dom";
 
-const modalContentWidth = getModalContentWidth();
 interface IEditableWorkDialogProps {
   work?: IWork;
   iconOnly?: boolean;
@@ -155,7 +153,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_work_dialog">
-          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+          <Form layout="horizontal" className="editable-work-dialog__form">
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}

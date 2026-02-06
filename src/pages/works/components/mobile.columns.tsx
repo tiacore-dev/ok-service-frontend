@@ -29,23 +29,11 @@ export const worksMobileColumns = (
         )}
         <div>Категория: {record.category.name}</div>
         <div>Единицы измерения: {record.measurement_unit}</div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
+        <div className="works__mobile-row">
           <div>Разряд 1: {renderPrice(record, 1)}</div>
           <div>Разряд 2: {renderPrice(record, 2)}</div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
+        <div className="works__mobile-row">
           <div>Разряд 3: {renderPrice(record, 3)}</div>
           <div>Разряд 4: {renderPrice(record, 4)}</div>
         </div>

@@ -2,6 +2,7 @@ import { Checkbox, Form, Input, InputNumber, Select } from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import * as React from "react";
 import { selectFilterHandler } from "../../utils/selectFilterHandler";
+import "./editableCell.less";
 
 interface IEditableCellProps {
   editing: boolean;
@@ -88,7 +89,7 @@ export const EditableCell = ({
       {editing ? (
         <Form.Item
           name={dataIndex}
-          style={{ margin: 0 }}
+          className="editable-cell__item"
           valuePropName={inputType === "checkbox" && "checked"}
           rules={[
             {

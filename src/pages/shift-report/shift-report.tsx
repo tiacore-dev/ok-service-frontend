@@ -16,7 +16,6 @@ import {
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import {
@@ -49,6 +48,7 @@ import { useProjectWorksMap } from "../../queries/projectWorks";
 import { useWorksMap } from "../../queries/works";
 import { MapViewer } from "../../components/Map/MapViewer";
 import { ShiftReportMaterialsTable } from "./ShiftReportMaterialsTable";
+import "./shift-report.less";
 
 const { Text } = Typography;
 
@@ -344,7 +344,9 @@ export const ShiftReport = () => {
         !shiftReportData ||
         shiftReportData.signed,
       render: (text: string, record: IShiftReportDetailsListColumn) => (
-        <span style={{ color: record.blocked ? "red" : "inherit" }}>
+        <span
+          className={record.blocked ? "shift-report__blocked-text" : undefined}
+        >
           {text}
         </span>
       ),
@@ -582,7 +584,6 @@ export const ShiftReport = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() ? { backgroundColor: "#F8F8F8" } : undefined}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: <Link to="/shifts">Смены</Link> },
@@ -592,14 +593,7 @@ export const ShiftReport = () => {
         ]}
       />
 
-      <Content
-        style={{
-          padding: "0 24px",
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
-      >
+      <Content className="shift-report__content">
         <Title level={3}>
           {`Отчет по смене № ${shiftReportData.number?.toString().padStart(5, "0")} от ${dateTimestampToLocalString(shiftReportData.date)}, ${usersMap[shiftReportData.user]?.name ?? ""}`}
         </Title>
@@ -618,7 +612,7 @@ export const ShiftReport = () => {
           )}
         </Space>
 
-        <Card style={{ margin: "8px 0" }}>
+        <Card className="shift-report__card">
           <p>Номер: {shiftReportData.number?.toString().padStart(5, "0")}</p>
           <p>Дата: {dateTimestampToLocalString(shiftReportData.date)}</p>
           <p>Исполнитель: {usersMap[shiftReportData.user]?.name ?? ""}</p>
@@ -670,7 +664,7 @@ export const ShiftReport = () => {
               onClick={handleStartShift}
               type="primary"
               loading={isStartingShift}
-              style={{ marginBottom: 12, marginRight: 12 }}
+              className="shift-report__start-button"
             >
               Начать смену
             </Button>
@@ -680,11 +674,12 @@ export const ShiftReport = () => {
               onClick={handleCompleteShift}
               type="primary"
               loading={isCompletingShift}
-              style={{
-                marginBottom: 12,
-                marginLeft: canStartShift ? 8 : 0,
-                marginRight: 12,
-              }}
+              className={[
+                "shift-report__complete-button",
+                canStartShift ? "shift-report__complete-button--spaced" : null,
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               Завершить смену
             </Button>
@@ -705,13 +700,13 @@ export const ShiftReport = () => {
 
         <Space
           direction={isMobile() ? "vertical" : "horizontal"}
-          className="shift-reports_filters"
+          className="shift-report__actions"
         >
           {canEdit && (
             <Button
               onClick={handleAdd}
               type="primary"
-              style={{ marginBottom: 16 }}
+              className="shift-report__add-detail"
             >
               Добавить запись отчета по смене
             </Button>
@@ -731,7 +726,7 @@ export const ShiftReport = () => {
           footer={footer}
         />
 
-        <Title level={4} style={{ marginTop: 24 }}>
+        <Title level={4} className="shift-report__materials-title">
           Материалы
         </Title>
         <ShiftReportMaterialsTable

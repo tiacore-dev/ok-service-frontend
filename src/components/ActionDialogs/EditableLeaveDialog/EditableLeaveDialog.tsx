@@ -5,7 +5,6 @@ import { DatePicker, Form, Input, Select, Space } from "antd";
 import { ILeave } from "../../../interfaces/leaves/ILeave";
 
 import "./EditableLeaveDialog.less";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { useUsersMap } from "../../../queries/users";
 import { useNavigate } from "react-router-dom";
@@ -22,8 +21,6 @@ import { leaveReasonOptions } from "../../../queries/leaveReasons";
 import { dateFormat } from "../../../utils/dateConverter";
 import dayjs from "dayjs";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
-
-const modalContentWidth = getModalContentWidth();
 
 interface IEditableLeaveDialogProps {
   leave?: ILeave;
@@ -135,7 +132,7 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_leave_dialog">
-          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+          <Form layout="horizontal" className="editable-leave-dialog__form">
             <Form.Item
               label="Сотрудник"
               labelCol={{ span: 6 }}
@@ -214,7 +211,7 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
                   setData((data) => ({ ...data, comment: event.target.value }))
                 }
                 disabled={sent}
-                style={{ width: "100%" }}
+                className="editable-leave-dialog__input"
               />
             </Form.Item>
 

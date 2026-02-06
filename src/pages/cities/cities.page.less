@@ -1,4 +1,9 @@
 .cities {
+    padding: 8px;
+    margin: 0;
+    min-height: calc(100vh - 108px);
+    background: #fff;
+
     &__table {
         &__name {
             font-weight: 600;
@@ -11,5 +16,16 @@
         @media all and (max-width: 1000px) {
             margin-left: 12px;
         }
+    }
+
+    &__mobile-actions {
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cities {
+        padding: 4px;
+        min-height: calc(100vh - 110px);
     }
 }

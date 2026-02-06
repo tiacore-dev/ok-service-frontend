@@ -28,10 +28,7 @@ const usersSettingsSlice = createSlice({
     saveUsersTableState: (
       state: IUsersSettingsState,
       action: {
-        payload: Pick<
-          IUsersSettingsState,
-          "pagination" | "filters" | "sorter"
-        >;
+        payload: Pick<IUsersSettingsState, "pagination" | "filters" | "sorter">;
       },
     ) => {
       state.pagination = action.payload.pagination;

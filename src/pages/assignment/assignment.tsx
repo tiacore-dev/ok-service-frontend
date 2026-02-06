@@ -1,6 +1,5 @@
 import { Breadcrumb, Space } from "antd";
 import * as React from "react";
-import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
@@ -132,7 +131,6 @@ export const Assignment = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() ? { backgroundColor: "#F8F8F8" } : undefined}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: <Link to="/shifts">Смены</Link> },

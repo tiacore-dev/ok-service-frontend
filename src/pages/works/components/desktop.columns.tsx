@@ -21,7 +21,9 @@ export const worksDesktopColumns = (
 
       return (
         <div>
-          {record.deleted && <DeleteOutlined style={{ marginRight: "8px" }} />}
+          {record.deleted && (
+            <DeleteOutlined className="works__deleted-icon" />
+          )}
           <a
             className="works__table__number"
             onClick={() => navigate && navigate(`/works/${record.key}`)}

@@ -19,14 +19,14 @@ export const materialsMobileColumns = (
         {role === RoleId.USER ? (
           <div>
             {record.deleted && (
-              <DeleteOutlined style={{ marginRight: "8px" }} />
+              <DeleteOutlined className="materials__deleted-icon" />
             )}
             {record.name}
           </div>
         ) : (
           <div>
             {record.deleted && (
-              <DeleteOutlined style={{ marginRight: "8px" }} />
+              <DeleteOutlined className="materials__deleted-icon" />
             )}
             <a
               className="materials__table__number"

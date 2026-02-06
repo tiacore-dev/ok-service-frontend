@@ -9,9 +9,19 @@
         margin: auto 8px;
     }
 
+    &__back{
+        margin: auto 12px auto -24px;
+        font-size: 24px;
+    }
+
+    &__title{
+        margin: auto 0;
+    }
+
     &__menu{
         width: 100%;
     };
+    background-color: #fff;
     position: relative;
     display: flex;
     flex-direction: row;
@@ -27,6 +37,26 @@
     }
 }
 
+:root {
+    --app-footer-height: 64px;
+}
+
+.app-layout {
+    padding: 0 24px;
+    min-height: calc(100vh - 70px);
+    overflow-x: auto;
+    background-color: #fff;
+}
+
+.app-layout--mobile {
+    padding: 0;
+    padding-bottom: calc(var(--app-footer-height) + env(safe-area-inset-bottom, 0px));
+}
+
+.app-layout--fullscreen {
+    min-height: 0;
+}
+
 .without-border {
     border: none;
 }
@@ -36,6 +66,10 @@
 }
 
 @media (max-width: 768px) {
+    .breadcrumb {
+      background-color: #F8F8F8;
+    }
+
     .ant-table {
       width: 100%;
     }

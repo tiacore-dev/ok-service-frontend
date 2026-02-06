@@ -4,7 +4,6 @@ import { useAuthData } from "../../hooks/useAuth";
 import { Login } from "./component/login";
 import { Account } from "./component/account";
 import "./auth.less";
-import { minPageHeight } from "../../utils/pageSettings";
 import { useDispatch } from "react-redux";
 import { isMobile } from "../../utils/isMobile";
 import {
@@ -34,19 +33,12 @@ export const Auth = () => {
       {" "}
       {authData.isAuth && (
         <Breadcrumb
-          style={isMobile() && { backgroundColor: "#F8F8F8" }}
           className="breadcrumb"
           items={breadcrumbItems}
         ></Breadcrumb>
       )}
       <Content
-        style={{
-          padding: 16,
-          margin: 0,
-          minHeight: minPageHeight(),
-          minWidth: 380,
-          background: "#FFF",
-        }}
+        className="auth__content"
       >
         {authData.isAuth ? <Account /> : <Login />}
       </Content>

@@ -3,7 +3,6 @@ import { Breadcrumb, Card, Layout, Space, Spin, Typography } from "antd";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableObjectDialog } from "../../components/ActionDialogs/EditableObjectDialog/EditableObjectDialog";
 import { DeleteObjectDialog } from "../../components/ActionDialogs/DeleteObjectDialog";
@@ -17,6 +16,7 @@ import { useContext, useMemo } from "react";
 import { useObjectStatuses } from "../../queries/objectStatuses";
 import { useCitiesMap } from "../../queries/cities";
 import { MapViewer } from "../../components/Map/MapViewer";
+import "./object.less";
 const { Text } = Typography;
 
 export const Object = () => {
@@ -75,7 +75,6 @@ export const Object = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           {
@@ -86,12 +85,7 @@ export const Object = () => {
       />
       {isLoaded && objectData && objectId === objectData.object_id ? (
         <Content
-          style={{
-            padding: "0 24px",
-            margin: 0,
-            minHeight: minPageHeight(),
-            background: "#FFF",
-          }}
+          className="object__content"
         >
           <Title level={3}>{objectData.name}</Title>
           <Space
@@ -108,7 +102,7 @@ export const Object = () => {
               />
             )}
           </Space>
-          <Card style={{ margin: "8px 0" }}>
+          <Card className="object__card">
             <p>Наименование: {objectData.name}</p>
             <p>
               Адрес: {objectData.address}

@@ -1,5 +1,6 @@
 import React from "react";
 import { TooltipProps } from "recharts";
+import "./customTooltip.less";
 
 export const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
   active,
@@ -12,15 +13,7 @@ export const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
 
   return (
     <div
-      style={{
-        background: "#fff",
-        padding: "4px 10px",
-        border: "1px solid #ccc",
-        borderRadius: 4,
-        overflowY: "auto",
-        maxHeight: 300,
-        pointerEvents: "auto",
-      }}
+      className="custom-tooltip"
       onWheel={(e) => {
         const target = e.currentTarget;
         const canScroll = target.scrollHeight > target.clientHeight;
@@ -35,7 +28,7 @@ export const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
       {!!data.notOpened && (
         <div>
           Не открыто: {data.notOpened}
-          <ul style={{ fontSize: "9pt" }}>
+          <ul className="custom-tooltip__list">
             {data.notOpenedData.map((el: string) => (
               <li>{el}</li>
             ))}
@@ -45,7 +38,7 @@ export const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
       {!!data.empty && (
         <div>
           Не заполнено: {data.empty}
-          <ul style={{ fontSize: "9pt" }}>
+          <ul className="custom-tooltip__list">
             {data.emptyData.map((el: string) => (
               <li>{el}</li>
             ))}
@@ -55,7 +48,7 @@ export const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
       {!!data.notSigned && (
         <div>
           Не согласовано: {data.notSigned}
-          <ul style={{ fontSize: "9pt" }}>
+          <ul className="custom-tooltip__list">
             {data.notSignedData.map((el: string) => (
               <li>{el}</li>
             ))}
@@ -65,7 +58,7 @@ export const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
       {!!data.signed && (
         <div>
           Согласовано: {data.signed}
-          <ul style={{ fontSize: "9pt" }}>
+          <ul className="custom-tooltip__list">
             {data.signedData.map((el: string) => (
               <li>{el}</li>
             ))}

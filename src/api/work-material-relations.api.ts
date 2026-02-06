@@ -22,10 +22,9 @@ export const fetchWorkMaterialRelations = async (
 export const createWorkMaterialRelation = async (
   payload: EditableWorkMaterialRelationPayload,
 ): Promise<IWorkMaterialRelation> => {
-  const { data } = await apiClient.post<{ work_material_relation: IWorkMaterialRelation }>(
-    "/work_material_relations/add",
-    payload,
-  );
+  const { data } = await apiClient.post<{
+    work_material_relation: IWorkMaterialRelation;
+  }>("/work_material_relations/add", payload);
   return data.work_material_relation;
 };
 
@@ -33,10 +32,9 @@ export const updateWorkMaterialRelation = async (
   relationId: string,
   payload: EditableWorkMaterialRelationPayload,
 ): Promise<IWorkMaterialRelation> => {
-  const { data } = await apiClient.patch<{ work_material_relation: IWorkMaterialRelation }>(
-    `/work_material_relations/${relationId}/edit`,
-    payload,
-  );
+  const { data } = await apiClient.patch<{
+    work_material_relation: IWorkMaterialRelation;
+  }>(`/work_material_relations/${relationId}/edit`, payload);
   return data.work_material_relation;
 };
 

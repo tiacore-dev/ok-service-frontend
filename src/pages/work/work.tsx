@@ -13,7 +13,6 @@ import {
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { Link, useNavigate } from "react-router-dom";
 import { EditableWorkDialog } from "../../components/ActionDialogs/EditableWorkDialog/EditableWorkDialog";
@@ -37,6 +36,7 @@ import {
   useUpdateWorkPriceMutation,
   useWorkPricesQuery,
 } from "../../queries/workPrices";
+import "./work.less";
 
 export const Work = () => {
   const { Content } = Layout;
@@ -257,7 +257,7 @@ export const Work = () => {
           <span>
             <Button
               onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
+              className="work__action-button"
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
             <Button
@@ -315,7 +315,6 @@ export const Work = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           {
@@ -326,12 +325,7 @@ export const Work = () => {
       />
       {isLoaded && workData && routeParams.workId === workData.work_id ? (
         <Content
-          style={{
-            padding: "0 24px",
-            margin: 0,
-            minHeight: minPageHeight(),
-            background: "#FFF",
-          }}
+          className="work__content"
         >
           <Title level={3}>{workData.name}</Title>
           <Space
@@ -369,7 +363,7 @@ export const Work = () => {
               />
             )}
           </Space>
-          <Card style={{ margin: "8px 0" }}>
+          <Card className="work__card">
             <p>Имя: {workData.name}</p>
             <p>Категория: {workData.category.name}</p>
             <p>Единица измерения: {workData.measurement_unit}</p>
@@ -381,7 +375,7 @@ export const Work = () => {
           <Button
             onClick={handleAdd}
             type="primary"
-            style={{ marginBottom: 16 }}
+            className="work__add-price"
           >
             Добавить цену работ
           </Button>

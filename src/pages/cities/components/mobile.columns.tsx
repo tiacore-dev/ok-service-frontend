@@ -22,7 +22,7 @@ export const citiesMobileColumns = (
         <div>Создатель: {usersMap[record.created_by ?? ""]?.name ?? "—"}</div>
 
         {canManage && (
-          <Space size="middle" style={{ marginTop: 8 }}>
+          <Space size="middle" className="cities__mobile-actions">
             <EditableCityDialog city={record} iconOnly />
             <DeleteCityDialog
               name={record.name}

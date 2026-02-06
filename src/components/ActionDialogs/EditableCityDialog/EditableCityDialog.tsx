@@ -10,13 +10,10 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableCityDialog.less";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import {
   useCreateCityMutation,
   useUpdateCityMutation,
 } from "../../../queries/cities";
-
-const modalContentWidth = getModalContentWidth();
 
 interface IEditableCityDialogProps {
   city?: ICity;
@@ -79,7 +76,7 @@ export const EditableCityDialog = (props: IEditableCityDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_city_dialog">
-          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+          <Form layout="horizontal" className="editable-city-dialog__form">
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}

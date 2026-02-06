@@ -160,7 +160,7 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
           <Button
             icon={<UsergroupAddOutlined />}
             onClick={() => navigate("/shifts/assignment")}
-            style={{ marginRight: 8 }}
+            className="shift-reports__assignment-button"
           >
             Распределение смен
           </Button>

@@ -20,6 +20,7 @@ import { CustomTooltip } from "./customTooltip";
 import { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
 import { useUsersMap } from "../../../queries/users";
 import { DayCard } from "./dayCard";
+import "./charts.less";
 
 export interface ITotalCost {
   date: string;
@@ -101,7 +102,7 @@ export const Charts = (props: IChartsProps) => {
   return (
     <Row gutter={[16, 16]}>
       <Col ref={containerRef} key={0} xs={24} sm={8}>
-        <Card style={{ padding: "0 24px" }}>
+        <Card className="charts__card">
           <Meta
             title="Общая стоимость выполненных работ"
             description={description}

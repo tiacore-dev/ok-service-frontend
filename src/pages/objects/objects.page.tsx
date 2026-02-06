@@ -9,7 +9,6 @@ import "./objects.page.less";
 import { useNavigate } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { objectsMobileColumns } from "./components/mobile.columns";
-import { minPageHeight } from "../../utils/pageSettings";
 import { IObjectsListColumn } from "../../interfaces/objects/IObjectsList";
 import { Link } from "react-router-dom";
 import { useUsersMap } from "../../queries/users";
@@ -173,20 +172,12 @@ export const Objects = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: "Объекты" },
         ]}
       />
-      <Content
-        style={{
-          padding: isMobile() ? 4 : 8,
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
-      >
+      <Content className="objects">
         <Actions />
         <Filters
           filtersState={filtersState}

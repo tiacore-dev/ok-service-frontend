@@ -6,7 +6,6 @@ import { RollbackOutlined, DeleteTwoTone } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableUserDialog } from "../../components/ActionDialogs/EditableUserDialog/EditableUserDialog";
 import { DeleteUserDialog } from "../../components/ActionDialogs/DeleteUserDialog";
@@ -23,6 +22,7 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { useRoles } from "../../queries/roles";
 import { useCitiesMap } from "../../queries/cities";
+import "./user.less";
 
 export const User = () => {
   const { Content } = Layout;
@@ -138,7 +138,6 @@ export const User = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           {
@@ -149,12 +148,7 @@ export const User = () => {
       />
       {isLoaded && userData ? (
         <Content
-          style={{
-            padding: "0 24px",
-            margin: 0,
-            minHeight: minPageHeight(),
-            background: "#FFF",
-          }}
+          className="user__content"
         >
           <Title level={3}>{userData.name}</Title>
           <Space
@@ -198,7 +192,7 @@ export const User = () => {
               </>
             )}
           </Space>
-          <Card style={{ margin: "8px 0" }}>
+          <Card className="user__card">
             <p>Имя: {userData.name}</p>
             <p>Разряд: {userData.category ?? "Нет разряда"}</p>
             <p>Логин: {userData.login}</p>

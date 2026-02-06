@@ -10,7 +10,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../../store/modules";
 import "./EditableProjectDialog.less";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { useUsersMap } from "../../../queries/users";
 import { useObjectsMap } from "../../../queries/objects";
@@ -22,7 +21,6 @@ import {
   type EditableProjectPayload,
 } from "../../../queries/projects";
 
-const modalContentWidth = getModalContentWidth();
 interface IEditableProjectDialogProps {
   project?: IProject;
   iconOnly?: boolean;
@@ -149,7 +147,7 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_project_dialog">
-          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+          <Form layout="horizontal" className="editable-project-dialog__form">
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}

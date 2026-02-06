@@ -9,7 +9,6 @@ import "./materials.page.less";
 import { useNavigate, Link } from "react-router-dom";
 import { isMobile } from "../../utils/isMobile";
 import { materialsMobileColumns } from "./components/mobile.columns";
-import { minPageHeight } from "../../utils/pageSettings";
 import type { IMaterialsListColumn } from "../../interfaces/materials/IMaterialsList";
 import type { MaterialsFiltersState } from "../../interfaces/materials/IMaterialsFiltersState";
 import type { IState } from "../../store/modules";
@@ -100,21 +99,12 @@ export const Materials = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: "Материалы" },
         ]}
       />
-      <Content
-        className="materials"
-        style={{
-          padding: isMobile() ? 4 : 8,
-          margin: 0,
-          minHeight: minPageHeight(),
-          background: "#FFF",
-        }}
-      >
+      <Content className="materials">
         <MaterialsActions />
 
         <MaterialsFilters

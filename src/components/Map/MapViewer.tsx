@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Modal, Space, Typography, Alert } from "antd";
 import { EyeOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import "./MapViewer.less";
 
 const { Text } = Typography;
 
@@ -191,7 +192,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
       return (
         <Button
           type="link"
-          icon={<EyeOutlined style={{ color: "red" }} />}
+          icon={<EyeOutlined className="map-viewer__icon" />}
           onClick={handleOpenModal}
           disabled={disabled}
           title={buttonText}
@@ -216,7 +217,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     return (
       <Button
         type="link"
-        icon={<EyeOutlined style={{ color: "red" }} />}
+        icon={<EyeOutlined className="map-viewer__icon" />}
         onClick={handleOpenModal}
         disabled={disabled}
         size="small"
@@ -240,7 +241,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
           </Button>,
         ]}
         width="90%"
-        style={{ maxWidth: 1200 }}
+        className="map-viewer__modal"
         destroyOnClose={true}
       >
         {error && (
@@ -249,7 +250,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
             description={error}
             type="error"
             showIcon
-            style={{ marginBottom: 16 }}
+            className="map-viewer__alert"
           />
         )}
 
@@ -258,23 +259,16 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         ) : (
           <div
             ref={mapContainerRef}
-            style={{
-              width: "100%",
-              height: "500px",
-              border: "1px solid #d9d9d9",
-              borderRadius: "6px",
-              opacity: isLoading ? 0.5 : 1,
-            }}
+            className={[
+              "map-viewer__map",
+              isLoading ? "map-viewer__map--loading" : null,
+            ]
+              .filter(Boolean)
+              .join(" ")}
           >
             {isLoading && (
               <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                  color: "#999",
-                }}
+                className="map-viewer__loading"
               >
                 Загрузка карты...
               </div>
@@ -283,9 +277,9 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         )}
 
         {points.length > 0 && !isLoading && (
-          <div style={{ marginTop: 16 }}>
+          <div className="map-viewer__points">
             <Text strong>Отображаемые точки:</Text>
-            <ul style={{ margin: "8px 0", paddingLeft: 20 }}>
+            <ul className="map-viewer__points-list">
               {points.map((point, index) => (
                 <li key={index}>
                   <Text>

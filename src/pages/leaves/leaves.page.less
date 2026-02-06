@@ -1,4 +1,9 @@
 .leaves {
+    padding: 8px;
+    margin: 0;
+    min-height: calc(100vh - 108px);
+    background: #fff;
+
     &__table {
         &__unviewed {
             color: #e40808;
@@ -51,4 +56,11 @@
         margin-bottom: 12px;
     }
 
+}
+
+@media (max-width: 768px) {
+    .leaves {
+        padding: 4px;
+        min-height: calc(100vh - 110px);
+    }
 }

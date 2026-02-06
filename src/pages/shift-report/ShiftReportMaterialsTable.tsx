@@ -21,6 +21,7 @@ import { useWorksMap } from "../../queries/works";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import type { IShiftReportDetailsList } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { IShiftReportMaterial } from "../../interfaces/shiftReportMaterials/IShiftReportMaterial";
+import "./ShiftReportMaterialsTable.less";
 
 interface ShiftReportMaterialsTableProps {
   shiftReportId: string;
@@ -289,7 +290,7 @@ export const ShiftReportMaterialsTable = ({
           <span>
             <Button
               onClick={() => save(record.key)}
-              style={{ marginRight: 8 }}
+              className="shift-report-materials__action-button"
               icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
             />
             <Button
@@ -347,7 +348,11 @@ export const ShiftReportMaterialsTable = ({
   return (
     <>
       {canManage && (
-        <Button onClick={handleAdd} type="primary" style={{ marginBottom: 16 }}>
+        <Button
+          onClick={handleAdd}
+          type="primary"
+          className="shift-report-materials__add-button"
+        >
           Добавить материал
         </Button>
       )}

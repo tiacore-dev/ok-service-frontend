@@ -136,19 +136,19 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   });
 
   return isMobile ? (
-    <Header className={"header"} style={{ backgroundColor: "white" }}>
+    <Header className={"header"}>
       {showBackButton && (
         <ArrowLeftOutlined
           onClick={back}
-          style={{ margin: "auto 12px  auto -24px", fontSize: "24px" }}
+          className="header__back"
         />
       )}
-      <Title level={3} style={{ margin: "auto 0" }}>
+      <Title level={3} className="header__title">
         {appHeaderTitle}
       </Title>
     </Header>
   ) : (
-    <Header className={"header"} style={{ backgroundColor: "white" }}>
+    <Header className={"header"}>
       <img className="header__logo" src={logo} />
       <Menu
         className={"header__menu"}

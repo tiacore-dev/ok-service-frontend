@@ -15,7 +15,6 @@ import {
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableProjectDialog } from "../../components/ActionDialogs/EditableProjectDialog/EditableProjectDialog";
 import { DeleteProjectDialog } from "../../components/ActionDialogs/DeleteProjectDialog";
@@ -368,7 +367,6 @@ export const Project = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           { title: <Link to="/objects">Объекты</Link> },
@@ -380,12 +378,7 @@ export const Project = () => {
       projectData &&
       routeParams.projectId === projectData.project_id ? (
         <Content
-          style={{
-            padding: "0 24px",
-            margin: 0,
-            minHeight: minPageHeight(),
-            background: "#FFF",
-          }}
+          className="project__content"
         >
           <Title level={3}>{projectData.name}</Title>
           <Space
@@ -400,7 +393,7 @@ export const Project = () => {
               />
             )}
           </Space>
-          <Card style={{ margin: "8px 0" }}>
+          <Card className="project__card">
             <p>Наименование: {projectData.name}</p>
             <p>Объект: {objectsMap[projectData.object]?.name}</p>
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
@@ -418,8 +411,7 @@ export const Project = () => {
               {canEdit && (
                 <Space
                   direction={isMobile() ? "vertical" : "horizontal"}
-                  className="works_filters"
-                  style={{ marginBottom: 16 }}
+                  className="project__actions"
                 >
                   <Button onClick={handleAdd} type="primary">
                     Добавить запись в спецификацию
@@ -451,7 +443,7 @@ export const Project = () => {
             </>
           )}
 
-          <Title level={4} style={{ marginTop: 24 }}>
+          <Title level={4} className="project__materials-title">
             Материалы
           </Title>
           <ProjectMaterialsTable

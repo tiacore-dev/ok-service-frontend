@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Modal, Select, InputNumber } from "antd";
 import { IShiftReportDetail } from "../../interfaces/shiftReportDetails/IShiftReportDetail";
+import "./EditableShiftReportDetailDialog.less";
 
 interface EditableShiftReportDetailDialogProps {
   visible: boolean;
@@ -73,7 +74,7 @@ export const EditableShiftReportDetailDialog: React.FC<
           <InputNumber
             min={0}
             step={1}
-            style={{ width: "100%" }}
+            className="shift-report-detail-dialog__input"
             placeholder="Введите количество"
           />
         </Form.Item>

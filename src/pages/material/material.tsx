@@ -6,7 +6,6 @@ import { DeleteTwoTone } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableMaterialDialog } from "../../components/ActionDialogs/EditableMaterialDialog/EditableMaterialDialog";
 import { DeleteMaterialDialog } from "../../components/ActionDialogs/DeleteMaterialDialog";
@@ -22,6 +21,7 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
 import { WorkMaterialRelationsTable } from "../components/WorkMaterialRelationsTable";
+import "./material.less";
 
 export const Material = () => {
   const { Content } = Layout;
@@ -107,7 +107,6 @@ export const Material = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           {
@@ -118,12 +117,7 @@ export const Material = () => {
       />
       {isLoaded && materialData ? (
         <Content
-          style={{
-            padding: "0 24px",
-            margin: 0,
-            minHeight: minPageHeight(),
-            background: "#FFF",
-          }}
+          className="material__content"
         >
           <Title level={3}>{materialData.name}</Title>
           <Space
@@ -155,7 +149,7 @@ export const Material = () => {
               />
             )}
           </Space>
-          <Card style={{ margin: "8px 0" }}>
+          <Card className="material__card">
             <p>Наименование: {materialData.name}</p>
             <p>Единица измерения: {materialData.measurement_unit}</p>
             <p>

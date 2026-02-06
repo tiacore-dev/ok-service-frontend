@@ -398,9 +398,9 @@ export const Main = () => {
   }, [filteredShiftReportsData, projectsMap, objectsMap]);
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div className="main">
       {!mobile && (
-        <Space style={{ marginBottom: "12px" }} direction="horizontal">
+        <Space className="main__controls" direction="horizontal">
           <Button
             icon={
               fullScreenMode ? (
@@ -414,7 +414,7 @@ export const Main = () => {
             }}
           ></Button>
           <Select
-            style={{ width: 200 }}
+            className="main__range-select"
             value={dateFilterMode}
             onChange={updateRange}
             options={RangeOptions}

@@ -2,7 +2,6 @@ import * as React from "react";
 import { Breadcrumb, Card, Layout, Space, Spin } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { minPageHeight } from "../../utils/pageSettings";
 import { isMobile } from "../../utils/isMobile";
 import { EditableLeaveDialog } from "../../components/ActionDialogs/EditableLeaveDialog/EditableLeaveDialog";
 import { DeleteLeaveDialog } from "../../components/ActionDialogs/DeleteLeaveDialog";
@@ -13,6 +12,7 @@ import { useDeleteLeaveMutation, useLeaveQuery } from "../../queries/leaves";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { leaveReasonesMap } from "../../queries/leaveReasons";
+import "./leave.less";
 
 export const Leave = () => {
   const { Content } = Layout;
@@ -65,7 +65,6 @@ export const Leave = () => {
     <>
       <Breadcrumb
         className="breadcrumb"
-        style={isMobile() && { backgroundColor: "#F8F8F8" }}
         items={[
           { title: <Link to="/home">Главная</Link> },
           {
@@ -76,12 +75,7 @@ export const Leave = () => {
       />
       {isLoaded && leaveData && leaveId === leaveData.leave_id ? (
         <Content
-          style={{
-            padding: "0 24px",
-            margin: 0,
-            minHeight: minPageHeight(),
-            background: "#FFF",
-          }}
+          className="leave__content"
         >
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}
@@ -94,7 +88,7 @@ export const Leave = () => {
               <DeleteLeaveDialog onDelete={handleDelete} />
             )}
           </Space>
-          <Card style={{ margin: "8px 0" }}>
+          <Card className="leave__card">
             <p>
               Причина:{" "}
               {leaveData.reason

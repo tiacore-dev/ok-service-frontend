@@ -2,6 +2,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input } from "antd";
 import { FilterConfirmProps } from "antd/es/table/interface";
 import * as React from "react";
+import "./tableFilters.less";
 
 interface IFilterDropdownProps {
   setSelectedKeys: (selectedKeys: React.Key[]) => void;
@@ -16,20 +17,20 @@ export const filterDropdown = ({
   confirm,
   clearFilters,
 }: IFilterDropdownProps) => (
-  <div style={{ padding: 8 }}>
+  <div className="table-filter">
     <Input
       placeholder="Поиск"
       value={selectedKeys[0]}
       onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
       onPressEnter={() => confirm()}
-      style={{ width: 188, marginBottom: 8, display: "block" }}
+      className="table-filter__input"
     />
     <Button
       type="primary"
       onClick={() => confirm()}
       icon={<SearchOutlined />}
       size="small"
-      style={{ width: 90, marginRight: 8 }}
+      className="table-filter__button table-filter__button--spaced"
     >
       Поиск
     </Button>
@@ -39,7 +40,7 @@ export const filterDropdown = ({
         confirm();
       }}
       size="small"
-      style={{ width: 90 }}
+      className="table-filter__button"
     >
       Сбросить
     </Button>

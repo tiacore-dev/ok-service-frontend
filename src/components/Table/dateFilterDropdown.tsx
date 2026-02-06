@@ -2,6 +2,7 @@ import * as React from "react";
 import { DatePicker, Button } from "antd";
 import { FilterConfirmProps } from "antd/es/table/interface";
 import { Dayjs } from "dayjs";
+import "./tableFilters.less";
 
 interface IDateFilterDropdownProps {
   setSelectedKeys: (selectedKeys: React.Key[]) => void;
@@ -23,16 +24,16 @@ export const dateFilterDropdown = ({
   };
 
   return (
-    <div style={{ padding: 8 }}>
+    <div className="table-filter">
       <DatePicker
         onChange={handleRangeChange}
-        style={{ marginBottom: 8, display: "block" }}
+        className="table-filter__picker"
       />
       <Button
         type="primary"
         onClick={() => confirm()}
         size="small"
-        style={{ width: 90, marginRight: 8 }}
+        className="table-filter__button table-filter__button--spaced"
       >
         Фильтр
       </Button>
@@ -42,7 +43,7 @@ export const dateFilterDropdown = ({
           confirm();
         }}
         size="small"
-        style={{ width: 90 }}
+        className="table-filter__button"
       >
         Сбросить
       </Button>

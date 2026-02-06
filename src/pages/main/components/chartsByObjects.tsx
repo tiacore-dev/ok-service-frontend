@@ -14,6 +14,7 @@ import {
   IObjectStatsItem,
   IUserStatsItem,
 } from "../../../interfaces/objects/IObjectStat";
+import "./chartsByObjects.less";
 
 export interface IChartsByObjectsProps {
   totalCostArrayByObjects: IObjectStatsItem[];
@@ -32,17 +33,17 @@ export const ChartsByObjects = (props: IChartsByObjectsProps) => {
     switch (item.status) {
       case "empty":
         avatar = (
-          <PlusCircleFilled style={{ fontSize: 20, color: "#ffac40" }} />
+          <PlusCircleFilled className="charts-by-objects__status-icon charts-by-objects__status-icon--empty" />
         );
         break;
       case "not-signed":
         avatar = (
-          <ClockCircleFilled style={{ fontSize: 20, color: "#6940ff" }} />
+          <ClockCircleFilled className="charts-by-objects__status-icon charts-by-objects__status-icon--not-signed" />
         );
         break;
       case "signed":
         avatar = (
-          <CheckCircleFilled style={{ fontSize: 20, color: "#2bba23" }} />
+          <CheckCircleFilled className="charts-by-objects__status-icon charts-by-objects__status-icon--signed" />
         );
         break;
 
@@ -56,7 +57,7 @@ export const ChartsByObjects = (props: IChartsByObjectsProps) => {
       <List.Item>
         <Space direction="horizontal" align="center">
           {avatar}
-          <p style={{ margin: "0 0 3px 0" }}>{userName}</p>
+          <p className="charts-by-objects__user">{userName}</p>
         </Space>
       </List.Item>
     );

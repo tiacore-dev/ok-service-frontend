@@ -14,7 +14,6 @@ import dayjs, { Dayjs } from "dayjs";
 import { dateFormat } from "../../../utils/dateConverter";
 import { getCurrentRole, getCurrentUserId } from "../../../store/modules/auth";
 import { RoleId } from "../../../interfaces/roles/IRole";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 import {
   useCreateShiftReportMutation,
@@ -24,7 +23,6 @@ import { useUsersMap } from "../../../queries/users";
 import { useObjectsMap } from "../../../queries/objects";
 import { useProjectsMap } from "../../../queries/projects";
 
-const modalContentWidth = getModalContentWidth();
 interface IEditableShiftReportDialogProps {
   shiftReport?: IShiftReport;
   iconOnly?: boolean;
@@ -150,7 +148,7 @@ export const EditableShiftReportDialog = (
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_shiftReport_dialog">
-          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+          <Form layout="horizontal" className="editable-shift-report__form">
             {role !== RoleId.USER && (
               <Form.Item
                 labelCol={{ span: 6 }}

@@ -12,7 +12,6 @@ import { IState } from "../../../store/modules";
 import "./EditableUserDialog.less";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { categoryMap } from "../../../utils/categoryMap";
-import { getModalContentWidth } from "../../../utils/pageSettings";
 import { useNavigate } from "react-router-dom";
 import {
   useCreateUserMutation,
@@ -23,7 +22,6 @@ import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useRoles } from "../../../queries/roles";
 import { useCitiesMap } from "../../../queries/cities";
 
-const modalContentWidth = getModalContentWidth();
 interface IEditableUserDialogProps {
   user?: IUser;
   iconOnly?: boolean;
@@ -137,7 +135,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
       modalTitle={modalTitle}
       modalText={
         <Space className="editable_user_dialog">
-          <Form layout="horizontal" style={{ width: modalContentWidth }}>
+          <Form layout="horizontal" className="editable-user-dialog__form">
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}

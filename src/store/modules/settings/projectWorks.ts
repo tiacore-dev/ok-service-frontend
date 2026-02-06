@@ -18,7 +18,9 @@ const projectWorksSettingsSlice = createSlice({
   reducers: {
     saveProjectWorksFiltersState: (
       state: IProjectWorksSettingsState,
-      action: { payload: { projectId: string; filters: IProjectWorksFiltersState } },
+      action: {
+        payload: { projectId: string; filters: IProjectWorksFiltersState };
+      },
     ) => {
       state.filtersByProject[action.payload.projectId] = action.payload.filters;
     },

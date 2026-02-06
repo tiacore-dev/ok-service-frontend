@@ -1,9 +1,18 @@
 .materials {
+  padding: 8px;
+  margin: 0;
+  min-height: calc(100vh - 108px);
+  background: #fff;
+
   &__table {
     &__number {
       font-weight: 600;
       color: #e40808;
     }
+  }
+
+  &__deleted-icon {
+    margin-right: 8px;
   }
 
   @media all and (max-width: 1000px) {
@@ -38,5 +47,12 @@
     align-items: flex-start;
     justify-content: space-between;
     margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .materials {
+    padding: 4px;
+    min-height: calc(100vh - 110px);
   }
 }

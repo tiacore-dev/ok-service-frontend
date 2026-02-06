@@ -8,6 +8,7 @@ import { authlogin } from "../../../store/modules/auth";
 import Title from "antd/es/typography/Title";
 import { IUser } from "../../../interfaces/users/IUser";
 import { useloadSourse } from "../../../components/App/App";
+import "./login.less";
 
 interface IAuthLoginResponse {
   access_token: string;
@@ -65,10 +66,7 @@ export const Login = () => {
       {contextHolder}
 
       <Title
-        style={{
-          marginTop: "40px",
-          textAlign: "center",
-        }}
+        className="login__title"
       >
         Огнезащитная Корпорация
       </Title>
@@ -79,10 +77,7 @@ export const Login = () => {
         initialValues={{ remember: true }}
         onFinish={login}
         autoComplete="off"
-        style={{
-          width: "380px",
-          margin: "40px auto",
-        }}
+        className="login__form"
       >
         <Form.Item
           label="Login"

@@ -3,6 +3,7 @@ import { Card, List, Space, Button, Popover, Select } from "antd";
 import Meta from "antd/es/card/Meta";
 import { IProjectStatsItem } from "../../../interfaces/objects/IObjectStat";
 import { StatusIcon } from "./statusIcon";
+import "./objectProjectsCard.less";
 
 type ObjectsMap = Record<string, { name: string }>;
 type ProjectsMap = Record<string, { name: string; project_leader: string }>;
@@ -74,7 +75,7 @@ export const ObjectProjectsCard: React.FC<Props> = ({
                       <Select
                         showSearch
                         placeholder="Выбрать сотрудника"
-                        style={{ minWidth: 420 }}
+                        className="object-projects__assign-select"
                         options={userOptions}
                         loading={assigning}
                         disabled={assigning}
@@ -107,7 +108,7 @@ export const ObjectProjectsCard: React.FC<Props> = ({
                     className="assignment-page__statusItem"
                   >
                     <StatusIcon status={user.status} />
-                    <p style={{ margin: "0 0 3px 0" }}>
+                    <p className="object-projects__user">
                       {usersMap[user.user]?.name ?? user.user}
                     </p>
                   </Space>

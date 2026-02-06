@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import "./AppFooter.less";
 
 export const AppFooter = () => {
   const { Footer } = Layout;
@@ -26,13 +27,13 @@ export const AppFooter = () => {
       key="shifts"
       size="small"
       direction="vertical"
-      style={{ textAlign: "center" }}
+      className="app-footer__item"
       onClick={() => {
         navigate("/shifts");
       }}
     >
-      <FileDoneOutlined style={{ fontSize: "20px" }} />
-      <div style={{ fontSize: "12px" }}>Смены</div>
+      <FileDoneOutlined className="app-footer__icon" />
+      <div className="app-footer__label">Смены</div>
     </Space>,
   );
 
@@ -41,13 +42,13 @@ export const AppFooter = () => {
       key="home"
       size="small"
       direction="vertical"
-      style={{ textAlign: "center" }}
+      className="app-footer__item"
       onClick={() => {
         navigate("/home");
       }}
     >
-      <LineChartOutlined style={{ fontSize: "20px" }} />
-      <div style={{ fontSize: "12px" }}>Главная</div>
+      <LineChartOutlined className="app-footer__icon" />
+      <div className="app-footer__label">Главная</div>
     </Space>,
   );
 
@@ -57,13 +58,13 @@ export const AppFooter = () => {
         key="users"
         size="small"
         direction="vertical"
-        style={{ textAlign: "center" }}
+        className="app-footer__item"
         onClick={() => {
           navigate("/users");
         }}
       >
-        <TeamOutlined style={{ fontSize: "20px" }} />
-        <div style={{ fontSize: "12px" }}>Пользователи</div>
+        <TeamOutlined className="app-footer__icon" />
+        <div className="app-footer__label">Пользователи</div>
       </Space>,
     );
 
@@ -72,13 +73,13 @@ export const AppFooter = () => {
         key="cities"
         size="small"
         direction="vertical"
-        style={{ textAlign: "center" }}
+        className="app-footer__item"
         onClick={() => {
           navigate("/cities");
         }}
       >
-        <EnvironmentOutlined style={{ fontSize: "20px" }} />
-        <div style={{ fontSize: "12px" }}>Города</div>
+        <EnvironmentOutlined className="app-footer__icon" />
+        <div className="app-footer__label">Города</div>
       </Space>,
     );
 
@@ -87,13 +88,13 @@ export const AppFooter = () => {
         key="objects"
         size="small"
         direction="vertical"
-        style={{ textAlign: "center" }}
+        className="app-footer__item"
         onClick={() => {
           navigate("/objects");
         }}
       >
-        <ProfileOutlined style={{ fontSize: "20px" }} />
-        <div style={{ fontSize: "12px" }}>Объекты</div>
+        <ProfileOutlined className="app-footer__icon" />
+        <div className="app-footer__label">Объекты</div>
       </Space>,
     );
   }
@@ -103,21 +104,19 @@ export const AppFooter = () => {
       key="account"
       size="small"
       direction="vertical"
-      style={{ textAlign: "center" }}
+      className="app-footer__item"
       onClick={() => {
         navigate("/account");
       }}
     >
-      <IdcardOutlined style={{ fontSize: "20px" }} />
-      <div style={{ fontSize: "12px" }}>Профиль</div>
+      <IdcardOutlined className="app-footer__icon" />
+      <div className="app-footer__label">Профиль</div>
     </Space>,
   );
 
   return isMobile() ? (
     <Footer
-      style={{
-        padding: "12px 12px",
-      }}
+      className="app-footer"
     >
       <Flex justify="space-around" align="center">
         {items}
