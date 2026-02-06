@@ -1,13 +1,19 @@
 import * as React from "react";
-import { Button, Form, Popconfirm, Space, Table } from "antd";
 import {
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
+  Button,
+  Form,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+} from "antd";
+import {
   DeleteTwoTone,
   EditTwoTone,
 } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
-import { EditableCell } from "./editableCell";
 import type { IWorkMaterialRelationsListColumn } from "../../interfaces/workMaterialRelations/IWorkMaterialRelationsList";
 import {
   useCreateWorkMaterialRelationMutation,
@@ -18,6 +24,7 @@ import {
 import { useWorksMap } from "../../queries/works";
 import { useMaterialsMap } from "../../queries/materials";
 import { NotificationContext } from "../../contexts/NotificationContext";
+import { selectFilterHandler } from "../../utils/selectFilterHandler";
 import "./WorkMaterialRelationsTable.less";
 
 interface WorkMaterialRelationsTableProps {
@@ -31,13 +38,15 @@ export const WorkMaterialRelationsTable = ({
   workId,
   canManage,
 }: WorkMaterialRelationsTableProps) => {
-  const [form] = Form.useForm<IWorkMaterialRelationsListColumn>();
-  const [editingKey, setEditingKey] = React.useState("");
-  const [newRecordKey, setNewRecordKey] = React.useState("");
-  const [actualData, setActualData] = React.useState(false);
-  const [dataSource, setDataSource] = React.useState<
-    IWorkMaterialRelationsListColumn[]
-  >([]);
+  const [form] = Form.useForm<{
+    work?: string;
+    material?: string;
+    quantity: number;
+  }>();
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [editingRecord, setEditingRecord] =
+    React.useState<IWorkMaterialRelationsListColumn | null>(null);
   const notificationApi = React.useContext(NotificationContext);
 
   const isMaterialContext = Boolean(materialId);
@@ -55,8 +64,6 @@ export const WorkMaterialRelationsTable = ({
     enabled: Boolean(relationsParams),
   });
 
-  const { works } = useWorksMap();
-  const { materials } = useMaterialsMap();
   const createRelationMutation = useCreateWorkMaterialRelationMutation();
   const updateRelationMutation = useUpdateWorkMaterialRelationMutation();
   const deleteRelationMutation = useDeleteWorkMaterialRelationMutation();
@@ -70,14 +77,8 @@ export const WorkMaterialRelationsTable = ({
     [relations],
   );
 
-  React.useEffect(() => {
-    if (!isPending && !isFetching) {
-      setDataSource(relationsData);
-      if (!actualData) {
-        setActualData(true);
-      }
-    }
-  }, [relationsData, isPending, isFetching]);
+  const { works, worksMap } = useWorksMap();
+  const { materials, materialsMap } = useMaterialsMap();
 
   const worksOptions = React.useMemo(
     () =>
@@ -104,83 +105,91 @@ export const WorkMaterialRelationsTable = ({
   );
 
   const rawOptions = isMaterialContext ? worksOptions : materialsOptions;
-  const options = rawOptions.length > 0 ? rawOptions : undefined;
+  const selectableOptions = React.useMemo(
+    () => rawOptions.filter((option) => !option.deleted),
+    [rawOptions],
+  );
   const relationField = isMaterialContext ? "work" : "material";
   const relationTitle = isMaterialContext ? "Работа" : "Материал";
 
-  const isEditing = (record: IWorkMaterialRelationsListColumn) =>
-    record.key === editingKey;
-  const isCreating = (record: IWorkMaterialRelationsListColumn) =>
-    record.key === newRecordKey;
+  const openCreateModal = () => {
+    const resolvedMaterialId = materialId ?? undefined;
+    const resolvedWorkId = workId ?? undefined;
 
-  const edit = (record: IWorkMaterialRelationsListColumn) => {
-    form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
-    if (newRecordKey) {
-      setDataSource(relationsData);
-      setNewRecordKey("");
+    if (!resolvedMaterialId && !resolvedWorkId) {
+      return;
     }
+
+    setEditingRecord(null);
+    form.resetFields();
+    form.setFieldsValue({
+      material: resolvedMaterialId,
+      work: resolvedWorkId,
+      quantity: 0,
+    });
+    setModalOpen(true);
   };
 
-  const cancel = () => {
-    setEditingKey("");
-    setNewRecordKey("");
-    setDataSource(relationsData);
+  const openEditModal = (record: IWorkMaterialRelationsListColumn) => {
+    setEditingRecord(record);
+    form.setFieldsValue({
+      material: record.material,
+      work: record.work,
+      quantity: Number(record.quantity ?? 0),
+    });
+    setModalOpen(true);
   };
 
-  const save = async (key: string) => {
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingRecord(null);
+    form.resetFields();
+  };
+
+  const save = async () => {
     try {
       const rowData = await form.validateFields();
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
+      const resolvedMaterialId = materialId ?? rowData.material;
+      const resolvedWorkId = workId ?? rowData.work;
 
-      if (index > -1) {
-        const item = newData[index];
-        const resolvedMaterialId = materialId ?? rowData.material;
-        const resolvedWorkId = workId ?? rowData.work;
-
-        if (!resolvedMaterialId) {
-          throw new Error("Не удалось определить материал");
-        }
-        if (!resolvedWorkId) {
-          throw new Error("Не удалось определить работу");
-        }
-
-        const row = {
-          ...rowData,
-          quantity: Number(rowData.quantity),
-          material: resolvedMaterialId,
-          work: resolvedWorkId,
-        };
-
-        if (isCreating(item)) {
-          setActualData(false);
-          setNewRecordKey("");
-          await createRelationMutation.mutateAsync(row);
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Запись добавлена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        } else {
-          if (!item.work_material_relation_id) {
-            throw new Error("Не удалось определить запись");
-          }
-          setActualData(false);
-          setEditingKey("");
-          await updateRelationMutation.mutateAsync({
-            relationId: item.work_material_relation_id,
-            payload: row,
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Запись обновлена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        }
+      if (!resolvedMaterialId) {
+        throw new Error("Не удалось определить материал");
       }
+      if (!resolvedWorkId) {
+        throw new Error("Не удалось определить работу");
+      }
+
+      const row = {
+        quantity: Number(rowData.quantity),
+        material: resolvedMaterialId,
+        work: resolvedWorkId,
+      };
+
+      setSaving(true);
+      if (editingRecord) {
+        if (!editingRecord.work_material_relation_id) {
+          throw new Error("Не удалось определить запись");
+        }
+        await updateRelationMutation.mutateAsync({
+          relationId: editingRecord.work_material_relation_id,
+          payload: row,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Запись обновлена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createRelationMutation.mutateAsync(row);
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Запись добавлена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+      closeModal();
     } catch (errInfo) {
       const description =
         errInfo instanceof Error
@@ -192,28 +201,8 @@ export const WorkMaterialRelationsTable = ({
         placement: "bottomRight",
         duration: 2,
       });
-    }
-  };
-
-  const handleAdd = () => {
-    if (!newRecordKey) {
-      const resolvedMaterialId = materialId ?? "";
-      const resolvedWorkId = workId ?? "";
-
-      if (!resolvedMaterialId && !resolvedWorkId) {
-        return;
-      }
-
-      const newData = {
-        key: "new",
-        material: resolvedMaterialId,
-        work: resolvedWorkId,
-        quantity: 0,
-      };
-      setDataSource([newData, ...dataSource]);
-      setNewRecordKey("new");
-      setEditingKey("");
-      form.setFieldsValue({ ...newData });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -221,7 +210,6 @@ export const WorkMaterialRelationsTable = ({
     const resolvedMaterialId = materialId ?? undefined;
     const resolvedWorkId = workId ?? undefined;
     try {
-      setActualData(false);
       await deleteRelationMutation.mutateAsync({
         relationId: key,
         materialId: resolvedMaterialId,
@@ -248,21 +236,19 @@ export const WorkMaterialRelationsTable = ({
   const columns = [
     {
       title: relationTitle,
-      inputType: "text",
-      type: "select",
-      options,
       dataIndex: relationField,
       key: relationField,
-      editable: true,
-      required: true,
+      render: (value: string) => {
+        if (relationField === "work") {
+          return worksMap[value]?.name ?? value;
+        }
+        return materialsMap[value]?.name ?? value;
+      },
     },
     {
       title: "Количество на 1 ед. работы",
-      inputType: "number",
       dataIndex: "quantity",
       key: "quantity",
-      editable: true,
-      required: true,
     },
     {
       title: "Действия",
@@ -270,25 +256,12 @@ export const WorkMaterialRelationsTable = ({
       hidden: !canManage,
       width: !isMobile() && "116px",
       render: (_: string, record: IWorkMaterialRelationsListColumn) => {
-        const editable = isEditing(record) || isCreating(record);
-        return editable ? (
-          <span>
-            <Button
-              onClick={() => save(record.key)}
-              className="work-material-relations__action-button"
-              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-            />
-            <Button
-              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
-              onClick={cancel}
-            ></Button>
-          </span>
-        ) : (
+        return (
           <Space>
             <Button
               icon={<EditTwoTone twoToneColor="#e40808" />}
               type="link"
-              onClick={() => edit(record)}
+              onClick={() => openEditModal(record)}
             />
             <Popconfirm
               title="Удалить?"
@@ -304,35 +277,15 @@ export const WorkMaterialRelationsTable = ({
       },
     },
   ];
-
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: IWorkMaterialRelationsListColumn) => ({
-        record,
-        inputType: col.inputType,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        "data-label": col.title,
-        editing: isEditing(record) || isCreating(record),
-        type: col.type,
-        options: col.options,
-        required: col.required,
-      }),
-    };
-  });
   const tableColumns = canManage
-    ? mergedColumns
-    : mergedColumns.filter((col) => !col.hidden);
+    ? columns
+    : columns.filter((col) => !col.hidden);
 
   return (
     <>
       {canManage && (
         <Button
-          onClick={handleAdd}
+          onClick={openCreateModal}
           type="primary"
           className="work-material-relations__add-button"
         >
@@ -340,20 +293,47 @@ export const WorkMaterialRelationsTable = ({
         </Button>
       )}
 
-      <Form form={form} component={false}>
-        <Table
-          pagination={false}
-          bordered={!isMobile()}
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
-          dataSource={dataSource}
-          columns={tableColumns}
-          loading={isPending || isFetching}
-        />
-      </Form>
+      <Table
+        pagination={false}
+        bordered={!isMobile()}
+        dataSource={relationsData}
+        columns={tableColumns}
+        loading={isPending || isFetching}
+      />
+      <Modal
+        title={
+          editingRecord
+            ? "Редактирование расхода материала"
+            : "Добавление расхода материала"
+        }
+        open={modalOpen}
+        onOk={save}
+        onCancel={closeModal}
+        confirmLoading={saving}
+        okText="Сохранить"
+        cancelText="Отмена"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label={relationTitle}
+            name={relationField}
+            rules={[{ required: true, message: `Выберите ${relationTitle.toLowerCase()}` }]}
+          >
+            <Select
+              showSearch
+              filterOption={selectFilterHandler}
+              options={selectableOptions}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Количество на 1 ед. работы"
+            name="quantity"
+            rules={[{ required: true, message: "Укажите количество" }]}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };

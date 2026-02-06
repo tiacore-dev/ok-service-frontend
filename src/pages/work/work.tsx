@@ -4,7 +4,9 @@ import {
   Button,
   Card,
   Form,
+  InputNumber,
   Layout,
+  Modal,
   Popconfirm,
   Space,
   Spin,
@@ -17,12 +19,9 @@ import { isMobile } from "../../utils/isMobile";
 import { Link, useNavigate } from "react-router-dom";
 import { EditableWorkDialog } from "../../components/ActionDialogs/EditableWorkDialog/EditableWorkDialog";
 import { DeleteWorkDialog } from "../../components/ActionDialogs/DeleteWorkDialog";
-import { EditableCell } from "../components/editableCell";
 import { IWorkPricesListColumn } from "../../interfaces/workPrices/IWorkPricesList";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import {
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
   DeleteTwoTone,
   EditTwoTone,
 } from "@ant-design/icons";
@@ -40,13 +39,11 @@ import "./work.less";
 
 export const Work = () => {
   const { Content } = Layout;
-  const [form] = Form.useForm<IWorkPricesListColumn>();
-  const [editingKey, setEditingKey] = React.useState("");
-  const [newRecordKey, setNewRecordKey] = React.useState("");
-  const [actualData, setActualData] = React.useState<boolean>(false);
-  const [dataSource, setDataSource] = React.useState<IWorkPricesListColumn[]>(
-    [],
-  );
+  const [form] = Form.useForm<{ category: number; price: number }>();
+  const [priceModalOpen, setPriceModalOpen] = React.useState(false);
+  const [savingPrice, setSavingPrice] = React.useState(false);
+  const [editingPrice, setEditingPrice] =
+    React.useState<IWorkPricesListColumn | null>(null);
 
   const routeParams = useParams();
   const workId = routeParams.workId;
@@ -87,91 +84,74 @@ export const Work = () => {
     [workPrices],
   );
 
-  React.useEffect(() => {
-    if (!isWorkPricesPending && !isWorkPricesFetching) {
-      setDataSource(workPricesData);
-      if (!actualData) {
-        setActualData(true);
-      }
-    }
-  }, [workPricesData, isWorkPricesPending, isWorkPricesFetching]);
-
   const deleteWorkMutation = useDeleteWorkMutation();
   const createWorkPriceMutation = useCreateWorkPriceMutation();
   const updateWorkPriceMutation = useUpdateWorkPriceMutation();
   const deleteWorkPriceMutation = useDeleteWorkPriceMutation();
 
-  const isEditing = (record: IWorkPricesListColumn) =>
-    record.key === editingKey;
-  const isCreating = (record: IWorkPricesListColumn) =>
-    record.key === newRecordKey;
-
-  const edit = (record: IWorkPricesListColumn) => {
-    form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
-    if (newRecordKey) {
-      setDataSource(workPricesData);
-      setNewRecordKey("");
-    }
+  const openCreatePrice = () => {
+    if (!workData?.work_id) return;
+    setEditingPrice(null);
+    form.setFieldsValue({ category: 0, price: 0 });
+    setPriceModalOpen(true);
   };
 
-  const cancel = () => {
-    setEditingKey("");
-    setNewRecordKey("");
-    setDataSource(workPricesData);
+  const openEditPrice = (record: IWorkPricesListColumn) => {
+    setEditingPrice(record);
+    form.setFieldsValue({
+      category: Number(record.category ?? 0),
+      price: Number(record.price ?? 0),
+    });
+    setPriceModalOpen(true);
   };
 
-  const save = async (key: string) => {
+  const closePriceModal = () => {
+    setPriceModalOpen(false);
+    setEditingPrice(null);
+    form.resetFields();
+  };
+
+  const save = async () => {
     try {
       const rowData = await form.validateFields();
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
+      const row = {
+        category: Number(rowData.category),
+        price: Number(rowData.price),
+        work: workData?.work_id ?? "",
+      };
 
-      if (index > -1) {
-        const item = newData[index];
-        const row = {
-          ...rowData,
-          category: Number(rowData.category), // Преобразуем в число
-          price: Number(rowData.price), // Преобразуем в число
-          work: workData?.work_id,
-        };
+      if (!workData?.work_id) {
+        throw new Error("Не удалось определить работу");
+      }
 
-        if (isCreating(item)) {
-          // Создание новой записи
-          setActualData(false);
-          setNewRecordKey("");
-          if (!workData?.work_id) {
-            throw new Error("Не удалось определить работу");
-          }
-          await createWorkPriceMutation.mutateAsync({
+      setSavingPrice(true);
+      if (editingPrice) {
+        await updateWorkPriceMutation.mutateAsync({
+          workPriceId: editingPrice.work_price_id,
+          payload: {
             ...row,
             work: workData.work_id,
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Цена работ создана",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        } else {
-          // Редактирование существующей записи
-          setActualData(false);
-          setEditingKey("");
-          await updateWorkPriceMutation.mutateAsync({
-            workPriceId: item.work_price_id,
-            payload: {
-              ...row,
-              work: workData?.work_id ?? "",
-            },
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Цена работ изменена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        }
+          },
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Цена работ изменена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createWorkPriceMutation.mutateAsync({
+          ...row,
+          work: workData.work_id,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Цена работ создана",
+          placement: "bottomRight",
+          duration: 2,
+        });
       }
+      closePriceModal();
     } catch (errInfo) {
       const description =
         errInfo instanceof Error
@@ -183,28 +163,14 @@ export const Work = () => {
         placement: "bottomRight",
         duration: 2,
       });
-    }
-  };
-
-  const handleAdd = () => {
-    if (!newRecordKey) {
-      const newData = {
-        key: "new",
-        work: workData.work_id,
-        price: 0,
-        category: 0,
-      };
-      setDataSource([newData, ...dataSource]);
-      setNewRecordKey("new");
-      setEditingKey("");
-      form.setFieldsValue({ ...newData });
+    } finally {
+      setSavingPrice(false);
     }
   };
 
   const handleDelete = async (key: string) => {
     if (!workId) return;
     try {
-      setActualData(false);
       await deleteWorkPriceMutation.mutateAsync({
         workPriceId: key,
         workId,
@@ -232,19 +198,13 @@ export const Work = () => {
   const columns = [
     {
       title: "Разряд",
-      inputType: "number",
       dataIndex: "category",
       key: "category",
-      editable: true,
-      required: true,
     },
     {
       title: "Цена",
-      inputType: "number",
       dataIndex: "price",
       key: "price",
-      editable: true,
-      required: true,
     },
     {
       title: "Действия",
@@ -252,25 +212,12 @@ export const Work = () => {
       hidden: currentRole !== RoleId.ADMIN,
       width: !isMobile() && "116px",
       render: (_: string, record: IWorkPricesListColumn) => {
-        const editable = isEditing(record) || isCreating(record);
-        return editable ? (
-          <span>
-            <Button
-              onClick={() => save(record.key)}
-              className="work__action-button"
-              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-            />
-            <Button
-              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
-              onClick={cancel}
-            ></Button>
-          </span>
-        ) : (
+        return (
           <Space>
             <Button
               icon={<EditTwoTone twoToneColor="#e40808" />}
               type="link"
-              onClick={() => edit(record)}
+              onClick={() => openEditPrice(record)}
             />
             <Popconfirm
               title="Удалить?"
@@ -286,23 +233,6 @@ export const Work = () => {
       },
     },
   ];
-
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: IWorkPricesListColumn) => ({
-        record,
-        inputType: col.inputType,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        "data-label": col.title,
-        editing: isEditing(record) || isCreating(record),
-      }),
-    };
-  });
 
   const isLoaded =
     !isWorkPending &&
@@ -324,9 +254,7 @@ export const Work = () => {
         ]}
       />
       {isLoaded && workData && routeParams.workId === workData.work_id ? (
-        <Content
-          className="work__content"
-        >
+        <Content className="work__content">
           <Title level={3}>{workData.name}</Title>
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}
@@ -373,27 +301,20 @@ export const Work = () => {
           <Title level={4}>Цены</Title>
 
           <Button
-            onClick={handleAdd}
+            onClick={openCreatePrice}
             type="primary"
             className="work__add-price"
           >
             Добавить цену работ
           </Button>
 
-          <Form form={form} component={false}>
-            <Table
-              pagination={false}
-              bordered={!isMobile()}
-              components={{
-                body: {
-                  cell: EditableCell,
-                },
-              }}
-              dataSource={dataSource}
-              columns={mergedColumns}
-              loading={isLoading}
-            />
-          </Form>
+          <Table
+            pagination={false}
+            bordered={!isMobile()}
+            dataSource={workPricesData}
+            columns={columns}
+            loading={isLoading}
+          />
 
           <Title level={4}>Материалы на 1 ед. работы</Title>
           <WorkMaterialRelationsTable
@@ -404,6 +325,34 @@ export const Work = () => {
       ) : (
         <Spin />
       )}
+      <Modal
+        title={
+          editingPrice ? "Редактирование цены работ" : "Создание цены работ"
+        }
+        open={priceModalOpen}
+        onOk={save}
+        onCancel={closePriceModal}
+        confirmLoading={savingPrice}
+        okText="Сохранить"
+        cancelText="Отмена"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Разряд"
+            name="category"
+            rules={[{ required: true, message: "Укажите разряд" }]}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item
+            label="Цена"
+            name="price"
+            rules={[{ required: true, message: "Укажите цену" }]}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };

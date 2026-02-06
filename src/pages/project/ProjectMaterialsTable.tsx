@@ -1,14 +1,16 @@
 import * as React from "react";
-import { Button, Form, Popconfirm, Space, Table } from "antd";
 import {
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
-  DeleteTwoTone,
-  EditTwoTone,
-  PlusCircleTwoTone,
-} from "@ant-design/icons";
+  Button,
+  Form,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+} from "antd";
+import { DeleteTwoTone, EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
-import { EditableCell } from "../components/editableCell";
 import type { IProjectMaterialsListColumn } from "../../interfaces/projectMaterials/IProjectMaterialsList";
 import {
   useCreateProjectMaterialMutation,
@@ -19,7 +21,7 @@ import {
 import { useMaterialsMap } from "../../queries/materials";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { NotificationContext } from "../../contexts/NotificationContext";
-import { IProjectMaterial } from "../../interfaces/projectMaterials/IProjectMaterial";
+import { selectFilterHandler } from "../../utils/selectFilterHandler";
 import "./ProjectMaterialsTable.less";
 
 interface ProjectMaterialsTableProps {
@@ -27,22 +29,15 @@ interface ProjectMaterialsTableProps {
   canManage: boolean;
 }
 
-interface CreatebleProjectMaterial
-  extends Omit<IProjectMaterial, "project_material_id"> {
-  key: string;
-}
-
 export const ProjectMaterialsTable = ({
   projectId,
   canManage,
 }: ProjectMaterialsTableProps) => {
-  const [form] = Form.useForm<IProjectMaterialsListColumn>();
-  const [editingKey, setEditingKey] = React.useState("");
-  const [newRecordKey, setNewRecordKey] = React.useState("");
-  const [actualData, setActualData] = React.useState(false);
-  const [dataSource, setDataSource] = React.useState<
-    IProjectMaterialsListColumn[]
-  >([]);
+  const [form] = Form.useForm<{ material: string; quantity: number }>();
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [editingRecord, setEditingRecord] =
+    React.useState<IProjectMaterialsListColumn | null>(null);
   const notificationApi = React.useContext(NotificationContext);
 
   const {
@@ -50,7 +45,7 @@ export const ProjectMaterialsTable = ({
     isPending,
     isFetching,
   } = useProjectMaterialsQuery(projectId, { enabled: Boolean(projectId) });
-  const { materials } = useMaterialsMap();
+  const { materials, materialsMap } = useMaterialsMap();
   const { projectWorksMap } = useProjectWorksMap(projectId, {
     enabled: Boolean(projectId),
   });
@@ -69,15 +64,6 @@ export const ProjectMaterialsTable = ({
     [projectMaterials],
   );
 
-  React.useEffect(() => {
-    if (!isPending && !isFetching) {
-      setDataSource(projectMaterialsData);
-      if (!actualData) {
-        setActualData(true);
-      }
-    }
-  }, [projectMaterialsData, isPending, isFetching]);
-
   const materialsOptions = React.useMemo(
     () =>
       materials
@@ -90,83 +76,79 @@ export const ProjectMaterialsTable = ({
     [materials],
   );
 
-  const options = materialsOptions.length > 0 ? materialsOptions : undefined;
+  const selectableMaterialsOptions = React.useMemo(
+    () => materialsOptions.filter((option) => !option.deleted),
+    [materialsOptions],
+  );
 
-  const isEditing = (record: IProjectMaterialsListColumn) =>
-    record.key === editingKey;
-  const isCreating = (record: IProjectMaterialsListColumn) =>
-    record.key === newRecordKey;
-
-  const edit = (record: IProjectMaterialsListColumn) => {
-    form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
-    if (newRecordKey) {
-      setDataSource(projectMaterialsData);
-      setNewRecordKey("");
-    }
+  const openCreateModal = () => {
+    if (!projectId) return;
+    setEditingRecord(null);
+    form.resetFields();
+    form.setFieldsValue({ quantity: 0 });
+    setModalOpen(true);
   };
 
-  const cancel = () => {
-    setEditingKey("");
-    setNewRecordKey("");
-    setDataSource(projectMaterialsData);
+  const openEditModal = (record: IProjectMaterialsListColumn) => {
+    setEditingRecord(record);
+    form.setFieldsValue({
+      material: record.material,
+      quantity: Number(record.quantity ?? 0),
+    });
+    setModalOpen(true);
   };
 
-  const save = async (key: string) => {
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingRecord(null);
+    form.resetFields();
+  };
+
+  const save = async () => {
     try {
       const rowData = await form.validateFields();
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
-
-      if (index > -1) {
-        const item = newData[index];
-        const resolvedMaterialId = rowData.material ?? item.material;
-
-        if (!projectId) {
-          throw new Error("Не удалось определить спецификацию");
-        }
-        if (!resolvedMaterialId) {
-          throw new Error("Не удалось определить материал");
-        }
-
-        const payload = {
-          project: projectId,
-          material: resolvedMaterialId,
-          quantity: Number(rowData.quantity),
-          project_work: item.project_work ?? null,
-        };
-
-        if (isCreating(item)) {
-          setActualData(false);
-          setNewRecordKey("");
-          await createProjectMaterialMutation.mutateAsync({
-            ...payload,
-            project_work: null,
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Запись добавлена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        } else {
-          if (!item.project_material_id) {
-            throw new Error("Не удалось определить запись");
-          }
-          setActualData(false);
-          setEditingKey("");
-          await updateProjectMaterialMutation.mutateAsync({
-            projectMaterialId: item.project_material_id,
-            payload,
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Запись обновлена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        }
+      if (!projectId) {
+        throw new Error("Не удалось определить спецификацию");
       }
+      if (!rowData.material) {
+        throw new Error("Не удалось определить материал");
+      }
+
+      setSaving(true);
+      if (editingRecord) {
+        if (!editingRecord.project_material_id) {
+          throw new Error("Не удалось определить запись");
+        }
+        await updateProjectMaterialMutation.mutateAsync({
+          projectMaterialId: editingRecord.project_material_id,
+          payload: {
+            project: projectId,
+            material: rowData.material,
+            quantity: Number(rowData.quantity),
+            project_work: editingRecord.project_work ?? null,
+          },
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Запись обновлена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createProjectMaterialMutation.mutateAsync({
+          project: projectId,
+          material: rowData.material,
+          quantity: Number(rowData.quantity),
+          project_work: null,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Запись добавлена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+      closeModal();
     } catch (errInfo) {
       const description =
         errInfo instanceof Error
@@ -178,31 +160,14 @@ export const ProjectMaterialsTable = ({
         placement: "bottomRight",
         duration: 2,
       });
+    } finally {
+      setSaving(false);
     }
-  };
-
-  const handleAdd = () => {
-    if (!projectId || newRecordKey) {
-      return;
-    }
-
-    const newData: CreatebleProjectMaterial = {
-      key: "new",
-      project: projectId,
-      material: "",
-      quantity: 0,
-      project_work: null,
-    };
-    setDataSource([newData, ...dataSource]);
-    setNewRecordKey("new");
-    setEditingKey("");
-    form.setFieldsValue({ ...newData });
   };
 
   const handleDeleteProjectMaterial = async (projectMaterialId?: string) => {
     if (!projectId || !projectMaterialId) return;
     try {
-      setActualData(false);
       await deleteProjectMaterialMutation.mutateAsync({
         projectMaterialId,
         projectId,
@@ -228,21 +193,14 @@ export const ProjectMaterialsTable = ({
   const columns = [
     {
       title: "Материал",
-      inputType: "text",
-      type: "select",
-      options,
       dataIndex: "material",
       key: "material",
-      editable: true,
-      required: true,
+      render: (value: string) => materialsMap[value]?.name ?? value,
     },
     {
       title: "Количество",
-      inputType: "number",
       dataIndex: "quantity",
       key: "quantity",
-      editable: true,
-      required: true,
     },
     {
       title: "Работа",
@@ -262,25 +220,12 @@ export const ProjectMaterialsTable = ({
       hidden: !canManage,
       width: !isMobile() && "116px",
       render: (_: string, record: IProjectMaterialsListColumn) => {
-        const editable = isEditing(record) || isCreating(record);
-        return editable ? (
-          <span>
-            <Button
-              onClick={() => save(record.key)}
-              className="project-materials__action-button"
-              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-            />
-            <Button
-              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
-              onClick={cancel}
-            ></Button>
-          </span>
-        ) : (
+        return (
           <Space>
             <Button
               icon={<EditTwoTone twoToneColor="#e40808" />}
               type="link"
-              onClick={() => edit(record)}
+              onClick={() => openEditModal(record)}
             />
             <Popconfirm
               title="Удалить?"
@@ -298,35 +243,15 @@ export const ProjectMaterialsTable = ({
       },
     },
   ];
-
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: IProjectMaterialsListColumn) => ({
-        record,
-        inputType: col.inputType,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        "data-label": col.title,
-        editing: isEditing(record) || isCreating(record),
-        type: col.type,
-        options: col.options,
-        required: col.required,
-      }),
-    };
-  });
   const tableColumns = canManage
-    ? mergedColumns
-    : mergedColumns.filter((col) => !col.hidden);
+    ? columns
+    : columns.filter((col) => !col.hidden);
 
   return (
     <>
       {canManage && (
         <Button
-          onClick={handleAdd}
+          onClick={openCreateModal}
           type="default"
           icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
           className="project-materials__add-button"
@@ -335,21 +260,46 @@ export const ProjectMaterialsTable = ({
         </Button>
       )}
 
-      <Form form={form} component={false}>
-        <Table
-          pagination={false}
-          bordered={!isMobile()}
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
-          dataSource={dataSource}
-          columns={tableColumns}
-          loading={isPending || isFetching}
-          className="project__materials-table"
-        />
-      </Form>
+      <Table
+        pagination={false}
+        bordered={!isMobile()}
+        dataSource={projectMaterialsData}
+        columns={tableColumns}
+        loading={isPending || isFetching}
+        className="project__materials-table"
+      />
+      <Modal
+        title={
+          editingRecord ? "Редактирование материала" : "Добавление материала"
+        }
+        open={modalOpen}
+        onOk={save}
+        onCancel={closeModal}
+        confirmLoading={saving}
+        okText="Сохранить"
+        cancelText="Отмена"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Материал"
+            name="material"
+            rules={[{ required: true, message: "Выберите материал" }]}
+          >
+            <Select
+              showSearch
+              filterOption={selectFilterHandler}
+              options={selectableMaterialsOptions}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Количество"
+            name="quantity"
+            rules={[{ required: true, message: "Укажите количество" }]}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };

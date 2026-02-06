@@ -1,14 +1,20 @@
 import * as React from "react";
-import { Button, Form, Popconfirm, Space, Table } from "antd";
 import {
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
+  Button,
+  Form,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+} from "antd";
+import {
   DeleteTwoTone,
   EditTwoTone,
   PlusCircleTwoTone,
 } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
-import { EditableCell } from "../components/editableCell";
 import type { IShiftReportMaterialsListColumn } from "../../interfaces/shiftReportMaterials/IShiftReportMaterialsList";
 import {
   useCreateShiftReportMaterialMutation,
@@ -21,7 +27,7 @@ import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-repor
 import { useWorksMap } from "../../queries/works";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import type { IShiftReportDetailsList } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
-import { IShiftReportMaterial } from "../../interfaces/shiftReportMaterials/IShiftReportMaterial";
+import { selectFilterHandler } from "../../utils/selectFilterHandler";
 import "./ShiftReportMaterialsTable.less";
 
 interface ShiftReportMaterialsTableProps {
@@ -29,29 +35,22 @@ interface ShiftReportMaterialsTableProps {
   canManage: boolean;
 }
 
-interface CreatebleShiftReportMaterial
-  extends Omit<IShiftReportMaterial, "shift_report_material_id"> {
-  key: string;
-}
-
 export const ShiftReportMaterialsTable = ({
   shiftReportId,
   canManage,
 }: ShiftReportMaterialsTableProps) => {
-  const [form] = Form.useForm<IShiftReportMaterialsListColumn>();
-  const [editingKey, setEditingKey] = React.useState("");
-  const [newRecordKey, setNewRecordKey] = React.useState("");
-  const [actualData, setActualData] = React.useState(false);
-  const [dataSource, setDataSource] = React.useState<
-    IShiftReportMaterialsListColumn[]
-  >([]);
+  const [form] = Form.useForm<{ material: string; quantity: number }>();
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [editingRecord, setEditingRecord] =
+    React.useState<IShiftReportMaterialsListColumn | null>(null);
   const notificationApi = React.useContext(NotificationContext);
 
   const { data: shiftReportMaterials = [], isLoading } =
     useShiftReportMaterialsQuery(shiftReportId);
   const { data: shiftReportDetails = [] } =
     useShiftReportDetailsQuery(shiftReportId);
-  const { materials } = useMaterialsMap();
+  const { materials, materialsMap } = useMaterialsMap();
   const { worksMap } = useWorksMap();
   const createShiftReportMaterialMutation =
     useCreateShiftReportMaterialMutation();
@@ -70,15 +69,6 @@ export const ShiftReportMaterialsTable = ({
         })),
       [shiftReportMaterials],
     );
-
-  React.useEffect(() => {
-    if (!isLoading) {
-      setDataSource(shiftReportMaterialsData);
-      if (!actualData) {
-        setActualData(true);
-      }
-    }
-  }, [shiftReportMaterialsData, isLoading]);
 
   const detailsMap = React.useMemo(
     () =>
@@ -105,83 +95,79 @@ export const ShiftReportMaterialsTable = ({
     [materials],
   );
 
-  const options = materialsOptions.length > 0 ? materialsOptions : undefined;
+  const selectableMaterialsOptions = React.useMemo(
+    () => materialsOptions.filter((option) => !option.deleted),
+    [materialsOptions],
+  );
 
-  const isEditing = (record: IShiftReportMaterialsListColumn) =>
-    record.key === editingKey;
-  const isCreating = (record: IShiftReportMaterialsListColumn) =>
-    record.key === newRecordKey;
-
-  const edit = (record: IShiftReportMaterialsListColumn) => {
-    form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
-    if (newRecordKey) {
-      setDataSource(shiftReportMaterialsData);
-      setNewRecordKey("");
-    }
+  const openCreateModal = () => {
+    if (!shiftReportId) return;
+    setEditingRecord(null);
+    form.resetFields();
+    form.setFieldsValue({ quantity: 0 });
+    setModalOpen(true);
   };
 
-  const cancel = () => {
-    setEditingKey("");
-    setNewRecordKey("");
-    setDataSource(shiftReportMaterialsData);
+  const openEditModal = (record: IShiftReportMaterialsListColumn) => {
+    setEditingRecord(record);
+    form.setFieldsValue({
+      material: record.material,
+      quantity: Number(record.quantity ?? 0),
+    });
+    setModalOpen(true);
   };
 
-  const save = async (key: string) => {
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingRecord(null);
+    form.resetFields();
+  };
+
+  const save = async () => {
     try {
       const rowData = await form.validateFields();
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
-
-      if (index > -1) {
-        const item = newData[index];
-        const resolvedMaterialId = rowData.material ?? item.material;
-
-        if (!shiftReportId) {
-          throw new Error("Не удалось определить отчет");
-        }
-        if (!resolvedMaterialId) {
-          throw new Error("Не удалось определить материал");
-        }
-
-        const payload = {
-          shift_report: shiftReportId,
-          material: resolvedMaterialId,
-          quantity: Number(rowData.quantity),
-          shift_report_detail: item.shift_report_detail ?? null,
-        };
-
-        if (isCreating(item)) {
-          setActualData(false);
-          setNewRecordKey("");
-          await createShiftReportMaterialMutation.mutateAsync({
-            ...payload,
-            shift_report_detail: null,
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Запись добавлена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        } else {
-          if (!item.shift_report_material_id) {
-            throw new Error("Не удалось определить запись");
-          }
-          setActualData(false);
-          setEditingKey("");
-          await editShiftReportMaterialMutation.mutateAsync({
-            id: item.shift_report_material_id,
-            data: payload,
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Запись обновлена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        }
+      if (!shiftReportId) {
+        throw new Error("Не удалось определить отчет");
       }
+      if (!rowData.material) {
+        throw new Error("Не удалось определить материал");
+      }
+
+      setSaving(true);
+      if (editingRecord) {
+        if (!editingRecord.shift_report_material_id) {
+          throw new Error("Не удалось определить запись");
+        }
+        await editShiftReportMaterialMutation.mutateAsync({
+          id: editingRecord.shift_report_material_id,
+          data: {
+            shift_report: shiftReportId,
+            material: rowData.material,
+            quantity: Number(rowData.quantity),
+            shift_report_detail: editingRecord.shift_report_detail ?? null,
+          },
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Запись обновлена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createShiftReportMaterialMutation.mutateAsync({
+          shift_report: shiftReportId,
+          material: rowData.material,
+          quantity: Number(rowData.quantity),
+          shift_report_detail: null,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Запись добавлена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+      closeModal();
     } catch (errInfo) {
       const description =
         errInfo instanceof Error
@@ -193,25 +179,9 @@ export const ShiftReportMaterialsTable = ({
         placement: "bottomRight",
         duration: 2,
       });
+    } finally {
+      setSaving(false);
     }
-  };
-
-  const handleAdd = () => {
-    if (!shiftReportId || newRecordKey) {
-      return;
-    }
-
-    const newData: CreatebleShiftReportMaterial = {
-      key: "new",
-      shift_report: shiftReportId,
-      material: "",
-      quantity: 0,
-      shift_report_detail: null,
-    };
-    setDataSource([newData, ...dataSource]);
-    setNewRecordKey("new");
-    setEditingKey("");
-    form.setFieldsValue({ ...newData });
   };
 
   const handleDeleteShiftReportMaterial = async (
@@ -219,7 +189,6 @@ export const ShiftReportMaterialsTable = ({
   ) => {
     if (!shiftReportId || !shiftReportMaterialId) return;
     try {
-      setActualData(false);
       await deleteShiftReportMaterialMutation.mutateAsync({
         id: shiftReportMaterialId,
         shiftReportId,
@@ -258,21 +227,14 @@ export const ShiftReportMaterialsTable = ({
   const columns = [
     {
       title: "Материал",
-      inputType: "text",
-      type: "select",
-      options,
       dataIndex: "material",
       key: "material",
-      editable: true,
-      required: true,
+      render: (value: string) => materialsMap[value]?.name ?? value,
     },
     {
       title: "Количество",
-      inputType: "number",
       dataIndex: "quantity",
       key: "quantity",
-      editable: true,
-      required: true,
     },
     {
       title: "Работа",
@@ -286,25 +248,12 @@ export const ShiftReportMaterialsTable = ({
       hidden: !canManage,
       width: !isMobile() && "116px",
       render: (_: string, record: IShiftReportMaterialsListColumn) => {
-        const editable = isEditing(record) || isCreating(record);
-        return editable ? (
-          <span>
-            <Button
-              onClick={() => save(record.key)}
-              className="shift-report-materials__action-button"
-              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-            />
-            <Button
-              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
-              onClick={cancel}
-            ></Button>
-          </span>
-        ) : (
+        return (
           <Space>
             <Button
               icon={<EditTwoTone twoToneColor="#e40808" />}
               type="link"
-              onClick={() => edit(record)}
+              onClick={() => openEditModal(record)}
             />
             <Popconfirm
               title="Удалить?"
@@ -322,35 +271,15 @@ export const ShiftReportMaterialsTable = ({
       },
     },
   ];
-
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: IShiftReportMaterialsListColumn) => ({
-        record,
-        inputType: col.inputType,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        "data-label": col.title,
-        editing: isEditing(record) || isCreating(record),
-        type: col.type,
-        options: col.options,
-        required: col.required,
-      }),
-    };
-  });
   const tableColumns = canManage
-    ? mergedColumns
-    : mergedColumns.filter((col) => !col.hidden);
+    ? columns
+    : columns.filter((col) => !col.hidden);
 
   return (
     <>
       {canManage && (
         <Button
-          onClick={handleAdd}
+          onClick={openCreateModal}
           type="default"
           icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
           className="shift-report-materials__add-button"
@@ -359,21 +288,46 @@ export const ShiftReportMaterialsTable = ({
         </Button>
       )}
 
-      <Form form={form} component={false}>
-        <Table
-          pagination={false}
-          bordered={!isMobile()}
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
-          dataSource={dataSource}
-          columns={tableColumns}
-          loading={isLoading}
-          className="shift-report__materials-table"
-        />
-      </Form>
+      <Table
+        pagination={false}
+        bordered={!isMobile()}
+        dataSource={shiftReportMaterialsData}
+        columns={tableColumns}
+        loading={isLoading}
+        className="shift-report__materials-table"
+      />
+      <Modal
+        title={
+          editingRecord ? "Редактирование материала" : "Добавление материала"
+        }
+        open={modalOpen}
+        onOk={save}
+        onCancel={closeModal}
+        confirmLoading={saving}
+        okText="Сохранить"
+        cancelText="Отмена"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Материал"
+            name="material"
+            rules={[{ required: true, message: "Выберите материал" }]}
+          >
+            <Select
+              showSearch
+              filterOption={selectFilterHandler}
+              options={selectableMaterialsOptions}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Количество"
+            name="quantity"
+            rules={[{ required: true, message: "Укажите количество" }]}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };

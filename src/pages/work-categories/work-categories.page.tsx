@@ -2,20 +2,19 @@ import { useSelector } from "react-redux";
 import {
   Breadcrumb,
   Button,
-  Form,
   Layout,
+  Modal,
   Popconfirm,
   Space,
   Table,
+  Form,
+  Input,
 } from "antd";
 import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import { IWorkCategoriesListColumn } from "../../interfaces/workCategories/IWorkCategoriesList";
-import { EditableCell } from "../components/editableCell";
 import {
-  CheckCircleTwoTone,
-  CloseCircleTwoTone,
   DeleteTwoTone,
   EditTwoTone,
 } from "@ant-design/icons";
@@ -32,15 +31,12 @@ import "./work-categories.page.less";
 
 export const WorkCategories = () => {
   const { Content } = Layout;
-  const [form] = Form.useForm();
-  const [editingKey, setEditingKey] = React.useState("");
-  const [newRecordKey, setNewRecordKey] = React.useState("");
-  const [actualData, setActualData] = React.useState<boolean>(false);
+  const [form] = Form.useForm<{ name: string }>();
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [editingRecord, setEditingRecord] =
+    React.useState<IWorkCategoriesListColumn | null>(null);
   const currentRole = useSelector(getCurrentRole);
-
-  const [dataSource, setDataSource] = React.useState<
-    IWorkCategoriesListColumn[]
-  >([]);
 
   const notificationApi = React.useContext(NotificationContext);
   const {
@@ -58,70 +54,49 @@ export const WorkCategories = () => {
     [workCategories],
   );
 
-  React.useEffect(() => {
-    if (!isPending && !isFetching) {
-      setDataSource(workCategoriesData);
-      if (!actualData) {
-        setActualData(true);
-      }
-    }
-  }, [workCategoriesData, isPending, isFetching]);
-
-  const isEditing = (record: IWorkCategoriesListColumn) =>
-    record.key === editingKey;
-  const isCreating = (record: IWorkCategoriesListColumn) =>
-    record.key === newRecordKey;
-
-  const edit = (record: IWorkCategoriesListColumn) => {
-    form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
-    if (newRecordKey) {
-      setDataSource(workCategoriesData);
-      setNewRecordKey("");
-    }
+  const openCreateModal = () => {
+    setEditingRecord(null);
+    form.resetFields();
+    setModalOpen(true);
   };
 
-  const cancel = () => {
-    setEditingKey("");
-    setNewRecordKey("");
-    setDataSource(workCategoriesData);
+  const openEditModal = (record: IWorkCategoriesListColumn) => {
+    setEditingRecord(record);
+    form.setFieldsValue({ name: record.name });
+    setModalOpen(true);
   };
 
-  const save = async (key: string) => {
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingRecord(null);
+    form.resetFields();
+  };
+
+  const save = async () => {
     try {
       const row = await form.validateFields();
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
-
-      if (index > -1) {
-        const item = newData[index];
-        if (isCreating(item)) {
-          // Создание новой записи
-          setActualData(false);
-          setNewRecordKey("");
-          await createWorkCategoryMutation.mutateAsync(row);
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Категория работ создана",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        } else {
-          // Редактирование существующей записи
-          setActualData(false);
-          setEditingKey("");
-          await updateWorkCategoryMutation.mutateAsync({
-            categoryId: item.work_category_id,
-            payload: row,
-          });
-          notificationApi?.success({
-            message: "Успешно",
-            description: "Категория работ изменена",
-            placement: "bottomRight",
-            duration: 2,
-          });
-        }
+      setSaving(true);
+      if (editingRecord) {
+        await updateWorkCategoryMutation.mutateAsync({
+          categoryId: editingRecord.work_category_id,
+          payload: row,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Категория работ изменена",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } else {
+        await createWorkCategoryMutation.mutateAsync(row);
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Категория работ создана",
+          placement: "bottomRight",
+          duration: 2,
+        });
       }
+      closeModal();
     } catch (errInfo) {
       const description =
         errInfo instanceof Error
@@ -133,26 +108,14 @@ export const WorkCategories = () => {
         placement: "bottomRight",
         duration: 2,
       });
+    } finally {
+      setSaving(false);
     }
   };
   const isLoading = isPending || isFetching;
 
-  const handleAdd = () => {
-    if (!newRecordKey) {
-      const newData = {
-        key: "new",
-        name: "",
-      };
-      setDataSource([newData, ...dataSource]);
-      setNewRecordKey("new");
-      setEditingKey("");
-      form.setFieldsValue({ ...newData });
-    }
-  };
-
   const handleDelete = async (key: string) => {
     try {
-      setActualData(false);
       await deleteWorkCategoryMutation.mutateAsync(key);
       notificationApi?.success({
         message: "Удалено",
@@ -179,7 +142,6 @@ export const WorkCategories = () => {
       title: "Наименование",
       dataIndex: "name",
       key: "name",
-      editable: true,
     },
     {
       title: "Действия",
@@ -187,25 +149,12 @@ export const WorkCategories = () => {
       width: !isMobile() && "116px",
       hidden: currentRole !== RoleId.ADMIN,
       render: (_: string, record: IWorkCategoriesListColumn) => {
-        const editable = isEditing(record) || isCreating(record);
-        return editable ? (
-          <span>
-            <Button
-              onClick={() => save(record.key)}
-              className="work-categories__action-button"
-              icon={<CheckCircleTwoTone twoToneColor="#52c41a" />}
-            />
-            <Button
-              icon={<CloseCircleTwoTone twoToneColor="#e40808" />}
-              onClick={cancel}
-            ></Button>
-          </span>
-        ) : (
+        return (
           <Space>
             <Button
               icon={<EditTwoTone twoToneColor="#e40808" />}
               type="link"
-              onClick={() => edit(record)}
+              onClick={() => openEditModal(record)}
             />
             <Popconfirm
               title="Удалить?"
@@ -221,23 +170,6 @@ export const WorkCategories = () => {
       },
     },
   ];
-
-  const mergedColumns = columns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: IWorkCategoriesListColumn) => ({
-        record,
-        inputType: "text",
-        dataIndex: col.dataIndex,
-        title: col.title,
-        "data-label": col.title,
-        editing: isEditing(record) || isCreating(record),
-      }),
-    };
-  });
 
   return (
     <>
@@ -258,7 +190,7 @@ export const WorkCategories = () => {
             className="work-categories__actions"
           >
             <Button
-              onClick={handleAdd}
+              onClick={openCreateModal}
               type="primary"
               className="work-categories__add-button"
             >
@@ -267,21 +199,37 @@ export const WorkCategories = () => {
           </Space>
         )}
 
-        <Form form={form} component={false}>
-          <Table
-            bordered={!isMobile()}
-            pagination={false}
-            components={{
-              body: {
-                cell: EditableCell,
-              },
-            }}
-            dataSource={dataSource}
-            columns={mergedColumns}
-            loading={isLoading}
-          />
-        </Form>
+        <Table
+          bordered={!isMobile()}
+          pagination={false}
+          dataSource={workCategoriesData}
+          columns={columns}
+          loading={isLoading}
+        />
       </Content>
+      <Modal
+        title={
+          editingRecord
+            ? "Редактирование категории работ"
+            : "Создание категории работ"
+        }
+        open={modalOpen}
+        onOk={save}
+        onCancel={closeModal}
+        confirmLoading={saving}
+        okText="Сохранить"
+        cancelText="Отмена"
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Наименование"
+            name="name"
+            rules={[{ required: true, message: "Введите наименование" }]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };
