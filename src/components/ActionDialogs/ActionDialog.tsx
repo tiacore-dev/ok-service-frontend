@@ -11,6 +11,7 @@ interface IActionDialogProps {
   modalText?: React.JSX.Element;
   modalOkText?: string;
   modalOkLoading?: boolean;
+  modalOkDisabled?: boolean;
   footerDisable?: boolean;
   withPopConfirm?: boolean;
   popConfirmHeader?: string;
@@ -19,7 +20,7 @@ interface IActionDialogProps {
   customModalWidth?: number;
   onOpen?: () => void;
   onConfirm?: () => void;
-  beforeConfirm?: () => { reject?: boolean };
+  beforeConfirm?: () => boolean | undefined;
 }
 
 const modalWidth = getModalWidth();
@@ -34,6 +35,7 @@ export const ActionDialog = (props: IActionDialogProps) => {
     modalText,
     modalOkLoading,
     modalOkText,
+    modalOkDisabled,
     footerDisable,
     withPopConfirm,
     popConfirmHeader,
@@ -94,8 +96,9 @@ export const ActionDialog = (props: IActionDialogProps) => {
       onCancel={handleCancel}
       okText="Да"
       cancelText="Нет"
+      disabled={modalOkDisabled}
     >
-      <Button>{modalOkText ?? "Ок"}</Button>
+      <Button disabled={modalOkDisabled}>{modalOkText ?? "Ок"}</Button>
     </Popconfirm>
   ) : (
     <Button
@@ -104,6 +107,7 @@ export const ActionDialog = (props: IActionDialogProps) => {
       type="primary"
       loading={modalOkLoading}
       onClick={handleOk}
+      disabled={modalOkDisabled}
     >
       {modalOkText ?? "Ок"}
     </Button>

@@ -53,6 +53,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const createUserMutation = useCreateUserMutation();
   const updateUserMutation = useUpdateUserMutation();
   const { roleOptions } = useRoles();
+  // const isCitySelected = Boolean(data.city);
 
   const { sent: _sent, ...createUserData } = data;
 
@@ -123,11 +124,14 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
     }
   }, [user, dispatch]);
 
+  const disabled = !data.city || !data.name || !data.login;
+
   return (
     <ActionDialog
       modalOkText="Сохранить"
       onConfirm={handleConfirm}
       onOpen={handeOpen}
+      modalOkDisabled={disabled}
       buttonText={iconOnly ? "" : buttonText}
       popoverText={iconOnly && popoverText}
       buttonType="primary"
@@ -140,6 +144,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
               label="Имя"
+              required
             >
               <Input
                 value={data.name}
@@ -167,6 +172,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
               label="Логин"
+              required
             >
               <Input
                 value={data.login}
@@ -191,6 +197,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
               label="Роль"
+              required
             >
               <Select
                 value={data.role}
@@ -205,6 +212,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
               label="Город"
+              required
             >
               <Select
                 value={data.city}
