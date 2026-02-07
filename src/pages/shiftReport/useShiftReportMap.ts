@@ -82,12 +82,12 @@ export const useShiftReportMap = ({
   }, [objectCoordinates, shiftEndCoordinates]);
 
   const canShowStartMapButton = React.useMemo(
-    () => currentRole === RoleId.ADMIN && mapStartCoordinates.length === 2,
+    () => currentRole === RoleId.ADMIN && !!mapStartCoordinates,
     [currentRole, mapStartCoordinates.length],
   );
 
   const canShowEndMapButton = React.useMemo(
-    () => currentRole === RoleId.ADMIN && mapEndCoordinates.length === 2,
+    () => currentRole === RoleId.ADMIN && !!mapEndCoordinates,
     [currentRole, mapEndCoordinates.length],
   );
 
