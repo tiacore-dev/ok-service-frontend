@@ -57,7 +57,7 @@ export const useDownloadObjectVolumeReport = ({
       const objectsMapLocal: Record<string, IObjectVolumeReportObject> = {};
 
       const params: Record<string, string> = {
-        limit: "10000",
+        limit: "20000",
       };
 
       if (currentFilters?.date_from) {
@@ -100,15 +100,16 @@ export const useDownloadObjectVolumeReport = ({
 
       const detailsByShiftReportId = details.reduce(
         (acc: Record<string, IPopulatedShiftReportDetail[]>, detail) => {
-          if (!detail?.shift_report) {
+          const shiftReportId = detail?.shift_report?.id;
+          if (!shiftReportId) {
             return acc;
           }
 
-          if (!acc[detail.shift_report]) {
-            acc[detail.shift_report] = [];
+          if (!acc[shiftReportId]) {
+            acc[shiftReportId] = [];
           }
 
-          acc[detail.shift_report].push(detail);
+          acc[shiftReportId].push(detail);
           return acc;
         },
         {},

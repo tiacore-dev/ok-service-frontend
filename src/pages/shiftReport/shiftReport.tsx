@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
+import type { IShiftReportDetail } from "../../interfaces/shiftReportDetails/IShiftReportDetail";
 import type { IShiftReportDetailsListColumn } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
 import { useUsersMap } from "../../queries/users";
@@ -170,7 +171,7 @@ export const ShiftReport = () => {
         ...doc,
         key:
           doc.shift_report_detail_id ??
-          `${doc.shift_report ?? "shift"}-${index}`,
+          `${doc.shift_report?.id ?? "shift"}-${index}`,
       })),
     [shiftReportDetails],
   );
@@ -331,12 +332,17 @@ export const ShiftReport = () => {
     [checkedData],
   );
 
-  const detailDialogInitialValues = React.useMemo(
+  const detailDialogInitialValues = React.useMemo<
+    Partial<IShiftReportDetail> | undefined
+  >(
     () =>
       currentRecord
         ? {
-            ...currentRecord,
-            project_work: currentRecord.project_work?.project_work_id,
+            project_work:
+              typeof currentRecord.project_work === "string"
+                ? currentRecord.project_work
+                : currentRecord.project_work?.project_work_id,
+            quantity: currentRecord.quantity,
           }
         : undefined,
     [currentRecord],

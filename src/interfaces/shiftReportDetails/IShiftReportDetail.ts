@@ -8,9 +8,14 @@ export interface IShiftReportDetail {
 }
 
 export interface IPopulatedShiftReportDetail
-  extends Omit<IShiftReportDetail, "project_work"> {
+  extends Omit<IShiftReportDetail, "project_work" | "shift_report"> {
   project_work: {
     project_work_id: string;
     name: string;
+  };
+  shift_report: {
+    date: string;
+    id: string;
+    user_id: string;
   };
 }
