@@ -118,6 +118,17 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/materials");
           },
         },
+        ...(role === RoleId.ADMIN
+          ? [
+              {
+                key: "api-keys",
+                label: "API ключи",
+                onClick: () => {
+                  navigate("/api-keys");
+                },
+              },
+            ]
+          : []),
       ],
     });
   }

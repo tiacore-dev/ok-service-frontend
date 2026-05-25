@@ -44,6 +44,12 @@ import { citiesKeys } from "../../queries/cities";
 import { Leaves } from "../../pages/leaves/leaves.page";
 import { Leave } from "../../pages/leave/leave";
 import { Manual } from "../../pages/manual/manual";
+import { ApiKeys } from "../../pages/api-keys/api-keys.page";
+import {
+  apiKeyPermissionRelationsKeys,
+  apiKeyPermissionTypesKeys,
+  apiKeysKeys,
+} from "../../queries/apiKeys";
 
 export const useloadSourse = (): {
   load: (access_token?: string) => Promise<void>;
@@ -74,6 +80,9 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: workCategoriesKeys.all() });
     queryClient.removeQueries({ queryKey: objectStatusesKeys.all() });
     queryClient.removeQueries({ queryKey: rolesKeys.all() });
+    queryClient.removeQueries({ queryKey: apiKeysKeys.all() });
+    queryClient.removeQueries({ queryKey: apiKeyPermissionTypesKeys.all() });
+    queryClient.removeQueries({ queryKey: apiKeyPermissionRelationsKeys.all() });
   }, [queryClient]);
 
   const load = React.useCallback(
@@ -183,6 +192,7 @@ export const App = () => {
                 <Route index={true} element={<Materials />} />
                 <Route path=":materialId" element={<Material />} />
               </Route>
+              <Route path="api-keys" element={<ApiKeys />} />
               <Route path="shifts">
                 <Route index={true} element={<ShiftReports />} />
                 <Route path="assignment" element={<Assignment />} />
