@@ -169,17 +169,17 @@ export const ApiKeys = () => {
     refetchPermissionRelations,
   ]);
 
-  const openPermissionsModal = React.useCallback(
-    (apiKey: IApiKey) => {
-      const keyRelations = relationsByKey[apiKey.api_key_id] ?? [];
-      setSelectedPermissionTypeIds(
-        keyRelations.map((relation) => relation.permission_type_id),
-      );
-      setSelectedKey(apiKey);
-      setPermissionsModalOpen(true);
-    },
-    [relationsByKey],
-  );
+  // const openPermissionsModal = React.useCallback(
+  //   (apiKey: IApiKey) => {
+  //     const keyRelations = relationsByKey[apiKey.api_key_id] ?? [];
+  //     setSelectedPermissionTypeIds(
+  //       keyRelations.map((relation) => relation.permission_type_id),
+  //     );
+  //     setSelectedKey(apiKey);
+  //     setPermissionsModalOpen(true);
+  //   },
+  //   [relationsByKey],
+  // );
 
   const handleSavePermissions = React.useCallback(async () => {
     if (!selectedKey) {
@@ -353,9 +353,9 @@ export const ApiKeys = () => {
         width: 240,
         render: (_: unknown, record: (typeof rows)[number]) => (
           <Space>
-            <Button size="small" onClick={() => openPermissionsModal(record)}>
+            {/* <Button size="small" onClick={() => openPermissionsModal(record)}>
               Права
-            </Button>
+            </Button> */}
             <Popconfirm
               title="Удалить API ключ?"
               okText="Удалить"
@@ -372,7 +372,7 @@ export const ApiKeys = () => {
         ),
       },
     ],
-    [deleteApiKeyMutation, openPermissionsModal, rows],
+    [deleteApiKeyMutation, rows],
   );
 
   return (
