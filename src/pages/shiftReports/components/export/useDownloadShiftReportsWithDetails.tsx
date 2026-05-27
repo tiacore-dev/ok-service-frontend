@@ -25,6 +25,16 @@ const toLocalMidnightTs = (ts: number) => {
   return d.getTime();
 };
 
+const localDateStringToTs = (date: string) => {
+  const [day, month, year] = date.split(".").map(Number);
+
+  if (!day || !month || !year) {
+    return 0;
+  }
+
+  return new Date(year, month - 1, day).getTime();
+};
+
 interface DownloadShiftReportsWithDetailsProps {
   currentFilters?: {
     users?: string[];
@@ -111,9 +121,13 @@ export const useDownloadShiftReportsWithDetails = ({
 
   const createExportTemplate =
     React.useCallback(async (): Promise<ExportExcelTemplate> => {
+      if (!currentFilters?.date_from || !currentFilters?.date_to) {
+        throw new Error("Не указаны обязательные фильтры: date_from и date_to");
+      }
+
       const exportData: ExportExcelTemplate = {
-        date_from: dateTimestampToLocalString(currentFilters?.date_from) || "",
-        date_to: dateTimestampToLocalString(currentFilters?.date_to) || "",
+        date_from: dateTimestampToLocalString(currentFilters.date_from) || "",
+        date_to: dateTimestampToLocalString(currentFilters.date_to) || "",
         user: selectedUserId ? usersMap[selectedUserId]?.name || "" : "",
         total_summ: 0,
         unique_days: 0,
@@ -163,7 +177,6 @@ export const useDownloadShiftReportsWithDetails = ({
         if (!reportWithDetails) continue;
 
         const { report, details } = reportWithDetails;
-        if (!details.length) continue;
 
         const reportDate = dateTimestampToLocalString(report.date);
         uniqueDatesWithDetails.add(reportDate);
@@ -187,9 +200,23 @@ export const useDownloadShiftReportsWithDetails = ({
           exportData.objects.push(existingObject);
         }
 
-        const reportSum = report.shift_report_details_sum || 0;
+        const reportSum = details.length
+          ? report.shift_report_details_sum ?? 0
+          : 0;
         exportData.total_summ += reportSum;
         existingObject.details_summ += reportSum;
+
+        if (!details.length) {
+          existingObject.details.push({
+            date: reportDate,
+            work_name: "",
+            work_category: "",
+            quantity: 0,
+            coast: 0,
+            detail_summ: 0,
+          });
+          continue;
+        }
 
         for (const detail of details) {
           const projectWorkId = detail.project_work;
@@ -276,6 +303,12 @@ export const useDownloadShiftReportsWithDetails = ({
         }
       }
 
+      for (const object of exportData.objects) {
+        object.details.sort(
+          (a, b) => localDateStringToTs(a.date) - localDateStringToTs(b.date),
+        );
+      }
+
       return exportData;
     }, [
       currentFilters?.date_from,
@@ -306,14 +339,17 @@ export const useDownloadShiftReportsWithDetails = ({
   const exportToXLSX = React.useCallback(async () => {
     try {
       setIsExporting(true);
+      if (!currentFilters?.date_from || !currentFilters?.date_to) {
+        throw new Error("Не указаны обязательные фильтры: date_from и date_to");
+      }
       const exportTemplate = await createExportTemplate();
 
       const userName = selectedUserId
         ? usersMap[selectedUserId]?.name || "unknown"
         : "unknown";
       const dateFrom =
-        dateTimestampToLocalString(currentFilters?.date_from) || "";
-      const dateTo = dateTimestampToLocalString(currentFilters?.date_to) || "";
+        dateTimestampToLocalString(currentFilters.date_from) || "";
+      const dateTo = dateTimestampToLocalString(currentFilters.date_to) || "";
       const fileName =
         `shift_report_${userName}_${dateFrom}_${dateTo}.xlsx`.replace(
           /\s+/g,
