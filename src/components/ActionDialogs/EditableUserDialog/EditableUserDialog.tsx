@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Form, Input, Select, Space } from "antd";
+import { Form, Input, Select, Space, Switch } from "antd";
 import { IUser } from "../../../interfaces/users/IUser";
 import {
   clearCreateUserState,
@@ -21,6 +21,7 @@ import {
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useRoles } from "../../../queries/roles";
 import { useCitiesMap } from "../../../queries/cities";
+import { usePositionsMap } from "../../../queries/positions";
 
 interface IEditableUserDialogProps {
   user?: IUser;
@@ -31,6 +32,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
   const { user, iconOnly } = props;
   const [password, setPassword] = useState<string>("");
   const { cityOptions } = useCitiesMap();
+  const { positionOptions } = usePositionsMap();
   const buttonText = user ? "Редактировать" : "Создать";
   const popoverText = user
     ? "Редактировать пользователя"
@@ -222,6 +224,35 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
                 options={cityOptions}
                 allowClear
                 placeholder="Выберите город"
+              />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Должность"
+            >
+              <Select
+                value={data.position}
+                onChange={(value?: string) =>
+                  dispatch(editUserAction.setPosition(value))
+                }
+                options={positionOptions}
+                allowClear
+                placeholder="Выберите должность"
+              />
+            </Form.Item>
+
+            <Form.Item
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 18 }}
+              label="Активен"
+            >
+              <Switch
+                checked={data.is_active}
+                onChange={(checked) =>
+                  dispatch(editUserAction.setIsActive(checked))
+                }
               />
             </Form.Item>
           </Form>

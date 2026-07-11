@@ -7,5 +7,7 @@ export interface IUser {
   category: number;
   role: RoleId;
   city?: string;
+  position?: string;
+  is_active: boolean;
   deleted: boolean;
 }

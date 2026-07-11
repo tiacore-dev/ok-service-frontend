@@ -18,6 +18,7 @@ import {
 import { useUsersQuery } from "../../queries/users";
 import { useRoles } from "../../queries/roles";
 import { useCitiesMap } from "../../queries/cities";
+import { usePositionsMap } from "../../queries/positions";
 import { categoryMap } from "../../utils/categoryMap";
 import type { IUsersFiltersState } from "../../interfaces/users/IUsersFiltersState";
 
@@ -37,6 +38,7 @@ export const Users = () => {
   );
   const { rolesMap, roleOptions } = useRoles();
   const { citiesMap, cityOptions } = useCitiesMap();
+  const { positionsMap } = usePositionsMap();
   const filtersState = useSelector(
     (state: IState) => state.settings.usersSettings.usersFilters,
   );
@@ -70,9 +72,9 @@ export const Users = () => {
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? usersMobileColumns(navigate, rolesMap, citiesMap)
-        : usersDesktopColumns(navigate, rolesMap, citiesMap),
-    [navigate, rolesMap, citiesMap],
+        ? usersMobileColumns(navigate, rolesMap, citiesMap, positionsMap)
+        : usersDesktopColumns(navigate, rolesMap, citiesMap, positionsMap),
+    [navigate, rolesMap, citiesMap, positionsMap],
   );
 
   const handleFiltersChange = React.useCallback(

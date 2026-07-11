@@ -49,6 +49,8 @@ export const Login = () => {
             category: userData.category,
             login: userData.login,
             role: userData.role,
+            position: userData.position,
+            is_active: userData.is_active,
             deleted: userData.deleted,
           }),
         );

@@ -22,6 +22,7 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { useRoles } from "../../queries/roles";
 import { useCitiesMap } from "../../queries/cities";
+import { usePositionsMap } from "../../queries/positions";
 import "./user.less";
 
 export const User = () => {
@@ -35,6 +36,7 @@ export const User = () => {
   const { mutateAsync: restoreUser } = useRestoreUserMutation();
   const { mutateAsync: hardDeleteUser } = useHardDeleteUserMutation();
   const { citiesMap } = useCitiesMap();
+  const { positionsMap } = usePositionsMap();
   const userId = routeParams.userId;
   const {
     data: userData,
@@ -198,6 +200,13 @@ export const User = () => {
             <p>Логин: {userData.login}</p>
             <p>Город: {userData.city ? citiesMap[userData.city]?.name : "—"}</p>
             <p>Роль: {rolesMap[userData.role]?.name}</p>
+            <p>
+              Должность:{" "}
+              {userData.position
+                ? positionsMap[userData.position]?.name ?? "—"
+                : "—"}
+            </p>
+            <p>Активен: {userData.is_active ? "Да" : "Нет"}</p>
             {userData.deleted && <p>Удалён</p>}
           </Card>
         </Content>

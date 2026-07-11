@@ -278,6 +278,39 @@
                 ]
             }
         },
+        "/api-key/permissions/delete/many": {
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/KeyPermissionTypeRelationBulkDeleteResponse"
+                        }
+                    }
+                },
+                "operationId": "delete_key_permission_relation_delete_many",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/KeyPermissionTypeRelationBulkDelete"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "api-key"
+                ]
+            }
+        },
         "/api-key/permissions/{relation_id}/delete": {
             "parameters": [
                 {
@@ -680,7 +713,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/CityCreate"
+                            "$ref": "#/definitions/CityEdit"
                         }
                     },
                     {
@@ -746,7 +779,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/LeaveEdit"
+                            "$ref": "#/definitions/LeaveCreate"
                         }
                     },
                     {
@@ -969,7 +1002,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/LeaveCreate"
+                            "$ref": "#/definitions/LeaveEdit"
                         }
                     },
                     {
@@ -1215,7 +1248,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/MaterialCreate"
+                            "$ref": "#/definitions/MaterialEdit"
                         }
                     },
                     {
@@ -1267,9 +1300,6 @@
         "/object_statuses/all": {
             "get": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -1416,12 +1446,6 @@
                         "description": "Filter by name"
                     },
                     {
-                        "name": "deleted",
-                        "in": "query",
-                        "type": "string",
-                        "description": "\u0424\u043b\u0430\u0433 \u0434\u043b\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0446\u0438\u0438 \u043f\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043d\u044b\u043c \u043e\u0442\u0447\u0435\u0442\u0430\u043c"
-                    },
-                    {
                         "name": "address",
                         "in": "query",
                         "type": "string",
@@ -1432,6 +1456,18 @@
                         "in": "query",
                         "type": "string",
                         "description": "Filter by object status"
+                    },
+                    {
+                        "name": "manager",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by manager ID"
+                    },
+                    {
+                        "name": "deleted",
+                        "in": "query",
+                        "type": "string",
+                        "description": "\u0424\u043b\u0430\u0433 \u0434\u043b\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0446\u0438\u0438 \u043f\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043d\u044b\u043c \u043e\u0431\u044a\u0435\u043a\u0442\u0430\u043c"
                     },
                     {
                         "name": "city",
@@ -1450,6 +1486,18 @@
                         "in": "query",
                         "type": "number",
                         "description": "Filter by latitude"
+                    },
+                    {
+                        "name": "created_by",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by creator ID"
+                    },
+                    {
+                        "name": "created_at",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Filter by created at timestamp"
                     },
                     {
                         "name": "X-Fields",
@@ -1555,7 +1603,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ObjectCreate"
+                            "$ref": "#/definitions/ObjectEdit"
                         }
                     },
                     {
@@ -1601,6 +1649,207 @@
                 ],
                 "tags": [
                     "objects"
+                ]
+            }
+        },
+        "/positions/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PositionMessage"
+                        }
+                    }
+                },
+                "operationId": "post_position_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/PositionCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "positions"
+                ]
+            }
+        },
+        "/positions/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PositionAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_position_all",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Offset for pagination",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Limit for pagination",
+                        "default": 1000
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Field for sorting"
+                    },
+                    {
+                        "name": "sort_order",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Sort order",
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ]
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by position name"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "positions"
+                ]
+            }
+        },
+        "/positions/{position_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "position_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PositionMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_position_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "positions"
+                ]
+            }
+        },
+        "/positions/{position_id}/edit": {
+            "parameters": [
+                {
+                    "name": "position_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PositionMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_position_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/PositionEdit"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "positions"
+                ]
+            }
+        },
+        "/positions/{position_id}/view": {
+            "parameters": [
+                {
+                    "name": "position_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PositionResponse"
+                        }
+                    }
+                },
+                "operationId": "get_position_view",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "positions"
                 ]
             }
         },
@@ -1661,7 +1910,7 @@
                         "in": "query",
                         "type": "integer",
                         "description": "Limit for pagination",
-                        "default": 10
+                        "default": 1000
                     },
                     {
                         "name": "project",
@@ -1768,7 +2017,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ProjectMaterialCreate"
+                            "$ref": "#/definitions/ProjectMaterialEdit"
                         }
                     },
                     {
@@ -1981,7 +2230,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ProjectScheduleCreate"
+                            "$ref": "#/definitions/ProjectScheduleEdit"
                         }
                     },
                     {
@@ -2123,7 +2372,7 @@
                         "in": "query",
                         "type": "integer",
                         "description": "Limit for pagination",
-                        "default": 10
+                        "default": 1000
                     },
                     {
                         "name": "sort_by",
@@ -2293,7 +2542,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ProjectWorkCreate"
+                            "$ref": "#/definitions/ProjectWorkEdit"
                         }
                     },
                     {
@@ -2430,28 +2679,40 @@
                         "description": "Filter by project leader ID"
                     },
                     {
+                        "name": "created_by",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by creator ID"
+                    },
+                    {
                         "name": "name",
                         "in": "query",
                         "type": "string",
                         "description": "Filter by name"
                     },
                     {
+                        "name": "created_at",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Filter by created at timestamp"
+                    },
+                    {
                         "name": "night_shift_available",
                         "in": "query",
                         "type": "string",
-                        "description": "\u0424\u043b\u0430\u0433 \u0434\u043b\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0446\u0438\u0438 \u043f\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043d\u044b\u043c \u043e\u0442\u0447\u0435\u0442\u0430\u043c"
+                        "description": "Flag filter"
                     },
                     {
                         "name": "extreme_conditions_available",
                         "in": "query",
                         "type": "string",
-                        "description": "\u0424\u043b\u0430\u0433 \u0434\u043b\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0446\u0438\u0438 \u043f\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043d\u044b\u043c \u043e\u0442\u0447\u0435\u0442\u0430\u043c"
+                        "description": "Flag filter"
                     },
                     {
                         "name": "deleted",
                         "in": "query",
                         "type": "string",
-                        "description": "\u0424\u043b\u0430\u0433 \u0434\u043b\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0446\u0438\u0438 \u043f\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043d\u044b\u043c \u043e\u0442\u0447\u0435\u0442\u0430\u043c"
+                        "description": "Flag filter"
                     },
                     {
                         "name": "X-Fields",
@@ -2557,7 +2818,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ProjectCreate"
+                            "$ref": "#/definitions/ProjectEdit"
                         }
                     },
                     {
@@ -3237,7 +3498,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ShiftReportMaterialCreate"
+                            "$ref": "#/definitions/ShiftReportMaterialEdit"
                         }
                     },
                     {
@@ -3587,7 +3848,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/ShiftReportCreate"
+                            "$ref": "#/definitions/ShiftReportEdit"
                         }
                     },
                     {
@@ -3815,7 +4076,7 @@
                         "description": "\u0424\u0430\u0439\u043b \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u043d",
                         "headers": {
                             "Content-Disposition": {
-                                "description": "attachment; filename=\"yourfile.docx\"",
+                                "description": "attachment; filename=\"output.docx\"",
                                 "type": "string"
                             },
                             "Content-Type": {
@@ -3832,7 +4093,7 @@
                     }
                 },
                 "description": "\u0413\u0435\u043d\u0435\u0440\u0430\u0446\u0438\u044f \u0444\u0430\u0439\u043b\u0430 \u043f\u043e \u0448\u0430\u0431\u043b\u043e\u043d\u0443",
-                "operationId": "post_template_add",
+                "operationId": "post_template_generate",
                 "parameters": [
                     {
                         "name": "payload",
@@ -3851,12 +4112,6 @@
         "/users/add": {
             "post": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
-                    "400": {
-                        "description": "Bad request, invalid data."
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -3890,9 +4145,6 @@
         "/users/all": {
             "get": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -3914,7 +4166,7 @@
                         "in": "query",
                         "type": "integer",
                         "description": "\u041b\u0438\u043c\u0438\u0442 \u0437\u0430\u043f\u0438\u0441\u0435\u0439",
-                        "default": 10
+                        "default": 1000
                     },
                     {
                         "name": "sort_by",
@@ -3963,6 +4215,18 @@
                         "description": "\u0424\u0438\u043b\u044c\u0442\u0440 \u043f\u043e \u0433\u043e\u0440\u043e\u0434\u0443"
                     },
                     {
+                        "name": "position",
+                        "in": "query",
+                        "type": "string",
+                        "description": "\u0424\u0438\u043b\u044c\u0442\u0440 \u043f\u043e \u0434\u043e\u043b\u0436\u043d\u043e\u0441\u0442\u0438"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "type": "string",
+                        "description": "\u0424\u0438\u043b\u044c\u0442\u0440 \u043f\u043e \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0441\u0442\u0438"
+                    },
+                    {
                         "name": "deleted",
                         "in": "query",
                         "type": "string",
@@ -3992,12 +4256,6 @@
             ],
             "delete": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
-                    "404": {
-                        "description": "User not found"
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -4005,7 +4263,7 @@
                         }
                     }
                 },
-                "operationId": "delete_user_delete_hard",
+                "operationId": "delete_user_hard_delete",
                 "parameters": [
                     {
                         "name": "X-Fields",
@@ -4031,12 +4289,6 @@
             ],
             "patch": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
-                    "404": {
-                        "description": "User not found"
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -4044,7 +4296,7 @@
                         }
                     }
                 },
-                "operationId": "patch_user_delete_soft",
+                "operationId": "patch_user_soft_delete",
                 "parameters": [
                     {
                         "name": "X-Fields",
@@ -4070,15 +4322,6 @@
             ],
             "patch": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
-                    "404": {
-                        "description": "User not found"
-                    },
-                    "400": {
-                        "description": "Bad request, invalid data."
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -4093,7 +4336,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/UserCreate"
+                            "$ref": "#/definitions/UserEdit"
                         }
                     },
                     {
@@ -4120,12 +4363,6 @@
             ],
             "patch": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
-                    "404": {
-                        "description": "User not found"
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -4159,12 +4396,6 @@
             ],
             "get": {
                 "responses": {
-                    "500": {
-                        "description": "Internal Server Error"
-                    },
-                    "404": {
-                        "description": "User not found"
-                    },
                     "200": {
                         "description": "Success",
                         "schema": {
@@ -4378,7 +4609,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/WorkCategoryCreate"
+                            "$ref": "#/definitions/WorkCategoryEdit"
                         }
                     },
                     {
@@ -4585,7 +4816,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/WorkMaterialRelationCreate"
+                            "$ref": "#/definitions/WorkMaterialRelationEdit"
                         }
                     },
                     {
@@ -4691,7 +4922,7 @@
                         "in": "query",
                         "type": "integer",
                         "description": "Limit for pagination",
-                        "default": 10
+                        "default": 1000
                     },
                     {
                         "name": "work",
@@ -4710,6 +4941,18 @@
                         "in": "query",
                         "type": "number",
                         "description": "Price filter"
+                    },
+                    {
+                        "name": "created_by",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Creator filter"
+                    },
+                    {
+                        "name": "created_at",
+                        "in": "query",
+                        "type": "integer",
+                        "description": "Created at filter"
                     },
                     {
                         "name": "deleted",
@@ -4837,7 +5080,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/WorkPriceCreate"
+                            "$ref": "#/definitions/WorkPriceEdit"
                         }
                     },
                     {
@@ -5077,7 +5320,7 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/WorkCreate"
+                            "$ref": "#/definitions/WorkEdit"
                         }
                     },
                     {
@@ -5143,11 +5386,20 @@
             "in": "header",
             "name": "Authorization",
             "description": "\u0414\u043e\u0431\u0430\u0432\u044c\u0442\u0435 JWT-\u0442\u043e\u043a\u0435\u043d \u0432 \u0444\u043e\u0440\u043c\u0430\u0442\u0435: Bearer <jwt_token>"
+        },
+        "API-Key": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "API-Key",
+            "description": "\u041f\u0435\u0440\u0435\u0434\u0430\u0439\u0442\u0435 API \u043a\u043b\u044e\u0447 \u0432 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0435 API-Key"
         }
     },
     "security": [
         {
             "Bearer": []
+        },
+        {
+            "API-Key": []
         }
     ],
     "tags": [
@@ -5156,84 +5408,88 @@
             "description": "Authentication related operations"
         },
         {
+            "name": "roles",
+            "description": "Role management operations"
+        },
+        {
+            "name": "subscriptions",
+            "description": "Subscription actions"
+        },
+        {
             "name": "api-key",
             "description": "API keys management operations"
-        },
-        {
-            "name": "users",
-            "description": "User management operations"
-        },
-        {
-            "name": "cities",
-            "description": "City management operations"
         },
         {
             "name": "leaves",
             "description": "Leaves management operations"
         },
         {
-            "name": "object_statuses",
-            "description": "Object Status management operations"
-        },
-        {
-            "name": "work_categories",
-            "description": "Work category management operations"
+            "name": "cities",
+            "description": "City management operations"
         },
         {
             "name": "objects",
             "description": "Objects management operations"
         },
         {
-            "name": "projects",
-            "description": "Projects management operations"
+            "name": "object_statuses",
+            "description": "Object Status management operations"
         },
         {
-            "name": "works",
-            "description": "Works management operations"
-        },
-        {
-            "name": "work_prices",
-            "description": "Work Prices management operations"
-        },
-        {
-            "name": "materials",
-            "description": "Materials management operations"
-        },
-        {
-            "name": "work_material_relations",
-            "description": "Work material relations management operations"
-        },
-        {
-            "name": "project_materials",
-            "description": "Project materials management operations"
-        },
-        {
-            "name": "shift_report_materials",
-            "description": "Shift report materials management operations"
-        },
-        {
-            "name": "project_works",
-            "description": "Project Works management operations"
+            "name": "positions",
+            "description": "Position management operations"
         },
         {
             "name": "project_schedules",
             "description": "Project schedules management operations"
         },
         {
-            "name": "shift_reports",
-            "description": "Shift reports management operations"
+            "name": "projects",
+            "description": "Projects management operations"
         },
         {
-            "name": "roles",
-            "description": "Role management operations"
+            "name": "users",
+            "description": "User management operations"
+        },
+        {
+            "name": "shift_reports",
+            "description": "Shift reports management operations"
         },
         {
             "name": "shift_report_details",
             "description": "Shift report details management operations"
         },
         {
-            "name": "subscriptions",
-            "description": "Subscription actions"
+            "name": "project_materials",
+            "description": "Project materials management operations"
+        },
+        {
+            "name": "materials",
+            "description": "Materials management operations"
+        },
+        {
+            "name": "project_works",
+            "description": "Project Works management operations"
+        },
+        {
+            "name": "work_categories",
+            "description": "Work category management operations"
+        },
+        {
+            "name": "work_material_relations",
+            "description": "Work material relations management operations"
+        },
+        {
+            "name": "shift_report_materials",
+            "description": "Shift report materials management operations"
+        },
+        {
+            "name": "work_prices",
+            "description": "Work Prices management operations"
+        },
+        {
+            "name": "works",
+            "description": "Works management operations"
         },
         {
             "name": "templates",
@@ -5278,6 +5534,7 @@
                 "created_at",
                 "created_by",
                 "deleted",
+                "is_active",
                 "login",
                 "name",
                 "role",
@@ -5308,6 +5565,14 @@
                     "type": "string",
                     "description": "\u0413\u043e\u0440\u043e\u0434 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f."
                 },
+                "position": {
+                    "type": "string",
+                    "description": "\u0414\u043e\u043b\u0436\u043d\u043e\u0441\u0442\u044c \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f."
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "description": "\u0410\u043a\u0442\u0438\u0432\u0435\u043d \u043b\u0438 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c."
+                },
                 "created_at": {
                     "type": "integer",
                     "description": "Date user was created at"
@@ -5335,6 +5600,126 @@
                 "user_id": {
                     "type": "string",
                     "description": "ID of user"
+                }
+            },
+            "type": "object"
+        },
+        "RolesAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435."
+                },
+                "roles": {
+                    "type": "array",
+                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u0440\u043e\u043b\u0435\u0439.",
+                    "items": {
+                        "$ref": "#/definitions/Role"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "Role": {
+            "required": [
+                "name",
+                "role_id"
+            ],
+            "properties": {
+                "role_id": {
+                    "type": "string",
+                    "description": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440 \u0440\u043e\u043b\u0438."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0440\u043e\u043b\u0438."
+                }
+            },
+            "type": "object"
+        },
+        "SubscriptionCreate": {
+            "properties": {
+                "endpoint": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "SubscriptionMessage": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "subscription_id": {
+                    "type": "string",
+                    "description": "ID of subscription"
+                }
+            },
+            "type": "object"
+        },
+        "Notification": {
+            "required": [
+                "message",
+                "subscription_id"
+            ],
+            "properties": {
+                "subscription_id": {
+                    "type": "string",
+                    "description": "Subscription ID"
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Message that you want to send in web-push"
+                }
+            },
+            "type": "object"
+        },
+        "SubscriptionAllResponse": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "subscriptions": {
+                    "type": "array",
+                    "description": "List of subscriptions",
+                    "items": {
+                        "$ref": "#/definitions/SubscriptionModel"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "SubscriptionModel": {
+            "required": [
+                "endpoint",
+                "keys",
+                "subscription_id",
+                "user"
+            ],
+            "properties": {
+                "subscription_id": {
+                    "type": "string",
+                    "description": "Subscription ID"
+                },
+                "user": {
+                    "type": "string",
+                    "description": "Subscription ID"
+                },
+                "endpoint": {
+                    "type": "string",
+                    "description": "Subscription ID"
+                },
+                "keys": {
+                    "type": "string",
+                    "description": "Subscription ID"
                 }
             },
             "type": "object"
@@ -5576,6 +5961,41 @@
             },
             "type": "object"
         },
+        "KeyPermissionTypeRelationBulkDelete": {
+            "properties": {
+                "relation_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "KeyPermissionTypeRelationBulkDeleteResponse": {
+            "required": [
+                "deleted_count",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "deleted_ids": {
+                    "type": "array",
+                    "description": "Deleted relation IDs",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "deleted_count": {
+                    "type": "integer",
+                    "description": "Deleted relations count"
+                }
+            },
+            "type": "object"
+        },
         "PermissionTypeAllResponse": {
             "required": [
                 "msg"
@@ -5616,142 +6036,7 @@
             },
             "type": "object"
         },
-        "UserCreate": {
-            "properties": {
-                "login": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "category": {
-                    "type": "integer"
-                },
-                "city": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "UserResponse": {
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
-                },
-                "users": {
-                    "type": "array",
-                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0435\u0439",
-                    "items": {
-                        "$ref": "#/definitions/User"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "CityCreate": {
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "CityMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
-                },
-                "city_id": {
-                    "type": "string",
-                    "description": "ID \u0433\u043e\u0440\u043e\u0434\u0430"
-                }
-            },
-            "type": "object"
-        },
-        "CityResponse": {
-            "required": [
-                "city",
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
-                },
-                "city": {
-                    "description": "\u0414\u0430\u043d\u043d\u044b\u0435 \u0433\u043e\u0440\u043e\u0434\u0430",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/City"
-                        }
-                    ]
-                }
-            },
-            "type": "object"
-        },
-        "City": {
-            "required": [
-                "city_id",
-                "created_at",
-                "created_by",
-                "deleted",
-                "name"
-            ],
-            "properties": {
-                "city_id": {
-                    "type": "string",
-                    "description": "ID \u0433\u043e\u0440\u043e\u0434\u0430"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0433\u043e\u0440\u043e\u0434\u0430"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "\u0410\u0432\u0442\u043e\u0440 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044f"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "\u0414\u0430\u0442\u0430 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044f"
-                },
-                "deleted": {
-                    "type": "boolean",
-                    "description": "\u041f\u0440\u0438\u0437\u043d\u0430\u043a \u0443\u0434\u0430\u043b\u0435\u043d\u0438\u044f"
-                }
-            },
-            "type": "object"
-        },
-        "CityAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
-                },
-                "cities": {
-                    "type": "array",
-                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b\u0445 \u0433\u043e\u0440\u043e\u0434\u043e\u0432",
-                    "items": {
-                        "$ref": "#/definitions/City"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "LeaveEdit": {
+        "LeaveCreate": {
             "properties": {
                 "start_date": {
                     "type": "integer"
@@ -5769,9 +6054,6 @@
                     "type": "string"
                 },
                 "comment": {
-                    "type": "string"
-                },
-                "updated_by": {
                     "type": "string"
                 }
             },
@@ -5878,7 +6160,7 @@
             },
             "type": "object"
         },
-        "LeaveCreate": {
+        "LeaveEdit": {
             "properties": {
                 "start_date": {
                     "type": "integer"
@@ -5896,6 +6178,9 @@
                     "type": "string"
                 },
                 "comment": {
+                    "type": "string"
+                },
+                "updated_by": {
                     "type": "string"
                 }
             },
@@ -5956,43 +6241,7 @@
             },
             "type": "object"
         },
-        "ObjectStatusAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435."
-                },
-                "object_statuses": {
-                    "type": "array",
-                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u0441\u0442\u0430\u0442\u0443\u0441\u043e\u0432 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432.",
-                    "items": {
-                        "$ref": "#/definitions/ObjectStatus"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "ObjectStatus": {
-            "required": [
-                "name",
-                "object_status_id"
-            ],
-            "properties": {
-                "object_status_id": {
-                    "type": "string",
-                    "description": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440 \u0441\u0442\u0430\u0442\u0443\u0441\u0430 \u043e\u0431\u044a\u0435\u043a\u0442\u0430."
-                },
-                "name": {
-                    "type": "string",
-                    "description": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0441\u0442\u0430\u0442\u0443\u0441\u0430 \u043e\u0431\u044a\u0435\u043a\u0442\u0430."
-                }
-            },
-            "type": "object"
-        },
-        "WorkCategoryCreate": {
+        "CityCreate": {
             "properties": {
                 "name": {
                     "type": "string"
@@ -6000,82 +6249,99 @@
             },
             "type": "object"
         },
-        "WorkCategoryMessage": {
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_category_id": {
-                    "type": "string",
-                    "description": "ID of work category"
-                }
-            },
-            "type": "object"
-        },
-        "WorkCategoryresponse": {
+        "CityMessage": {
             "required": [
-                "work_category"
+                "msg"
             ],
             "properties": {
                 "msg": {
                     "type": "string",
-                    "description": "Response message"
+                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
                 },
-                "work_category": {
-                    "description": "\u0414\u0430\u043d\u043d\u044b\u0435 \u043e \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u0438.",
+                "city_id": {
+                    "type": "string",
+                    "description": "ID \u0433\u043e\u0440\u043e\u0434\u0430"
+                }
+            },
+            "type": "object"
+        },
+        "CityResponse": {
+            "required": [
+                "city",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
+                },
+                "city": {
+                    "description": "\u0414\u0430\u043d\u043d\u044b\u0435 \u0433\u043e\u0440\u043e\u0434\u0430",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/WorkCategory"
+                            "$ref": "#/definitions/City"
                         }
                     ]
                 }
             },
             "type": "object"
         },
-        "WorkCategory": {
+        "City": {
             "required": [
+                "city_id",
                 "created_at",
-                "created_by",
                 "deleted",
-                "name",
-                "work_category_id"
+                "name"
             ],
             "properties": {
-                "work_category_id": {
+                "city_id": {
                     "type": "string",
-                    "description": "ID of the work category"
+                    "description": "ID \u0433\u043e\u0440\u043e\u0434\u0430"
                 },
                 "name": {
                     "type": "string",
-                    "description": "Name of the work category"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Date work category was created at"
+                    "description": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0433\u043e\u0440\u043e\u0434\u0430"
                 },
                 "created_by": {
                     "type": "string",
-                    "description": "Creator of work category"
+                    "description": "\u0410\u0432\u0442\u043e\u0440 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044f"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "\u0414\u0430\u0442\u0430 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044f"
                 },
                 "deleted": {
                     "type": "boolean",
-                    "description": "Deleted status of the work category"
+                    "description": "\u041f\u0440\u0438\u0437\u043d\u0430\u043a \u0443\u0434\u0430\u043b\u0435\u043d\u0438\u044f"
                 }
             },
             "type": "object"
         },
-        "WorkCategoryAllResponse": {
+        "CityEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "CityAllResponse": {
+            "required": [
+                "msg"
+            ],
             "properties": {
                 "msg": {
                     "type": "string",
-                    "description": "Response message"
+                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
                 },
-                "work_categories": {
+                "cities": {
                     "type": "array",
-                    "description": "List of work categories",
+                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b\u0445 \u0433\u043e\u0440\u043e\u0434\u043e\u0432",
                     "items": {
-                        "$ref": "#/definitions/WorkCategory"
+                        "$ref": "#/definitions/City"
                     }
                 }
             },
@@ -6145,9 +6411,7 @@
         "Object": {
             "required": [
                 "created_at",
-                "created_by",
                 "deleted",
-                "manager",
                 "name",
                 "object_id"
             ],
@@ -6189,7 +6453,7 @@
                     "description": "Latitude of the object"
                 },
                 "created_at": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Time object was created at"
                 },
                 "created_by": {
@@ -6199,6 +6463,38 @@
                 "deleted": {
                     "type": "boolean",
                     "description": "Deletion status"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "manager": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "ltd": {
+                    "type": "number"
                 }
             },
             "type": "object"
@@ -6217,6 +6513,261 @@
                     "description": "List of objects",
                     "items": {
                         "$ref": "#/definitions/Object"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatusAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435."
+                },
+                "object_statuses": {
+                    "type": "array",
+                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u0441\u0442\u0430\u0442\u0443\u0441\u043e\u0432 \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432.",
+                    "items": {
+                        "$ref": "#/definitions/ObjectStatus"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatus": {
+            "required": [
+                "name",
+                "object_status_id"
+            ],
+            "properties": {
+                "object_status_id": {
+                    "type": "string",
+                    "description": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440 \u0441\u0442\u0430\u0442\u0443\u0441\u0430 \u043e\u0431\u044a\u0435\u043a\u0442\u0430."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0441\u0442\u0430\u0442\u0443\u0441\u0430 \u043e\u0431\u044a\u0435\u043a\u0442\u0430."
+                }
+            },
+            "type": "object"
+        },
+        "PositionCreate": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PositionMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "position_id": {
+                    "type": "string",
+                    "description": "ID of position"
+                }
+            },
+            "type": "object"
+        },
+        "PositionResponse": {
+            "required": [
+                "msg",
+                "position"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "position": {
+                    "$ref": "#/definitions/Position"
+                }
+            },
+            "type": "object"
+        },
+        "Position": {
+            "required": [
+                "created_at",
+                "name",
+                "position_id"
+            ],
+            "properties": {
+                "position_id": {
+                    "type": "string",
+                    "description": "ID of position"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Position name"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of position"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Date position was created at"
+                }
+            },
+            "type": "object"
+        },
+        "PositionEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PositionAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "positions": {
+                    "type": "array",
+                    "description": "List of positions",
+                    "items": {
+                        "$ref": "#/definitions/Position"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectScheduleCreate": {
+            "properties": {
+                "work": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectScheduleMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_schedule_id": {
+                    "type": "string",
+                    "description": "ID of project schedule"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectScheduleResponse": {
+            "required": [
+                "msg",
+                "project_schedule"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_schedule": {
+                    "$ref": "#/definitions/ProjectSchedule"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSchedule": {
+            "required": [
+                "created_at",
+                "created_by",
+                "project",
+                "project_schedule_id",
+                "quantity",
+                "work"
+            ],
+            "properties": {
+                "project_schedule_id": {
+                    "type": "string",
+                    "description": "ID of the project schedule"
+                },
+                "project": {
+                    "type": "string",
+                    "description": "Project details"
+                },
+                "work": {
+                    "type": "string",
+                    "description": "Work details"
+                },
+                "quantity": {
+                    "type": "number",
+                    "description": "Quantity of work"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Date project schedule was created at"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of project schedule"
+                },
+                "date": {
+                    "type": "integer",
+                    "description": "Scheduled date"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectScheduleEdit": {
+            "properties": {
+                "work": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "date": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectScheduleAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_schedules": {
+                    "type": "array",
+                    "description": "List of project schedules",
+                    "items": {
+                        "$ref": "#/definitions/ProjectSchedule"
                     }
                 }
             },
@@ -6325,6 +6876,29 @@
             },
             "type": "object"
         },
+        "ProjectEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "project_leader": {
+                    "type": "string"
+                },
+                "night_shift_available": {
+                    "type": "boolean"
+                },
+                "extreme_conditions_available": {
+                    "type": "boolean"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
         "ProjectAllResponse": {
             "required": [
                 "msg"
@@ -6361,894 +6935,78 @@
             },
             "type": "object"
         },
-        "WorkCreate": {
+        "UserCreate": {
             "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
-                "category": {
-                    "type": "string"
-                },
-                "measurement_unit": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "WorkMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_id": {
-                    "type": "string",
-                    "description": "ID of work"
-                }
-            },
-            "type": "object"
-        },
-        "WorkResponse": {
-            "required": [
-                "msg",
-                "work"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work": {
-                    "$ref": "#/definitions/Work"
-                }
-            },
-            "type": "object"
-        },
-        "Work": {
-            "required": [
-                "created_at",
-                "created_by",
-                "deleted",
-                "name",
-                "work_id"
-            ],
-            "properties": {
-                "work_id": {
-                    "type": "string",
-                    "description": "ID of the work"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the work"
-                },
-                "category": {
-                    "description": "Work category data",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/WorkCategory"
-                        }
-                    ]
-                },
-                "measurement_unit": {
-                    "type": "string",
-                    "description": "Measurement unit of the work"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Date work was created at"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of work"
-                },
-                "deleted": {
-                    "type": "boolean",
-                    "description": "Deletion status"
-                },
-                "work_prices": {
-                    "type": "array",
-                    "description": "List of prices",
-                    "items": {
-                        "$ref": "#/definitions/WorkPrice"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "WorkPrice": {
-            "required": [
-                "category",
-                "created_at",
-                "created_by",
-                "deleted",
-                "price",
-                "work",
-                "work_price_id"
-            ],
-            "properties": {
-                "work_price_id": {
-                    "type": "string",
-                    "description": "ID of the work price"
-                },
-                "work": {
-                    "type": "string",
-                    "description": "Associated work data"
-                },
-                "category": {
-                    "type": "integer",
-                    "description": "Category of the work price"
-                },
-                "price": {
-                    "type": "number",
-                    "description": "Price of the work"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Date work price was created at"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of work price"
-                },
-                "deleted": {
-                    "type": "boolean",
-                    "description": "Deletion status"
-                }
-            },
-            "type": "object"
-        },
-        "WorkAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "works": {
-                    "type": "array",
-                    "description": "List of works",
-                    "items": {
-                        "$ref": "#/definitions/Work"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "WorkPriceCreate": {
-            "properties": {
-                "work": {
+                "role": {
                     "type": "string"
                 },
                 "category": {
                     "type": "integer"
                 },
-                "price": {
-                    "type": "number"
-                }
-            },
-            "type": "object"
-        },
-        "WorkPriceMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_price_id": {
-                    "type": "string",
-                    "description": "ID of work price"
-                }
-            },
-            "type": "object"
-        },
-        "WorkPriceResponse": {
-            "required": [
-                "msg",
-                "work_price"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_price": {
-                    "$ref": "#/definitions/WorkPrice"
-                }
-            },
-            "type": "object"
-        },
-        "WorkPriceAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_prices": {
-                    "type": "array",
-                    "description": "List of work prices",
-                    "items": {
-                        "$ref": "#/definitions/WorkPrice"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "MaterialCreate": {
-            "properties": {
-                "name": {
+                "city": {
                     "type": "string"
                 },
-                "measurement_unit": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "MaterialMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "material_id": {
-                    "type": "string",
-                    "description": "ID of material"
-                }
-            },
-            "type": "object"
-        },
-        "MaterialResponse": {
-            "required": [
-                "material",
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "material": {
-                    "$ref": "#/definitions/Material"
-                }
-            },
-            "type": "object"
-        },
-        "Material": {
-            "required": [
-                "created_at",
-                "created_by",
-                "deleted",
-                "material_id",
-                "name"
-            ],
-            "properties": {
-                "material_id": {
-                    "type": "string",
-                    "description": "ID of the material"
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Name of the material"
-                },
-                "measurement_unit": {
-                    "type": "string",
-                    "description": "Measurement unit of the material"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Created at timestamp"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of material"
-                },
-                "deleted": {
-                    "type": "boolean",
-                    "description": "Deletion status"
-                }
-            },
-            "type": "object"
-        },
-        "MaterialAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "materials": {
-                    "type": "array",
-                    "description": "List of materials",
-                    "items": {
-                        "$ref": "#/definitions/Material"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "WorkMaterialRelationCreate": {
-            "properties": {
-                "work": {
+                "position": {
                     "type": "string"
                 },
-                "material": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "number"
-                }
-            },
-            "type": "object"
-        },
-        "WorkMaterialRelationMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_material_relation_id": {
-                    "type": "string",
-                    "description": "ID of work material relation"
-                }
-            },
-            "type": "object"
-        },
-        "WorkMaterialRelationResponse": {
-            "required": [
-                "msg",
-                "work_material_relation"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_material_relation": {
-                    "$ref": "#/definitions/WorkMaterialRelation"
-                }
-            },
-            "type": "object"
-        },
-        "WorkMaterialRelation": {
-            "required": [
-                "created_at",
-                "created_by",
-                "material",
-                "quantity",
-                "work",
-                "work_material_relation_id"
-            ],
-            "properties": {
-                "work_material_relation_id": {
-                    "type": "string",
-                    "description": "ID of the work material relation"
-                },
-                "work": {
-                    "type": "string",
-                    "description": "Work ID"
-                },
-                "material": {
-                    "type": "string",
-                    "description": "Material ID"
-                },
-                "quantity": {
-                    "type": "number",
-                    "description": "Quantity of material"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Created at timestamp"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of relation"
-                }
-            },
-            "type": "object"
-        },
-        "WorkMaterialRelationAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "work_material_relations": {
-                    "type": "array",
-                    "description": "List of work material relations",
-                    "items": {
-                        "$ref": "#/definitions/WorkMaterialRelation"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "ProjectMaterialCreate": {
-            "properties": {
-                "project": {
-                    "type": "string"
-                },
-                "material": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "number"
-                },
-                "project_work": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectMaterialMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_material_id": {
-                    "type": "string",
-                    "description": "ID of project material"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectMaterialResponse": {
-            "required": [
-                "msg",
-                "project_material"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_material": {
-                    "$ref": "#/definitions/ProjectMaterial"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectMaterial": {
-            "required": [
-                "created_at",
-                "created_by",
-                "material",
-                "project",
-                "project_material_id",
-                "quantity"
-            ],
-            "properties": {
-                "project_material_id": {
-                    "type": "string",
-                    "description": "ID of the project material"
-                },
-                "project": {
-                    "type": "string",
-                    "description": "Project ID"
-                },
-                "material": {
-                    "type": "string",
-                    "description": "Material ID"
-                },
-                "quantity": {
-                    "type": "number",
-                    "description": "Quantity of material"
-                },
-                "project_work": {
-                    "type": "string",
-                    "description": "Project work ID (optional)"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Created at timestamp"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of record"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectMaterialAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_materials": {
-                    "type": "array",
-                    "description": "List of project materials",
-                    "items": {
-                        "$ref": "#/definitions/ProjectMaterial"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportMaterialCreate": {
-            "properties": {
-                "shift_report": {
-                    "type": "string"
-                },
-                "material": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "number"
-                },
-                "shift_report_detail": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportMaterialMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "shift_report_material_id": {
-                    "type": "string",
-                    "description": "ID of shift report material"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportMaterialResponse": {
-            "required": [
-                "msg",
-                "shift_report_material"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "shift_report_material": {
-                    "$ref": "#/definitions/ShiftReportMaterial"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportMaterial": {
-            "required": [
-                "created_at",
-                "created_by",
-                "material",
-                "quantity",
-                "shift_report",
-                "shift_report_material_id"
-            ],
-            "properties": {
-                "shift_report_material_id": {
-                    "type": "string",
-                    "description": "ID of the shift report material"
-                },
-                "shift_report": {
-                    "type": "string",
-                    "description": "Shift report ID"
-                },
-                "material": {
-                    "type": "string",
-                    "description": "Material ID"
-                },
-                "quantity": {
-                    "type": "number",
-                    "description": "Quantity of material"
-                },
-                "shift_report_detail": {
-                    "type": "string",
-                    "description": "Shift report detail ID (optional)"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Created at timestamp"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of record"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportMaterialAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "shift_report_materials": {
-                    "type": "array",
-                    "description": "List of shift report materials",
-                    "items": {
-                        "$ref": "#/definitions/ShiftReportMaterial"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "ProjectWorkCreate": {
-            "properties": {
-                "project": {
-                    "type": "string"
-                },
-                "project_work_name": {
-                    "type": "string"
-                },
-                "work": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "number"
-                },
-                "summ": {
-                    "type": "number"
-                },
-                "signed": {
+                "is_active": {
                     "type": "boolean"
                 }
             },
             "type": "object"
         },
-        "ProjectWorkManyMessage": {
-            "required": [
-                "msg"
-            ],
+        "UserEdit": {
             "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_work_ids": {
-                    "type": "array",
-                    "description": "List of project work IDs",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "ProjectWorkMessage": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_work_id": {
-                    "type": "string",
-                    "description": "ID of project work"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectWorkResponse": {
-            "required": [
-                "msg",
-                "project_work"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_work": {
-                    "$ref": "#/definitions/ProjectWork"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectWork": {
-            "required": [
-                "created_at",
-                "created_by",
-                "project",
-                "project_work_id",
-                "quantity",
-                "signed",
-                "work"
-            ],
-            "properties": {
-                "project_work_id": {
-                    "type": "string",
-                    "description": "ID of the project work"
-                },
-                "project_work_name": {
-                    "type": "string",
-                    "description": "Name of the projet work"
-                },
-                "project": {
-                    "type": "string",
-                    "description": "Project data associated with the project work"
-                },
-                "work": {
-                    "type": "string",
-                    "description": "Work data associated with the project work"
-                },
-                "quantity": {
-                    "type": "number",
-                    "description": "Quantity of the work"
-                },
-                "summ": {
-                    "type": "number",
-                    "description": "Sum of the project work"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Date project work was created at"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of project work"
-                },
-                "signed": {
-                    "type": "boolean",
-                    "description": "If the project work is signed"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectWorkAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_works": {
-                    "type": "array",
-                    "description": "List of project works",
-                    "items": {
-                        "$ref": "#/definitions/ProjectWork"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "ProjectScheduleCreate": {
-            "properties": {
-                "work": {
+                "login": {
                     "type": "string"
                 },
-                "project": {
+                "password": {
                     "type": "string"
                 },
-                "quantity": {
-                    "type": "number"
+                "name": {
+                    "type": "string"
                 },
-                "date": {
+                "role": {
+                    "type": "string"
+                },
+                "category": {
                     "type": "integer"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
                 }
             },
             "type": "object"
         },
-        "ProjectScheduleMessage": {
-            "required": [
-                "msg"
-            ],
+        "UserResponse": {
             "properties": {
                 "msg": {
                     "type": "string",
-                    "description": "Response message"
+                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435"
                 },
-                "project_schedule_id": {
-                    "type": "string",
-                    "description": "ID of project schedule"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectScheduleResponse": {
-            "required": [
-                "msg",
-                "project_schedule"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_schedule": {
-                    "$ref": "#/definitions/ProjectSchedule"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectSchedule": {
-            "required": [
-                "created_at",
-                "created_by",
-                "project",
-                "project_schedule_id",
-                "quantity",
-                "work"
-            ],
-            "properties": {
-                "project_schedule_id": {
-                    "type": "string",
-                    "description": "ID of the project schedule"
-                },
-                "project": {
-                    "type": "string",
-                    "description": "Project details"
-                },
-                "work": {
-                    "type": "string",
-                    "description": "Work details"
-                },
-                "quantity": {
-                    "type": "number",
-                    "description": "Quantity of work"
-                },
-                "created_at": {
-                    "type": "integer",
-                    "description": "Date project schedule was created at"
-                },
-                "created_by": {
-                    "type": "string",
-                    "description": "Creator of project schedule"
-                },
-                "date": {
-                    "type": "integer",
-                    "description": "Scheduled date"
-                }
-            },
-            "type": "object"
-        },
-        "ProjectScheduleAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "project_schedules": {
+                "users": {
                     "type": "array",
-                    "description": "List of project schedules",
+                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0435\u0439",
                     "items": {
-                        "$ref": "#/definitions/ProjectSchedule"
+                        "$ref": "#/definitions/User"
                     }
                 }
             },
@@ -7473,6 +7231,59 @@
             },
             "type": "object"
         },
+        "ShiftReportEdit": {
+            "properties": {
+                "user": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "integer"
+                },
+                "date_start": {
+                    "type": "integer"
+                },
+                "date_end": {
+                    "type": "integer"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "lng_start": {
+                    "type": "number"
+                },
+                "ltd_start": {
+                    "type": "number"
+                },
+                "lng_end": {
+                    "type": "number"
+                },
+                "ltd_end": {
+                    "type": "number"
+                },
+                "distance_start": {
+                    "type": "number"
+                },
+                "distance_end": {
+                    "type": "number"
+                },
+                "signed": {
+                    "type": "boolean"
+                },
+                "night_shift": {
+                    "type": "boolean"
+                },
+                "extreme_conditions": {
+                    "type": "boolean"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "ShiftReportAllResponse": {
             "required": [
                 "msg"
@@ -7496,42 +7307,6 @@
                 "detail": {
                     "type": "object",
                     "description": "Additional details (e.g., validation errors)"
-                }
-            },
-            "type": "object"
-        },
-        "RolesAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435."
-                },
-                "roles": {
-                    "type": "array",
-                    "description": "\u0421\u043f\u0438\u0441\u043e\u043a \u0440\u043e\u043b\u0435\u0439.",
-                    "items": {
-                        "$ref": "#/definitions/Role"
-                    }
-                }
-            },
-            "type": "object"
-        },
-        "Role": {
-            "required": [
-                "name",
-                "role_id"
-            ],
-            "properties": {
-                "role_id": {
-                    "type": "string",
-                    "description": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440 \u0440\u043e\u043b\u0438."
-                },
-                "name": {
-                    "type": "string",
-                    "description": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0440\u043e\u043b\u0438."
                 }
             },
             "type": "object"
@@ -7739,86 +7514,1005 @@
             },
             "type": "object"
         },
-        "SubscriptionCreate": {
+        "ProjectMaterialCreate": {
             "properties": {
-                "endpoint": {
+                "project": {
                     "type": "string"
                 },
-                "keys": {
-                    "type": "object"
-                }
-            },
-            "type": "object"
-        },
-        "SubscriptionMessage": {
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
+                "material": {
+                    "type": "string"
                 },
-                "subscription_id": {
-                    "type": "string",
-                    "description": "ID of subscription"
+                "quantity": {
+                    "type": "number"
+                },
+                "project_work": {
+                    "type": "string"
                 }
             },
             "type": "object"
         },
-        "Notification": {
+        "ProjectMaterialMessage": {
             "required": [
-                "message",
-                "subscription_id"
+                "msg"
             ],
             "properties": {
-                "subscription_id": {
+                "msg": {
                     "type": "string",
-                    "description": "Subscription ID"
+                    "description": "Response message"
                 },
-                "message": {
+                "project_material_id": {
                     "type": "string",
-                    "description": "Message that you want to send in web-push"
+                    "description": "ID of project material"
                 }
             },
             "type": "object"
         },
-        "SubscriptionAllResponse": {
+        "ProjectMaterialResponse": {
+            "required": [
+                "msg",
+                "project_material"
+            ],
             "properties": {
                 "msg": {
                     "type": "string",
                     "description": "Response message"
                 },
-                "subscriptions": {
+                "project_material": {
+                    "$ref": "#/definitions/ProjectMaterial"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectMaterial": {
+            "required": [
+                "created_at",
+                "created_by",
+                "material",
+                "project",
+                "project_material_id",
+                "quantity"
+            ],
+            "properties": {
+                "project_material_id": {
+                    "type": "string",
+                    "description": "ID of the project material"
+                },
+                "project": {
+                    "type": "string",
+                    "description": "Project ID"
+                },
+                "material": {
+                    "type": "string",
+                    "description": "Material ID"
+                },
+                "quantity": {
+                    "type": "number",
+                    "description": "Quantity of material"
+                },
+                "project_work": {
+                    "type": "string",
+                    "description": "Project work ID (optional)"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Created at timestamp"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of record"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectMaterialEdit": {
+            "properties": {
+                "project": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "project_work": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectMaterialAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_materials": {
                     "type": "array",
-                    "description": "List of subscriptions",
+                    "description": "List of project materials",
                     "items": {
-                        "$ref": "#/definitions/SubscriptionModel"
+                        "$ref": "#/definitions/ProjectMaterial"
                     }
                 }
             },
             "type": "object"
         },
-        "SubscriptionModel": {
+        "MaterialCreate": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "measurement_unit": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MaterialMessage": {
             "required": [
-                "endpoint",
-                "keys",
-                "subscription_id",
-                "user"
+                "msg"
             ],
             "properties": {
-                "subscription_id": {
+                "msg": {
                     "type": "string",
-                    "description": "Subscription ID"
+                    "description": "Response message"
                 },
-                "user": {
+                "material_id": {
                     "type": "string",
-                    "description": "Subscription ID"
+                    "description": "ID of material"
+                }
+            },
+            "type": "object"
+        },
+        "MaterialResponse": {
+            "required": [
+                "material",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
                 },
-                "endpoint": {
+                "material": {
+                    "$ref": "#/definitions/Material"
+                }
+            },
+            "type": "object"
+        },
+        "Material": {
+            "required": [
+                "created_at",
+                "created_by",
+                "deleted",
+                "material_id",
+                "name"
+            ],
+            "properties": {
+                "material_id": {
                     "type": "string",
-                    "description": "Subscription ID"
+                    "description": "ID of the material"
                 },
-                "keys": {
+                "name": {
                     "type": "string",
-                    "description": "Subscription ID"
+                    "description": "Name of the material"
+                },
+                "measurement_unit": {
+                    "type": "string",
+                    "description": "Measurement unit of the material"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Created at timestamp"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of material"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "description": "Deletion status"
+                }
+            },
+            "type": "object"
+        },
+        "MaterialEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "measurement_unit": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "MaterialAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "materials": {
+                    "type": "array",
+                    "description": "List of materials",
+                    "items": {
+                        "$ref": "#/definitions/Material"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectWorkCreate": {
+            "properties": {
+                "project": {
+                    "type": "string"
+                },
+                "project_work_name": {
+                    "type": "string"
+                },
+                "work": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "summ": {
+                    "type": "number"
+                },
+                "signed": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectWorkManyMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_work_ids": {
+                    "type": "array",
+                    "description": "List of project work IDs",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectWorkMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_work_id": {
+                    "type": "string",
+                    "description": "ID of project work"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectWorkResponse": {
+            "required": [
+                "msg",
+                "project_work"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_work": {
+                    "$ref": "#/definitions/ProjectWork"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectWork": {
+            "required": [
+                "created_at",
+                "created_by",
+                "project",
+                "project_work_id",
+                "quantity",
+                "signed",
+                "work"
+            ],
+            "properties": {
+                "project_work_id": {
+                    "type": "string",
+                    "description": "ID of the project work"
+                },
+                "project_work_name": {
+                    "type": "string",
+                    "description": "Name of the projet work"
+                },
+                "project": {
+                    "type": "string",
+                    "description": "Project data associated with the project work"
+                },
+                "work": {
+                    "type": "string",
+                    "description": "Work data associated with the project work"
+                },
+                "quantity": {
+                    "type": "number",
+                    "description": "Quantity of the work"
+                },
+                "summ": {
+                    "type": "number",
+                    "description": "Sum of the project work"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Date project work was created at"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of project work"
+                },
+                "signed": {
+                    "type": "boolean",
+                    "description": "If the project work is signed"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectWorkEdit": {
+            "properties": {
+                "project": {
+                    "type": "string"
+                },
+                "project_work_name": {
+                    "type": "string"
+                },
+                "work": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "summ": {
+                    "type": "number"
+                },
+                "signed": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectWorkAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "project_works": {
+                    "type": "array",
+                    "description": "List of project works",
+                    "items": {
+                        "$ref": "#/definitions/ProjectWork"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkCategoryCreate": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkCategoryMessage": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_category_id": {
+                    "type": "string",
+                    "description": "ID of work category"
+                }
+            },
+            "type": "object"
+        },
+        "WorkCategoryresponse": {
+            "required": [
+                "work_category"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_category": {
+                    "description": "\u0414\u0430\u043d\u043d\u044b\u0435 \u043e \u043a\u0430\u0442\u0435\u0433\u043e\u0440\u0438\u0438.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/WorkCategory"
+                        }
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "WorkCategory": {
+            "required": [
+                "created_at",
+                "created_by",
+                "deleted",
+                "name",
+                "work_category_id"
+            ],
+            "properties": {
+                "work_category_id": {
+                    "type": "string",
+                    "description": "ID of the work category"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the work category"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Date work category was created at"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of work category"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "description": "Deleted status of the work category"
+                }
+            },
+            "type": "object"
+        },
+        "WorkCategoryEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "WorkCategoryAllResponse": {
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_categories": {
+                    "type": "array",
+                    "description": "List of work categories",
+                    "items": {
+                        "$ref": "#/definitions/WorkCategory"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkMaterialRelationCreate": {
+            "properties": {
+                "work": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "WorkMaterialRelationMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_material_relation_id": {
+                    "type": "string",
+                    "description": "ID of work material relation"
+                }
+            },
+            "type": "object"
+        },
+        "WorkMaterialRelationResponse": {
+            "required": [
+                "msg",
+                "work_material_relation"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_material_relation": {
+                    "$ref": "#/definitions/WorkMaterialRelation"
+                }
+            },
+            "type": "object"
+        },
+        "WorkMaterialRelation": {
+            "required": [
+                "created_at",
+                "created_by",
+                "material",
+                "quantity",
+                "work",
+                "work_material_relation_id"
+            ],
+            "properties": {
+                "work_material_relation_id": {
+                    "type": "string",
+                    "description": "ID of the work material relation"
+                },
+                "work": {
+                    "type": "string",
+                    "description": "Work ID"
+                },
+                "material": {
+                    "type": "string",
+                    "description": "Material ID"
+                },
+                "quantity": {
+                    "type": "number",
+                    "description": "Quantity of material"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Created at timestamp"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of relation"
+                }
+            },
+            "type": "object"
+        },
+        "WorkMaterialRelationEdit": {
+            "properties": {
+                "work": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "WorkMaterialRelationAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_material_relations": {
+                    "type": "array",
+                    "description": "List of work material relations",
+                    "items": {
+                        "$ref": "#/definitions/WorkMaterialRelation"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportMaterialCreate": {
+            "properties": {
+                "shift_report": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "shift_report_detail": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportMaterialMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "shift_report_material_id": {
+                    "type": "string",
+                    "description": "ID of shift report material"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportMaterialResponse": {
+            "required": [
+                "msg",
+                "shift_report_material"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "shift_report_material": {
+                    "$ref": "#/definitions/ShiftReportMaterial"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportMaterial": {
+            "required": [
+                "created_at",
+                "created_by",
+                "material",
+                "quantity",
+                "shift_report",
+                "shift_report_material_id"
+            ],
+            "properties": {
+                "shift_report_material_id": {
+                    "type": "string",
+                    "description": "ID of the shift report material"
+                },
+                "shift_report": {
+                    "type": "string",
+                    "description": "Shift report ID"
+                },
+                "material": {
+                    "type": "string",
+                    "description": "Material ID"
+                },
+                "quantity": {
+                    "type": "number",
+                    "description": "Quantity of material"
+                },
+                "shift_report_detail": {
+                    "type": "string",
+                    "description": "Shift report detail ID (optional)"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Created at timestamp"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of record"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportMaterialEdit": {
+            "properties": {
+                "shift_report": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "shift_report_detail": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportMaterialAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "shift_report_materials": {
+                    "type": "array",
+                    "description": "List of shift report materials",
+                    "items": {
+                        "$ref": "#/definitions/ShiftReportMaterial"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkPriceCreate": {
+            "properties": {
+                "work": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPriceMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_price_id": {
+                    "type": "string",
+                    "description": "ID of work price"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPriceResponse": {
+            "required": [
+                "msg",
+                "work_price"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_price": {
+                    "$ref": "#/definitions/WorkPrice"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPrice": {
+            "required": [
+                "category",
+                "created_at",
+                "created_by",
+                "deleted",
+                "price",
+                "work",
+                "work_price_id"
+            ],
+            "properties": {
+                "work_price_id": {
+                    "type": "string",
+                    "description": "ID of the work price"
+                },
+                "work": {
+                    "type": "string",
+                    "description": "Associated work data"
+                },
+                "category": {
+                    "type": "integer",
+                    "description": "Category of the work price"
+                },
+                "price": {
+                    "type": "number",
+                    "description": "Price of the work"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Date work price was created at"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of work price"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "description": "Deletion status"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPriceEdit": {
+            "properties": {
+                "work": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPriceAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_prices": {
+                    "type": "array",
+                    "description": "List of work prices",
+                    "items": {
+                        "$ref": "#/definitions/WorkPrice"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkCreate": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "measurement_unit": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work_id": {
+                    "type": "string",
+                    "description": "ID of work"
+                }
+            },
+            "type": "object"
+        },
+        "WorkResponse": {
+            "required": [
+                "msg",
+                "work"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "work": {
+                    "$ref": "#/definitions/Work"
+                }
+            },
+            "type": "object"
+        },
+        "Work": {
+            "required": [
+                "created_at",
+                "created_by",
+                "deleted",
+                "name",
+                "work_id"
+            ],
+            "properties": {
+                "work_id": {
+                    "type": "string",
+                    "description": "ID of the work"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the work"
+                },
+                "category": {
+                    "description": "Work category data",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/WorkCategory"
+                        }
+                    ]
+                },
+                "measurement_unit": {
+                    "type": "string",
+                    "description": "Measurement unit of the work"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Date work was created at"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of work"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "description": "Deletion status"
+                },
+                "work_prices": {
+                    "type": "array",
+                    "description": "List of prices",
+                    "items": {
+                        "$ref": "#/definitions/WorkPrice"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "measurement_unit": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "works": {
+                    "type": "array",
+                    "description": "List of works",
+                    "items": {
+                        "$ref": "#/definitions/Work"
+                    }
                 }
             },
             "type": "object"

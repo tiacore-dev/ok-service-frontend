@@ -41,6 +41,8 @@ import { rolesKeys } from "../../queries/roles";
 import { fetchObjectStatuses } from "../../api/object-statuses.api";
 import { fetchRoles } from "../../api/roles.api";
 import { citiesKeys } from "../../queries/cities";
+import { positionsKeys } from "../../queries/positions";
+import { Positions } from "../../pages/positions/positions.page";
 import { Leaves } from "../../pages/leaves/leaves.page";
 import { Leave } from "../../pages/leave/leave";
 import { Manual } from "../../pages/manual/manual";
@@ -70,6 +72,7 @@ export const useloadSourse = (): {
     });
     queryClient.removeQueries({ queryKey: usersKeys.all() });
     queryClient.removeQueries({ queryKey: citiesKeys.all() });
+    queryClient.removeQueries({ queryKey: positionsKeys.all() });
     queryClient.removeQueries({ queryKey: objectsKeys.all() });
     queryClient.removeQueries({ queryKey: projectsKeys.all() });
     queryClient.removeQueries({ queryKey: projectWorksKeys.all() });
@@ -174,6 +177,9 @@ export const App = () => {
               </Route>
               <Route path="cities">
                 <Route index={true} element={<Cities />} />
+              </Route>
+              <Route path="positions">
+                <Route index={true} element={<Positions />} />
               </Route>
               <Route path="users">
                 <Route index={true} element={<Users />} />

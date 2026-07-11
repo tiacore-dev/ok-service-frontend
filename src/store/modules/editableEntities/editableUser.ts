@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { IUser } from "../../../interfaces/users/IUser";
 import { RoleId } from "../../../interfaces/roles/IRole";
 
@@ -13,6 +13,8 @@ const initialState: IEditableUserState = {
   category: 0,
   role: RoleId.USER,
   city: undefined,
+  position: undefined,
+  is_active: true,
   deleted: false,
 };
 
@@ -20,7 +22,11 @@ const setUserData = (state: IEditableUserState, userData: Partial<IUser>) => {
   state.name = userData.name;
   state.role = userData.role;
   state.login = userData.login;
+  state.category = userData.category;
   state.city = userData.city;
+  state.position = userData.position;
+  state.is_active = userData.is_active ?? true;
+  state.deleted = userData.deleted ?? false;
   state.sent = false;
 };
 
@@ -50,6 +56,17 @@ const editableUserSlice = createSlice({
 
     setCity: (state: IEditableUserState, action: { payload: string }) => {
       state.city = action.payload;
+    },
+
+    setPosition: (
+      state: IEditableUserState,
+      action: PayloadAction<string | undefined>,
+    ) => {
+      state.position = action.payload;
+    },
+
+    setIsActive: (state: IEditableUserState, action: { payload: boolean }) => {
+      state.is_active = action.payload;
     },
 
     sendUser: (state: IEditableUserState) => {

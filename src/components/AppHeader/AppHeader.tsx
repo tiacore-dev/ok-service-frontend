@@ -105,6 +105,14 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
         },
 
         {
+          key: "positions",
+          label: "Должности",
+          onClick: () => {
+            navigate("/positions");
+          },
+        },
+
+        {
           key: "works",
           label: "Виды работ",
           onClick: () => {
