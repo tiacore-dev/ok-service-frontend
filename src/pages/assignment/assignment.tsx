@@ -18,6 +18,7 @@ import { useCreateShiftReportMutation } from "../../hooks/QueryActions/shift-rep
 import "./assignment.less";
 import { ObjectStatusId } from "../../interfaces/objectStatuses/IObjectStatus";
 import { useLeavesQuery } from "../../queries/leaves";
+import { usePositionsMap } from "../../queries/positions";
 
 export const Assignment = () => {
   const date_from = React.useMemo(() => getToday().getTime(), []);
@@ -41,6 +42,7 @@ export const Assignment = () => {
   const isAuth = authData.isAuth;
 
   const { usersMap, users } = useUsersMap({ enabled: isAuth });
+  const { positionsMap } = usePositionsMap({ enabled: isAuth });
   const { objectsMap } = useObjectsMap({ enabled: isAuth });
   const { projects: projectsList, projectsMap } = useProjectsMap({
     enabled: isAuth,
@@ -96,10 +98,12 @@ export const Assignment = () => {
   }, [projectsList, objectsMap, role, userId]);
 
   const userOptions = React.useMemo(() => {
-    return userShiftData.map((u) => ({
-      value: u.userId,
-      label: usersMap[u.userId]?.name ?? u.userId,
-    }));
+    return userShiftData
+      .filter((user) => usersMap[user.userId]?.is_active !== false)
+      .map((user) => ({
+        value: user.userId,
+        label: usersMap[user.userId]?.name ?? user.userId,
+      }));
   }, [userShiftData, usersMap]);
 
   const { mutate: createShift, isPending: isAssigning } =
@@ -151,6 +155,7 @@ export const Assignment = () => {
                 objectsMap={objectsMap}
                 projectsMap={projectsMap}
                 usersMap={usersMap}
+                positionsMap={positionsMap}
                 loading={isLoading}
                 userOptions={userOptions}
                 onAssignUser={(projectId, userId) =>
@@ -168,6 +173,7 @@ export const Assignment = () => {
             objectsMap={objectsMap}
             projectsMap={projectsMap}
             usersMap={usersMap}
+            positionsMap={positionsMap}
             loading={isLoading}
             assignOptions={assignOptions}
             onAssign={assignUserToProject}

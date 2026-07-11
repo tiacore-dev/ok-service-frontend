@@ -8,7 +8,8 @@ import { CaretDownOutlined, CaretRightOutlined } from "@ant-design/icons";
 
 type ObjectsMap = Record<string, { name: string }>;
 type ProjectsMap = Record<string, { name: string; project_leader: string }>;
-type UsersMap = Record<string, { name: string }>;
+type UsersMap = Record<string, { name: string; position?: string }>;
+type PositionsMap = Record<string, { name: string }>;
 
 interface Props {
   objectId: string;
@@ -16,6 +17,7 @@ interface Props {
   objectsMap: ObjectsMap;
   projectsMap: ProjectsMap;
   usersMap: UsersMap;
+  positionsMap: PositionsMap;
   loading?: boolean;
   userOptions?: { value: string; label: string }[];
   onAssignUser?: (projectId: string, userId: string) => void;
@@ -28,6 +30,7 @@ export const ObjectProjectsCard: React.FC<Props> = ({
   objectsMap,
   projectsMap,
   usersMap,
+  positionsMap,
   loading,
   userOptions = [],
   onAssignUser,
@@ -130,6 +133,9 @@ export const ObjectProjectsCard: React.FC<Props> = ({
                       <StatusIcon status={user.status} />
                       <p className="object-projects__user">
                         {usersMap[user.user]?.name ?? user.user}
+                        {usersMap[user.user]?.position
+                          ? ` (${positionsMap[usersMap[user.user].position!]?.name ?? "—"})`
+                          : ""}
                       </p>
                     </Space>
                   ))}

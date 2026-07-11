@@ -14,13 +14,15 @@ import "./usersAssignmentsCard.less";
 
 type ObjectsMap = Record<string, { name: string }>;
 type ProjectsMap = Record<string, { name: string }>;
-type UsersMap = Record<string, { name: string }>;
+type UsersMap = Record<string, { name: string; position?: string }>;
+type PositionsMap = Record<string, { name: string }>;
 
 interface Props {
   data: IUserShiftAssignment[];
   objectsMap: ObjectsMap;
   projectsMap: ProjectsMap;
   usersMap: UsersMap;
+  positionsMap: PositionsMap;
   loading?: boolean;
   assignOptions?: { value: string; label: string }[];
   onAssign?: (userId: string, projectId: string) => void;
@@ -32,6 +34,7 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
   objectsMap,
   projectsMap,
   usersMap,
+  positionsMap,
   loading,
   assignOptions = [],
   onAssign,
@@ -47,10 +50,17 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
         dataSource={data}
         renderItem={(item) => {
           const userName = usersMap[item.userId]?.name ?? item.userId;
+          const positionId = usersMap[item.userId]?.position;
+          const positionName = positionId
+            ? positionsMap[positionId]?.name
+            : undefined;
           return (
             <List.Item>
               <Space direction="vertical" className="users-assignments__full">
-                <strong>{userName}</strong>
+                <strong>
+                  {userName}
+                  {positionName ? ` (${positionName})` : ""}
+                </strong>
                 {item.assignments.length ? (
                   <List
                     size="small"
