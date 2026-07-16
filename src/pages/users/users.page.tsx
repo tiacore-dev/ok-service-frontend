@@ -134,7 +134,9 @@ export const Users = () => {
           ? true
           : filtersState.deletedFilter === "deleted"
             ? user.deleted
-            : !user.deleted;
+            : filtersState.deletedFilter === "inactive"
+              ? !user.deleted && !user.is_active
+              : !user.deleted && user.is_active;
 
       return (
         matchesSearch &&

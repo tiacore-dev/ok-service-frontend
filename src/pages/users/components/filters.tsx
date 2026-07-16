@@ -85,6 +85,7 @@ export const Filters: React.FC<UsersFiltersProps> = ({
         }
         options={[
           { label: "Активные", value: "active" },
+          { label: "Неактивные", value: "inactive" },
           { label: "Удаленные", value: "deleted" },
           { label: "Все", value: "all" },
         ]}

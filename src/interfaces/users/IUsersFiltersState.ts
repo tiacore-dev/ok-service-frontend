@@ -1,5 +1,5 @@
 export type UsersSortField = "name" | "login" | "category" | "role" | "city";
-export type UsersDeletedFilter = "active" | "deleted" | "all";
+export type UsersDeletedFilter = "active" | "inactive" | "deleted" | "all";
 
 export interface IUsersFiltersState {
   search: string;
