@@ -111,7 +111,7 @@ export const ShiftReport = () => {
     [objectId, objectsMap],
   );
 
-  const showDistances = currentRole === RoleId.ADMIN;
+  const showDistances = currentRole !== RoleId.USER;
   const canSign = !isSigned && currentRole !== RoleId.USER;
 
   const projectWorksData = React.useMemo(

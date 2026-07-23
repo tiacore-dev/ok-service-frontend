@@ -1,3 +1,9 @@
+export interface IShiftReportUser {
+  id: string;
+  login: string;
+  name: string;
+}
+
 export interface IShiftReport {
   shift_report_id?: string;
   number: number;
@@ -18,6 +24,10 @@ export interface IShiftReport {
   ltd_end?: number;
   distance_start?: number;
   distance_end?: number;
+  signed_by?: IShiftReportUser;
+  signed_at?: number;
+  updated_by?: IShiftReportUser;
+  updated_at?: number;
 }
 
 export interface IShiftReportQueryParams {

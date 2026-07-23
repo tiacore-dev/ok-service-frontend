@@ -60,6 +60,8 @@ export const ShiftReportInfoCard = ({
   signDisabled,
 }: ShiftReportInfoCardProps) => {
   const shiftNumber = shiftReport.number?.toString().padStart(5, "0");
+  const formatUser = (user?: IShiftReport["signed_by"]) =>
+    user ? user.name : "—";
 
   return (
     <Card className="shift-report__card">
@@ -71,6 +73,30 @@ export const ShiftReportInfoCard = ({
       <p>{`Прораб: ${projectLeaderName ?? ""}`}</p>
       <p>Комментарий: {shiftReport.comment || "-"}</p>
       <p>{shiftReport.signed ? "Согласовано" : "Не согласовано"}</p>
+      {(shiftReport.signed_by || shiftReport.signed_at) && (
+        <>
+          <p>Согласовал: {formatUser(shiftReport.signed_by)}</p>
+          <p>
+            Дата согласования:{" "}
+            {shiftReport.signed_at
+              ? dateTimestampToLocalDateTimeString(shiftReport.signed_at * 1000)
+              : "—"}
+          </p>
+        </>
+      )}
+      {(shiftReport.updated_by || shiftReport.updated_at) && (
+        <>
+          <p>Последнее изменение: {formatUser(shiftReport.updated_by)}</p>
+          <p>
+            Дата изменения:{" "}
+            {shiftReport.updated_at
+              ? dateTimestampToLocalDateTimeString(
+                  shiftReport.updated_at * 1000,
+                )
+              : "—"}
+          </p>
+        </>
+      )}
       {shiftReport.date_start && (
         <p>
           Дата начала:{" "}
