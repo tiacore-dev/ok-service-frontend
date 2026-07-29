@@ -9,6 +9,12 @@ interface CreateShiftReportResponse {
   shift_report_id: string;
 }
 
+export interface ShiftReportCoordinates {
+  ltd: number;
+  lng: number;
+  distance?: number;
+}
+
 export const fetchShiftReports = async (
   queryParams: IShiftReportQueryParams,
 ) => {
@@ -66,4 +72,21 @@ export const editShiftReport = async (
   );
 
   return data;
+};
+
+export const startShiftReport = async (
+  shift_report_id: string,
+  coordinates: ShiftReportCoordinates,
+): Promise<void> => {
+  await apiClient.patch(`/shift_reports/${shift_report_id}/start`, coordinates);
+};
+
+export const finishShiftReport = async (
+  shift_report_id: string,
+  coordinates: ShiftReportCoordinates,
+): Promise<void> => {
+  await apiClient.patch(
+    `/shift_reports/${shift_report_id}/finish`,
+    coordinates,
+  );
 };

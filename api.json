@@ -3864,6 +3864,72 @@
                 ]
             }
         },
+        "/shift_reports/{report_id}/finish": {
+            "parameters": [
+                {
+                    "name": "report_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftReportMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_shift_report_finish",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_reports"
+                ]
+            }
+        },
+        "/shift_reports/{report_id}/start": {
+            "parameters": [
+                {
+                    "name": "report_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftReportMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_shift_report_start",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_reports"
+                ]
+            }
+        },
         "/shift_reports/{report_id}/view": {
             "parameters": [
                 {
@@ -7020,14 +7086,14 @@
                 "date": {
                     "type": "integer"
                 },
+                "project": {
+                    "type": "string"
+                },
                 "date_start": {
                     "type": "integer"
                 },
                 "date_end": {
                     "type": "integer"
-                },
-                "project": {
-                    "type": "string"
                 },
                 "lng_start": {
                     "type": "number"
@@ -7212,6 +7278,18 @@
                     "type": "string",
                     "description": "Creator of shift report"
                 },
+                "signed_by": {
+                    "$ref": "#/definitions/ShiftReportUser"
+                },
+                "signed_at": {
+                    "type": "integer"
+                },
+                "updated_by": {
+                    "$ref": "#/definitions/ShiftReportUpdater"
+                },
+                "updated_at": {
+                    "type": "integer"
+                },
                 "night_shift": {
                     "type": "boolean",
                     "description": "Night shift"
@@ -7231,6 +7309,40 @@
             },
             "type": "object"
         },
+        "ShiftReportUser": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportUpdater": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "ShiftReportEdit": {
             "properties": {
                 "user": {
@@ -7239,26 +7351,8 @@
                 "date": {
                     "type": "integer"
                 },
-                "date_start": {
-                    "type": "integer"
-                },
-                "date_end": {
-                    "type": "integer"
-                },
                 "project": {
                     "type": "string"
-                },
-                "lng_start": {
-                    "type": "number"
-                },
-                "ltd_start": {
-                    "type": "number"
-                },
-                "lng_end": {
-                    "type": "number"
-                },
-                "ltd_end": {
-                    "type": "number"
                 },
                 "distance_start": {
                     "type": "number"
@@ -7446,6 +7540,9 @@
                 "date": {
                     "type": "integer",
                     "description": "Shift report date"
+                },
+                "project": {
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -7462,6 +7559,21 @@
                 "name": {
                     "type": "string",
                     "description": "Project work name"
+                },
+                "project_work_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_quantity": {
+                    "type": "number"
+                },
+                "acceptance_status": {
+                    "type": "string",
+                    "example": "not_checked",
+                    "enum": [
+                        "not_checked",
+                        "partial",
+                        "accepted"
+                    ]
                 }
             },
             "type": "object"
@@ -7832,7 +7944,9 @@
                 "created_by",
                 "project",
                 "project_work_id",
+                "project_work_quantity",
                 "quantity",
+                "shift_report_details_quantity",
                 "signed",
                 "work"
             ],
@@ -7872,6 +7986,12 @@
                 "signed": {
                     "type": "boolean",
                     "description": "If the project work is signed"
+                },
+                "project_work_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_quantity": {
+                    "type": "number"
                 }
             },
             "type": "object"

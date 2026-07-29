@@ -16,7 +16,9 @@ import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import {
   useEditShiftReportMutation,
+  useFinishShiftReportMutation,
   useHardDeleteShiftReportMutation,
+  useStartShiftReportMutation,
 } from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 import {
   useCreateShiftReportDetailMutation,
@@ -52,6 +54,8 @@ export const ShiftReport = () => {
 
   // Mutation hooks
   const { mutate: editReportMutation } = useEditShiftReportMutation();
+  const { mutate: startShiftMutation } = useStartShiftReportMutation();
+  const { mutate: finishShiftMutation } = useFinishShiftReportMutation();
   const { mutate: deleteReportMutation } = useHardDeleteShiftReportMutation();
   const { mutate: createDetail } = useCreateShiftReportDetailMutation();
   const { mutate: editDetail } = useEditShiftReportDetailMutation();
@@ -152,7 +156,8 @@ export const ShiftReport = () => {
     currentUserId,
     objectId,
     objectsMap,
-    editReportMutation,
+    startShiftMutation,
+    finishShiftMutation,
   });
 
   const handleAdd = React.useCallback(() => {

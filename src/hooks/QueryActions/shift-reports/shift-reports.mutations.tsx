@@ -2,8 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createShiftReport,
   editShiftReport,
+  finishShiftReport,
   hardDeleteShiftReport,
+  startShiftReport,
 } from "../../../api/shift-reports.api";
+import type { ShiftReportCoordinates } from "../../../api/shift-reports.api";
 import type { IShiftReport } from "../../../interfaces/shiftReports/IShiftReport";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
@@ -78,6 +81,76 @@ export const useEditShiftReportMutation = () => {
         duration: 2,
       });
       console.error("Failed to edit shift report:", error.message);
+    },
+  });
+};
+
+export const useStartShiftReportMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      report_id,
+      coordinates,
+    }: {
+      report_id: string;
+      coordinates: ShiftReportCoordinates;
+    }) => startShiftReport(report_id, coordinates),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["shiftReports"] });
+      queryClient.invalidateQueries({
+        queryKey: ["shiftReport", variables.report_id],
+      });
+      notification.success({
+        message: "Успешно",
+        description: "Смена начата",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    },
+    onError: (error: Error) => {
+      notification.error({
+        message: "Ошибка",
+        description: "Не удалось начать смену",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      console.error("Failed to start shift report:", error.message);
+    },
+  });
+};
+
+export const useFinishShiftReportMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      report_id,
+      coordinates,
+    }: {
+      report_id: string;
+      coordinates: ShiftReportCoordinates;
+    }) => finishShiftReport(report_id, coordinates),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["shiftReports"] });
+      queryClient.invalidateQueries({
+        queryKey: ["shiftReport", variables.report_id],
+      });
+      notification.success({
+        message: "Успешно",
+        description: "Смена завершена",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    },
+    onError: (error: Error) => {
+      notification.error({
+        message: "Ошибка",
+        description: "Не удалось завершить смену",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      console.error("Failed to finish shift report:", error.message);
     },
   });
 };

@@ -2,11 +2,13 @@ import * as React from "react";
 import { notification } from "antd";
 import type { IObject } from "../../interfaces/objects/IObject";
 import type { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
-import type { EditableShiftReport } from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 import { calculateDistanceMeters } from "./shiftReport.utils";
 
-type EditReportMutation = (
-  variables: { report_id: string; reportData: EditableShiftReport },
+type ShiftActionMutation = (
+  variables: {
+    report_id: string;
+    coordinates: { ltd: number; lng: number; distance?: number };
+  },
   options?: { onSettled?: () => void },
 ) => void;
 
@@ -15,7 +17,8 @@ interface UseShiftReportShiftActionsParams {
   currentUserId?: string;
   objectId?: string;
   objectsMap: Record<string, IObject>;
-  editReportMutation: EditReportMutation;
+  startShiftMutation: ShiftActionMutation;
+  finishShiftMutation: ShiftActionMutation;
 }
 
 export const useShiftReportShiftActions = ({
@@ -23,7 +26,8 @@ export const useShiftReportShiftActions = ({
   currentUserId,
   objectId,
   objectsMap,
-  editReportMutation,
+  startShiftMutation,
+  finishShiftMutation,
 }: UseShiftReportShiftActionsParams) => {
   const [isStartingShift, setIsStartingShift] = React.useState(false);
   const [isCompletingShift, setIsCompletingShift] = React.useState(false);
@@ -45,10 +49,14 @@ export const useShiftReportShiftActions = ({
 
   const getDistanceToObjectMeters = React.useCallback(
     (lat: number, lng: number) => {
-      if (!objectId) return null;
+      if (!objectId) return undefined;
+
       const relatedObject = objectsMap[objectId];
-      if (!relatedObject || !relatedObject.ltd || !relatedObject.lng) {
-        return null;
+      if (
+        typeof relatedObject?.ltd !== "number" ||
+        typeof relatedObject.lng !== "number"
+      ) {
+        return undefined;
       }
 
       return Math.round(
@@ -80,29 +88,11 @@ export const useShiftReportShiftActions = ({
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const distanceStart = getDistanceToObjectMeters(latitude, longitude);
-        const updatedReportData: EditableShiftReport = {
-          user: shiftReport.user,
-          date: shiftReport.date,
-          date_start: Date.now(),
-          date_end: shiftReport.date_end,
-          project: shiftReport.project,
-          comment: shiftReport.comment,
-          signed: shiftReport.signed,
-          night_shift: shiftReport.night_shift,
-          extreme_conditions: shiftReport.extreme_conditions,
-          lng_start: longitude,
-          ltd_start: latitude,
-          lng_end: shiftReport.lng_end,
-          ltd_end: shiftReport.ltd_end,
-          distance_start: distanceStart ?? undefined,
-          distance_end: shiftReport.distance_end,
-        };
-
-        editReportMutation(
+        const distance = getDistanceToObjectMeters(latitude, longitude);
+        startShiftMutation(
           {
             report_id: shiftReport.shift_report_id as string,
-            reportData: updatedReportData,
+            coordinates: { ltd: latitude, lng: longitude, distance },
           },
           {
             onSettled: () => setIsStartingShift(false),
@@ -123,7 +113,7 @@ export const useShiftReportShiftActions = ({
         maximumAge: 0,
       },
     );
-  }, [editReportMutation, getDistanceToObjectMeters, shiftReport]);
+  }, [getDistanceToObjectMeters, shiftReport, startShiftMutation]);
 
   const handleCompleteShift = React.useCallback(() => {
     if (!shiftReport) {
@@ -147,29 +137,11 @@ export const useShiftReportShiftActions = ({
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const distanceEnd = getDistanceToObjectMeters(latitude, longitude);
-        const updatedReportData: EditableShiftReport = {
-          user: shiftReport.user,
-          date: shiftReport.date,
-          date_start: shiftReport.date_start,
-          date_end: Date.now(),
-          project: shiftReport.project,
-          comment: shiftReport.comment,
-          signed: shiftReport.signed,
-          night_shift: shiftReport.night_shift,
-          extreme_conditions: shiftReport.extreme_conditions,
-          lng_start: shiftReport.lng_start,
-          ltd_start: shiftReport.ltd_start,
-          lng_end: longitude,
-          ltd_end: latitude,
-          distance_start: shiftReport.distance_start,
-          distance_end: distanceEnd ?? undefined,
-        };
-
-        editReportMutation(
+        const distance = getDistanceToObjectMeters(latitude, longitude);
+        finishShiftMutation(
           {
             report_id: shiftReport.shift_report_id as string,
-            reportData: updatedReportData,
+            coordinates: { ltd: latitude, lng: longitude, distance },
           },
           {
             onSettled: () => setIsCompletingShift(false),
@@ -190,7 +162,7 @@ export const useShiftReportShiftActions = ({
         maximumAge: 0,
       },
     );
-  }, [editReportMutation, getDistanceToObjectMeters, shiftReport]);
+  }, [finishShiftMutation, getDistanceToObjectMeters, shiftReport]);
 
   return {
     canStartShift,
