@@ -15,6 +15,21 @@ export interface ShiftReportCoordinates {
   distance?: number;
 }
 
+const normalizeShiftReportTimestamp = (timestamp?: number) => {
+  if (typeof timestamp !== "number" || timestamp >= 100_000_000_000) {
+    return timestamp;
+  }
+
+  // TODO: Выпилить костыль после нормализации дан на сервере
+  return timestamp * 1000;
+};
+
+const normalizeShiftReportTimestamps = (shiftReport: IShiftReport) => ({
+  ...shiftReport,
+  date_start: normalizeShiftReportTimestamp(shiftReport.date_start),
+  date_end: normalizeShiftReportTimestamp(shiftReport.date_end),
+});
+
 export const fetchShiftReports = async (
   queryParams: IShiftReportQueryParams,
 ) => {
@@ -32,7 +47,10 @@ export const fetchShiftReports = async (
     }, {});
 
   const { data } = await apiClient.get("/shift_reports/all", { params });
-  return data;
+  return {
+    ...data,
+    shift_reports: data.shift_reports.map(normalizeShiftReportTimestamps),
+  };
 };
 
 export const fetchShiftReport = async (
@@ -42,7 +60,7 @@ export const fetchShiftReport = async (
     `/shift_reports/${report_id}/view`,
   );
 
-  return data.shift_report;
+  return normalizeShiftReportTimestamps(data.shift_report);
 };
 
 export const hardDeleteShiftReport = async (
