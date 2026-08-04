@@ -111,6 +111,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
         editWorkAction.setWorkData({
           ...work,
           category: work.category.work_category_id,
+          measurement_unit: work.measurement_unit.name,
           sent: false,
         }),
       );

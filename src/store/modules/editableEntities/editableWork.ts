@@ -2,9 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 import { IWork } from "../../../interfaces/works/IWork";
 
 export interface IEditableWorkState
-  extends Omit<IWork, "work_id" | "category"> {
+  extends Omit<IWork, "work_id" | "category" | "measurement_unit"> {
   sent: boolean;
   category: string;
+  measurement_unit: string;
 }
 
 const initialState: IEditableWorkState = {

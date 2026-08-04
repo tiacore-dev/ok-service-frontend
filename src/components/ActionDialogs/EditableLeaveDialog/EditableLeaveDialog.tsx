@@ -161,7 +161,7 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
                 }
                 options={leaveReasonOptions}
                 allowClear
-                placeholder="Выберите город"
+                placeholder="Выберите причину"
               />
             </Form.Item>
             <Form.Item

@@ -23,9 +23,7 @@ interface IEditableMaterialDialogProps {
   iconOnly?: boolean;
 }
 
-export const EditableMaterialDialog = (
-  props: IEditableMaterialDialogProps,
-) => {
+export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
   const { material, iconOnly } = props;
   const createMaterialMutation = useCreateMaterialMutation();
   const updateMaterialMutation = useUpdateMaterialMutation();
@@ -103,7 +101,7 @@ export const EditableMaterialDialog = (
       dispatch(
         editMaterialAction.setMaterialData({
           name: material.name,
-          measurement_unit: material.measurement_unit,
+          measurement_unit: material.measurement_unit.name,
           deleted: material.deleted,
           sent: false,
         }),

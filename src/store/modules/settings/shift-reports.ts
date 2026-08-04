@@ -15,7 +15,10 @@ export interface IShiftReportsSettingsState {
 }
 
 const initialState: IShiftReportsSettingsState = {
-  pagination: {},
+  pagination: {
+    current: 1,
+    pageSize: 20,
+  },
   filters: {},
   sorter: {
     field: "date",

@@ -99,6 +99,7 @@ export const ShiftReport = () => {
     () => currentRole !== RoleId.USER || !isSigned,
     [currentRole, isSigned],
   );
+  const canDelete = currentRole !== RoleId.USER;
 
   const userName = React.useMemo(
     () => (shiftReportData ? usersMap[shiftReportData.user]?.name : undefined),
@@ -381,6 +382,7 @@ export const ShiftReport = () => {
           shiftReport={shiftReportData}
           userName={userName}
           canEdit={canEdit}
+          canDelete={canDelete}
           onDelete={handleDeleteShiftReport}
         />
 

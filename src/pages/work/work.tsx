@@ -21,10 +21,7 @@ import { EditableWorkDialog } from "../../components/ActionDialogs/EditableWorkD
 import { DeleteWorkDialog } from "../../components/ActionDialogs/DeleteWorkDialog";
 import { IWorkPricesListColumn } from "../../interfaces/workPrices/IWorkPricesList";
 import { NotificationContext } from "../../contexts/NotificationContext";
-import {
-  DeleteTwoTone,
-  EditTwoTone,
-} from "@ant-design/icons";
+import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useDeleteWorkMutation, useWorkQuery } from "../../queries/works";
@@ -294,7 +291,7 @@ export const Work = () => {
           <Card className="work__card">
             <p>Имя: {workData.name}</p>
             <p>Категория: {workData.category.name}</p>
-            <p>Единица измерения: {workData.measurement_unit}</p>
+            <p>Единица измерения: {workData.measurement_unit.name}</p>
             <p>{workData.deleted && "Удалено"}</p>
           </Card>
 

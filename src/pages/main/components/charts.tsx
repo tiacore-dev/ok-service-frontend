@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Card, Col, Row } from "antd";
+import { Card, Col, DatePicker, Row } from "antd";
+import dayjs from "dayjs";
 import Meta from "antd/es/card/Meta";
 import {
   Bar,
@@ -20,6 +21,8 @@ import { CustomTooltip } from "./customTooltip";
 import { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
 import { useUsersMap } from "../../../queries/users";
 import { DayCard } from "./dayCard";
+import { dateFormat } from "../../../utils/dateConverter";
+import { isMobile } from "../../../utils/isMobile";
 import "./charts.less";
 
 export interface ITotalCost {
@@ -70,6 +73,9 @@ interface IChartsProps {
     },
   ];
   description: string;
+  totalCost: number;
+  period: { date_from: number; date_to: number };
+  onPeriodChange: (dateFrom: number, dateTo: number) => void;
 }
 
 export const Charts = (props: IChartsProps) => {
@@ -80,12 +86,16 @@ export const Charts = (props: IChartsProps) => {
     yesterdayData,
     todayData,
     description,
+    totalCost,
+    period,
+    onPeriodChange,
   } = props;
 
   const { usersMap } = useUsersMap();
   const containerRef = React.useRef(null);
   const [width, setWidth] = React.useState(0);
   const role = useSelector(getCurrentRole);
+  const mobile = isMobile();
   React.useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -101,26 +111,63 @@ export const Charts = (props: IChartsProps) => {
 
   return (
     <Row gutter={[16, 16]}>
-      <Col ref={containerRef} key={0} xs={24} sm={8}>
-        <Card className="charts__card">
-          <Meta
-            title="Общая стоимость выполненных работ"
-            description={description}
-          />
+      <Col ref={containerRef} key={0} xs={24} sm={role === RoleId.USER ? 24 : 8}>
+        <Card
+          className="charts__card"
+          size={role === RoleId.USER && mobile ? "small" : "default"}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <Meta
+              title="Общая стоимость выполненных работ"
+              description={
+                role === RoleId.USER
+                  ? `Итого за период: ${totalCost.toLocaleString("ru-RU", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} руб.`
+                  : description
+              }
+            />
+            {role === RoleId.USER && !mobile && (
+              <DatePicker.RangePicker
+                value={[dayjs(period.date_from), dayjs(period.date_to)]}
+                format={dateFormat}
+                onChange={(values) => {
+                  const [dateFrom, dateTo] = values ?? [];
+                  if (!dateFrom || !dateTo) return;
+
+                  onPeriodChange(
+                    dateFrom.startOf("day").valueOf(),
+                    dateTo.endOf("day").valueOf(),
+                  );
+                }}
+              />
+            )}
+          </div>
           <BarChart
-            width={width - 84}
+            width={width - (role === RoleId.USER && mobile ? 32 : 84)}
             height={400}
             data={totalCostArray}
             margin={{
               top: 30,
               right: 30,
-              left: 0,
+              left: role === RoleId.USER && mobile ? -32 : 0,
               bottom: 30,
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis tick={{ fill: "black" }} dataKey="date" />
-            <YAxis tick={{ fill: "black" }} />
+            <YAxis
+              tick={{ fill: "black" }}
+              width={role === RoleId.USER && mobile ? 48 : undefined}
+            />
             <Tooltip />
             <Legend />
             <Bar dataKey="value" fill="#6940ff" name="Сумма">
@@ -224,21 +271,25 @@ export const Charts = (props: IChartsProps) => {
         </Col>
       )}
 
-      <Col key="yesterday" xs={24} sm={8}>
-        <DayCard
-          data={yesterdayData}
-          usersMap={usersMap}
-          ulClassName="main__day__ul-yesterday"
-        />
-      </Col>
+      {role !== RoleId.USER && (
+        <>
+          <Col key="yesterday" xs={24} sm={8}>
+            <DayCard
+              data={yesterdayData}
+              usersMap={usersMap}
+              ulClassName="main__day__ul-yesterday"
+            />
+          </Col>
 
-      <Col key="today" xs={24} sm={16}>
-        <DayCard
-          data={todayData}
-          usersMap={usersMap}
-          ulClassName="main__day__ul-today"
-        />
-      </Col>
+          <Col key="today" xs={24} sm={16}>
+            <DayCard
+              data={todayData}
+              usersMap={usersMap}
+              ulClassName="main__day__ul-today"
+            />
+          </Col>
+        </>
+      )}
     </Row>
   );
 };

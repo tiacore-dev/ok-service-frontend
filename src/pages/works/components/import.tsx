@@ -222,7 +222,7 @@ const parseCsvContent = (
         workId,
         name: work?.name ?? name,
         categoryName: work?.category?.name ?? categoryName,
-        measurementUnit: work?.measurement_unit ?? measurementUnit,
+        measurementUnit: work?.measurement_unit.name ?? measurementUnit,
         newPrices,
         currentPrices,
         priceIds,

@@ -10,6 +10,7 @@ interface ShiftReportHeaderProps {
   shiftReport: IShiftReport;
   userName?: string;
   canEdit: boolean;
+  canDelete: boolean;
   onDelete: () => void;
 }
 
@@ -17,6 +18,7 @@ export const ShiftReportHeader = ({
   shiftReport,
   userName,
   canEdit,
+  canDelete,
   onDelete,
 }: ShiftReportHeaderProps) => {
   const shiftNumber = shiftReport.number?.toString().padStart(5, "0");
@@ -33,7 +35,7 @@ export const ShiftReportHeader = ({
         className="shift-report__header-actions"
       >
         {canEdit && <EditableShiftReportDialog shiftReport={shiftReport} />}
-        {canEdit && (
+        {canDelete && (
           <DeleteShiftReportDialog
             onDelete={onDelete}
             number={shiftReport.number}

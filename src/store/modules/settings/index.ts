@@ -1,4 +1,6 @@
 import { combineReducers } from "redux";
+import { persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 import { objectsSettings } from "./objects";
 import { usersSettings } from "./users";
 import { citiesSettings } from "./cities";
@@ -11,7 +13,7 @@ import { projectWorksSettings } from "./projectWorks";
 import { objectProjectsSettings } from "./objectProjects";
 import { materialsSettings } from "./materials";
 
-export const settings = combineReducers({
+const settingsReducer = combineReducers({
   objectsSettings,
   projectsSettings,
   citiesSettings,
@@ -24,3 +26,23 @@ export const settings = combineReducers({
   projectWorksSettings,
   objectProjectsSettings,
 });
+
+export const settings = persistReducer(
+  {
+    key: "list-settings",
+    storage,
+    whitelist: [
+      "objectsSettings",
+      "projectsSettings",
+      "citiesSettings",
+      "usersSettings",
+      "worksSettings",
+      "materialsSettings",
+      "shiftReportsSettings",
+      "leavesSettings",
+      "projectWorksSettings",
+      "objectProjectsSettings",
+    ],
+  },
+  settingsReducer,
+);

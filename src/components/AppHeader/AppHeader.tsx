@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Dropdown, Layout, Menu, Typography } from "antd";
+import { Dropdown, Grid, Layout, Menu, Typography } from "antd";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { Title } = Typography;
+  const screens = Grid.useBreakpoint();
   const showBackButton = useSelector(
     (state: IState) => state.settings.generalSettings?.showBackButton,
   );
@@ -199,9 +200,11 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
         items={desktopItems}
       />
       <div className="header__user">
-        <span className="header__user-name" title={userDisplayName}>
-          {userDisplayName}
-        </span>
+        {screens.md && (
+          <span className="header__user-name" title={userDisplayName}>
+            {userDisplayName}
+          </span>
+        )}
         <Dropdown
           placement="bottomRight"
           trigger={["click"]}

@@ -151,7 +151,7 @@ export const Material = () => {
           </Space>
           <Card className="material__card">
             <p>Наименование: {materialData.name}</p>
-            <p>Единица измерения: {materialData.measurement_unit}</p>
+            <p>Единица измерения: {materialData.measurement_unit.name}</p>
             <p>
               Дата создания:{" "}
               {materialData.created_at

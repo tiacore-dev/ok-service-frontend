@@ -74,7 +74,10 @@ export const Cities = () => {
           dataSource={citiesData}
           columns={columns}
           loading={isFetching}
-          pagination={tableState.pagination}
+          pagination={{
+            ...tableState.pagination,
+            pageSizeOptions: ["20", "50", "100"],
+          }}
           onChange={(pagination, filters, sorter) => {
             dispatch(
               saveCitiesTableState({

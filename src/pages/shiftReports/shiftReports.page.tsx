@@ -98,12 +98,12 @@ export const ShiftReports = () => {
   ]);
 
   const queryParams: IShiftReportQueryParams = React.useMemo(() => {
+    const pageSize = tableState.pagination?.pageSize || 20;
     const params: IShiftReportQueryParams = {
       offset: tableState.pagination?.current
-        ? (tableState.pagination.current - 1) *
-          (tableState.pagination.pageSize || 10)
+        ? (tableState.pagination.current - 1) * pageSize
         : 0,
-      limit: tableState.pagination?.pageSize || 10,
+      limit: pageSize,
     };
 
     if (tableState.sorter?.field) {
@@ -249,7 +249,7 @@ export const ShiftReports = () => {
       ...tableState.pagination,
       total: shiftReportsResponse?.total || 0,
       showSizeChanger: true,
-      pageSizeOptions: ["10", "20", "50", "100"],
+      pageSizeOptions: ["20", "50", "100"],
     }),
     [tableState.pagination, shiftReportsResponse?.total],
   );
