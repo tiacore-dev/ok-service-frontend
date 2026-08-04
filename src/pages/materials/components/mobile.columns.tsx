@@ -40,7 +40,7 @@ export const materialsMobileColumns = (
         <div>
           Дата создания:{" "}
           {record.created_at
-            ? dateTimestampToLocalString(record.created_at * 1000)
+            ? dateTimestampToLocalString(record.created_at)
             : "-"}
         </div>
       </div>
