@@ -79,7 +79,7 @@ export const ShiftReportInfoCard = ({
           <p>
             Дата согласования:{" "}
             {shiftReport.signed_at
-              ? dateTimestampToLocalDateTimeString(shiftReport.signed_at * 1000)
+              ? dateTimestampToLocalDateTimeString(shiftReport.signed_at)
               : "—"}
           </p>
         </>
@@ -91,7 +91,7 @@ export const ShiftReportInfoCard = ({
             Дата изменения:{" "}
             {shiftReport.updated_at
               ? dateTimestampToLocalDateTimeString(
-                  shiftReport.updated_at * 1000,
+                  shiftReport.updated_at,
                 )
               : "—"}
           </p>

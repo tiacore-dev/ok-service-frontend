@@ -41,7 +41,7 @@ const formatTimestamp = (timestamp?: number) => {
   if (!timestamp) {
     return "-";
   }
-  return dateTimestampToLocalDateTimeString(timestamp * 1000);
+  return dateTimestampToLocalDateTimeString(timestamp);
 };
 
 export const ApiKeys = () => {

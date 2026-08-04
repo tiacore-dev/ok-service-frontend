@@ -155,7 +155,7 @@ export const Material = () => {
             <p>
               Дата создания:{" "}
               {materialData.created_at
-                ? dateTimestampToLocalString(materialData.created_at * 1000)
+                ? dateTimestampToLocalString(materialData.created_at)
                 : "—"}
             </p>
             {materialData.deleted && <p>Удалено</p>}

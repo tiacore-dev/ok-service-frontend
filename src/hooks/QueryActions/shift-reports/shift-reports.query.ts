@@ -24,8 +24,5 @@ export const useShiftReportQuery = (report_id: string | undefined) => {
       return fetchShiftReport(report_id);
     },
     enabled: !!report_id, // Запрос выполнится только если report_id существует
-    // retry: false,
-    // staleTime: 5 * 60 * 1000, // 5 минут до устаревания данных
-    // placeholderData: undefined, // Можно задать placeholder данные если нужно
   });
 };

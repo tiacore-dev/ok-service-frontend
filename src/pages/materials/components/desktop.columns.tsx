@@ -59,7 +59,7 @@ export const materialsDesktopColumns = (
     render: (_text: string, record: IMaterialsListColumn) => (
       <div>
         {record.created_at
-          ? dateTimestampToLocalString(record.created_at * 1000)
+          ? dateTimestampToLocalString(record.created_at)
           : "-"}
       </div>
     ),
