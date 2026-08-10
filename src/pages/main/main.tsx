@@ -82,10 +82,9 @@ export const Main = () => {
   const role = useSelector(getCurrentRole);
   const isUser = role === RoleId.USER;
   const [range, setRange] = React.useState<DateRange>({
-    date_from:
-      isUser
-        ? getCurrentMonthRange().date_from
-        : getTenDaysAgo().getTime(),
+    date_from: isUser
+      ? getCurrentMonthRange().date_from
+      : getTenDaysAgo().getTime(),
     date_to: isUser ? getCurrentMonthRange().date_to : new Date().getTime(),
   });
 
@@ -174,13 +173,6 @@ export const Main = () => {
       date_from: from.getTime(),
       date_to: to.getTime(),
     });
-  };
-
-  const handleCustomChange = (key: "date_from" | "date_to", value: number) => {
-    setRange((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
   };
 
   const handleUserPeriodChange = React.useCallback(
@@ -476,20 +468,18 @@ export const Main = () => {
           ></Select>
 
           {dateFilterMode === RangeType.Custom && (
-            <DatePicker
+            <DatePicker.RangePicker
               format={dateFormat}
-              onChange={(value) =>
-                handleCustomChange("date_from", value.valueOf())
-              }
-            />
-          )}
+              value={[dayjs(range.date_from), dayjs(range.date_to)]}
+              onChange={(values) => {
+                const [dateFrom, dateTo] = values ?? [];
+                if (!dateFrom || !dateTo) return;
 
-          {dateFilterMode === RangeType.Custom && (
-            <DatePicker
-              format={dateFormat}
-              onChange={(value) =>
-                handleCustomChange("date_to", value.valueOf())
-              }
+                handleUserPeriodChange(
+                  dateFrom.startOf("day").valueOf(),
+                  dateTo.endOf("day").valueOf(),
+                );
+              }}
             />
           )}
 

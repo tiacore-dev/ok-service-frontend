@@ -7,6 +7,7 @@ import type { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
 import { EditableShiftReportDialog } from "../../components/ActionDialogs/EditableShiftReportDialog/EditableShiftReportDialog";
 import { DeleteShiftReportDialog } from "../../components/ActionDialogs/DeleteShiftReportDialog";
 import { ActionDialog } from "../../components/ActionDialogs/ActionDialog";
+import { EditableLeaveDialog } from "../../components/ActionDialogs/EditableLeaveDialog/EditableLeaveDialog";
 
 interface ShiftReportHeaderProps {
   shiftReport: IShiftReport;
@@ -14,8 +15,10 @@ interface ShiftReportHeaderProps {
   canEdit: boolean;
   canDelete: boolean;
   canRestore: boolean;
+  canCancelByLeave: boolean;
   onDelete: () => void;
   onRestore: () => void;
+  onLeaveCreated: () => void | Promise<void>;
 }
 
 export const ShiftReportHeader = ({
@@ -24,8 +27,10 @@ export const ShiftReportHeader = ({
   canEdit,
   canDelete,
   canRestore,
+  canCancelByLeave,
   onDelete,
   onRestore,
+  onLeaveCreated,
 }: ShiftReportHeaderProps) => {
   const shiftNumber = shiftReport.number?.toString().padStart(5, "0");
 
@@ -57,6 +62,14 @@ export const ShiftReportHeader = ({
               <p>Вы действительно хотите восстановить смену {shiftNumber}?</p>
             }
             onConfirm={onRestore}
+          />
+        )}
+        {canCancelByLeave && shiftReport.user && (
+          <EditableLeaveDialog
+            initialUserId={shiftReport.user}
+            buttonText="Снять со смены"
+            modalTitle="Создание листа отсутствия"
+            onSaved={onLeaveCreated}
           />
         )}
       </Space>

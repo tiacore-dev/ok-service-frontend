@@ -5,6 +5,7 @@ import { Breadcrumb, Layout, Spin, Table } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import type { IShiftReportDetail } from "../../interfaces/shiftReportDetails/IShiftReportDetail";
@@ -43,6 +44,7 @@ import "./shiftReport.less";
 export const ShiftReport = () => {
   const currentRole = useSelector(getCurrentRole);
   const currentUserId = useSelector(getCurrentUserId);
+  const queryClient = useQueryClient();
   const { Content } = Layout;
   const mobile = isMobile();
 
@@ -105,6 +107,8 @@ export const ShiftReport = () => {
   const canDelete =
     canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
   const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
+  const canCancelByLeave =
+    !shiftReportData?.deleted && !shiftReportData?.date_start;
 
   const userName = React.useMemo(
     () => (shiftReportData ? usersMap[shiftReportData.user]?.name : undefined),
@@ -296,6 +300,13 @@ export const ShiftReport = () => {
     restoreReportMutation(shiftReportData.shift_report_id);
   }, [restoreReportMutation, shiftReportData?.shift_report_id]);
 
+  const handleLeaveCreated = React.useCallback(async () => {
+    if (!shiftReportData?.shift_report_id) return;
+    await queryClient.invalidateQueries({
+      queryKey: ["shiftReport", shiftReportData.shift_report_id],
+    });
+  }, [queryClient, shiftReportData?.shift_report_id]);
+
   const handleOnSign = React.useCallback(() => {
     if (shiftReportData) {
       const updatedReportData = {
@@ -398,8 +409,10 @@ export const ShiftReport = () => {
           canEdit={canEdit}
           canDelete={canDelete}
           canRestore={canRestore}
+          canCancelByLeave={canCancelByLeave}
           onDelete={handleDeleteShiftReport}
           onRestore={handleRestoreShiftReport}
+          onLeaveCreated={handleLeaveCreated}
         />
 
         <ShiftReportInfoCard

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Button, Card, Space, Typography } from "antd";
+import { Link } from "react-router-dom";
 import {
   dateTimestampToLocalDateTimeString,
   dateTimestampToLocalString,
@@ -74,6 +75,12 @@ export const ShiftReportInfoCard = ({
       <p>Комментарий: {shiftReport.comment || "-"}</p>
       <p>{shiftReport.signed ? "Согласовано" : "Не согласовано"}</p>
       {shiftReport.deleted && <p>Удалена</p>}
+      {shiftReport.leave_id && (
+        <p>
+          Причина отмены:{" "}
+          <Link to={`/leaves/${shiftReport.leave_id}`}>Лист отсутствия</Link>
+        </p>
+      )}
       {(shiftReport.signed_by || shiftReport.signed_at) && (
         <>
           <p>Согласовал: {formatUser(shiftReport.signed_by)}</p>
