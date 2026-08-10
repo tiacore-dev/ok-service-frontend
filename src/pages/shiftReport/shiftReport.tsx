@@ -17,8 +17,9 @@ import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shif
 import {
   useEditShiftReportMutation,
   useFinishShiftReportMutation,
-  useHardDeleteShiftReportMutation,
+  useRestoreShiftReportMutation,
   useStartShiftReportMutation,
+  useSoftDeleteShiftReportMutation,
 } from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 import {
   useCreateShiftReportDetailMutation,
@@ -56,7 +57,8 @@ export const ShiftReport = () => {
   const { mutate: editReportMutation } = useEditShiftReportMutation();
   const { mutate: startShiftMutation } = useStartShiftReportMutation();
   const { mutate: finishShiftMutation } = useFinishShiftReportMutation();
-  const { mutate: deleteReportMutation } = useHardDeleteShiftReportMutation();
+  const { mutate: deleteReportMutation } = useSoftDeleteShiftReportMutation();
+  const { mutate: restoreReportMutation } = useRestoreShiftReportMutation();
   const { mutate: createDetail } = useCreateShiftReportDetailMutation();
   const { mutate: editDetail } = useEditShiftReportDetailMutation();
   const { mutate: deleteDetail } = useDeleteShiftReportDetailMutation();
@@ -95,10 +97,14 @@ export const ShiftReport = () => {
   const hasShiftReport = Boolean(shiftReportData);
   const isSigned = Boolean(shiftReportData?.signed);
 
-  const canEdit = React.useMemo(
+  const canManageReport = React.useMemo(
     () => currentRole !== RoleId.USER || !isSigned,
     [currentRole, isSigned],
   );
+  const canEdit = canManageReport && !shiftReportData?.deleted;
+  const canDelete =
+    canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
+  const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
 
   const userName = React.useMemo(
     () => (shiftReportData ? usersMap[shiftReportData.user]?.name : undefined),
@@ -277,9 +283,18 @@ export const ShiftReport = () => {
   }, [shiftReportDetails.length, totalSum]);
 
   const handleDeleteShiftReport = React.useCallback(() => {
-    if (!shiftReportData?.shift_report_id) return;
+    if (!shiftReportData?.shift_report_id || shiftReportData.signed) return;
     deleteReportMutation(shiftReportData.shift_report_id);
-  }, [deleteReportMutation, shiftReportData?.shift_report_id]);
+  }, [
+    deleteReportMutation,
+    shiftReportData?.shift_report_id,
+    shiftReportData?.signed,
+  ]);
+
+  const handleRestoreShiftReport = React.useCallback(() => {
+    if (!shiftReportData?.shift_report_id) return;
+    restoreReportMutation(shiftReportData.shift_report_id);
+  }, [restoreReportMutation, shiftReportData?.shift_report_id]);
 
   const handleOnSign = React.useCallback(() => {
     if (shiftReportData) {
@@ -381,7 +396,10 @@ export const ShiftReport = () => {
           shiftReport={shiftReportData}
           userName={userName}
           canEdit={canEdit}
+          canDelete={canDelete}
+          canRestore={canRestore}
           onDelete={handleDeleteShiftReport}
+          onRestore={handleRestoreShiftReport}
         />
 
         <ShiftReportInfoCard

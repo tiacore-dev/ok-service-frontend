@@ -82,7 +82,7 @@ export const DownloadShiftReport: React.FC<DownloadProps> = ({
     if (!shiftReportDetailsData) return [];
 
     return shiftReportDetailsData.map((detail) => ({
-      project_work: detail.project_work.name || "",
+      project_work: detail.project_work?.name || "",
       work: worksMap[detail.work]?.name || "",
       quantity: detail.quantity,
       sum: detail.summ,

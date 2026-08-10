@@ -45,10 +45,16 @@ export const fetchShiftReport = async (
   return data.shift_report;
 };
 
-export const hardDeleteShiftReport = async (
+export const softDeleteShiftReport = async (
   report_id: string,
 ): Promise<void> => {
-  await apiClient.delete(`/shift_reports/${report_id}/delete/hard`);
+  await apiClient.patch(`/shift_reports/${report_id}/delete/soft`);
+};
+
+export const restoreShiftReport = async (report_id: string): Promise<void> => {
+  await apiClient.patch(`/shift_reports/${report_id}/edit`, {
+    deleted: false,
+  });
 };
 
 export const createShiftReport = async (

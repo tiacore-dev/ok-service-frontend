@@ -8,6 +8,7 @@ import { isMobile } from "../../utils/isMobile";
 import {
   defaultShiftReportsFiltersState,
   type IShiftReportsFiltersState,
+  type ShiftReportsDeletedFilter,
 } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
 
 const { RangePicker } = DatePicker;
@@ -47,10 +48,13 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
   };
 
   const projectLeaderNamesMap = React.useMemo(() => {
-    return projectLeaderOptions.reduce<Record<string, string>>((acc, option) => {
-      acc[option.value] = option.label;
-      return acc;
-    }, {});
+    return projectLeaderOptions.reduce<Record<string, string>>(
+      (acc, option) => {
+        acc[option.value] = option.label;
+        return acc;
+      },
+      {},
+    );
   }, [projectLeaderOptions]);
 
   const handleProjectLeadersChange = (value: string[]) => {
@@ -68,6 +72,10 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
       dateFrom: start ? start.startOf("day").valueOf() : null,
       dateTo: end ? end.endOf("day").valueOf() : null,
     });
+  };
+
+  const handleDeletedFilterChange = (value: ShiftReportsDeletedFilter) => {
+    changeFilters({ deletedFilter: value });
   };
 
   const treeValue = React.useMemo(() => {
@@ -96,7 +104,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
       if (nodeValue.startsWith("object:")) {
         const objectId = nodeValue.replace("object:", "");
         (objectProjectsMap[objectId] ?? []).forEach((projectId) =>
-          selected.add(projectId)
+          selected.add(projectId),
         );
       } else {
         selected.add(nodeValue);
@@ -117,7 +125,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
     label: string,
     extra: number,
     closable: boolean,
-    onClose?: (event: React.MouseEvent<HTMLElement>) => void
+    onClose?: (event: React.MouseEvent<HTMLElement>) => void,
   ) => (
     <span className="shift-reports_filters_tag">
       {extra > 0 ? `${label}` : label}
@@ -139,7 +147,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
   const renderSummaryChip = (
     key: string,
     label: string,
-    onRemove: () => void
+    onRemove: () => void,
   ): React.ReactNode => (
     <button
       key={key}
@@ -182,7 +190,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
               label,
               extra,
               props.closable,
-              props.onClose
+              props.onClose,
             );
           }}
         />
@@ -209,7 +217,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
               label,
               extra,
               props.closable,
-              props.onClose
+              props.onClose,
             );
           }}
         />
@@ -237,7 +245,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
               label,
               extra,
               props.closable,
-              props.onClose
+              props.onClose,
             );
           }}
         />
@@ -247,6 +255,16 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
           placeholder={["Дата с", "Дата по"]}
           value={rangeValue}
           onChange={handleDateChange}
+        />
+        <Select
+          className="shift-reports_filters_select"
+          value={filtersState.deletedFilter}
+          onChange={handleDeletedFilterChange}
+          options={[
+            { label: "Активные", value: "active" },
+            { label: "Удаленные", value: "deleted" },
+            { label: "Все", value: "all" },
+          ]}
         />
         <Button
           icon={<ReloadOutlined />}
@@ -274,8 +292,8 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
                     () =>
                       changeFilters({
                         users: filtersState.users.filter((id) => id !== userId),
-                      })
-                  )
+                      }),
+                  ),
                 )}
               </div>
             </div>
@@ -293,10 +311,10 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
                     () =>
                       changeFilters({
                         projectLeaders: filtersState.projectLeaders.filter(
-                          (id) => id !== leaderId
+                          (id) => id !== leaderId,
                         ),
-                      })
-                  )
+                      }),
+                  ),
                 )}
               </div>
             </div>
@@ -314,10 +332,10 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
                     () =>
                       changeFilters({
                         projects: filtersState.projects.filter(
-                          (id) => id !== projectId
+                          (id) => id !== projectId,
                         ),
-                      })
-                  )
+                      }),
+                  ),
                 )}
               </div>
             </div>

@@ -21,9 +21,7 @@ export const worksDesktopColumns = (
 
       return (
         <div>
-          {record.deleted && (
-            <DeleteOutlined className="works__deleted-icon" />
-          )}
+          {record.deleted && <DeleteOutlined className="works__deleted-icon" />}
           <a
             className="works__table__number"
             onClick={() => navigate && navigate(`/works/${record.key}`)}
@@ -49,7 +47,7 @@ export const worksDesktopColumns = (
     key: "measurement_unit",
     width: "15%",
     render: (text: string, record: IWorksListColumn) => (
-      <div>{record.measurement_unit}</div>
+      <div>{record.measurement_unit.name}</div>
     ),
   },
   {

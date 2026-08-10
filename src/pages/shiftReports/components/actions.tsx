@@ -41,6 +41,7 @@ interface ActionsProps {
     projects?: string[];
     date_from?: number | null;
     date_to?: number | null;
+    deleted?: string;
   };
 }
 
@@ -51,6 +52,7 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
     project: currentFilters?.projects,
     date_from: currentFilters?.date_from ?? undefined,
     date_to: currentFilters?.date_to ?? undefined,
+    deleted: currentFilters?.deleted,
     offset: 0,
     limit: 10000,
   });

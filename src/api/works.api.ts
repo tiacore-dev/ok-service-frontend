@@ -3,8 +3,9 @@ import type { IWork } from "../interfaces/works/IWork";
 import type { IWorksList } from "../interfaces/works/IWorksList";
 
 export interface EditableWorkPayload
-  extends Omit<IWork, "work_id" | "category"> {
+  extends Omit<IWork, "work_id" | "category" | "measurement_unit"> {
   category: string;
+  measurement_unit: string;
 }
 
 export const fetchWorks = async (): Promise<IWorksList[]> => {

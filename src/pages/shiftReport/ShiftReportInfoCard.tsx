@@ -73,6 +73,7 @@ export const ShiftReportInfoCard = ({
       <p>{`Прораб: ${projectLeaderName ?? ""}`}</p>
       <p>Комментарий: {shiftReport.comment || "-"}</p>
       <p>{shiftReport.signed ? "Согласовано" : "Не согласовано"}</p>
+      {shiftReport.deleted && <p>Удалена</p>}
       {(shiftReport.signed_by || shiftReport.signed_at) && (
         <>
           <p>Согласовал: {formatUser(shiftReport.signed_by)}</p>
@@ -90,9 +91,7 @@ export const ShiftReportInfoCard = ({
           <p>
             Дата изменения:{" "}
             {shiftReport.updated_at
-              ? dateTimestampToLocalDateTimeString(
-                  shiftReport.updated_at,
-                )
+              ? dateTimestampToLocalDateTimeString(shiftReport.updated_at)
               : "—"}
           </p>
         </>

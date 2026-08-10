@@ -28,6 +28,7 @@ import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap } from "../../queries/projects";
 import { ShiftReportsFilters } from "./ShiftReportsFilters";
 import type { IShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
+import { defaultShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 
@@ -41,7 +42,10 @@ export const ShiftReports = () => {
     (state: IState) => state.settings.shiftReportsSettings,
   );
 
-  const shiftReportsFilters = tableState.shiftReportsFilters;
+  const shiftReportsFilters = {
+    ...defaultShiftReportsFiltersState,
+    ...tableState.shiftReportsFilters,
+  };
 
   const { projectsMap, projects } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
@@ -127,6 +131,11 @@ export const ShiftReports = () => {
     }
     if (shiftReportsFilters.dateTo) {
       params.date_to = shiftReportsFilters.dateTo;
+    }
+
+    if (shiftReportsFilters.deletedFilter !== "all") {
+      params.deleted =
+        shiftReportsFilters.deletedFilter === "deleted" ? "true" : "false";
     }
 
     return params;
@@ -267,6 +276,12 @@ export const ShiftReports = () => {
       projects,
       date_from: shiftReportsFilters.dateFrom ?? undefined,
       date_to: shiftReportsFilters.dateTo ?? undefined,
+      deleted:
+        shiftReportsFilters.deletedFilter === "all"
+          ? undefined
+          : shiftReportsFilters.deletedFilter === "deleted"
+            ? "true"
+            : "false",
     };
   }, [shiftReportsFilters, resolvedProjectFilter]);
 
@@ -320,6 +335,9 @@ export const ShiftReports = () => {
           columns={columns}
           loading={isLoading}
           pagination={paginationConfig}
+          rowClassName={(record) =>
+            record.deleted ? "shift-reports__table__row--deleted" : ""
+          }
         />
       </Content>
     </>
