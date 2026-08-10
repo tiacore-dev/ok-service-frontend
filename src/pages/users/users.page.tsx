@@ -1,5 +1,4 @@
 import { Breadcrumb, Layout, Table } from "antd";
-import type { TableProps } from "antd";
 import * as React from "react";
 import { usersDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,10 +10,7 @@ import { isMobile } from "../../utils/isMobile";
 import { usersMobileColumns } from "./components/mobile.columns";
 import { IUsersListColumn } from "../../interfaces/users/IUsersList";
 import { Link } from "react-router-dom";
-import {
-  saveUsersFiltersState,
-  saveUsersTableState,
-} from "../../store/modules/settings/users";
+import { saveUsersFiltersState } from "../../store/modules/settings/users";
 import { useUsersQuery } from "../../queries/users";
 import { useRoles } from "../../queries/roles";
 import { useCitiesMap } from "../../queries/cities";
@@ -27,9 +23,6 @@ export const Users = () => {
   const navigate = useNavigate();
   const { data: usersList, isFetching } = useUsersQuery();
 
-  const tableState = useSelector(
-    (state: IState) => state.settings.usersSettings,
-  );
   const dispatch = useDispatch();
 
   const usersData: IUsersListColumn[] = React.useMemo(
@@ -42,32 +35,6 @@ export const Users = () => {
   const filtersState = useSelector(
     (state: IState) => state.settings.usersSettings.usersFilters,
   );
-
-  const handleTableChange: TableProps<IUsersListColumn>["onChange"] = (
-    pagination,
-    filters,
-    sorter,
-  ) => {
-    dispatch(
-      saveUsersTableState({
-        pagination,
-        filters,
-        sorter: Array.isArray(sorter) ? sorter[0] : sorter,
-      }),
-    );
-  };
-
-  const paginationConfig = React.useMemo<
-    TableProps<IUsersListColumn>["pagination"]
-  >(() => {
-    const hasSavedPagination =
-      Boolean(tableState.pagination?.current) ||
-      Boolean(tableState.pagination?.pageSize);
-
-    return hasSavedPagination
-      ? tableState.pagination
-      : { current: 1, pageSize: 10, showSizeChanger: true };
-  }, [tableState.pagination]);
 
   const columns = React.useMemo(
     () =>
@@ -200,8 +167,7 @@ export const Users = () => {
           dataSource={filteredUsersData}
           columns={columns}
           loading={isFetching}
-          pagination={paginationConfig}
-          onChange={handleTableChange}
+          pagination={false}
           rowClassName={(record) =>
             record.deleted ? "users__table__row--deleted" : ""
           }

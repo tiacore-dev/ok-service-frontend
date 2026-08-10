@@ -15,7 +15,10 @@ export interface ILeavesSettingsState {
 }
 
 const initialState: ILeavesSettingsState = {
-  pagination: {},
+  pagination: {
+    current: 1,
+    pageSize: 20,
+  },
   filters: {},
   sorter: {},
   leavesFilters: { ...defaultLeavesFiltersState },

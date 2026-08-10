@@ -3,7 +3,12 @@ import type { IMaterial } from "../interfaces/materials/IMaterial";
 import type { IMaterialsList } from "../interfaces/materials/IMaterialsList";
 
 export interface EditableMaterialPayload
-  extends Omit<IMaterial, "material_id" | "created_at" | "created_by"> {}
+  extends Omit<
+    IMaterial,
+    "material_id" | "created_at" | "created_by" | "measurement_unit"
+  > {
+  measurement_unit: string;
+}
 
 export const fetchMaterials = async (): Promise<IMaterialsList[]> => {
   const { data } = await apiClient.get<{ materials: IMaterialsList[] }>(

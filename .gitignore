@@ -23,3 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .env
+.codebase-memory/graph.db.zst
+.codebase-memory/artifact.json
+.codebase-memory/.gitattributes

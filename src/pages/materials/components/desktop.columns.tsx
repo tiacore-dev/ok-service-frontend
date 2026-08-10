@@ -48,7 +48,7 @@ export const materialsDesktopColumns = (
     key: "measurement_unit",
     width: "20%",
     render: (_text: string, record: IMaterialsListColumn) => (
-      <div>{record.measurement_unit}</div>
+      <div>{record.measurement_unit.name}</div>
     ),
   },
   {

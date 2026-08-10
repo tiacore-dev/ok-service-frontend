@@ -36,7 +36,7 @@ export const materialsMobileColumns = (
             </a>
           </div>
         )}
-        <div>Единица измерения: {record.measurement_unit}</div>
+        <div>Единица измерения: {record.measurement_unit.name}</div>
         <div>
           Дата создания:{" "}
           {record.created_at

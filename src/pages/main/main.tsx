@@ -1,4 +1,5 @@
 import { Button, Space, Select, DatePicker } from "antd";
+import dayjs from "dayjs";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -30,6 +31,18 @@ import { reduceShiftReportData } from "./utils/reduceShiftReportData";
 import "./main.less";
 
 type DateRange = { date_from: number; date_to: number };
+
+const getCurrentMonthRange = (): DateRange => {
+  const now = new Date();
+  const dateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
+  const dateTo = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  dateTo.setHours(23, 59, 59, 999);
+
+  return {
+    date_from: dateFrom.getTime(),
+    date_to: dateTo.getTime(),
+  };
+};
 
 export enum RangeType {
   Today = "today",
@@ -67,12 +80,13 @@ export const Main = () => {
   const { objectsMap } = useObjectsMap({ enabled: isAuth });
   const { usersMap } = useUsersMap({ enabled: isAuth });
   const role = useSelector(getCurrentRole);
+  const isUser = role === RoleId.USER;
   const [range, setRange] = React.useState<DateRange>({
     date_from:
-      role === RoleId.USER
-        ? getLast21stDate().getTime()
+      isUser
+        ? getCurrentMonthRange().date_from
         : getTenDaysAgo().getTime(),
-    date_to: new Date().getTime(),
+    date_to: isUser ? getCurrentMonthRange().date_to : new Date().getTime(),
   });
 
   const queryParams: IShiftReportQueryParams = React.useMemo(
@@ -103,11 +117,17 @@ export const Main = () => {
     : undefined;
 
   const [dateFilterMode, setDateFilterMode] = React.useState<RangeType>(
-    role === RoleId.USER ? RangeType.From21 : RangeType.Last10,
+    isUser ? RangeType.From21 : RangeType.Last10,
   );
 
   React.useEffect(() => {
-    if (!isAuth) return;
+    if (isUser) {
+      setRange(getCurrentMonthRange());
+    }
+  }, [isUser]);
+
+  React.useEffect(() => {
+    if (!isAuth || isUser) return;
     const interval = setInterval(
       () => {
         setRange((prev) => ({ ...prev, date_to: new Date().getTime() }));
@@ -115,7 +135,7 @@ export const Main = () => {
       10 * 60 * 1000,
     );
     return () => clearInterval(interval);
-  }, [isAuth]);
+  }, [isAuth, isUser]);
 
   const [showMode, setShowMode] = React.useState<
     "all" | "byUsers" | "byObjects"
@@ -163,10 +183,20 @@ export const Main = () => {
     }));
   };
 
-  const description = React.useMemo(
-    () => RangeLabels[dateFilterMode],
-    [dateFilterMode],
+  const handleUserPeriodChange = React.useCallback(
+    (dateFrom: number, dateTo: number) => {
+      setRange({ date_from: dateFrom, date_to: dateTo });
+    },
+    [],
   );
+
+  const description = React.useMemo(() => {
+    if (isUser) {
+      return `с ${dateTimestampToLocalString(range.date_from)} по ${dateTimestampToLocalString(range.date_to)}`;
+    }
+
+    return RangeLabels[dateFilterMode];
+  }, [dateFilterMode, isUser, range]);
 
   const filteredShiftReportsData = React.useMemo(
     () =>
@@ -226,6 +256,11 @@ export const Main = () => {
         date,
         value: Math.round(value),
       })),
+    [totalCostData],
+  );
+
+  const totalCost = React.useMemo(
+    () => Object.values(totalCostData).reduce((sum, value) => sum + value, 0),
     [totalCostData],
   );
 
@@ -399,7 +434,27 @@ export const Main = () => {
 
   return (
     <div className="main">
-      {!mobile && (
+      {isUser && mobile && (
+        <div style={{ marginBottom: 8 }}>
+          <DatePicker.RangePicker
+            value={[dayjs(range.date_from), dayjs(range.date_to)]}
+            format={dateFormat}
+            style={{ width: "100%" }}
+            popupClassName="main__user-period-picker-dropdown"
+            onChange={(values) => {
+              const [dateFrom, dateTo] = values ?? [];
+              if (!dateFrom || !dateTo) return;
+
+              handleUserPeriodChange(
+                dateFrom.startOf("day").valueOf(),
+                dateTo.endOf("day").valueOf(),
+              );
+            }}
+          />
+        </div>
+      )}
+
+      {!mobile && !isUser && (
         <Space className="main__controls" direction="horizontal">
           <Button
             icon={
@@ -472,6 +527,9 @@ export const Main = () => {
           totalCostArray={totalCostArray}
           totalCountArray={totalCountArray}
           averageCostArray={averageCostArray}
+          totalCost={totalCost}
+          period={range}
+          onPeriodChange={handleUserPeriodChange}
           yesterdayData={yesterdayData}
           todayData={todayData}
         />

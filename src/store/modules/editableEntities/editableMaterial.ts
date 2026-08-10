@@ -2,8 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 import { IMaterial } from "../../../interfaces/materials/IMaterial";
 
 export interface IEditableMaterialState
-  extends Omit<IMaterial, "material_id" | "created_at" | "created_by"> {
+  extends Omit<
+    IMaterial,
+    "material_id" | "created_at" | "created_by" | "measurement_unit"
+  > {
   sent: boolean;
+  measurement_unit: string;
 }
 
 const initialState: IEditableMaterialState = {

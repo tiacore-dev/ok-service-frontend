@@ -15,7 +15,10 @@ export interface IObjectsSettingsState {
 }
 
 const initialState: IObjectsSettingsState = {
-  pagination: {},
+  pagination: {
+    current: 1,
+    pageSize: 20,
+  },
   filters: {},
   sorter: {},
   objectsFilters: { ...defaultObjectsFiltersState },

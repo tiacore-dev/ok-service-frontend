@@ -64,13 +64,11 @@ export const Objects = () => {
   const paginationConfig = React.useMemo<
     TableProps<IObjectsListColumn>["pagination"]
   >(() => {
-    const hasSavedPagination =
-      Boolean(tableState.pagination?.current) ||
-      Boolean(tableState.pagination?.pageSize);
-
-    return hasSavedPagination
-      ? tableState.pagination
-      : { current: 1, pageSize: 10, showSizeChanger: true };
+    return {
+      ...tableState.pagination,
+      showSizeChanger: true,
+      pageSizeOptions: ["20", "50", "100"],
+    };
   }, [tableState.pagination]);
 
   const columns = React.useMemo(

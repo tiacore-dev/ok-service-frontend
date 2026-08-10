@@ -17,5 +17,5 @@ export const defaultLeavesFiltersState: ILeavesFiltersState = {
   dateFrom: null,
   dateTo: null,
   sortField: "start_date",
-  sortOrder: "ascend",
+  sortOrder: "descend",
 };

@@ -70,8 +70,8 @@ export const Materials = () => {
 
       if (filtersState.sortField === "measurement_unit") {
         return compareText(
-          a.measurement_unit ?? "",
-          b.measurement_unit ?? "",
+          a.measurement_unit?.name ?? "",
+          b.measurement_unit?.name ?? "",
         );
       }
 
