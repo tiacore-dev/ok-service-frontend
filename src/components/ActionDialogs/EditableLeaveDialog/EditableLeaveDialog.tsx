@@ -144,7 +144,7 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
       onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
       popoverText={iconOnly && popoverText}
-      buttonType="primary"
+      buttonType="default"
       buttonIcon={buttonIcon}
       modalTitle={modalTitle}
       modalText={
@@ -202,7 +202,7 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
                   }));
                 }}
                 format={dateFormat}
-                onFocus={(e) => e.target.blur()}
+                inputReadOnly
               />
             </Form.Item>
 
