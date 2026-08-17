@@ -16,9 +16,9 @@ import { RoleId } from "../../interfaces/roles/IRole";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import {
-  useEditShiftReportMutation,
   useFinishShiftReportMutation,
   useRestoreShiftReportMutation,
+  useSignShiftReportMutation,
   useStartShiftReportMutation,
   useSoftDeleteShiftReportMutation,
 } from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
@@ -56,9 +56,9 @@ export const ShiftReport = () => {
     useShiftReportDetailsQuery(routeParams.shiftId);
 
   // Mutation hooks
-  const { mutate: editReportMutation } = useEditShiftReportMutation();
   const { mutate: startShiftMutation } = useStartShiftReportMutation();
   const { mutate: finishShiftMutation } = useFinishShiftReportMutation();
+  const { mutate: signShiftReportMutation } = useSignShiftReportMutation();
   const { mutate: deleteReportMutation } = useSoftDeleteShiftReportMutation();
   const { mutate: restoreReportMutation } = useRestoreShiftReportMutation();
   const { mutate: createDetail } = useCreateShiftReportDetailMutation();
@@ -308,31 +308,9 @@ export const ShiftReport = () => {
   }, [queryClient, shiftReportData?.shift_report_id]);
 
   const handleOnSign = React.useCallback(() => {
-    if (shiftReportData) {
-      const updatedReportData = {
-        user: shiftReportData.user,
-        date: shiftReportData.date,
-        date_start: shiftReportData.date_start,
-        date_end: shiftReportData.date_end,
-        project: shiftReportData.project,
-        comment: shiftReportData.comment,
-        signed: true,
-        night_shift: shiftReportData.night_shift,
-        extreme_conditions: shiftReportData.extreme_conditions,
-        lng_start: shiftReportData.lng_start,
-        ltd_start: shiftReportData.ltd_start,
-        lng_end: shiftReportData.lng_end,
-        ltd_end: shiftReportData.ltd_end,
-        distance_start: shiftReportData.distance_start,
-        distance_end: shiftReportData.distance_end,
-      };
-
-      editReportMutation({
-        report_id: shiftReportData.shift_report_id,
-        reportData: updatedReportData,
-      });
-    }
-  }, [shiftReportData, editReportMutation]);
+    if (!shiftReportData?.shift_report_id) return;
+    signShiftReportMutation(shiftReportData.shift_report_id);
+  }, [shiftReportData?.shift_report_id, signShiftReportMutation]);
 
   const checkedData = React.useMemo<IShiftReportDetailsListColumn[]>(() => {
     if (!stat || !shiftReportDetailsRows.length) return shiftReportDetailsRows;
