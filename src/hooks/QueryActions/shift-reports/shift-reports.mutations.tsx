@@ -4,6 +4,7 @@ import {
   editShiftReport,
   finishShiftReport,
   restoreShiftReport,
+  signShiftReport,
   softDeleteShiftReport,
   startShiftReport,
 } from "../../../api/shift-reports.api";
@@ -152,6 +153,33 @@ export const useFinishShiftReportMutation = () => {
         duration: 2,
       });
       console.error("Failed to finish shift report:", error.message);
+    },
+  });
+};
+
+export const useSignShiftReportMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (report_id: string) => signShiftReport(report_id),
+    onSuccess: (_, report_id) => {
+      queryClient.invalidateQueries({ queryKey: ["shiftReports"] });
+      queryClient.invalidateQueries({ queryKey: ["shiftReport", report_id] });
+      notification.success({
+        message: "Успешно",
+        description: "Отчет по смене согласован",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    },
+    onError: (error: Error) => {
+      notification.error({
+        message: "Ошибка",
+        description: "Не удалось согласовать отчет по смене",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      console.error("Failed to sign shift report:", error.message);
     },
   });
 };

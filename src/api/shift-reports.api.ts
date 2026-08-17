@@ -96,3 +96,9 @@ export const finishShiftReport = async (
     coordinates,
   );
 };
+
+export const signShiftReport = async (
+  shift_report_id: string,
+): Promise<void> => {
+  await apiClient.patch(`/shift_reports/${shift_report_id}/sign`);
+};

@@ -29,6 +29,7 @@ const setShiftReportData = (
   shiftReportData: IEditableShiftReportState | IShiftReport,
 ) => {
   state.user = shiftReportData.user;
+  state.date = shiftReportData.date;
   state.date_end = shiftReportData.date_end;
   state.date_start = shiftReportData.date_start;
   state.project = shiftReportData.project;
