@@ -2040,6 +2040,138 @@
         ]
       }
     },
+    "/places/{place_id}/attachments": {
+      "parameters": [
+        {
+          "name": "place_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "place_attachments"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "post_attachment_collection",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "One or more attachment files"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "place_attachments"
+        ]
+      }
+    },
+    "/places/{place_id}/attachments/{attachment_id}": {
+      "parameters": [
+        {
+          "name": "place_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentMessage"
+            }
+          }
+        },
+        "operationId": "delete_attachment_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "place_attachments"
+        ]
+      }
+    },
+    "/places/{place_id}/attachments/{attachment_id}/download": {
+      "parameters": [
+        {
+          "name": "place_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_attachment_download",
+        "tags": [
+          "place_attachments"
+        ]
+      }
+    },
     "/places/{place_id}/delete/hard": {
       "parameters": [
         {
@@ -2627,6 +2759,39 @@
         ]
       }
     },
+    "/project_place_relations/add-bulk": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectPlaceRelationBulkResponse"
+            }
+          }
+        },
+        "operationId": "post_project_place_relation_bulk_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectPlaceRelationBulk"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_place_relations"
+        ]
+      }
+    },
     "/project_place_relations/all": {
       "get": {
         "responses": {
@@ -2639,6 +2804,39 @@
         },
         "operationId": "get_project_place_relation_all",
         "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_place_relations"
+        ]
+      }
+    },
+    "/project_place_relations/delete-bulk": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectPlaceRelationBulkDeleteResponse"
+            }
+          }
+        },
+        "operationId": "delete_project_place_relation_bulk_delete",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectPlaceRelationBulk"
+            }
+          },
           {
             "name": "X-Fields",
             "in": "header",
@@ -3858,6 +4056,39 @@
         ]
       }
     },
+    "/shift_place_relations/add-bulk": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftPlaceRelationBulkResponse"
+            }
+          }
+        },
+        "operationId": "post_shift_place_relation_bulk_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftPlaceRelationBulk"
+            }
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_place_relations"
+        ]
+      }
+    },
     "/shift_place_relations/all": {
       "get": {
         "responses": {
@@ -3870,6 +4101,39 @@
         },
         "operationId": "get_shift_place_relation_all",
         "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_place_relations"
+        ]
+      }
+    },
+    "/shift_place_relations/delete-bulk": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftPlaceRelationBulkDeleteResponse"
+            }
+          }
+        },
+        "operationId": "delete_shift_place_relation_bulk_delete",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftPlaceRelationBulk"
+            }
+          },
           {
             "name": "X-Fields",
             "in": "header",
@@ -6650,6 +6914,10 @@
       "description": "Object attachments"
     },
     {
+      "name": "place_attachments",
+      "description": "Place attachments"
+    },
+    {
       "name": "roles",
       "description": "Role management operations"
     },
@@ -8017,7 +8285,40 @@
           "type": "string"
         },
         "place": {
-          "$ref": "#/definitions/Place"
+          "$ref": "#/definitions/PlaceView"
+        }
+      },
+      "type": "object"
+    },
+    "PlaceView": {
+      "required": [
+        "attachments",
+        "deleted",
+        "name",
+        "object_id",
+        "place_id"
+      ],
+      "properties": {
+        "place_id": {
+          "type": "string"
+        },
+        "object_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "deleted": {
+          "type": "boolean"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AttachmentView"
+          }
         }
       },
       "type": "object"
@@ -8081,17 +8382,33 @@
       },
       "type": "object"
     },
-    "ProjectPlaceRelationResponse": {
+    "ProjectPlaceRelationBulk": {
+      "properties": {
+        "project_id": {
+          "type": "string"
+        },
+        "place_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectPlaceRelationBulkResponse": {
       "required": [
-        "msg",
-        "project_place_relation"
+        "msg"
       ],
       "properties": {
         "msg": {
           "type": "string"
         },
-        "project_place_relation": {
-          "$ref": "#/definitions/ProjectPlaceRelation"
+        "project_place_relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectPlaceRelation"
+          }
         }
       },
       "type": "object"
@@ -8111,6 +8428,36 @@
         },
         "place_id": {
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectPlaceRelationBulkDeleteResponse": {
+      "required": [
+        "deleted_count",
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "deleted_count": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectPlaceRelationResponse": {
+      "required": [
+        "msg",
+        "project_place_relation"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "project_place_relation": {
+          "$ref": "#/definitions/ProjectPlaceRelation"
         }
       },
       "type": "object"
@@ -8171,17 +8518,33 @@
       },
       "type": "object"
     },
-    "ShiftPlaceRelationResponse": {
+    "ShiftPlaceRelationBulk": {
+      "properties": {
+        "shift_report_id": {
+          "type": "string"
+        },
+        "place_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ShiftPlaceRelationBulkResponse": {
       "required": [
-        "msg",
-        "shift_place_relation"
+        "msg"
       ],
       "properties": {
         "msg": {
           "type": "string"
         },
-        "shift_place_relation": {
-          "$ref": "#/definitions/ShiftPlaceRelation"
+        "shift_place_relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ShiftPlaceRelation"
+          }
         }
       },
       "type": "object"
@@ -8204,6 +8567,36 @@
         },
         "comment": {
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftPlaceRelationBulkDeleteResponse": {
+      "required": [
+        "deleted_count",
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "deleted_count": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftPlaceRelationResponse": {
+      "required": [
+        "msg",
+        "shift_place_relation"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "shift_place_relation": {
+          "$ref": "#/definitions/ShiftPlaceRelation"
         }
       },
       "type": "object"

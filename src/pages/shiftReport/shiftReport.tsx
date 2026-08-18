@@ -40,6 +40,7 @@ import { createShiftReportColumns } from "./shiftReport.table";
 import { useShiftReportMap } from "./useShiftReportMap";
 import { useShiftReportShiftActions } from "./useShiftReportShiftActions";
 import "./shiftReport.less";
+import { ShiftReportPlaces } from "./ShiftReportPlaces";
 
 export const ShiftReport = () => {
   const currentRole = useSelector(getCurrentRole);
@@ -104,6 +105,9 @@ export const ShiftReport = () => {
     [currentRole, isSigned],
   );
   const canEdit = canManageReport && !shiftReportData?.deleted;
+  const canEditPlaces =
+    !shiftReportData?.deleted &&
+    (currentRole === RoleId.USER || currentRole === RoleId.PROJECT_LEADER);
   const canDelete =
     canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
   const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
@@ -436,6 +440,14 @@ export const ShiftReport = () => {
           onSign={handleOnSign}
           signDisabled={disabled}
         />
+
+        <section className="shift-report__places-section">
+          <ShiftReportPlaces
+            shiftReportId={shiftReportData.shift_report_id}
+            projectId={shiftReportData.project}
+            canEdit={canEditPlaces}
+          />
+        </section>
 
         <ShiftReportActions
           canEdit={canEdit}

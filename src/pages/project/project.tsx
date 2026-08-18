@@ -43,6 +43,7 @@ import { ProjectWorksFilters } from "./ProjectWorksFilters";
 import type { IProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
 import { defaultProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
 import { saveProjectWorksFiltersState } from "../../store/modules/settings/projectWorks";
+import { ProjectPlaces } from "./ProjectPlaces";
 import type { IState } from "../../store/modules";
 
 export const Project = () => {
@@ -442,14 +443,20 @@ export const Project = () => {
               />
             </>
           )}
-
-          <Title level={4} className="project__materials-title">
-            Материалы
-          </Title>
-          <ProjectMaterialsTable
+          <ProjectPlaces
             projectId={projectData.project_id}
-            canManage={canEdit}
+            objectId={projectData.object}
+            canEdit={canEdit}
           />
+          <section className="project__materials-section">
+            <Title level={4} className="project__section-title">
+              Материалы
+            </Title>
+            <ProjectMaterialsTable
+              projectId={projectData.project_id}
+              canManage={canEdit}
+            />
+          </section>
 
           <EditableProjectWorkDialog
             visible={modalVisible}
