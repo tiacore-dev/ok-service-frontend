@@ -291,7 +291,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
           onChange={handleDateChange}
         />
         <Select
-          className="shift-reports_filters_select"
+          className="shift-reports_filters_active"
           value={filtersState.deletedFilter}
           onChange={handleDeletedFilterChange}
           options={[
@@ -375,7 +375,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
               </div>
             </div>
           )}
-          {selectedPlaces.length > 0 && (
+          {/* {selectedPlaces.length > 0 && (
             <div className="shift-reports_filters_summaryRow">
               <span className="shift-reports_filters_summaryLabel">Места:</span>
               <div className="shift-reports_filters_summaryChips">
@@ -391,7 +391,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
                 )}
               </div>
             </div>
-          )}
+          )} */}
         </div>
       )}
     </>
