@@ -17,6 +17,7 @@ export interface IShiftReport {
   night_shift: boolean;
   extreme_conditions: boolean;
   deleted?: boolean;
+  leave_id?: string;
   shift_report_details_sum?: number;
   lng_start?: number;
   ltd_start?: number;

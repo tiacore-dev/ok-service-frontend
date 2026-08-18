@@ -29,6 +29,11 @@ export const WorksActions = ({ works, onImportClick }: IActionsProps) => {
         >
           Категории
         </Button>
+        {currentRole === RoleId.ADMIN && (
+          <Button onClick={() => navigate("measurement-units")}>
+            Единицы измерения
+          </Button>
+        )}
       </Space>
 
       <Space direction={isMobile() ? "vertical" : "horizontal"} wrap>

@@ -23,7 +23,7 @@ export const WorksExport = ({ works }: IExportProps) => {
       id: work.work_id ?? "",
       name: work.name ?? "",
       category: work.category?.name ?? "",
-      measurement_unit: work.measurement_unit.name,
+      measurement_unit: work.measurement_unit?.name ?? "",
       price1: formatPrice(work, 1),
       price2: formatPrice(work, 2),
       price3: formatPrice(work, 3),

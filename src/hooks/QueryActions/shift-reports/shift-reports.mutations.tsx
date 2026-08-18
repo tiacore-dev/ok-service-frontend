@@ -3,7 +3,8 @@ import {
   createShiftReport,
   editShiftReport,
   finishShiftReport,
-  hardDeleteShiftReport,
+  restoreShiftReport,
+  softDeleteShiftReport,
   startShiftReport,
 } from "../../../api/shift-reports.api";
 import type { ShiftReportCoordinates } from "../../../api/shift-reports.api";
@@ -155,11 +156,11 @@ export const useFinishShiftReportMutation = () => {
   });
 };
 
-export const useHardDeleteShiftReportMutation = () => {
+export const useSoftDeleteShiftReportMutation = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: (report_id: string) => hardDeleteShiftReport(report_id),
+    mutationFn: (report_id: string) => softDeleteShiftReport(report_id),
     onSuccess: (_, report_id) => {
       queryClient.removeQueries({
         queryKey: ["shiftReportDetails", report_id],
@@ -183,6 +184,32 @@ export const useHardDeleteShiftReportMutation = () => {
         duration: 2,
       });
       console.error("Failed to delete shift report:", error.message);
+    },
+  });
+};
+
+export const useRestoreShiftReportMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (report_id: string) => restoreShiftReport(report_id),
+    onSuccess: (_, report_id) => {
+      queryClient.invalidateQueries({ queryKey: ["shiftReports"] });
+      queryClient.invalidateQueries({ queryKey: ["shiftReport", report_id] });
+      notification.success({
+        message: "Успешно",
+        description: "Отчет по смене восстановлен",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    },
+    onError: (error: Error) => {
+      notification.error({
+        message: "Ошибка",
+        description: "Не удалось восстановить отчет по смене",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      console.error("Failed to restore shift report:", error.message);
     },
   });
 };

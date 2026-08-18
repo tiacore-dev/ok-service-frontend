@@ -41,6 +41,7 @@ interface DownloadShiftReportsWithDetailsProps {
     projects?: string[];
     date_from?: number;
     date_to?: number;
+    deleted?: string;
   };
 }
 
@@ -85,6 +86,7 @@ export const useDownloadShiftReportsWithDetails = ({
     project: currentFilters?.projects,
     date_from: currentFilters?.date_from ?? undefined,
     date_to: currentFilters?.date_to ?? undefined,
+    deleted: currentFilters?.deleted,
     offset: 0,
     limit: 10000,
   });

@@ -146,7 +146,7 @@ export const ApiKeys = () => {
     const values = await form.validateFields();
     const response = await generateApiKeyMutation.mutateAsync({
       name: values.name?.trim() || undefined,
-      expires_at: values.expiresAt ? values.expiresAt.unix() : undefined,
+      expires_at: values.expiresAt ? values.expiresAt.valueOf() : undefined,
     });
 
     if (createPermissionTypeIds.length) {

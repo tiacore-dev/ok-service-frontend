@@ -1297,6 +1297,188 @@
                 ]
             }
         },
+        "/measurement_units/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/MeasurementUnitMessage"
+                        }
+                    }
+                },
+                "operationId": "post_measurement_unit_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/MeasurementUnitCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "measurement_units"
+                ]
+            }
+        },
+        "/measurement_units/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/MeasurementUnitAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_measurement_unit_all",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "measurement_units"
+                ]
+            }
+        },
+        "/measurement_units/{measurement_unit_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "measurement_unit_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/MeasurementUnitMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_measurement_unit_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "measurement_units"
+                ]
+            }
+        },
+        "/measurement_units/{measurement_unit_id}/edit": {
+            "parameters": [
+                {
+                    "name": "measurement_unit_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/MeasurementUnitMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_measurement_unit_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/MeasurementUnitEdit"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "measurement_units"
+                ]
+            }
+        },
+        "/measurement_units/{measurement_unit_id}/view": {
+            "parameters": [
+                {
+                    "name": "measurement_unit_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/MeasurementUnitResponse"
+                        }
+                    }
+                },
+                "operationId": "get_measurement_unit_view",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "measurement_units"
+                ]
+            }
+        },
         "/object_statuses/all": {
             "get": {
                 "responses": {
@@ -1497,7 +1679,7 @@
                         "name": "created_at",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by created at timestamp"
+                        "description": "Filter by Unix epoch milliseconds"
                     },
                     {
                         "name": "X-Fields",
@@ -2157,7 +2339,7 @@
                         "name": "date",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by date"
+                        "description": "Filter by Unix epoch milliseconds"
                     },
                     {
                         "name": "X-Fields",
@@ -2694,7 +2876,7 @@
                         "name": "created_at",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by created at timestamp"
+                        "description": "Filter by Unix epoch milliseconds"
                     },
                     {
                         "name": "night_shift_available",
@@ -3073,7 +3255,7 @@
             "get": {
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Shift report details found successfully",
                         "schema": {
                             "$ref": "#/definitions/ShiftReportDetailsAllResponse"
                         }
@@ -3121,13 +3303,13 @@
                         "name": "date_from",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by shift report date (from)"
+                        "description": "Filter by shift report date Unix epoch milliseconds (from)"
                     },
                     {
                         "name": "date_to",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by shift report date (to)"
+                        "description": "Filter by shift report date Unix epoch milliseconds (to)"
                     },
                     {
                         "name": "project_work",
@@ -3179,14 +3361,14 @@
                         "name": "created_at",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by created at timestamp"
+                        "description": "Filter by Unix epoch milliseconds"
                     },
                     {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
+                        "name": "with_stat",
+                        "in": "query",
+                        "type": "boolean",
+                        "description": "Include project work statistics in each detail",
+                        "default": false
                     }
                 ],
                 "tags": [
@@ -3198,7 +3380,7 @@
             "post": {
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Shift report details found successfully",
                         "schema": {
                             "$ref": "#/definitions/ShiftReportDetailsAllResponse"
                         }
@@ -3213,13 +3395,6 @@
                         "schema": {
                             "$ref": "#/definitions/ShiftReportDetailsByIds"
                         }
-                    },
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
                     }
                 ],
                 "tags": [
@@ -3636,37 +3811,37 @@
                         "name": "date_from",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by date"
+                        "description": "Filter by Unix epoch milliseconds"
                     },
                     {
                         "name": "date_to",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by date"
+                        "description": "Filter by Unix epoch milliseconds"
                     },
                     {
                         "name": "date_start_from",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by shift start (from)"
+                        "description": "Filter by shift start Unix epoch milliseconds (from)"
                     },
                     {
                         "name": "date_start_to",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by shift start (to)"
+                        "description": "Filter by shift start Unix epoch milliseconds (to)"
                     },
                     {
                         "name": "date_end_from",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by shift end (from)"
+                        "description": "Filter by shift end Unix epoch milliseconds (from)"
                     },
                     {
                         "name": "date_end_to",
                         "in": "query",
                         "type": "integer",
-                        "description": "Filter by shift end (to)"
+                        "description": "Filter by shift end Unix epoch milliseconds (to)"
                     },
                     {
                         "name": "project",
@@ -5018,7 +5193,7 @@
                         "name": "created_at",
                         "in": "query",
                         "type": "integer",
-                        "description": "Created at filter"
+                        "description": "Unix epoch milliseconds filter"
                     },
                     {
                         "name": "deleted",
@@ -5259,6 +5434,12 @@
                         "in": "query",
                         "type": "string",
                         "description": "Filter by name"
+                    },
+                    {
+                        "name": "measurement_unit",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by measurement unit ID"
                     },
                     {
                         "name": "deleted",
@@ -5534,6 +5715,10 @@
             "description": "Materials management operations"
         },
         {
+            "name": "measurement_units",
+            "description": "Measurement unit reference operations"
+        },
+        {
             "name": "project_works",
             "description": "Project Works management operations"
         },
@@ -5641,7 +5826,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date user was created at"
+                    "description": "Unix epoch milliseconds: user creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -5860,11 +6045,11 @@
                 },
                 "expires_at": {
                     "type": "integer",
-                    "description": "Expire timestamp"
+                    "description": "Unix epoch milliseconds"
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Created timestamp"
+                    "description": "Unix epoch milliseconds"
                 }
             },
             "type": "object"
@@ -6181,11 +6366,11 @@
                 },
                 "start_date": {
                     "type": "integer",
-                    "description": "\u0414\u0430\u0442\u0430 \u043d\u0430\u0447\u0430\u043b\u0430"
+                    "description": "\u0414\u0430\u0442\u0430 \u043d\u0430\u0447\u0430\u043b\u0430, Unix epoch milliseconds"
                 },
                 "end_date": {
                     "type": "integer",
-                    "description": "\u0414\u0430\u0442\u0430 \u043e\u043a\u043e\u043d\u0447\u0430\u043d\u0438\u044f"
+                    "description": "\u0414\u0430\u0442\u0430 \u043e\u043a\u043e\u043d\u0447\u0430\u043d\u0438\u044f, Unix epoch milliseconds"
                 },
                 "reason": {
                     "type": "string",
@@ -6209,7 +6394,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "\u041a\u043e\u0433\u0434\u0430 \u0441\u043e\u0437\u0434\u0430\u043d"
+                    "description": "\u041a\u043e\u0433\u0434\u0430 \u0441\u043e\u0437\u0434\u0430\u043d, Unix epoch milliseconds"
                 },
                 "updated_by": {
                     "type": "string",
@@ -6217,7 +6402,7 @@
                 },
                 "updated_at": {
                     "type": "integer",
-                    "description": "\u041a\u043e\u0433\u0434\u0430 \u0438\u0437\u043c\u0435\u043d\u0435\u043d"
+                    "description": "\u041a\u043e\u0433\u0434\u0430 \u0438\u0437\u043c\u0435\u043d\u0435\u043d, Unix epoch milliseconds"
                 },
                 "deleted": {
                     "type": "boolean",
@@ -6374,7 +6559,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "\u0414\u0430\u0442\u0430 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044f"
+                    "description": "Unix epoch milliseconds: \u0434\u0430\u0442\u0430 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044f"
                 },
                 "deleted": {
                     "type": "boolean",
@@ -6520,7 +6705,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Time object was created at"
+                    "description": "Unix epoch milliseconds: object creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -6681,7 +6866,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date position was created at"
+                    "description": "Unix epoch milliseconds: position creation time"
                 }
             },
             "type": "object"
@@ -6790,7 +6975,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date project schedule was created at"
+                    "description": "Unix epoch milliseconds: schedule creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -6798,7 +6983,7 @@
                 },
                 "date": {
                     "type": "integer",
-                    "description": "Scheduled date"
+                    "description": "Scheduled date as Unix epoch milliseconds"
                 }
             },
             "type": "object"
@@ -6929,7 +7114,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date project was created at"
+                    "description": "Unix epoch milliseconds: project creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -7212,15 +7397,15 @@
                 },
                 "date": {
                     "type": "integer",
-                    "description": "Report date"
+                    "description": "Report date as Unix epoch milliseconds"
                 },
                 "date_start": {
                     "type": "integer",
-                    "description": "Shift start timestamp (nullable)"
+                    "description": "Shift start Unix epoch milliseconds (nullable)"
                 },
                 "date_end": {
                     "type": "integer",
-                    "description": "Shift end timestamp (nullable)"
+                    "description": "Shift end Unix epoch milliseconds (nullable)"
                 },
                 "project": {
                     "type": "string",
@@ -7266,13 +7451,17 @@
                     "type": "boolean",
                     "description": "Deletion status of the shift report"
                 },
+                "leave_id": {
+                    "type": "string",
+                    "description": "Leave that cancelled the shift"
+                },
                 "number": {
                     "type": "integer",
                     "description": "Number of shift report"
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date shift report was created at"
+                    "description": "Unix epoch milliseconds: report creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -7282,13 +7471,15 @@
                     "$ref": "#/definitions/ShiftReportUser"
                 },
                 "signed_at": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds"
                 },
                 "updated_by": {
                     "$ref": "#/definitions/ShiftReportUpdater"
                 },
                 "updated_at": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds"
                 },
                 "night_shift": {
                     "type": "boolean",
@@ -7353,6 +7544,24 @@
                 },
                 "project": {
                     "type": "string"
+                },
+                "date_start": {
+                    "type": "integer"
+                },
+                "date_end": {
+                    "type": "integer"
+                },
+                "lng_start": {
+                    "type": "number"
+                },
+                "ltd_start": {
+                    "type": "number"
+                },
+                "lng_end": {
+                    "type": "number"
+                },
+                "ltd_end": {
+                    "type": "number"
                 },
                 "distance_start": {
                     "type": "number"
@@ -7509,7 +7718,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date shift report detail was created at"
+                    "description": "Unix epoch milliseconds: detail creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -7539,7 +7748,7 @@
                 },
                 "date": {
                     "type": "integer",
-                    "description": "Shift report date"
+                    "description": "Shift report date as Unix epoch milliseconds"
                 },
                 "project": {
                     "type": "string"
@@ -7622,6 +7831,11 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "with_stat": {
+                    "type": "boolean",
+                    "description": "Include project work statistics in each detail",
+                    "default": false
                 }
             },
             "type": "object"
@@ -7707,7 +7921,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Created at timestamp"
+                    "description": "Unix epoch milliseconds"
                 },
                 "created_by": {
                     "type": "string",
@@ -7813,12 +8027,11 @@
                     "description": "Name of the material"
                 },
                 "measurement_unit": {
-                    "type": "string",
-                    "description": "Measurement unit of the material"
+                    "$ref": "#/definitions/MeasurementUnit"
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Created at timestamp"
+                    "description": "Unix epoch milliseconds"
                 },
                 "created_by": {
                     "type": "string",
@@ -7827,6 +8040,29 @@
                 "deleted": {
                     "type": "boolean",
                     "description": "Deletion status"
+                }
+            },
+            "type": "object"
+        },
+        "MeasurementUnit": {
+            "required": [
+                "created_at",
+                "measurement_unit_id",
+                "name"
+            ],
+            "properties": {
+                "measurement_unit_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds"
+                },
+                "created_by": {
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -7859,6 +8095,68 @@
                     "description": "List of materials",
                     "items": {
                         "$ref": "#/definitions/Material"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "MeasurementUnitCreate": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MeasurementUnitMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "measurement_unit_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MeasurementUnitResponse": {
+            "required": [
+                "measurement_unit",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "measurement_unit": {
+                    "$ref": "#/definitions/MeasurementUnit"
+                }
+            },
+            "type": "object"
+        },
+        "MeasurementUnitEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MeasurementUnitAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "measurement_units": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MeasurementUnit"
                     }
                 }
             },
@@ -7977,7 +8275,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date project work was created at"
+                    "description": "Unix epoch milliseconds: project work creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -8098,7 +8396,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date work category was created at"
+                    "description": "Unix epoch milliseconds: category creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -8212,7 +8510,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Created at timestamp"
+                    "description": "Unix epoch milliseconds"
                 },
                 "created_by": {
                     "type": "string",
@@ -8335,7 +8633,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Created at timestamp"
+                    "description": "Unix epoch milliseconds"
                 },
                 "created_by": {
                     "type": "string",
@@ -8428,12 +8726,6 @@
         },
         "WorkPrice": {
             "required": [
-                "category",
-                "created_at",
-                "created_by",
-                "deleted",
-                "price",
-                "work",
                 "work_price_id"
             ],
             "properties": {
@@ -8455,7 +8747,7 @@
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date work price was created at"
+                    "description": "Unix epoch milliseconds: price creation time"
                 },
                 "created_by": {
                     "type": "string",
@@ -8576,12 +8868,11 @@
                     ]
                 },
                 "measurement_unit": {
-                    "type": "string",
-                    "description": "Measurement unit of the work"
+                    "$ref": "#/definitions/MeasurementUnit"
                 },
                 "created_at": {
                     "type": "integer",
-                    "description": "Date work was created at"
+                    "description": "Unix epoch milliseconds: work creation time"
                 },
                 "created_by": {
                     "type": "string",

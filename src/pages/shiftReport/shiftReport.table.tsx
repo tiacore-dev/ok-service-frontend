@@ -41,7 +41,7 @@ export const createShiftReportColumns = (
       dataIndex: "project_work",
       key: "project_work",
       render: (value: { project_work_id: string; name: string }) => {
-        return value.name;
+        return value?.name;
       },
     },
     {

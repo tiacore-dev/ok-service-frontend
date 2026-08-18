@@ -34,6 +34,7 @@ export const useShiftReportShiftActions = ({
 
   const canStartShift = React.useMemo(() => {
     if (!shiftReport) return false;
+    if (shiftReport.deleted) return false;
     if (shiftReport.signed) return false;
     if (shiftReport.date_start) return false;
     return shiftReport.user === currentUserId;
@@ -41,6 +42,7 @@ export const useShiftReportShiftActions = ({
 
   const canCompleteShift = React.useMemo(() => {
     if (!shiftReport) return false;
+    if (shiftReport.deleted) return false;
     if (shiftReport.signed) return false;
     if (!shiftReport.date_start) return false;
     if (shiftReport.date_end) return false;

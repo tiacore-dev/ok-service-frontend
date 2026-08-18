@@ -23,6 +23,7 @@ import { Work } from "../../pages/work/work";
 import { Materials } from "../../pages/materials/materials.page";
 import { Material } from "../../pages/material/material";
 import { WorkCategories } from "../../pages/work-categories/work-categories.page";
+import { MeasurementUnits } from "../../pages/measurement-units/measurement-units.page";
 import { ShiftReports } from "../../pages/shiftReports/shiftReports.page";
 import { ShiftReport } from "../../pages/shiftReport/shiftReport";
 import { Assignment } from "../../pages/assignment/assignment";
@@ -34,6 +35,7 @@ import { projectWorksKeys } from "../../queries/projectWorks";
 import { worksKeys } from "../../queries/works";
 import { workPricesKeys } from "../../queries/workPrices";
 import { workCategoriesKeys } from "../../queries/workCategories";
+import { measurementUnitsKeys } from "../../queries/measurementUnits";
 import { materialsKeys } from "../../queries/materials";
 import { workMaterialRelationsKeys } from "../../queries/workMaterialRelations";
 import { objectStatusesKeys } from "../../queries/objectStatuses";
@@ -81,11 +83,14 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: workMaterialRelationsKeys.all() });
     queryClient.removeQueries({ queryKey: workPricesKeys.all() });
     queryClient.removeQueries({ queryKey: workCategoriesKeys.all() });
+    queryClient.removeQueries({ queryKey: measurementUnitsKeys.all() });
     queryClient.removeQueries({ queryKey: objectStatusesKeys.all() });
     queryClient.removeQueries({ queryKey: rolesKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeysKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeyPermissionTypesKeys.all() });
-    queryClient.removeQueries({ queryKey: apiKeyPermissionRelationsKeys.all() });
+    queryClient.removeQueries({
+      queryKey: apiKeyPermissionRelationsKeys.all(),
+    });
   }, [queryClient]);
 
   const load = React.useCallback(
@@ -192,6 +197,10 @@ export const App = () => {
               <Route path="works">
                 <Route index={true} element={<Works />} />
                 <Route path="categories" element={<WorkCategories />} />
+                <Route
+                  path="measurement-units"
+                  element={<MeasurementUnits />}
+                />
                 <Route path=":workId" element={<Work />} />
               </Route>
               <Route path="materials">

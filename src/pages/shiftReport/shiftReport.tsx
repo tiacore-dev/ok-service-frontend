@@ -5,6 +5,7 @@ import { Breadcrumb, Layout, Spin, Table } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import type { IShiftReportDetail } from "../../interfaces/shiftReportDetails/IShiftReportDetail";
@@ -17,8 +18,9 @@ import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shif
 import {
   useEditShiftReportMutation,
   useFinishShiftReportMutation,
-  useHardDeleteShiftReportMutation,
+  useRestoreShiftReportMutation,
   useStartShiftReportMutation,
+  useSoftDeleteShiftReportMutation,
 } from "../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 import {
   useCreateShiftReportDetailMutation,
@@ -42,6 +44,7 @@ import "./shiftReport.less";
 export const ShiftReport = () => {
   const currentRole = useSelector(getCurrentRole);
   const currentUserId = useSelector(getCurrentUserId);
+  const queryClient = useQueryClient();
   const { Content } = Layout;
   const mobile = isMobile();
 
@@ -56,7 +59,8 @@ export const ShiftReport = () => {
   const { mutate: editReportMutation } = useEditShiftReportMutation();
   const { mutate: startShiftMutation } = useStartShiftReportMutation();
   const { mutate: finishShiftMutation } = useFinishShiftReportMutation();
-  const { mutate: deleteReportMutation } = useHardDeleteShiftReportMutation();
+  const { mutate: deleteReportMutation } = useSoftDeleteShiftReportMutation();
+  const { mutate: restoreReportMutation } = useRestoreShiftReportMutation();
   const { mutate: createDetail } = useCreateShiftReportDetailMutation();
   const { mutate: editDetail } = useEditShiftReportDetailMutation();
   const { mutate: deleteDetail } = useDeleteShiftReportDetailMutation();
@@ -95,11 +99,16 @@ export const ShiftReport = () => {
   const hasShiftReport = Boolean(shiftReportData);
   const isSigned = Boolean(shiftReportData?.signed);
 
-  const canEdit = React.useMemo(
+  const canManageReport = React.useMemo(
     () => currentRole !== RoleId.USER || !isSigned,
     [currentRole, isSigned],
   );
-  const canDelete = currentRole !== RoleId.USER;
+  const canEdit = canManageReport && !shiftReportData?.deleted;
+  const canDelete =
+    canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
+  const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
+  const canCancelByLeave =
+    !shiftReportData?.deleted && !shiftReportData?.date_start;
 
   const userName = React.useMemo(
     () => (shiftReportData ? usersMap[shiftReportData.user]?.name : undefined),
@@ -278,9 +287,25 @@ export const ShiftReport = () => {
   }, [shiftReportDetails.length, totalSum]);
 
   const handleDeleteShiftReport = React.useCallback(() => {
-    if (!shiftReportData?.shift_report_id) return;
+    if (!shiftReportData?.shift_report_id || shiftReportData.signed) return;
     deleteReportMutation(shiftReportData.shift_report_id);
-  }, [deleteReportMutation, shiftReportData?.shift_report_id]);
+  }, [
+    deleteReportMutation,
+    shiftReportData?.shift_report_id,
+    shiftReportData?.signed,
+  ]);
+
+  const handleRestoreShiftReport = React.useCallback(() => {
+    if (!shiftReportData?.shift_report_id) return;
+    restoreReportMutation(shiftReportData.shift_report_id);
+  }, [restoreReportMutation, shiftReportData?.shift_report_id]);
+
+  const handleLeaveCreated = React.useCallback(async () => {
+    if (!shiftReportData?.shift_report_id) return;
+    await queryClient.invalidateQueries({
+      queryKey: ["shiftReport", shiftReportData.shift_report_id],
+    });
+  }, [queryClient, shiftReportData?.shift_report_id]);
 
   const handleOnSign = React.useCallback(() => {
     if (shiftReportData) {
@@ -383,7 +408,11 @@ export const ShiftReport = () => {
           userName={userName}
           canEdit={canEdit}
           canDelete={canDelete}
+          canRestore={canRestore}
+          canCancelByLeave={canCancelByLeave}
           onDelete={handleDeleteShiftReport}
+          onRestore={handleRestoreShiftReport}
+          onLeaveCreated={handleLeaveCreated}
         />
 
         <ShiftReportInfoCard

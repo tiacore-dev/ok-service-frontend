@@ -1,3 +1,5 @@
+export type ShiftReportsDeletedFilter = "all" | "active" | "deleted";
+
 export interface IShiftReportsFiltersState {
   users: string[];
   projects: string[];
@@ -5,6 +7,7 @@ export interface IShiftReportsFiltersState {
   places: string[];
   dateFrom?: number | null;
   dateTo?: number | null;
+  deletedFilter: ShiftReportsDeletedFilter;
 }
 
 export const defaultShiftReportsFiltersState: IShiftReportsFiltersState = {
@@ -14,4 +17,5 @@ export const defaultShiftReportsFiltersState: IShiftReportsFiltersState = {
   places: [],
   dateFrom: null,
   dateTo: null,
+  deletedFilter: "active",
 };

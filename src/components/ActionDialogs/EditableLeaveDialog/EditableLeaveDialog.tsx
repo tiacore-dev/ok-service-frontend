@@ -5,7 +5,6 @@ import { DatePicker, Form, Input, Select, Space } from "antd";
 import { ILeave } from "../../../interfaces/leaves/ILeave";
 
 import "./EditableLeaveDialog.less";
-import { RoleId } from "../../../interfaces/roles/IRole";
 import { useUsersMap } from "../../../queries/users";
 import { useNavigate } from "react-router-dom";
 import {
@@ -25,6 +24,10 @@ import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 interface IEditableLeaveDialogProps {
   leave?: ILeave;
   iconOnly?: boolean;
+  initialUserId?: string;
+  buttonText?: string;
+  modalTitle?: string;
+  onSaved?: () => void | Promise<void>;
 }
 
 export interface IEditableLeave extends Partial<ILeave> {
@@ -32,15 +35,16 @@ export interface IEditableLeave extends Partial<ILeave> {
 }
 
 export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
-  const { leave, iconOnly } = props;
-  const buttonText = leave ? "Редактировать" : "Создать";
+  const { leave, iconOnly, initialUserId, onSaved } = props;
+  const buttonText = props.buttonText ?? (leave ? "Редактировать" : "Создать");
   const popoverText = leave ? "Редактировать объект" : "Создать объект";
   const buttonIcon = leave ? (
     <EditTwoTone twoToneColor="#ff1616" />
   ) : (
     <PlusCircleTwoTone twoToneColor="#ff1616" />
   );
-  const modalTitle = leave ? "Редактирование объекта" : "Создание объекта";
+  const modalTitle =
+    props.modalTitle ?? (leave ? "Редактирование объекта" : "Создание объекта");
 
   const userId = useSelector(getCurrentUserId);
 
@@ -84,7 +88,11 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
           duration: 2,
         });
       }
-      navigate("/leaves");
+      if (onSaved) {
+        await onSaved();
+      } else {
+        navigate("/leaves");
+      }
     } catch (error) {
       setData((data) => ({ ...data, sent: false }));
       const description =
@@ -105,14 +113,23 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
     notificationApi,
     createLeaveMutation,
     navigate,
+    onSaved,
     setData,
   ]);
 
   const handeOpen = useCallback(() => {
     if (leave) {
       setData({ ...leave, sent: false });
+    } else {
+      setData({
+        responsible: userId,
+        user: initialUserId,
+        comment: "",
+        deleted: false,
+        sent: false,
+      });
     }
-  }, [leave, setData]);
+  }, [initialUserId, leave, setData, userId]);
 
   const { users } = useUsersMap();
   const userOptions = users.map((el) => ({
@@ -127,7 +144,7 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
       onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
       popoverText={iconOnly && popoverText}
-      buttonType="primary"
+      buttonType="default"
       buttonIcon={buttonIcon}
       modalTitle={modalTitle}
       modalText={
@@ -167,36 +184,25 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
             <Form.Item
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
-              label="Дата"
+              label="Период"
             >
-              <DatePicker
-                value={data.start_date ? dayjs(data.start_date) : null}
-                onChange={(value: dayjs.Dayjs) =>
+              <DatePicker.RangePicker
+                value={[
+                  data.start_date ? dayjs(data.start_date) : null,
+                  data.end_date ? dayjs(data.end_date) : null,
+                ]}
+                onChange={(values) => {
+                  const [startDate, endDate] = values ?? [];
                   setData((data) => ({
                     ...data,
-                    start_date: value ? value.valueOf() : null,
-                  }))
-                }
+                    start_date: startDate
+                      ? startDate.startOf("day").valueOf()
+                      : null,
+                    end_date: endDate ? endDate.endOf("day").valueOf() : null,
+                  }));
+                }}
                 format={dateFormat}
-                onFocus={(e) => e.target.blur()}
-              />
-            </Form.Item>
-
-            <Form.Item
-              labelCol={{ span: 6 }}
-              wrapperCol={{ span: 18 }}
-              label="Дата"
-            >
-              <DatePicker
-                value={data.end_date ? dayjs(data.end_date) : null}
-                onChange={(value: dayjs.Dayjs) =>
-                  setData((data) => ({
-                    ...data,
-                    end_date: value ? value.valueOf() : null,
-                  }))
-                }
-                format={dateFormat}
-                onFocus={(e) => e.target.blur()}
+                inputReadOnly
               />
             </Form.Item>
 

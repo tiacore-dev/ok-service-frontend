@@ -9,6 +9,7 @@ import "./ShiftReportsFilters.less";
 import {
   defaultShiftReportsFiltersState,
   type IShiftReportsFiltersState,
+  type ShiftReportsDeletedFilter,
 } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
 
 const { RangePicker } = DatePicker;
@@ -81,6 +82,10 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
       dateFrom: start ? start.startOf("day").valueOf() : null,
       dateTo: end ? end.endOf("day").valueOf() : null,
     });
+  };
+
+  const handleDeletedFilterChange = (value: ShiftReportsDeletedFilter) => {
+    changeFilters({ deletedFilter: value });
   };
 
   const treeValue = React.useMemo(() => {
@@ -284,6 +289,16 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
           placeholder={["Дата с", "Дата по"]}
           value={rangeValue}
           onChange={handleDateChange}
+        />
+        <Select
+          className="shift-reports_filters_select"
+          value={filtersState.deletedFilter}
+          onChange={handleDeletedFilterChange}
+          options={[
+            { label: "Активные", value: "active" },
+            { label: "Удаленные", value: "deleted" },
+            { label: "Все", value: "all" },
+          ]}
         />
         <Button
           icon={<ReloadOutlined />}

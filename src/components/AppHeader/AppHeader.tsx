@@ -120,6 +120,17 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/works");
           },
         },
+        ...(role === RoleId.ADMIN
+          ? [
+              {
+                key: "measurement-units",
+                label: "Единицы измерения",
+                onClick: () => {
+                  navigate("/works/measurement-units");
+                },
+              },
+            ]
+          : []),
         {
           key: "materials",
           label: "Материалы",

@@ -16,6 +16,7 @@ import {
 } from "../../../queries/works";
 import type { EditableWorkPayload } from "../../../queries/works";
 import { useWorkCategoriesQuery } from "../../../queries/workCategories";
+import { useMeasurementUnitsQuery } from "../../../queries/measurementUnits";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +40,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
 
   const modalTitle = work ? "Редактирование работы" : "Создание новой работы";
   const { data: categoriesData = [] } = useWorkCategoriesQuery();
+  const { data: measurementUnitsData = [] } = useMeasurementUnitsQuery();
   const categoriesMap = useMemo(
     () =>
       categoriesData.map((el) => ({
@@ -47,12 +49,20 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
       })),
     [categoriesData],
   );
+  const measurementUnitsMap = useMemo(
+    () =>
+      measurementUnitsData.map((unit) => ({
+        label: unit.name,
+        value: unit.measurement_unit_id,
+      })),
+    [measurementUnitsData],
+  );
 
   const dispatch = useDispatch();
   const data = useSelector(
     (state: IState) => state.editableEntities.editableWork,
   );
-  const { sent, ...createWorkData } = data;
+  const { sent: _sent, ...createWorkData } = data;
   const notificationApi = React.useContext(NotificationContext);
   const navigate = useNavigate();
 
@@ -111,7 +121,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
         editWorkAction.setWorkData({
           ...work,
           category: work.category.work_category_id,
-          measurement_unit: work.measurement_unit.name,
+          measurement_unit: work.measurement_unit.measurement_unit_id,
           sent: false,
         }),
       );
@@ -131,12 +141,9 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
     dispatch(editWorkAction.setCategory(value));
   }, []);
 
-  const handleMeasurementUnitChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      dispatch(editWorkAction.setMeasurementUnit(event.target.value));
-    },
-    [],
-  );
+  const handleMeasurementUnitChange = useCallback((value: string) => {
+    dispatch(editWorkAction.setMeasurementUnit(value));
+  }, []);
 
   const handleDeleteToggle = useCallback(() => {
     dispatch(editWorkAction.toggleDelete());
@@ -182,9 +189,12 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
               wrapperCol={{ span: 18 }}
               label="Ед. измерения"
             >
-              <Input
+              <Select
+                showSearch
+                filterOption={selectFilterHandler}
                 value={data.measurement_unit}
                 onChange={handleMeasurementUnitChange}
+                options={measurementUnitsMap}
               />
             </Form.Item>
 

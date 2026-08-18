@@ -29,6 +29,7 @@ import { useProjectsMap } from "../../queries/projects";
 import { usePlacesQuery } from "../../queries/places";
 import { ShiftReportsFilters } from "./ShiftReportsFilters";
 import type { IShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
+import { defaultShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 
@@ -42,7 +43,10 @@ export const ShiftReports = () => {
     (state: IState) => state.settings.shiftReportsSettings,
   );
 
-  const shiftReportsFilters = tableState.shiftReportsFilters;
+  const shiftReportsFilters = {
+    ...defaultShiftReportsFiltersState,
+    ...tableState.shiftReportsFilters,
+  };
   const selectedPlaceIds = shiftReportsFilters.places ?? [];
 
   const { projectsMap, projects } = useProjectsMap();
@@ -131,12 +135,22 @@ export const ShiftReports = () => {
     if (shiftReportsFilters.dateTo) {
       params.date_to = shiftReportsFilters.dateTo;
     }
+
+    if (shiftReportsFilters.deletedFilter !== "all") {
+      params.deleted =
+        shiftReportsFilters.deletedFilter === "deleted" ? "true" : "false";
+    }
     if (selectedPlaceIds.length) {
       params.place_id = selectedPlaceIds;
     }
 
     return params;
-  }, [selectedPlaceIds, tableState, shiftReportsFilters, resolvedProjectFilter]);
+  }, [
+    selectedPlaceIds,
+    tableState,
+    shiftReportsFilters,
+    resolvedProjectFilter,
+  ]);
 
   const placesByObject = React.useMemo(() => {
     return places
@@ -151,7 +165,8 @@ export const ShiftReports = () => {
   const placesNamesMap = React.useMemo<Record<string, string>>(
     () =>
       places.reduce<Record<string, string>>((acc, place) => {
-        acc[place.place_id] = `${objectsMap[place.object_id]?.name ?? "Объект"} — ${place.name}`;
+        acc[place.place_id] =
+          `${objectsMap[place.object_id]?.name ?? "Объект"} — ${place.name}`;
         return acc;
       }, {}),
     [objectsMap, places],
@@ -207,7 +222,10 @@ export const ShiftReports = () => {
         selected.add(valueString);
       }
     });
-    handleFiltersChange({ ...shiftReportsFilters, places: Array.from(selected) });
+    handleFiltersChange({
+      ...shiftReportsFilters,
+      places: Array.from(selected),
+    });
   };
 
   const { data: shiftReportsResponse, isLoading } =
@@ -345,6 +363,12 @@ export const ShiftReports = () => {
       projects,
       date_from: shiftReportsFilters.dateFrom ?? undefined,
       date_to: shiftReportsFilters.dateTo ?? undefined,
+      deleted:
+        shiftReportsFilters.deletedFilter === "all"
+          ? undefined
+          : shiftReportsFilters.deletedFilter === "deleted"
+            ? "true"
+            : "false",
     };
   }, [shiftReportsFilters, resolvedProjectFilter]);
 
@@ -402,6 +426,9 @@ export const ShiftReports = () => {
           columns={columns}
           loading={isLoading}
           pagination={paginationConfig}
+          rowClassName={(record) =>
+            record.deleted ? "shift-reports__table__row--deleted" : ""
+          }
         />
       </Content>
     </>

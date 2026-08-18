@@ -12,7 +12,7 @@ const initialState: IEditableWorkState = {
   sent: false,
   name: "",
   category: "",
-  measurement_unit: "шт.",
+  measurement_unit: "",
   deleted: false,
 };
 
