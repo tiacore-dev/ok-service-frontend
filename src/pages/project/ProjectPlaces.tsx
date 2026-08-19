@@ -1,6 +1,7 @@
 import { Alert, Button, Checkbox, Empty, Modal, Spin, Typography } from "antd";
 import { DeleteTwoTone, PlusOutlined } from "@ant-design/icons";
 import React from "react";
+import { ActionDialog } from "../../components/ActionDialogs/ActionDialog";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { usePlacesQuery } from "../../queries/places";
 import { useAddProjectPlaceRelationsMutation, useDeleteProjectPlaceRelationMutation, useDeleteProjectPlaceRelationsMutation, useProjectPlaceRelationsQuery } from "../../queries/projectPlaceRelations";
@@ -36,7 +37,7 @@ export const ProjectPlaces = ({ projectId, objectId, canEdit }: ProjectPlacesPro
   const placeById = new Map(places.map((p) => [p.place_id, p]));
   return <section className="project__places-section">
     <div className="project__section-header"><Typography.Title level={4} className="project__section-title">Места проведения работ</Typography.Title>{canEdit && <Button type="primary" icon={<PlusOutlined />} onClick={openModal}>Добавить место</Button>}</div>
-    {relations.length ? <div className="places-list">{relations.map((r) => <div className="places-list__item" key={r.project_place_relation_id}><Typography.Text strong>{placeById.get(r.place_id)?.name ?? r.place_id}</Typography.Text>{canEdit && <Button type="link" icon={<DeleteTwoTone twoToneColor="#e40808" />} loading={saving} onClick={() => remove(r.project_place_relation_id)} />}</div>)}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Места не выбраны" />}
+    {relations.length ? <div className="places-list">{relations.map((r) => <div className="places-list__item" key={r.project_place_relation_id}><Typography.Text strong>{placeById.get(r.place_id)?.name ?? r.place_id}</Typography.Text>{canEdit && <ActionDialog buttonText="" buttonType="link" buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />} popoverText="Удалить место" modalTitle="Подтвердите удаление места" modalText={<p>Вы уверены, что хотите удалить место из спецификации?</p>} onConfirm={() => remove(r.project_place_relation_id)} />}</div>)}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Места не выбраны" />}
     <Modal title="Места спецификации" open={modalOpen} onCancel={() => !saving && setModalOpen(false)} onOk={save} okText="Сохранить" cancelText="Отмена" confirmLoading={saving}>
       <Button type="link" onClick={() => setDraftIds(draftIds.length === places.length ? [] : places.map((place) => place.place_id))} style={{ padding: 0, marginBottom: 12 }}>
         {draftIds.length === places.length ? "Снять все" : "Выбрать все"}
