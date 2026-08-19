@@ -12,6 +12,7 @@ import {
 import { DeleteTwoTone, EditTwoTone, PlusOutlined } from "@ant-design/icons";
 import React from "react";
 import { NotificationContext } from "../../contexts/NotificationContext";
+import { ActionDialog } from "../../components/ActionDialogs/ActionDialog";
 import { usePlacesQuery } from "../../queries/places";
 import { useProjectPlaceRelationsQuery } from "../../queries/projectPlaceRelations";
 import {
@@ -109,29 +110,18 @@ export const ShiftReportPlaces = ({
         const currentIds = relations.map((relation) => relation.place_id);
         const addedIds = draftIds.filter((id) => !currentIds.includes(id));
         const removedIds = currentIds.filter((id) => !draftIds.includes(id));
-        const created = addedIds.length
-          ? await addMutation.mutateAsync({
-              shift_report_id: shiftReportId,
-              place_ids: addedIds,
-            })
-          : [];
+        if (addedIds.length) {
+          await addMutation.mutateAsync({
+            shift_report_id: shiftReportId,
+            place_ids: addedIds,
+          });
+        }
         if (removedIds.length) {
           await deleteMutation.mutateAsync({
             shift_report_id: shiftReportId,
             place_ids: removedIds,
           });
         }
-        await Promise.all(
-          created.map((r) =>
-            editMutation.mutateAsync({
-              relationId: r.shift_place_relation_id,
-              payload: {
-                place_id: r.place_id,
-                comment: draftComments[r.place_id] ?? "",
-              },
-            }),
-          ),
-        );
       }
       setModalOpen(false);
       notification?.success({
@@ -214,11 +204,15 @@ export const ShiftReportPlaces = ({
                     icon={<EditTwoTone twoToneColor="#e40808" />}
                     onClick={() => openEdit(r.place_id)}
                   />
-                  <Button
-                    type="link"
-                    icon={<DeleteTwoTone twoToneColor="#e40808" />}
-                    onClick={() => remove(r.place_id)}
-                  />
+          <ActionDialog
+            buttonText=""
+            buttonType="link"
+            buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />}
+            popoverText="Удалить место"
+            modalTitle="Подтвердите удаление места"
+            modalText={<p>Вы уверены, что хотите удалить место из смены?</p>}
+            onConfirm={() => remove(r.place_id)}
+          />
                 </Space>
               )}
             </div>
