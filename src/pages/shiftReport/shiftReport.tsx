@@ -108,10 +108,17 @@ export const ShiftReport = () => {
   const canEdit = canManageReport && !shiftReportData?.deleted;
   const canEditPlaces =
     !shiftReportData?.deleted &&
-    (currentRole === RoleId.USER || currentRole === RoleId.PROJECT_LEADER);
+    (currentRole === RoleId.ADMIN ||
+      currentUserId === shiftReportData?.user ||
+      (projectData?.project_leader === currentUserId &&
+        [RoleId.PROJECT_LEADER, RoleId.MANAGER, RoleId.ADMIN].includes(
+          currentRole,
+        )));
   const canManageAttachments =
     currentRole === RoleId.PROJECT_LEADER ||
-    (currentRole === RoleId.USER && Boolean(shiftReportData?.date_start) && !isSigned);
+    (currentRole === RoleId.USER &&
+      Boolean(shiftReportData?.date_start) &&
+      !isSigned);
   const canDelete =
     canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
   const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
