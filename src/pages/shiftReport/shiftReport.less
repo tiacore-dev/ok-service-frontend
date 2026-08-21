@@ -16,6 +16,13 @@
   margin: 0;
 }
 
+.shift-report__overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
 .shift-report__card .ant-card-body {
   padding: 12px;
   display: grid;
@@ -91,7 +98,17 @@
   }
 }
 .shift-report__places-section {
-  margin: 12px 0;
+  display: flex;
+  margin: 0;
+}
+
+.shift-report__places-card {
+  flex: 1;
+  margin: 0;
+}
+
+.shift-report__places-card .ant-card-body {
+  padding: 12px;
 }
 
 .shift-report__places-section > .ant-typography {
@@ -200,4 +217,15 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+@media (max-width: 768px) {
+  .shift-report__overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .shift-report__places-section {
+    display: block;
+  }
 }

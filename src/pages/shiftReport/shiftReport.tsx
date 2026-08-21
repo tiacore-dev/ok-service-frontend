@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Breadcrumb, Layout, Spin, Table } from "antd";
+import { Breadcrumb, Card, Layout, Spin, Table } from "antd";
 import Title from "antd/es/typography/Title";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -114,11 +114,22 @@ export const ShiftReport = () => {
         [RoleId.PROJECT_LEADER, RoleId.MANAGER, RoleId.ADMIN].includes(
           currentRole,
         )));
+  const canViewAttachments =
+    currentUserId === shiftReportData?.user ||
+    currentUserId === projectData?.project_leader ||
+    currentRole === RoleId.MANAGER ||
+    currentRole === RoleId.ADMIN;
   const canManageAttachments =
-    currentRole === RoleId.PROJECT_LEADER ||
-    (currentRole === RoleId.USER &&
-      Boolean(shiftReportData?.date_start) &&
-      !isSigned);
+    !shiftReportData?.deleted &&
+    !isSigned &&
+    (currentRole === RoleId.ADMIN ||
+      currentUserId === shiftReportData?.user ||
+      (projectData?.project_leader === currentUserId &&
+        [RoleId.PROJECT_LEADER, RoleId.MANAGER, RoleId.ADMIN].includes(
+          currentRole,
+        )));
+  const canManageSignedAttachments =
+    !shiftReportData?.deleted && currentRole === RoleId.ADMIN;
   const canDelete =
     canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
   const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
@@ -430,41 +441,39 @@ export const ShiftReport = () => {
           onLeaveCreated={handleLeaveCreated}
         />
 
-        <ShiftReportInfoCard
-          shiftReport={shiftReportData}
-          objectName={objectName}
-          projectName={projectName}
-          projectLeaderName={projectLeaderName}
-          userName={userName}
-          showDistances={showDistances}
-          canShowStartMapButton={canShowStartMapButton}
-          canShowEndMapButton={canShowEndMapButton}
-          mapStartCoordinates={mapStartCoordinates}
-          mapEndCoordinates={mapEndCoordinates}
-          canStartShift={canStartShift}
-          canCompleteShift={canCompleteShift}
-          onStartShift={handleStartShift}
-          onCompleteShift={handleCompleteShift}
-          isStartingShift={isStartingShift}
-          isCompletingShift={isCompletingShift}
-          canSign={canSign}
-          onSign={handleOnSign}
-          signDisabled={disabled}
-        />
-
-        <section className="shift-report__places-section">
-          <ShiftReportPlaces
-            shiftReportId={shiftReportData.shift_report_id}
-            projectId={shiftReportData.project}
-            canEdit={canEditPlaces}
+        <div className="shift-report__overview">
+          <ShiftReportInfoCard
+            shiftReport={shiftReportData}
+            objectName={objectName}
+            projectName={projectName}
+            projectLeaderName={projectLeaderName}
+            userName={userName}
+            showDistances={showDistances}
+            canShowStartMapButton={canShowStartMapButton}
+            canShowEndMapButton={canShowEndMapButton}
+            mapStartCoordinates={mapStartCoordinates}
+            mapEndCoordinates={mapEndCoordinates}
+            canStartShift={canStartShift}
+            canCompleteShift={canCompleteShift}
+            onStartShift={handleStartShift}
+            onCompleteShift={handleCompleteShift}
+            isStartingShift={isStartingShift}
+            isCompletingShift={isCompletingShift}
+            canSign={canSign}
+            onSign={handleOnSign}
+            signDisabled={disabled}
           />
-        </section>
 
-        <ShiftReportAttachments
-          shiftId={shiftReportData.shift_report_id}
-          canUpload={canManageAttachments}
-          canDelete={canManageAttachments}
-        />
+          <section className="shift-report__places-section">
+            <Card className="shift-report__places-card">
+              <ShiftReportPlaces
+                shiftReportId={shiftReportData.shift_report_id}
+                projectId={shiftReportData.project}
+                canEdit={canEditPlaces}
+              />
+            </Card>
+          </section>
+        </div>
 
         <ShiftReportActions
           canEdit={canEdit}
@@ -491,6 +500,13 @@ export const ShiftReport = () => {
           shiftReportId={shiftReportData.shift_report_id}
           canManage={canEdit}
         />
+        {canViewAttachments && (
+          <ShiftReportAttachments
+            shiftId={shiftReportData.shift_report_id}
+            canUpload={canManageAttachments || canManageSignedAttachments}
+            canDelete={canManageAttachments || canManageSignedAttachments}
+          />
+        )}
 
         <EditableShiftReportDetailDialog
           visible={modalVisible}

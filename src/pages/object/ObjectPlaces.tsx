@@ -7,6 +7,7 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useDeletePlaceMutation, usePlacesQuery } from "../../queries/places";
 import { getCurrentRole } from "../../store/modules/auth";
+import { PlaceAttachment } from "./PlaceAttachment";
 import "./ObjectPlaces.less";
 
 interface ObjectPlacesProps {
@@ -69,7 +70,13 @@ export const ObjectPlaces = ({ objectId }: ObjectPlacesProps) => {
           {objectPlaces.map((place) => (
             <div className="object-places__item" key={place.place_id}>
               <div className="object-places__content">
-                <Typography.Text strong>{place.name}</Typography.Text>
+                <div className="object-places__place-row">
+                  <Typography.Text strong>{place.name}</Typography.Text>
+                  <PlaceAttachment
+                    placeId={place.place_id}
+                    canManage={canManage}
+                  />
+                </div>
                 {place.description && (
                   <Typography.Text type="secondary">
                     {place.description}
