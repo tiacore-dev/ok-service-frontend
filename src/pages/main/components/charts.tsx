@@ -54,7 +54,7 @@ interface IChartsProps {
   totalCostArray: ITotalCost[];
   totalCountArray: ITotalCount[];
   averageCostArray: IAverageCost[];
-  yesterdayData: [
+  yesterdayData?: [
     string,
     {
       notOpened?: IShiftReportsListColumn[];
@@ -63,7 +63,7 @@ interface IChartsProps {
       notSigned?: IShiftReportsListColumn[];
     },
   ];
-  todayData: [
+  todayData?: [
     string,
     {
       notOpened?: IShiftReportsListColumn[];
@@ -111,7 +111,12 @@ export const Charts = (props: IChartsProps) => {
 
   return (
     <Row gutter={[16, 16]}>
-      <Col ref={containerRef} key={0} xs={24} sm={role === RoleId.USER ? 24 : 8}>
+      <Col
+        ref={containerRef}
+        key={0}
+        xs={24}
+        sm={role === RoleId.USER ? 24 : 8}
+      >
         <Card
           className="charts__card"
           size={role === RoleId.USER && mobile ? "small" : "default"}

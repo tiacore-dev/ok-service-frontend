@@ -94,15 +94,22 @@ export const Main = () => {
       sort_order: "desc",
       date_from: range.date_from,
       date_to: range.date_to,
+      deleted: "false",
     }),
     [range],
   );
 
   const { data: shiftReportsData } = useShiftReportsQuery(queryParams);
 
-  const yesterdayShiftReportsData = shiftReportsData?.shift_reports || [];
+  const activeShiftReports = React.useMemo(
+    () =>
+      (shiftReportsData?.shift_reports || []).filter(
+        (shiftReport) => !shiftReport.deleted,
+      ),
+    [shiftReportsData],
+  );
 
-  const yesterdayReducedData = yesterdayShiftReportsData.reduce(
+  const yesterdayReducedData = activeShiftReports.reduce(
     reduceShiftReportData,
     {},
   );
@@ -192,10 +199,8 @@ export const Main = () => {
 
   const filteredShiftReportsData = React.useMemo(
     () =>
-      (shiftReportsData?.shift_reports || [])
-        .slice()
-        .sort((a, b) => a.date - b.date),
-    [shiftReportsData, range],
+      activeShiftReports.slice().sort((a, b) => (a.date ?? 0) - (b.date ?? 0)),
+    [activeShiftReports],
   );
 
   const totalCostData = React.useMemo(
@@ -408,7 +413,7 @@ export const Main = () => {
           const result: IObjectStatsItem = {
             object,
             done:
-              projects.length &&
+              projects.length > 0 &&
               projects.every((project) =>
                 project.users.every((user) => user.status === "signed"),
               ),
