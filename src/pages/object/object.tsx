@@ -10,6 +10,7 @@ import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useUsersMap } from "../../queries/users";
 import { Projects } from "./projects/projects.page";
+import { ObjectPlaces } from "./ObjectPlaces";
 import { useDeleteObjectMutation, useObjectQuery } from "../../queries/objects";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
@@ -132,6 +133,9 @@ export const Object = () => {
             <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
             <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>
           </Card>
+          {objectData.object_id && (
+            <ObjectPlaces objectId={objectData.object_id} />
+          )}
           {objectData.object_id && (
             <Projects object_id={objectData.object_id} />
           )}

@@ -44,6 +44,7 @@ export interface IShiftReportQueryParams {
   date_end_from?: number;
   date_end_to?: number;
   project?: string | string[];
+  place_id?: string | string[];
   lng_start?: number;
   ltd_start?: number;
   lng_end?: number;

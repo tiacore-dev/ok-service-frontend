@@ -16,6 +16,13 @@
   margin: 0;
 }
 
+.shift-report__overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
 .shift-report__card .ant-card-body {
   padding: 12px;
   display: grid;
@@ -88,5 +95,137 @@
 
   .shift-report__materials-table .ant-table-cell {
     padding: 10px 12px !important;
+  }
+}
+.shift-report__places-section {
+  display: flex;
+  margin: 0;
+}
+
+.shift-report__places-card {
+  flex: 1;
+  margin: 0;
+}
+
+.shift-report__places-card .ant-card-body {
+  padding: 12px;
+}
+
+.shift-report__places-section > .ant-typography {
+  margin: 0 0 8px;
+}
+
+.shift-report__places-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.shift-report__places-header .ant-typography {
+  margin: 0;
+}
+
+.shift-report__attachments {
+  margin: 4px 0;
+}
+
+.shift-report__attachments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.shift-report__attachments-header .ant-typography {
+  margin: 0;
+}
+
+.shift-report__attachments-list {
+  border-top: 1px solid #f0f0f0;
+}
+
+.shift-report__attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.shift-report__attachment-main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  padding: 0 !important;
+  text-align: left;
+}
+
+.shift-report__attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shift-report__attachment-size {
+  flex: 0 0 auto;
+  color: #8c8c8c;
+}
+
+.shift-report__attachment-actions {
+  display: flex;
+  align-items: center;
+}
+
+.shift-report__attachment-pdf-preview {
+  width: 100%;
+  min-height: 70vh;
+  border: 0;
+}
+
+.shift-report__attachment-text-preview {
+  max-height: 70vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.shift-report__places .ant-input {
+  max-width: 100%;
+}
+
+.shift-report__places-list {
+  margin-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.shift-report__place-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.shift-report__place-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (max-width: 768px) {
+  .shift-report__overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .shift-report__places-section {
+    display: block;
   }
 }

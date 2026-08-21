@@ -5,6 +5,7 @@ import type { DataNode } from "antd/es/tree";
 import dayjs, { type Dayjs } from "dayjs";
 import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
+import "./ShiftReportsFilters.less";
 import {
   defaultShiftReportsFiltersState,
   type IShiftReportsFiltersState,
@@ -21,6 +22,10 @@ interface ShiftReportsFiltersProps {
   projectsTreeData: DataNode[];
   objectProjectsMap: Record<string, string[]>;
   projectNamesMap: Record<string, string>;
+  placesTreeData: DataNode[];
+  placesNamesMap: Record<string, string>;
+  placesTreeValue: string[];
+  onPlacesChange: TreeSelectProps["onChange"];
 }
 
 export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
@@ -31,7 +36,12 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
   projectsTreeData,
   objectProjectsMap,
   projectNamesMap,
+  placesTreeData,
+  placesNamesMap,
+  placesTreeValue,
+  onPlacesChange,
 }) => {
+  const selectedPlaces = filtersState.places ?? [];
   const changeFilters = (patch: Partial<IShiftReportsFiltersState>) => {
     onFiltersChange({ ...filtersState, ...patch });
   };
@@ -249,6 +259,30 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
             );
           }}
         />
+        <TreeSelect
+          treeCheckable
+          showCheckedStrategy={TreeSelect.SHOW_CHILD}
+          placeholder="Выберите места"
+          className="shift-reports_filters_projectTree"
+          treeData={placesTreeData}
+          value={placesTreeValue}
+          onChange={onPlacesChange}
+          allowClear
+          showSearch
+          treeNodeFilterProp="title"
+          maxTagCount={1}
+          tagRender={(props) => {
+            if (!selectedPlaces.length) return null;
+            const first = selectedPlaces[0];
+            if (props.value !== first) return null;
+            return renderCompactTag(
+              placesNamesMap[first] || "Место",
+              selectedPlaces.length - 1,
+              props.closable,
+              props.onClose,
+            );
+          }}
+        />
         <RangePicker
           className="shift-reports_filters_range"
           format="DD.MM.YYYY"
@@ -257,7 +291,7 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
           onChange={handleDateChange}
         />
         <Select
-          className="shift-reports_filters_select"
+          className="shift-reports_filters_active"
           value={filtersState.deletedFilter}
           onChange={handleDeletedFilterChange}
           options={[
@@ -277,7 +311,8 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
       </Space>
       {(filtersState.users.length > 0 ||
         filtersState.projectLeaders.length > 0 ||
-        filtersState.projects.length > 0) && (
+        filtersState.projects.length > 0 ||
+        selectedPlaces.length > 0) && (
         <div className="shift-reports_filters_summary">
           {filtersState.users.length > 0 && (
             <div className="shift-reports_filters_summaryRow">
@@ -340,6 +375,23 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
               </div>
             </div>
           )}
+          {/* {selectedPlaces.length > 0 && (
+            <div className="shift-reports_filters_summaryRow">
+              <span className="shift-reports_filters_summaryLabel">Места:</span>
+              <div className="shift-reports_filters_summaryChips">
+                {selectedPlaces.map((placeId) =>
+                  renderSummaryChip(
+                    placeId,
+                    placesNamesMap[placeId] || placeId,
+                    () =>
+                      changeFilters({
+                        places: selectedPlaces.filter((id) => id !== placeId),
+                      }),
+                  ),
+                )}
+              </div>
+            </div>
+          )} */}
         </div>
       )}
     </>

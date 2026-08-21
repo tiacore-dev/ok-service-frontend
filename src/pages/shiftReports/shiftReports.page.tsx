@@ -26,6 +26,7 @@ import { Actions } from "./components/actions";
 import { useUsersMap } from "../../queries/users";
 import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap } from "../../queries/projects";
+import { usePlacesQuery } from "../../queries/places";
 import { ShiftReportsFilters } from "./ShiftReportsFilters";
 import type { IShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
 import { defaultShiftReportsFiltersState } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
@@ -46,10 +47,12 @@ export const ShiftReports = () => {
     ...defaultShiftReportsFiltersState,
     ...tableState.shiftReportsFilters,
   };
+  const selectedPlaceIds = shiftReportsFilters.places ?? [];
 
   const { projectsMap, projects } = useProjectsMap();
   const { objectsMap } = useObjectsMap();
   const { usersMap } = useUsersMap();
+  const { data: places = [] } = usePlacesQuery();
 
   const handleFiltersChange = React.useCallback(
     (nextFilters: IShiftReportsFiltersState) => {
@@ -137,9 +140,93 @@ export const ShiftReports = () => {
       params.deleted =
         shiftReportsFilters.deletedFilter === "deleted" ? "true" : "false";
     }
+    if (selectedPlaceIds.length) {
+      params.place_id = selectedPlaceIds;
+    }
 
     return params;
-  }, [tableState, shiftReportsFilters, resolvedProjectFilter]);
+  }, [
+    selectedPlaceIds,
+    tableState,
+    shiftReportsFilters,
+    resolvedProjectFilter,
+  ]);
+
+  const placesByObject = React.useMemo(() => {
+    return places
+      .filter((place) => !place.deleted)
+      .reduce<Record<string, typeof places>>((acc, place) => {
+        if (!acc[place.object_id]) acc[place.object_id] = [];
+        acc[place.object_id].push(place);
+        return acc;
+      }, {});
+  }, [places]);
+
+  const placesNamesMap = React.useMemo<Record<string, string>>(
+    () =>
+      places.reduce<Record<string, string>>((acc, place) => {
+        acc[place.place_id] =
+          `${objectsMap[place.object_id]?.name ?? "Объект"} — ${place.name}`;
+        return acc;
+      }, {}),
+    [objectsMap, places],
+  );
+
+  const placesTreeData = React.useMemo<DataNode[]>(
+    () =>
+      Object.entries(placesByObject)
+        .map(([objectId, objectPlaces]) => ({
+          title: objectsMap[objectId]?.name ?? "Без названия",
+          value: `place-object:${objectId}`,
+          key: `place-object:${objectId}`,
+          children: objectPlaces.map((place) => ({
+            title: place.name,
+            value: place.place_id,
+            key: place.place_id,
+          })),
+        }))
+        .filter((node) => node.children.length > 0),
+    [objectsMap, placesByObject],
+  );
+
+  const placesTreeValue = React.useMemo(() => {
+    const values = new Set(selectedPlaceIds);
+    Object.entries(placesByObject).forEach(([objectId, objectPlaces]) => {
+      if (
+        objectPlaces.length > 0 &&
+        objectPlaces.every((place) => values.has(place.place_id))
+      ) {
+        values.add(`place-object:${objectId}`);
+      }
+    });
+    return Array.from(values);
+  }, [placesByObject, selectedPlaceIds]);
+
+  const handlePlacesChange: React.ComponentProps<
+    typeof ShiftReportsFilters
+  >["onPlacesChange"] = (value) => {
+    const rawValues = Array.isArray(value)
+      ? value
+      : value !== undefined && value !== null
+        ? [value]
+        : [];
+    const selected = new Set<string>();
+    rawValues.forEach((raw) => {
+      const valueString = String(raw);
+      if (valueString.startsWith("place-object:")) {
+        const objectId = valueString.replace("place-object:", "");
+        (placesByObject[objectId] ?? []).forEach((place) =>
+          selected.add(place.place_id),
+        );
+      } else {
+        selected.add(valueString);
+      }
+    });
+    handleFiltersChange({
+      ...shiftReportsFilters,
+      places: Array.from(selected),
+    });
+  };
 
   const { data: shiftReportsResponse, isLoading } =
     useShiftReportsQuery(queryParams);
@@ -328,6 +415,10 @@ export const ShiftReports = () => {
           projectsTreeData={projectsTreeData}
           objectProjectsMap={objectProjectsMap}
           projectNamesMap={projectNamesMap}
+          placesTreeData={placesTreeData}
+          placesNamesMap={placesNamesMap}
+          placesTreeValue={placesTreeValue}
+          onPlacesChange={handlePlacesChange}
         />
         <Table<IShiftReportsListColumn>
           onChange={handleTableChange}
