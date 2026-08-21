@@ -1,17 +1,222 @@
 import { Alert, Button, Image, Modal, Spin, Typography, Upload } from "antd";
-import { DeleteTwoTone, DownloadOutlined, FileImageOutlined, FileTextOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteTwoTone,
+  DownloadOutlined,
+  FileImageOutlined,
+  FileTextOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import React from "react";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { ActionDialog } from "../../components/ActionDialogs/ActionDialog";
 import type { IAttachment } from "../../interfaces/attachments/IAttachment";
-import { useDeleteShiftAttachmentMutation, useDownloadShiftAttachmentMutation, useShiftAttachmentsQuery, useUploadShiftAttachmentsMutation } from "../../queries/shiftAttachments";
-interface Props { shiftId: string; canUpload: boolean; canDelete: boolean; }
-const image=(n:string)=>/\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(n); const pdf=(n:string)=>/\.pdf$/i.test(n); const text=(n:string)=>/\.(txt|csv|json|xml|log|md)$/i.test(n); const size=(v:number)=>v<1048576?`${Math.round(v/1024)} КБ`:`${(v/1048576).toFixed(1)} МБ`;
-export const ShiftReportAttachments=({shiftId,canUpload,canDelete}:Props)=>{const n=React.useContext(NotificationContext); const q=useShiftAttachmentsQuery(shiftId); const u=useUploadShiftAttachmentsMutation(); const d=useDeleteShiftAttachmentMutation(); const get=useDownloadShiftAttachmentMutation(); const [url,setUrl]=React.useState<string|null>(null); const [name,setName]=React.useState(""); const [content,setContent]=React.useState<string|null>(null); const files=q.data??[];
-const download=async(f:IAttachment)=>{try{const b=await get.mutateAsync({shiftId,attachmentId:f.attachment_id});const x=URL.createObjectURL(b);const a=document.createElement("a");a.href=x;a.download=f.name;a.click();URL.revokeObjectURL(x)}catch(e){n?.error({message:"Ошибка",description:"Не удалось скачать вложение"})}};
-const preview=async(f:IAttachment)=>{try{const b=await get.mutateAsync({shiftId,attachmentId:f.attachment_id});if(!image(f.name)&&!pdf(f.name)&&!text(f.name)){await download(f);return}setUrl(URL.createObjectURL(b));setName(f.name);setContent(text(f.name)?await b.text():null)}catch(e){n?.error({message:"Ошибка",description:"Не удалось открыть предпросмотр"})}};
-const uploadFiles=async(files:File[])=>{try{await u.mutateAsync({shiftId,files});n?.success({message:"Успешно",description:"Вложения добавлены",placement:"bottomRight",duration:2})}catch(e){const msg=(e as {response?:{data?:{msg?:string}}})?.response?.data?.msg;n?.error({message:"Ошибка",description:msg??"Не удалось добавить вложения",placement:"bottomRight",duration:2})}};
-  return <section className="shift-report__attachments"><div className="shift-report__attachments-header"><Typography.Title level={4}>Вложения</Typography.Title>{canUpload && <Upload multiple showUploadList={false} beforeUpload={(file, files) => { if (files[0] === file) void uploadFiles(files); return false; }}><Button type="primary" icon={<PlusOutlined />}>Добавить вложение</Button></Upload>}</div>{q.isPending ? <Spin /> : q.isError ? <Alert type="error" message="Не удалось загрузить вложения" /> : files.length === 0 ? <Typography.Text type="secondary">Вложений нет</Typography.Text> : <div className="shift-report__attachments-list">{files.map((file) => (<div className="shift-report__attachment-item" key={file.attachment_id}><Button className="shift-report__attachment-main" type="text" onClick={() => void preview(file)} icon={image(file.name) ? <FileImageOutlined /> : <FileTextOutlined />}><span className="shift-report__attachment-name">{file.name}</span><span className="shift-report__attachment-size">{size(file.file_size)}</span></Button><div className="shift-report__attachment-actions"><Button type="link" icon={<DownloadOutlined />} onClick={() => void download(file)} />{canDelete && <ActionDialog buttonText="" buttonType="link" buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />} popoverText="Удалить вложение" modalTitle={`Подтвердите удаление вложения ${file.name}`} modalText={<p>Вы уверены, что хотите удалить вложение {file.name}?</p>} onConfirm={() => d.mutateAsync({ shiftId, attachmentId: file.attachment_id })} />}</div></div>))}</div>}<Modal open={Boolean(url) && !image(name)} title={name} width={pdf(name) ? "90vw" : undefined} footer={null} onCancel={() => { if (url) URL.revokeObjectURL(url); setUrl(null); setContent(null); }}>{content !== null ? <pre className="shift-report__attachment-text-preview">{content}</pre> : pdf(name) ? <div className="shift-report__attachment-pdf-preview"><Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js"><Viewer fileUrl={url ?? ""} /></Worker></div> : null}</Modal><Image src={url ?? undefined} style={{ display: "none" }} preview={{ visible: Boolean(url) && image(name), onVisibleChange: (visible) => { if (!visible) { if (url) URL.revokeObjectURL(url); setUrl(null); } } }} /></section>;
+import {
+  useDeleteShiftAttachmentMutation,
+  useDownloadShiftAttachmentMutation,
+  useShiftAttachmentsQuery,
+  useUploadShiftAttachmentsMutation,
+} from "../../queries/shiftAttachments";
+interface Props {
+  shiftId: string;
+  canUpload: boolean;
+  canDelete: boolean;
+}
+const image = (n: string) => /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(n);
+const pdf = (n: string) => /\.pdf$/i.test(n);
+const text = (n: string) => /\.(txt|csv|json|xml|log|md)$/i.test(n);
+const size = (v: number) =>
+  v < 1048576 ? `${Math.round(v / 1024)} КБ` : `${(v / 1048576).toFixed(1)} МБ`;
+export const ShiftReportAttachments = ({
+  shiftId,
+  canUpload,
+  canDelete,
+}: Props) => {
+  const n = React.useContext(NotificationContext);
+  const q = useShiftAttachmentsQuery(shiftId);
+  const u = useUploadShiftAttachmentsMutation();
+  const d = useDeleteShiftAttachmentMutation();
+  const get = useDownloadShiftAttachmentMutation();
+  const [url, setUrl] = React.useState<string | null>(null);
+  const [name, setName] = React.useState("");
+  const [content, setContent] = React.useState<string | null>(null);
+  const files = q.data ?? [];
+  const download = async (f: IAttachment) => {
+    try {
+      const b = await get.mutateAsync({
+        shiftId,
+        attachmentId: f.attachment_id,
+      });
+      const x = URL.createObjectURL(b);
+      const a = document.createElement("a");
+      a.href = x;
+      a.download = f.name;
+      a.click();
+      URL.revokeObjectURL(x);
+    } catch (e) {
+      n?.error({
+        message: "Ошибка",
+        description: "Не удалось скачать вложение",
+      });
+    }
+  };
+  const preview = async (f: IAttachment) => {
+    try {
+      const b = await get.mutateAsync({
+        shiftId,
+        attachmentId: f.attachment_id,
+      });
+      if (!image(f.name) && !pdf(f.name) && !text(f.name)) {
+        await download(f);
+        return;
+      }
+      setUrl(URL.createObjectURL(b));
+      setName(f.name);
+      setContent(text(f.name) ? await b.text() : null);
+    } catch (e) {
+      n?.error({
+        message: "Ошибка",
+        description: "Не удалось открыть предпросмотр",
+      });
+    }
+  };
+  const uploadFiles = async (files: File[]) => {
+    try {
+      await u.mutateAsync({ shiftId, files });
+      n?.success({
+        message: "Успешно",
+        description: "Вложения добавлены",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    } catch (e) {
+      const msg = (e as { response?: { data?: { msg?: string } } })?.response
+        ?.data?.msg;
+      n?.error({
+        message: "Ошибка",
+        description: msg ?? "Не удалось добавить вложения",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
+  };
+  return (
+    <section className="shift-report__attachments">
+      <div className="shift-report__attachments-header">
+        <Typography.Title level={4}>Вложения</Typography.Title>
+        {canUpload && (
+          <Upload
+            multiple
+            showUploadList={false}
+            beforeUpload={(file, files) => {
+              if (files[0] === file) void uploadFiles(files);
+              return false;
+            }}
+          >
+            <Button type="primary" icon={<PlusOutlined />}>
+              Добавить вложение
+            </Button>
+          </Upload>
+        )}
+      </div>
+      {q.isPending ? (
+        <Spin />
+      ) : q.isError ? (
+        <Alert type="error" message="Не удалось загрузить вложения" />
+      ) : files.length === 0 ? (
+        <Typography.Text type="secondary">Вложений нет</Typography.Text>
+      ) : (
+        <div className="shift-report__attachments-list">
+          {files.map((file) => (
+            <div
+              className="shift-report__attachment-item"
+              key={file.attachment_id}
+            >
+              <Button
+                className="shift-report__attachment-main"
+                type="link"
+                onClick={() => void preview(file)}
+                icon={
+                  image(file.name) ? (
+                    <FileImageOutlined />
+                  ) : (
+                    <FileTextOutlined />
+                  )
+                }
+              >
+                <span className="shift-report__attachment-name">
+                  {file.name}
+                </span>
+                <span className="shift-report__attachment-size">
+                  {size(file.file_size)}
+                </span>
+              </Button>
+              <div className="shift-report__attachment-actions">
+                <Button
+                  type="link"
+                  icon={<DownloadOutlined />}
+                  onClick={() => void download(file)}
+                />
+                {canDelete && (
+                  <ActionDialog
+                    buttonText=""
+                    buttonType="link"
+                    buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />}
+                    popoverText="Удалить вложение"
+                    modalTitle={`Подтвердите удаление вложения ${file.name}`}
+                    modalText={
+                      <p>
+                        Вы уверены, что хотите удалить вложение {file.name}?
+                      </p>
+                    }
+                    onConfirm={() =>
+                      d.mutateAsync({
+                        shiftId,
+                        attachmentId: file.attachment_id,
+                      })
+                    }
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <Modal
+        open={Boolean(url) && !image(name)}
+        title={name}
+        width={pdf(name) ? "90vw" : undefined}
+        footer={null}
+        onCancel={() => {
+          if (url) URL.revokeObjectURL(url);
+          setUrl(null);
+          setContent(null);
+        }}
+      >
+        {content !== null ? (
+          <pre className="shift-report__attachment-text-preview">{content}</pre>
+        ) : pdf(name) ? (
+          <div className="shift-report__attachment-pdf-preview">
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+              <Viewer fileUrl={url ?? ""} />
+            </Worker>
+          </div>
+        ) : null}
+      </Modal>
+      <Image
+        src={url ?? undefined}
+        style={{ display: "none" }}
+        preview={{
+          visible: Boolean(url) && image(name),
+          onVisibleChange: (visible) => {
+            if (!visible) {
+              if (url) URL.revokeObjectURL(url);
+              setUrl(null);
+            }
+          },
+        }}
+      />
+    </section>
+  );
 };

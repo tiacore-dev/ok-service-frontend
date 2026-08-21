@@ -109,11 +109,12 @@ export const ShiftReport = () => {
   const canEditPlaces =
     !shiftReportData?.deleted &&
     (currentRole === RoleId.ADMIN ||
-      currentUserId === shiftReportData?.user ||
-      (projectData?.project_leader === currentUserId &&
-        [RoleId.PROJECT_LEADER, RoleId.MANAGER, RoleId.ADMIN].includes(
-          currentRole,
-        )));
+      (!isSigned &&
+        (currentUserId === shiftReportData?.user ||
+          (projectData?.project_leader === currentUserId &&
+            [RoleId.PROJECT_LEADER, RoleId.MANAGER, RoleId.ADMIN].includes(
+              currentRole,
+            )))));
   const canViewAttachments =
     currentUserId === shiftReportData?.user ||
     currentUserId === projectData?.project_leader ||
