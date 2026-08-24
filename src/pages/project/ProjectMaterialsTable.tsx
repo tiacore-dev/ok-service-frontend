@@ -85,7 +85,6 @@ export const ProjectMaterialsTable = ({
     if (!projectId) return;
     setEditingRecord(null);
     form.resetFields();
-    form.setFieldsValue({ quantity: 0 });
     setModalOpen(true);
   };
 
@@ -294,7 +293,16 @@ export const ProjectMaterialsTable = ({
           <Form.Item
             label="Количество"
             name="quantity"
-            rules={[{ required: true, message: "Укажите количество" }]}
+            rules={[
+              {
+                validator: (_, value) =>
+                  typeof value === "number" && value > 0
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error("Укажите количество больше нуля"),
+                      ),
+              },
+            ]}
           >
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
