@@ -3,13 +3,11 @@ import {
   Button,
   Checkbox,
   Empty,
-  Input,
   Modal,
-  Space,
   Spin,
   Typography,
 } from "antd";
-import { DeleteTwoTone, EditTwoTone, PlusOutlined } from "@ant-design/icons";
+import { DeleteTwoTone, PlusOutlined } from "@ant-design/icons";
 import React from "react";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { ActionDialog } from "../../components/ActionDialogs/ActionDialog";
@@ -18,7 +16,6 @@ import { useProjectPlaceRelationsQuery } from "../../queries/projectPlaceRelatio
 import {
   useAddShiftPlaceRelationsBulkMutation,
   useDeleteShiftPlaceRelationsBulkMutation,
-  useEditShiftPlaceRelationMutation,
   useShiftPlaceRelationsQuery,
 } from "../../queries/shiftPlaceRelations";
 
@@ -38,13 +35,8 @@ export const ShiftReportPlaces = ({
   const relationsQuery = useShiftPlaceRelationsQuery();
   const addMutation = useAddShiftPlaceRelationsBulkMutation();
   const deleteMutation = useDeleteShiftPlaceRelationsBulkMutation();
-  const editMutation = useEditShiftPlaceRelationMutation();
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [editingId, setEditingId] = React.useState<string | null>(null);
   const [draftIds, setDraftIds] = React.useState<string[]>([]);
-  const [draftComments, setDraftComments] = React.useState<
-    Record<string, string>
-  >({});
   const relations = React.useMemo(
     () =>
       (relationsQuery.data ?? []).filter(
@@ -72,56 +64,27 @@ export const ShiftReportPlaces = ({
         .map((p) => ({ label: p.name, value: p.place_id })),
     [placesQuery.data, availableIds],
   );
-  const relationByPlace = React.useMemo(
-    () => new Map(relations.map((r) => [r.place_id, r])),
-    [relations],
-  );
-  const saving =
-    addMutation.isPending || deleteMutation.isPending || editMutation.isPending;
+  const saving = addMutation.isPending || deleteMutation.isPending;
   const openCreate = () => {
-    setEditingId(null);
     setDraftIds(relations.map((relation) => relation.place_id));
-    setDraftComments(
-      Object.fromEntries(
-        relations.map((relation) => [relation.place_id, relation.comment ?? ""]),
-      ),
-    );
-    setModalOpen(true);
-  };
-  const openEdit = (id: string) => {
-    setEditingId(id);
-    setDraftIds([id]);
-    setDraftComments({ [id]: relationByPlace.get(id)?.comment ?? "" });
     setModalOpen(true);
   };
   const save = async () => {
     try {
-      if (editingId) {
-        const r = relationByPlace.get(editingId);
-        if (r)
-          await editMutation.mutateAsync({
-            relationId: r.shift_place_relation_id,
-            payload: {
-              place_id: editingId,
-              comment: draftComments[editingId] ?? "",
-            },
-          });
-      } else {
-        const currentIds = relations.map((relation) => relation.place_id);
-        const addedIds = draftIds.filter((id) => !currentIds.includes(id));
-        const removedIds = currentIds.filter((id) => !draftIds.includes(id));
-        if (addedIds.length) {
-          await addMutation.mutateAsync({
-            shift_report_id: shiftReportId,
-            place_ids: addedIds,
-          });
-        }
-        if (removedIds.length) {
-          await deleteMutation.mutateAsync({
-            shift_report_id: shiftReportId,
-            place_ids: removedIds,
-          });
-        }
+      const currentIds = relations.map((relation) => relation.place_id);
+      const addedIds = draftIds.filter((id) => !currentIds.includes(id));
+      const removedIds = currentIds.filter((id) => !draftIds.includes(id));
+      if (addedIds.length) {
+        await addMutation.mutateAsync({
+          shift_report_id: shiftReportId,
+          place_ids: addedIds,
+        });
+      }
+      if (removedIds.length) {
+        await deleteMutation.mutateAsync({
+          shift_report_id: shiftReportId,
+          place_ids: removedIds,
+        });
       }
       setModalOpen(false);
       notification?.success({
@@ -198,22 +161,15 @@ export const ShiftReportPlaces = ({
                 )}
               </div>
               {canEdit && (
-                <Space size="small">
-                  <Button
-                    type="link"
-                    icon={<EditTwoTone twoToneColor="#e40808" />}
-                    onClick={() => openEdit(r.place_id)}
-                  />
-          <ActionDialog
-            buttonText=""
-            buttonType="link"
-            buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />}
-            popoverText="Удалить место"
-            modalTitle="Подтвердите удаление места"
-            modalText={<p>Вы уверены, что хотите удалить место из смены?</p>}
-            onConfirm={() => remove(r.place_id)}
-          />
-                </Space>
+                <ActionDialog
+                  buttonText=""
+                  buttonType="link"
+                  buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />}
+                  popoverText="Удалить место"
+                  modalTitle="Подтвердите удаление места"
+                  modalText={<p>Вы уверены, что хотите удалить место из смены?</p>}
+                  onConfirm={() => remove(r.place_id)}
+                />
               )}
             </div>
           ))}
@@ -225,7 +181,7 @@ export const ShiftReportPlaces = ({
         />
       )}
       <Modal
-        title={editingId ? "Редактирование места" : "Добавление мест"}
+        title="Добавление мест"
         open={modalOpen}
         onCancel={() => !saving && setModalOpen(false)}
         onOk={save}
@@ -233,25 +189,22 @@ export const ShiftReportPlaces = ({
         cancelText="Отмена"
         confirmLoading={saving}
       >
-        {!editingId && (
-          <Button
-            type="link"
-            onClick={() =>
-              setDraftIds(
-                draftIds.length === options.length
-                  ? []
-                  : options.map((o) => o.value),
-              )
-            }
-            style={{ padding: 0, marginBottom: 12 }}
-          >
-            {draftIds.length === options.length ? "Снять все" : "Выбрать все"}
-          </Button>
-        )}
+        <Button
+          type="link"
+          onClick={() =>
+            setDraftIds(
+              draftIds.length === options.length
+                ? []
+                : options.map((o) => o.value),
+            )
+          }
+          style={{ padding: 0, marginBottom: 12 }}
+        >
+          {draftIds.length === options.length ? "Снять все" : "Выбрать все"}
+        </Button>
         <Checkbox.Group
-          value={editingId ? [editingId] : draftIds}
+          value={draftIds}
           onChange={(values) => setDraftIds(values as string[])}
-          disabled={Boolean(editingId)}
           options={options}
           style={{ display: "flex", flexDirection: "column", gap: 8 }}
         />

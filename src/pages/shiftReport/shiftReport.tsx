@@ -120,31 +120,27 @@ export const ShiftReport = () => {
     [currentRole, isSigned],
   );
   const canEdit = canManageReport && !shiftReportData?.deleted;
+  const isShiftExecutor =
+    Boolean(currentUserId) && currentUserId === shiftReportData?.user;
+  const isProjectLeader =
+    Boolean(currentUserId) && currentUserId === projectData?.project_leader;
   const canEditPlaces =
     !shiftReportData?.deleted &&
     (currentRole === RoleId.ADMIN ||
-      (!isSigned &&
-        (currentUserId === shiftReportData?.user ||
-          (projectData?.project_leader === currentUserId &&
-            [RoleId.PROJECT_LEADER, RoleId.MANAGER, RoleId.ADMIN].includes(
-              currentRole,
-            )))));
+      isProjectLeader ||
+      (!isSigned && isShiftExecutor));
   const canViewAttachments =
-    currentUserId === shiftReportData?.user ||
-    currentUserId === projectData?.project_leader ||
+    isShiftExecutor ||
+    isProjectLeader ||
+    currentRole === RoleId.PROJECT_LEADER ||
     currentRole === RoleId.MANAGER ||
     currentRole === RoleId.ADMIN;
   const canManageAttachments =
     !shiftReportData?.deleted &&
-    !isSigned &&
     (currentRole === RoleId.ADMIN ||
-      currentUserId === shiftReportData?.user ||
-      (projectData?.project_leader === currentUserId &&
-        [RoleId.PROJECT_LEADER, RoleId.MANAGER, RoleId.ADMIN].includes(
-          currentRole,
-        )));
-  const canManageSignedAttachments =
-    !shiftReportData?.deleted && currentRole === RoleId.ADMIN;
+      currentRole === RoleId.MANAGER ||
+      isProjectLeader ||
+      (!isSigned && isShiftExecutor));
   const canDelete =
     canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
   const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
@@ -522,8 +518,8 @@ export const ShiftReport = () => {
         {canViewAttachments && (
           <ShiftReportAttachments
             shiftId={shiftReportData.shift_report_id}
-            canUpload={canManageAttachments || canManageSignedAttachments}
-            canDelete={canManageAttachments || canManageSignedAttachments}
+            canUpload={canManageAttachments}
+            canDelete={canManageAttachments}
           />
         )}
 
