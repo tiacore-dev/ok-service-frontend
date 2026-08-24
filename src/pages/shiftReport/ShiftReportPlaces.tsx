@@ -3,11 +3,13 @@ import {
   Button,
   Checkbox,
   Empty,
+  Input,
   Modal,
+  Space,
   Spin,
   Typography,
 } from "antd";
-import { DeleteTwoTone, PlusOutlined } from "@ant-design/icons";
+import { DeleteTwoTone, EditTwoTone, PlusOutlined } from "@ant-design/icons";
 import React from "react";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { ActionDialog } from "../../components/ActionDialogs/ActionDialog";
@@ -16,6 +18,7 @@ import { useProjectPlaceRelationsQuery } from "../../queries/projectPlaceRelatio
 import {
   useAddShiftPlaceRelationsBulkMutation,
   useDeleteShiftPlaceRelationsBulkMutation,
+  useEditShiftPlaceRelationMutation,
   useShiftPlaceRelationsQuery,
 } from "../../queries/shiftPlaceRelations";
 
@@ -23,11 +26,13 @@ interface Props {
   shiftReportId: string;
   projectId: string;
   canEdit: boolean;
+  canEditComment: boolean;
 }
 export const ShiftReportPlaces = ({
   shiftReportId,
   projectId,
   canEdit,
+  canEditComment,
 }: Props) => {
   const notification = React.useContext(NotificationContext);
   const placesQuery = usePlacesQuery();
@@ -35,8 +40,14 @@ export const ShiftReportPlaces = ({
   const relationsQuery = useShiftPlaceRelationsQuery();
   const addMutation = useAddShiftPlaceRelationsBulkMutation();
   const deleteMutation = useDeleteShiftPlaceRelationsBulkMutation();
+  const editMutation = useEditShiftPlaceRelationMutation();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [draftIds, setDraftIds] = React.useState<string[]>([]);
+  const [editingPlace, setEditingPlace] = React.useState<{
+    relationId: string;
+    placeId: string;
+  } | null>(null);
+  const [comment, setComment] = React.useState("");
   const relations = React.useMemo(
     () =>
       (relationsQuery.data ?? []).filter(
@@ -121,6 +132,36 @@ export const ShiftReportPlaces = ({
       });
     }
   };
+  const openCommentEditor = (relationId: string, placeId: string, value?: string) => {
+    setEditingPlace({ relationId, placeId });
+    setComment(value ?? "");
+  };
+  const saveComment = async () => {
+    if (!editingPlace) return;
+    try {
+      await editMutation.mutateAsync({
+        relationId: editingPlace.relationId,
+        payload: { place_id: editingPlace.placeId, comment },
+      });
+      setEditingPlace(null);
+      notification?.success({
+        message: "Успешно",
+        description: "Примечание обновлено",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    } catch (error) {
+      notification?.error({
+        message: "Ошибка",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Не удалось обновить примечание",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    }
+  };
   if (
     placesQuery.isPending ||
     projectRelationsQuery.isPending ||
@@ -160,16 +201,35 @@ export const ShiftReportPlaces = ({
                   </Typography.Text>
                 )}
               </div>
-              {canEdit && (
-                <ActionDialog
-                  buttonText=""
-                  buttonType="link"
-                  buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />}
-                  popoverText="Удалить место"
-                  modalTitle="Подтвердите удаление места"
-                  modalText={<p>Вы уверены, что хотите удалить место из смены?</p>}
-                  onConfirm={() => remove(r.place_id)}
-                />
+              {(canEdit || canEditComment) && (
+                <Space size="small">
+                  {canEditComment && (
+                    <Button
+                      type="link"
+                      icon={<EditTwoTone twoToneColor="#e40808" />}
+                      onClick={() =>
+                        openCommentEditor(
+                          r.shift_place_relation_id,
+                          r.place_id,
+                          r.comment,
+                        )
+                      }
+                    />
+                  )}
+                  {canEdit && (
+                    <ActionDialog
+                      buttonText=""
+                      buttonType="link"
+                      buttonIcon={<DeleteTwoTone twoToneColor="#e40808" />}
+                      popoverText="Удалить место"
+                      modalTitle="Подтвердите удаление места"
+                      modalText={
+                        <p>Вы уверены, что хотите удалить место из смены?</p>
+                      }
+                      onConfirm={() => remove(r.place_id)}
+                    />
+                  )}
+                </Space>
               )}
             </div>
           ))}
@@ -207,6 +267,22 @@ export const ShiftReportPlaces = ({
           onChange={(values) => setDraftIds(values as string[])}
           options={options}
           style={{ display: "flex", flexDirection: "column", gap: 8 }}
+        />
+      </Modal>
+      <Modal
+        title="Редактирование примечания"
+        open={Boolean(editingPlace)}
+        onCancel={() => !editMutation.isPending && setEditingPlace(null)}
+        onOk={saveComment}
+        okText="Сохранить"
+        cancelText="Отмена"
+        confirmLoading={editMutation.isPending}
+      >
+        <Input.TextArea
+          value={comment}
+          onChange={(event) => setComment(event.target.value)}
+          placeholder="Примечание"
+          autoSize={{ minRows: 3, maxRows: 6 }}
         />
       </Modal>
     </>

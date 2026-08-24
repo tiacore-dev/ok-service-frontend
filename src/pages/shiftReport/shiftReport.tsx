@@ -484,6 +484,7 @@ export const ShiftReport = () => {
                   shiftReportId={shiftReportData.shift_report_id}
                   projectId={shiftReportData.project}
                   canEdit={canEditPlaces}
+                  canEditComment
                 />
               </Card>
             </section>
