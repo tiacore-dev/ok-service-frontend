@@ -34,6 +34,7 @@ export const ProjectPlaces = ({ projectId, objectId, canEdit }: ProjectPlacesPro
   const loading = placesQuery.isPending || relationsQuery.isPending;
   if (loading) return <section className="project__places-section"><Spin /></section>;
   if (placesQuery.isError || relationsQuery.isError) return <section className="project__places-section"><Alert type="error" message="Не удалось загрузить места проведения работ" /></section>;
+  if (places.length === 0) return null;
   const placeById = new Map(places.map((p) => [p.place_id, p]));
   return <section className="project__places-section">
     <div className="project__section-header"><Typography.Title level={4} className="project__section-title">Места проведения работ</Typography.Title>{canEdit && <Button type="primary" icon={<PlusOutlined />} onClick={openModal}>Добавить место</Button>}</div>

@@ -32,6 +32,7 @@ import { useObjectsMap } from "../../queries/objects";
 import { useProjectsMap, useProjectStatQuery } from "../../queries/projects";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { useWorksMap } from "../../queries/works";
+import { usePlacesQuery } from "../../queries/places";
 import { ShiftReportMaterialsTable } from "./ShiftReportMaterialsTable";
 import { ShiftReportHeader } from "./ShiftReportHeader";
 import { ShiftReportInfoCard } from "./ShiftReportInfoCard";
@@ -56,6 +57,11 @@ export const ShiftReport = () => {
     useShiftReportQuery(routeParams.shiftId);
   const { data: shiftReportDetailsData, isLoading: isDetailsLoading } =
     useShiftReportDetailsQuery(routeParams.shiftId);
+  const {
+    data: allPlaces = [],
+    isPending: isObjectPlacesPending,
+    isError: isObjectPlacesError,
+  } = usePlacesQuery();
 
   // Mutation hooks
   const { mutate: editReportMutation } = useEditShiftReportMutation();
@@ -97,6 +103,14 @@ export const ShiftReport = () => {
     [projectsMap, shiftReportData],
   );
   const objectId = projectData?.object;
+  const hasObjectPlaces = React.useMemo(
+    () =>
+      !objectId ||
+      allPlaces.some((place) => place.object_id === objectId && !place.deleted),
+    [allPlaces, objectId],
+  );
+  const showShiftPlaces =
+    isObjectPlacesPending || isObjectPlacesError || hasObjectPlaces;
 
   const hasShiftReport = Boolean(shiftReportData);
   const isSigned = Boolean(shiftReportData?.signed);
@@ -442,7 +456,9 @@ export const ShiftReport = () => {
           onLeaveCreated={handleLeaveCreated}
         />
 
-        <div className="shift-report__overview">
+        <div
+          className={`shift-report__overview${showShiftPlaces ? "" : " shift-report__overview--single"}`}
+        >
           <ShiftReportInfoCard
             shiftReport={shiftReportData}
             objectName={objectName}
@@ -465,15 +481,17 @@ export const ShiftReport = () => {
             signDisabled={disabled}
           />
 
-          <section className="shift-report__places-section">
-            <Card className="shift-report__places-card">
-              <ShiftReportPlaces
-                shiftReportId={shiftReportData.shift_report_id}
-                projectId={shiftReportData.project}
-                canEdit={canEditPlaces}
-              />
-            </Card>
-          </section>
+          {showShiftPlaces && (
+            <section className="shift-report__places-section">
+              <Card className="shift-report__places-card">
+                <ShiftReportPlaces
+                  shiftReportId={shiftReportData.shift_report_id}
+                  projectId={shiftReportData.project}
+                  canEdit={canEditPlaces}
+                />
+              </Card>
+            </section>
+          )}
         </div>
 
         <ShiftReportActions
