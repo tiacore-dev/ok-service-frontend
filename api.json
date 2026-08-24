@@ -456,6 +456,22 @@
                 ]
             }
         },
+        "/auth/health/s3": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "S3 bucket is available"
+                    },
+                    "503": {
+                        "description": "S3 bucket is unavailable"
+                    }
+                },
+                "operationId": "get_s3_health_check",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
         "/auth/login": {
             "post": {
                 "responses": {
@@ -1694,6 +1710,138 @@
                 ]
             }
         },
+        "/objects/{object_id}/attachments": {
+            "parameters": [
+                {
+                    "name": "object_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "object_attachments"
+                ]
+            },
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "post_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "files",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true,
+                        "description": "One or more attachment files"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "object_attachments"
+                ]
+            }
+        },
+        "/objects/{object_id}/attachments/{attachment_id}": {
+            "parameters": [
+                {
+                    "name": "object_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_attachment_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "object_attachments"
+                ]
+            }
+        },
+        "/objects/{object_id}/attachments/{attachment_id}/download": {
+            "parameters": [
+                {
+                    "name": "object_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_attachment_download",
+                "tags": [
+                    "object_attachments"
+                ]
+            }
+        },
         "/objects/{object_id}/delete/hard": {
             "parameters": [
                 {
@@ -1831,6 +1979,336 @@
                 ],
                 "tags": [
                     "objects"
+                ]
+            }
+        },
+        "/places/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceMessage"
+                        }
+                    }
+                },
+                "operationId": "post_place_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            }
+        },
+        "/places/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_place_all",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            }
+        },
+        "/places/{place_id}/attachments": {
+            "parameters": [
+                {
+                    "name": "place_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "place_attachments"
+                ]
+            },
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "post_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "files",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true,
+                        "description": "One or more attachment files"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "place_attachments"
+                ]
+            }
+        },
+        "/places/{place_id}/attachments/{attachment_id}": {
+            "parameters": [
+                {
+                    "name": "place_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_attachment_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "place_attachments"
+                ]
+            }
+        },
+        "/places/{place_id}/attachments/{attachment_id}/download": {
+            "parameters": [
+                {
+                    "name": "place_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_attachment_download",
+                "tags": [
+                    "place_attachments"
+                ]
+            }
+        },
+        "/places/{place_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "place_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_place_hard_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            }
+        },
+        "/places/{place_id}/delete/soft": {
+            "parameters": [
+                {
+                    "name": "place_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_place_soft_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            }
+        },
+        "/places/{place_id}/edit": {
+            "parameters": [
+                {
+                    "name": "place_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_place_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceEdit"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            }
+        },
+        "/places/{place_id}/view": {
+            "parameters": [
+                {
+                    "name": "place_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceResponse"
+                        }
+                    }
+                },
+                "operationId": "get_place_view",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
                 ]
             }
         },
@@ -2248,6 +2726,237 @@
                 ]
             }
         },
+        "/project_place_relations/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "post_project_place_relation_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_place_relations"
+                ]
+            }
+        },
+        "/project_place_relations/add-bulk": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationBulkResponse"
+                        }
+                    }
+                },
+                "operationId": "post_project_place_relation_bulk_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationBulk"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_place_relations"
+                ]
+            }
+        },
+        "/project_place_relations/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_project_place_relation_all",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_place_relations"
+                ]
+            }
+        },
+        "/project_place_relations/delete-bulk": {
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationBulkDeleteResponse"
+                        }
+                    }
+                },
+                "operationId": "delete_project_place_relation_bulk_delete",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationBulk"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_place_relations"
+                ]
+            }
+        },
+        "/project_place_relations/{relation_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_project_place_relation_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_place_relations"
+                ]
+            }
+        },
+        "/project_place_relations/{relation_id}/edit": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_project_place_relation_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationEdit"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_place_relations"
+                ]
+            }
+        },
+        "/project_place_relations/{relation_id}/view": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectPlaceRelationResponse"
+                        }
+                    }
+                },
+                "operationId": "get_project_place_relation_view",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_place_relations"
+                ]
+            }
+        },
         "/project_schedules/add": {
             "post": {
                 "responses": {
@@ -2534,7 +3243,7 @@
             "get": {
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Project works found successfully",
                         "schema": {
                             "$ref": "#/definitions/ProjectWorkAllResponse"
                         }
@@ -2621,11 +3330,11 @@
                         "description": "Maximum summ filter"
                     },
                     {
-                        "name": "X-Fields",
-                        "in": "header",
+                        "name": "with_stat",
+                        "in": "query",
                         "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
+                        "description": "Include cached project-work statistics",
+                        "default": false
                     }
                 ],
                 "tags": [
@@ -2909,6 +3618,138 @@
                 ]
             }
         },
+        "/projects/{project_id}/attachments": {
+            "parameters": [
+                {
+                    "name": "project_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_attachments"
+                ]
+            },
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "post_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "files",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true,
+                        "description": "One or more attachment files"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "project_attachments"
+                ]
+            }
+        },
+        "/projects/{project_id}/attachments/{attachment_id}": {
+            "parameters": [
+                {
+                    "name": "project_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_attachment_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_attachments"
+                ]
+            }
+        },
+        "/projects/{project_id}/attachments/{attachment_id}/download": {
+            "parameters": [
+                {
+                    "name": "project_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_attachment_download",
+                "tags": [
+                    "project_attachments"
+                ]
+            }
+        },
         "/projects/{project_id}/delete/hard": {
             "parameters": [
                 {
@@ -3179,6 +4020,237 @@
                 ],
                 "tags": [
                     "roles"
+                ]
+            }
+        },
+        "/shift_place_relations/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "post_shift_place_relation_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_place_relations"
+                ]
+            }
+        },
+        "/shift_place_relations/add-bulk": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationBulkResponse"
+                        }
+                    }
+                },
+                "operationId": "post_shift_place_relation_bulk_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationBulk"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_place_relations"
+                ]
+            }
+        },
+        "/shift_place_relations/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_shift_place_relation_all",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_place_relations"
+                ]
+            }
+        },
+        "/shift_place_relations/delete-bulk": {
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationBulkDeleteResponse"
+                        }
+                    }
+                },
+                "operationId": "delete_shift_place_relation_bulk_delete",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationBulk"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_place_relations"
+                ]
+            }
+        },
+        "/shift_place_relations/{relation_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_shift_place_relation_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_place_relations"
+                ]
+            }
+        },
+        "/shift_place_relations/{relation_id}/edit": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_shift_place_relation_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationEdit"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_place_relations"
+                ]
+            }
+        },
+        "/shift_place_relations/{relation_id}/view": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftPlaceRelationResponse"
+                        }
+                    }
+                },
+                "operationId": "get_shift_place_relation_view",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_place_relations"
                 ]
             }
         },
@@ -3854,6 +4926,16 @@
                         "collectionFormat": "multi"
                     },
                     {
+                        "name": "place_id",
+                        "in": "query",
+                        "type": "array",
+                        "description": "Filter by place IDs",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi"
+                    },
+                    {
                         "name": "lng_start",
                         "in": "query",
                         "type": "number",
@@ -4072,6 +5154,39 @@
                 ]
             }
         },
+        "/shift_reports/{report_id}/sign": {
+            "parameters": [
+                {
+                    "name": "report_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftReportMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_shift_report_sign",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_reports"
+                ]
+            }
+        },
         "/shift_reports/{report_id}/start": {
             "parameters": [
                 {
@@ -4135,6 +5250,138 @@
                 ],
                 "tags": [
                     "shift_reports"
+                ]
+            }
+        },
+        "/shift_reports/{shift_report_id}/attachments": {
+            "parameters": [
+                {
+                    "name": "shift_report_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_report_attachments"
+                ]
+            },
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "post_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "files",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true,
+                        "description": "One or more attachment files"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "shift_report_attachments"
+                ]
+            }
+        },
+        "/shift_reports/{shift_report_id}/attachments/{attachment_id}": {
+            "parameters": [
+                {
+                    "name": "shift_report_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_attachment_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_report_attachments"
+                ]
+            }
+        },
+        "/shift_reports/{shift_report_id}/attachments/{attachment_id}/download": {
+            "parameters": [
+                {
+                    "name": "shift_report_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_attachment_download",
+                "tags": [
+                    "shift_report_attachments"
                 ]
             }
         },
@@ -5655,6 +6902,22 @@
             "description": "Authentication related operations"
         },
         {
+            "name": "project_attachments",
+            "description": "Project attachments"
+        },
+        {
+            "name": "shift_report_attachments",
+            "description": "Shift report attachments"
+        },
+        {
+            "name": "object_attachments",
+            "description": "Object attachments"
+        },
+        {
+            "name": "place_attachments",
+            "description": "Place attachments"
+        },
+        {
             "name": "roles",
             "description": "Role management operations"
         },
@@ -5677,6 +6940,18 @@
         {
             "name": "objects",
             "description": "Objects management operations"
+        },
+        {
+            "name": "places",
+            "description": "Places management operations"
+        },
+        {
+            "name": "project_place_relations",
+            "description": "Project-place relations"
+        },
+        {
+            "name": "shift_place_relations",
+            "description": "Shift-place relations"
         },
         {
             "name": "object_statuses",
@@ -5851,6 +7126,69 @@
                 "user_id": {
                     "type": "string",
                     "description": "ID of user"
+                }
+            },
+            "type": "object"
+        },
+        "AttachmentList": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Attachment"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "Attachment": {
+            "required": [
+                "attachment_id",
+                "checksum",
+                "created_at",
+                "created_by",
+                "file_size",
+                "meta",
+                "name"
+            ],
+            "properties": {
+                "attachment_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "checksum": {
+                    "type": "string"
+                },
+                "meta": {
+                    "type": "object"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "created_by": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "AttachmentMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -6322,6 +7660,10 @@
                 "leave_id": {
                     "type": "string",
                     "description": "ID \u043b\u0438\u0441\u0442\u0430 \u043e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u044f"
+                },
+                "detail": {
+                    "type": "object",
+                    "description": "\u0414\u0435\u0442\u0430\u043b\u0438 \u043a\u043e\u043d\u0444\u043b\u0438\u043a\u0442\u0430"
                 }
             },
             "type": "object"
@@ -6654,7 +7996,194 @@
                     "description": "Response message"
                 },
                 "object": {
-                    "$ref": "#/definitions/Object"
+                    "$ref": "#/definitions/ObjectView"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectView": {
+            "required": [
+                "attachments",
+                "created_at",
+                "deleted",
+                "name",
+                "object_id",
+                "places"
+            ],
+            "properties": {
+                "object_id": {
+                    "type": "string",
+                    "description": "ID of the object"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the object"
+                },
+                "address": {
+                    "type": "string",
+                    "description": "Address of the object"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the object"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "City of the object"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Status of the object"
+                },
+                "manager": {
+                    "type": "string",
+                    "description": "Manager of the object"
+                },
+                "lng": {
+                    "type": "number",
+                    "description": "Longitude of the object"
+                },
+                "ltd": {
+                    "type": "number",
+                    "description": "Latitude of the object"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds: object creation time"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of object"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "description": "Deletion status"
+                },
+                "places": {
+                    "type": "array",
+                    "description": "List of places linked to the object",
+                    "items": {
+                        "$ref": "#/definitions/Place"
+                    }
+                },
+                "attachments": {
+                    "type": "array",
+                    "description": "Attachments linked to the object",
+                    "items": {
+                        "$ref": "#/definitions/AttachmentView"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "Place": {
+            "required": [
+                "deleted",
+                "name",
+                "object_id",
+                "place_id"
+            ],
+            "properties": {
+                "place_id": {
+                    "type": "string"
+                },
+                "object_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "AttachmentView": {
+            "required": [
+                "attachment_id",
+                "checksum",
+                "created_at",
+                "created_by",
+                "file_size",
+                "meta",
+                "name"
+            ],
+            "properties": {
+                "attachment_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "checksum": {
+                    "type": "string"
+                },
+                "meta": {
+                    "type": "object"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "created_by": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectEdit": {
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "manager": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "lng": {
+                    "type": "number"
+                },
+                "ltd": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "objects": {
+                    "type": "array",
+                    "description": "List of objects",
+                    "items": {
+                        "$ref": "#/definitions/Object"
+                    }
                 }
             },
             "type": "object"
@@ -6718,53 +8247,384 @@
             },
             "type": "object"
         },
-        "ObjectEdit": {
+        "PlaceCreate": {
             "properties": {
-                "name": {
+                "object_id": {
                     "type": "string"
                 },
-                "address": {
+                "name": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "manager": {
-                    "type": "string"
-                },
-                "deleted": {
-                    "type": "boolean"
-                },
-                "city": {
-                    "type": "string"
-                },
-                "lng": {
-                    "type": "number"
-                },
-                "ltd": {
-                    "type": "number"
                 }
             },
             "type": "object"
         },
-        "ObjectAllResponse": {
+        "PlaceMessage": {
             "required": [
                 "msg"
             ],
             "properties": {
                 "msg": {
-                    "type": "string",
-                    "description": "Response message"
+                    "type": "string"
                 },
-                "objects": {
+                "place_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceResponse": {
+            "required": [
+                "msg",
+                "place"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "place": {
+                    "$ref": "#/definitions/PlaceView"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceView": {
+            "required": [
+                "attachments",
+                "deleted",
+                "name",
+                "object_id",
+                "place_id"
+            ],
+            "properties": {
+                "place_id": {
+                    "type": "string"
+                },
+                "object_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "attachments": {
                     "type": "array",
-                    "description": "List of objects",
                     "items": {
-                        "$ref": "#/definitions/Object"
+                        "$ref": "#/definitions/AttachmentView"
                     }
+                }
+            },
+            "type": "object"
+        },
+        "PlaceEdit": {
+            "properties": {
+                "object_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "places": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Place"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationCreate": {
+            "properties": {
+                "project_id": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "project_place_relation_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationBulk": {
+            "properties": {
+                "project_id": {
+                    "type": "string"
+                },
+                "place_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationBulkResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "project_place_relations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectPlaceRelation"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelation": {
+            "required": [
+                "place_id",
+                "project_id",
+                "project_place_relation_id"
+            ],
+            "properties": {
+                "project_place_relation_id": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationBulkDeleteResponse": {
+            "required": [
+                "deleted_count",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "deleted_count": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationResponse": {
+            "required": [
+                "msg",
+                "project_place_relation"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "project_place_relation": {
+                    "$ref": "#/definitions/ProjectPlaceRelation"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "project_place_relations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectPlaceRelation"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectPlaceRelationEdit": {
+            "properties": {
+                "project_id": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationCreate": {
+            "properties": {
+                "shift_report_id": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "shift_place_relation_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationBulk": {
+            "properties": {
+                "shift_report_id": {
+                    "type": "string"
+                },
+                "place_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationBulkResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "shift_place_relations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ShiftPlaceRelation"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelation": {
+            "required": [
+                "place_id",
+                "shift_place_relation_id",
+                "shift_report_id"
+            ],
+            "properties": {
+                "shift_place_relation_id": {
+                    "type": "string"
+                },
+                "shift_report_id": {
+                    "type": "string"
+                },
+                "place_id": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationBulkDeleteResponse": {
+            "required": [
+                "deleted_count",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "deleted_count": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationResponse": {
+            "required": [
+                "msg",
+                "shift_place_relation"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "shift_place_relation": {
+                    "$ref": "#/definitions/ShiftPlaceRelation"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "shift_place_relations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ShiftPlaceRelation"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ShiftPlaceRelationEdit": {
+            "properties": {
+                "place_id": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -7071,21 +8931,15 @@
                     "description": "Response message"
                 },
                 "project": {
-                    "$ref": "#/definitions/Project"
+                    "$ref": "#/definitions/ProjectView"
                 }
             },
             "type": "object"
         },
-        "Project": {
+        "ProjectView": {
             "required": [
-                "created_at",
-                "created_by",
-                "deleted",
-                "extreme_conditions_available",
-                "name",
-                "night_shift_available",
-                "object",
-                "project_id"
+                "attachments",
+                "places"
             ],
             "properties": {
                 "project_id": {
@@ -7094,11 +8948,11 @@
                 },
                 "name": {
                     "type": "string",
-                    "description": "Name of the project"
+                    "description": "Name of the project; may be null in legacy records"
                 },
                 "object": {
                     "type": "string",
-                    "description": "Object data associated with the project"
+                    "description": "Object data associated with the project; may be null in legacy records"
                 },
                 "project_leader": {
                     "type": "string",
@@ -7123,6 +8977,18 @@
                 "deleted": {
                     "type": "boolean",
                     "description": "Deletion status"
+                },
+                "places": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Place"
+                    }
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AttachmentView"
+                    }
                 }
             },
             "type": "object"
@@ -7165,6 +9031,47 @@
                     "items": {
                         "$ref": "#/definitions/Project"
                     }
+                }
+            },
+            "type": "object"
+        },
+        "Project": {
+            "properties": {
+                "project_id": {
+                    "type": "string",
+                    "description": "ID of the project"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of the project; may be null in legacy records"
+                },
+                "object": {
+                    "type": "string",
+                    "description": "Object data associated with the project; may be null in legacy records"
+                },
+                "project_leader": {
+                    "type": "string",
+                    "description": "User data of the project leader"
+                },
+                "night_shift_available": {
+                    "type": "boolean",
+                    "description": "If night shifts are available"
+                },
+                "extreme_conditions_available": {
+                    "type": "boolean",
+                    "description": "If extreme conditions are available"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds: project creation time"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of project"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "description": "Deletion status"
                 }
             },
             "type": "object"
@@ -7367,7 +9274,265 @@
                     "description": "Response message"
                 },
                 "shift_report": {
-                    "$ref": "#/definitions/ShiftReport"
+                    "$ref": "#/definitions/ShiftReportView"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportView": {
+            "required": [
+                "attachments",
+                "created_at",
+                "created_by",
+                "date",
+                "deleted",
+                "extreme_conditions",
+                "night_shift",
+                "number",
+                "places",
+                "project",
+                "shift_report_id",
+                "signed",
+                "user"
+            ],
+            "properties": {
+                "shift_report_id": {
+                    "type": "string",
+                    "description": "ID of the shift report"
+                },
+                "user": {
+                    "type": "string",
+                    "description": "User details"
+                },
+                "date": {
+                    "type": "integer",
+                    "description": "Report date as Unix epoch milliseconds"
+                },
+                "date_start": {
+                    "type": "integer",
+                    "description": "Shift start Unix epoch milliseconds (nullable)"
+                },
+                "date_end": {
+                    "type": "integer",
+                    "description": "Shift end Unix epoch milliseconds (nullable)"
+                },
+                "project": {
+                    "type": "string",
+                    "description": "Project details"
+                },
+                "project_name": {
+                    "type": "string",
+                    "description": "Project name"
+                },
+                "object_name": {
+                    "type": "string",
+                    "description": "Object name"
+                },
+                "lng_start": {
+                    "type": "number",
+                    "description": "Longitude of the shift start"
+                },
+                "ltd_start": {
+                    "type": "number",
+                    "description": "Latitude of the shift start"
+                },
+                "lng_end": {
+                    "type": "number",
+                    "description": "Longitude of the shift end"
+                },
+                "ltd_end": {
+                    "type": "number",
+                    "description": "Latitude of the shift end"
+                },
+                "distance_start": {
+                    "type": "number",
+                    "description": "Distance at the shift start"
+                },
+                "distance_end": {
+                    "type": "number",
+                    "description": "Distance at the shift end"
+                },
+                "signed": {
+                    "type": "boolean",
+                    "description": "Is the report signed"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "description": "Deletion status of the shift report"
+                },
+                "leave_id": {
+                    "type": "string",
+                    "description": "Leave that cancelled the shift"
+                },
+                "number": {
+                    "type": "integer",
+                    "description": "Number of shift report"
+                },
+                "created_at": {
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds: report creation time"
+                },
+                "created_by": {
+                    "type": "string",
+                    "description": "Creator of shift report"
+                },
+                "signed_by": {
+                    "$ref": "#/definitions/ShiftReportUser"
+                },
+                "signed_at": {
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds"
+                },
+                "updated_by": {
+                    "$ref": "#/definitions/ShiftReportUpdater"
+                },
+                "updated_at": {
+                    "type": "integer",
+                    "description": "Unix epoch milliseconds"
+                },
+                "night_shift": {
+                    "type": "boolean",
+                    "description": "Night shift"
+                },
+                "extreme_conditions": {
+                    "type": "boolean",
+                    "description": "Extreme conditions"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "Comment for the shift report"
+                },
+                "shift_report_details_sum": {
+                    "type": "number",
+                    "description": "Sum of shift_report_details"
+                },
+                "places": {
+                    "type": "array",
+                    "description": "Places selected for this shift with relation comment",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "attachments": {
+                    "type": "array",
+                    "description": "Attachments linked to this shift report",
+                    "items": {
+                        "$ref": "#/definitions/AttachmentView"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportUser": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportUpdater": {
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportEdit": {
+            "properties": {
+                "user": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "integer"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "date_start": {
+                    "type": "integer"
+                },
+                "date_end": {
+                    "type": "integer"
+                },
+                "lng_start": {
+                    "type": "number"
+                },
+                "ltd_start": {
+                    "type": "number"
+                },
+                "lng_end": {
+                    "type": "number"
+                },
+                "ltd_end": {
+                    "type": "number"
+                },
+                "distance_start": {
+                    "type": "number"
+                },
+                "distance_end": {
+                    "type": "number"
+                },
+                "signed": {
+                    "type": "boolean"
+                },
+                "night_shift": {
+                    "type": "boolean"
+                },
+                "extreme_conditions": {
+                    "type": "boolean"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "description": "Response message"
+                },
+                "shift_reports": {
+                    "type": "array",
+                    "description": "List of shift reports",
+                    "items": {
+                        "$ref": "#/definitions/ShiftReport"
+                    }
+                },
+                "total": {
+                    "type": "integer",
+                    "description": "Total count of shift reports"
+                },
+                "detail": {
+                    "type": "object",
+                    "description": "Additional details (e.g., validation errors)"
                 }
             },
             "type": "object"
@@ -7496,120 +9661,6 @@
                 "shift_report_details_sum": {
                     "type": "number",
                     "description": "Sum of shift_report_details"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportUser": {
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "login": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportUpdater": {
-            "required": [
-                "id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "login": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportEdit": {
-            "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "integer"
-                },
-                "project": {
-                    "type": "string"
-                },
-                "date_start": {
-                    "type": "integer"
-                },
-                "date_end": {
-                    "type": "integer"
-                },
-                "lng_start": {
-                    "type": "number"
-                },
-                "ltd_start": {
-                    "type": "number"
-                },
-                "lng_end": {
-                    "type": "number"
-                },
-                "ltd_end": {
-                    "type": "number"
-                },
-                "distance_start": {
-                    "type": "number"
-                },
-                "distance_end": {
-                    "type": "number"
-                },
-                "signed": {
-                    "type": "boolean"
-                },
-                "night_shift": {
-                    "type": "boolean"
-                },
-                "extreme_conditions": {
-                    "type": "boolean"
-                },
-                "deleted": {
-                    "type": "boolean"
-                },
-                "comment": {
-                    "type": "string"
-                }
-            },
-            "type": "object"
-        },
-        "ShiftReportAllResponse": {
-            "required": [
-                "msg"
-            ],
-            "properties": {
-                "msg": {
-                    "type": "string",
-                    "description": "Response message"
-                },
-                "shift_reports": {
-                    "type": "array",
-                    "description": "List of shift reports",
-                    "items": {
-                        "$ref": "#/definitions/ShiftReport"
-                    }
-                },
-                "total": {
-                    "type": "integer",
-                    "description": "Total count of shift reports"
-                },
-                "detail": {
-                    "type": "object",
-                    "description": "Additional details (e.g., validation errors)"
                 }
             },
             "type": "object"
@@ -8242,9 +10293,7 @@
                 "created_by",
                 "project",
                 "project_work_id",
-                "project_work_quantity",
                 "quantity",
-                "shift_report_details_quantity",
                 "signed",
                 "work"
             ],
@@ -8290,6 +10339,15 @@
                 },
                 "shift_report_details_quantity": {
                     "type": "number"
+                },
+                "acceptance_status": {
+                    "type": "string",
+                    "example": "not_checked",
+                    "enum": [
+                        "not_checked",
+                        "partial",
+                        "accepted"
+                    ]
                 }
             },
             "type": "object"

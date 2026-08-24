@@ -27,6 +27,35 @@
   margin: 0;
 }
 
+.project__places-card {
+  margin: 0;
+}
+
+.project__places-card .ant-card-head {
+  min-height: 48px;
+  padding: 0 24px;
+}
+
+.project__places-card .ant-card-body {
+  padding: 12px;
+}
+
+.project__places-controls {
+  display: none !important;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.project__places-controls > .ant-space-item:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.project__places-controls > .ant-space-item:first-child .ant-select {
+  width: 100% !important;
+}
+
 .project__card .ant-card-body {
   padding: 12px;
   display: grid;
@@ -46,6 +75,50 @@
 
 .project__materials-title {
   margin: 0;
+}
+
+.places-list {
+  border-top: 1px solid #f0f0f0;
+  margin-bottom: 8px;
+}
+
+.places-list__item {
+  min-height: 44px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.project__places-controls {
+  display: none !important;
+}
+
+.project__places-section,
+.project__materials-section {
+  position: relative;
+  margin: 0;
+}
+
+.project__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.project__section-title {
+  margin: 0 0 12px;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.project__materials-section .project-materials__add-button {
+  position: absolute;
+  top: -4px;
+  right: 0;
 }
 
 .project__table .ant-table-cell {
@@ -69,6 +142,29 @@
 
   .project__card .ant-card-body {
     padding: 12px;
+  }
+
+  .project__section-title {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .project__materials-section .project-materials__add-button {
+    position: static;
+    margin-bottom: 8px;
+  }
+
+  .project__places-card .ant-card-head {
+    padding: 0 12px;
+  }
+
+  .project__places-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .project__places-controls > .ant-space-item {
+    width: 100%;
   }
 
   .project__table .ant-table-cell {

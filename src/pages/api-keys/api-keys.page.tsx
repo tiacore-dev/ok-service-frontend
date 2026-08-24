@@ -64,7 +64,10 @@ export const ApiKeys = () => {
   );
 
   const { data: apiKeysData, isFetching } = useApiKeysQuery();
-  const { data: permissionTypesData } = useApiKeyPermissionTypesQuery();
+  const {
+    data: permissionTypesData,
+    refetch: refetchPermissionTypes,
+  } = useApiKeyPermissionTypesQuery();
   const { data: permissionRelationsData, refetch: refetchPermissionRelations } =
     useApiKeyPermissionRelationsQuery();
 
@@ -398,6 +401,7 @@ export const ApiKeys = () => {
                   form.resetFields();
                   setCreatePermissionTypeIds([]);
                   setCreateModalOpen(true);
+                  void refetchPermissionTypes();
                 }}
               >
                 Добавить ключ
