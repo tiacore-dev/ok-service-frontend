@@ -4,6 +4,7 @@ export interface IProjectWork {
   work: string;
   project: string;
   quantity: number;
+  price?: number;
   summ?: number;
   signed: boolean;
 }

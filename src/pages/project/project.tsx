@@ -8,6 +8,7 @@ import {
   Checkbox,
   Layout,
   Popconfirm,
+  Select,
   Space,
   Spin,
   Table,
@@ -16,6 +17,7 @@ import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { isMobile } from "../../utils/isMobile";
+import { formatNumber } from "../../utils/formatNumber";
 import { EditableProjectDialog } from "../../components/ActionDialogs/EditableProjectDialog/EditableProjectDialog";
 import { DeleteProjectDialog } from "../../components/ActionDialogs/DeleteProjectDialog";
 import type { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
@@ -31,6 +33,8 @@ import { useWorksMap } from "../../queries/works";
 import {
   useDeleteProjectMutation,
   useProjectQuery,
+  useProjectStatusesQuery,
+  useUpdateProjectStatusMutation,
 } from "../../queries/projects";
 import {
   useDeleteProjectWorkMutation,
@@ -71,6 +75,9 @@ export const Project = () => {
     isFetching: isProjectWorksFetching,
   } = useProjectWorksMap(projectId, { enabled: Boolean(projectId) });
   const deleteProjectMutation = useDeleteProjectMutation();
+  const updateProjectStatusMutation = useUpdateProjectStatusMutation();
+  const { data: projectStatuses = [], isPending: isProjectStatusesPending } =
+    useProjectStatusesQuery();
   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
   const deleteProjectWorkMutation = useDeleteProjectWorkMutation();
 
@@ -190,6 +197,9 @@ export const Project = () => {
             project_work_name: record.project_work_name,
             work: record.work,
             quantity: Number(record.quantity),
+            ...(record.price === undefined || record.price === null
+              ? {}
+              : { price: Number(record.price) }),
             signed: checked,
           },
         });
@@ -274,6 +284,37 @@ export const Project = () => {
     }
   }, [projectData, deleteProjectMutation, notificationApi, navigate]);
 
+  const handleStatusChange = React.useCallback(
+    async (status: string) => {
+      if (!projectData?.project_id) return;
+
+      try {
+        await updateProjectStatusMutation.mutateAsync({
+          projectId: projectData.project_id,
+          status,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Статус спецификации изменён",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } catch (error) {
+        const description =
+          error instanceof Error
+            ? error.message
+            : "Не удалось изменить статус спецификации";
+        notificationApi?.error({
+          message: "Ошибка",
+          description,
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+    },
+    [projectData, updateProjectStatusMutation, notificationApi],
+  );
+
   const handleModalCancel = () => {
     setModalVisible(false);
     setEditingRecord(null);
@@ -300,10 +341,26 @@ export const Project = () => {
       },
     },
     {
+      title: "Цена",
+      dataIndex: "price",
+      key: "price",
+      width: "130px",
+      render: (value?: number) =>
+        value === undefined || value === null ? "—" : formatNumber(value),
+    },
+    {
       title: "Количество",
       dataIndex: "quantity",
       key: "quantity",
       width: "100px",
+    },
+    {
+      title: "Сумма",
+      dataIndex: "summ",
+      key: "summ",
+      width: "130px",
+      render: (value?: number) =>
+        value === undefined || value === null ? "—" : formatNumber(value),
     },
     {
       title: "Согласовано",
@@ -397,6 +454,26 @@ export const Project = () => {
             <p>Наименование: {projectData.name}</p>
             <p>Объект: {objectsMap[projectData.object]?.name}</p>
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
+            <p>
+              Статус: {" "}
+              {canEdit ? (
+                <Select
+                  value={projectData.status}
+                  options={projectStatuses}
+                  loading={isProjectStatusesPending}
+                  disabled={
+                    isProjectStatusesPending ||
+                    updateProjectStatusMutation.isPending
+                  }
+                  onChange={handleStatusChange}
+                  className="project__status-select"
+                />
+              ) : (
+                projectStatuses.find(
+                  (status) => status.value === projectData.status,
+                )?.label ?? projectData.status ?? "—"
+              )}
+            </p>
           </Card>
 
           {importMode ? (

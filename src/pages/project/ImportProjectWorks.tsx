@@ -11,6 +11,7 @@ import {
   useCreateProjectWorksMutation,
   type EditableProjectWorkPayload,
 } from "../../queries/projectWorks";
+import { formatNumber } from "../../utils/formatNumber";
 import "./ImportProjectWorks.less";
 
 interface IImportProjectWorksProps {
@@ -23,8 +24,12 @@ interface IUploadData {
   workString?: string;
   workId?: string;
   quantity?: number;
+  price?: number;
   isCorrect: boolean;
 }
+
+const parseNumber = (value?: string): number =>
+  Number(value?.trim().replace(/\s/g, "").replace(",", "."));
 
 export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
   const role = useSelector(getCurrentRole);
@@ -67,6 +72,18 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
       dataIndex: "quantity",
       key: "quantity",
       width: "10%",
+    },
+    {
+      title: "Цена",
+      dataIndex: "price",
+      key: "price",
+      width: "15%",
+      render: (price?: number) =>
+        price === undefined
+          ? "—"
+          : Number.isFinite(price)
+            ? formatNumber(price)
+            : "Некорректная цена",
     },
 
     {
@@ -145,14 +162,20 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
       .map((row, i) => {
         const rowData = row.split(String.fromCharCode(9));
         const workString = rowData[0] ?? "";
-        const quantity = Number(rowData[1]) ?? 0;
+        const quantity = parseNumber(rowData[1]);
+        const priceValue = rowData[2]?.trim();
+        const price = priceValue ? parseNumber(priceValue) : undefined;
         const workId = workIdMap[workString];
 
-        const isCorrect = quantity > 0 && !!workId;
+        const isCorrect =
+          quantity > 0 &&
+          !!workId &&
+          (price === undefined || (Number.isFinite(price) && price >= 0));
         return {
           key: `${i}`,
           workString,
           quantity,
+          price,
           workId,
           isCorrect,
         };
@@ -205,6 +228,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
       project_work_name: el.workString ?? "",
       project: project.project_id!,
       quantity: el.quantity ?? 0,
+      ...(el.price === undefined ? {} : { price: el.price }),
       signed: role === RoleId.ADMIN || role === RoleId.MANAGER,
     }));
 

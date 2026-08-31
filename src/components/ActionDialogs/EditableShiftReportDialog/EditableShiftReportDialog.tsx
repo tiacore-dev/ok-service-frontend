@@ -21,7 +21,10 @@ import {
 } from "../../../hooks/QueryActions/shift-reports/shift-reports.mutations";
 import { useUsersMap } from "../../../queries/users";
 import { useObjectsMap } from "../../../queries/objects";
-import { useProjectsMap } from "../../../queries/projects";
+import {
+  useProjectsMap,
+  useProjectStatusesQuery,
+} from "../../../queries/projects";
 
 interface IEditableShiftReportDialogProps {
   shiftReport?: IShiftReport;
@@ -65,10 +68,18 @@ export const EditableShiftReportDialog = (
   }));
 
   const { projects: projectsList, projectsMap } = useProjectsMap();
+  const { data: projectStatuses = [] } = useProjectStatusesQuery();
+  const inProgressStatus = projectStatuses.find(
+    (status) => status.value === "in_progress",
+  )?.value;
 
   const filteredProjectMapData = useMemo(
-    () => projectsList.filter((el) => !object || el.object === object),
-    [projectsList, object],
+    () =>
+      projectsList.filter(
+        (el) =>
+          (!object || el.object === object) && el.status === inProgressStatus,
+      ),
+    [projectsList, object, inProgressStatus],
   );
 
   const projectMap = useMemo(

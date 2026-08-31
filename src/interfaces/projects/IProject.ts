@@ -3,5 +3,6 @@ export interface IProject {
   name: string;
   object: string;
   project_leader: string;
+  status?: string;
   deleted?: boolean;
 }

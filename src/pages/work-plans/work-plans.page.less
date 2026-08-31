@@ -1,0 +1,75 @@
+.work-plans {
+  padding: 0 16px 24px;
+  background: #fff;
+  min-height: calc(100vh - 108px);
+}
+
+.work-plans__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.work-plans__header .ant-typography {
+  margin: 0;
+}
+
+.work-plans__input {
+  width: 100px;
+}
+
+.work-plans__table .ant-table-cell {
+  white-space: nowrap;
+}
+
+.work-plans__table .ant-table-tbody > tr > td {
+  height: 56px;
+  vertical-align: middle;
+}
+
+.work-plans__table .work-plans__company-row > td {
+  background: #fff5f5;
+  font-weight: 600;
+}
+
+.work-plans__cell-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 110px;
+}
+
+.work-plans__edit-button {
+  visibility: hidden;
+  margin-left: 2px;
+}
+
+.work-plans__table .ant-table-cell:hover .work-plans__edit-button,
+.work-plans__edit-button:focus-visible {
+  visibility: visible;
+}
+
+.work-plans__editor {
+  display: inline-flex;
+  align-items: center;
+}
+
+.work-plans__editor .ant-btn {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .work-plans {
+    padding: 0 12px 20px;
+    min-height: calc(100vh - 110px);
+  }
+
+  .work-plans__header {
+    margin: 12px 0;
+  }
+}

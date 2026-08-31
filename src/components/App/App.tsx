@@ -49,6 +49,8 @@ import { Leaves } from "../../pages/leaves/leaves.page";
 import { Leave } from "../../pages/leave/leave";
 import { Manual } from "../../pages/manual/manual";
 import { ApiKeys } from "../../pages/api-keys/api-keys.page";
+import { WorkPlans } from "../../pages/work-plans/work-plans.page";
+import { workPlansKeys } from "../../queries/workPlans";
 import {
   apiKeyPermissionRelationsKeys,
   apiKeyPermissionTypesKeys,
@@ -86,6 +88,7 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: measurementUnitsKeys.all() });
     queryClient.removeQueries({ queryKey: objectStatusesKeys.all() });
     queryClient.removeQueries({ queryKey: rolesKeys.all() });
+    queryClient.removeQueries({ queryKey: workPlansKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeysKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeyPermissionTypesKeys.all() });
     queryClient.removeQueries({
@@ -208,6 +211,7 @@ export const App = () => {
                 <Route path=":materialId" element={<Material />} />
               </Route>
               <Route path="api-keys" element={<ApiKeys />} />
+              <Route path="work-plans" element={<WorkPlans />} />
               <Route path="shifts">
                 <Route index={true} element={<ShiftReports />} />
                 <Route path="assignment" element={<Assignment />} />

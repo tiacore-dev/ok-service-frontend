@@ -2,6 +2,7 @@ import { apiClient } from "./base";
 import type { IProject } from "../interfaces/projects/IProject";
 import type { IProjectsList } from "../interfaces/projects/IProjectsList";
 import type { IProjectStat } from "../interfaces/projects/IProjectStat";
+import type { IProjectStatus } from "../interfaces/projects/IProjectStatus";
 
 export interface EditableProjectPayload extends Omit<IProject, "project_id"> {}
 
@@ -32,6 +33,20 @@ export const fetchProjectStat = async (
     `/projects/${projectId}/get-stat`,
   );
   return data.stats;
+};
+
+export const fetchProjectStatuses = async (): Promise<IProjectStatus[]> => {
+  const { data } = await apiClient.get<{ statuses: IProjectStatus[] }>(
+    "/projects/statuses",
+  );
+  return data.statuses;
+};
+
+export const updateProjectStatus = async (
+  projectId: string,
+  status: string,
+): Promise<void> => {
+  await apiClient.patch(`/projects/${projectId}/status`, { status });
 };
 
 export const createProject = async (

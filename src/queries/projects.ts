@@ -12,7 +12,9 @@ import {
   deleteProject,
   fetchProject,
   fetchProjectStat,
+  fetchProjectStatuses,
   fetchProjects,
+  updateProjectStatus,
   updateProject,
   type CreateProjectResponse,
   type EditableProjectPayload,
@@ -21,6 +23,7 @@ export type { EditableProjectPayload } from "../api/projects.api";
 import type { IProject } from "../interfaces/projects/IProject";
 import type { IProjectsList } from "../interfaces/projects/IProjectsList";
 import type { IProjectStat } from "../interfaces/projects/IProjectStat";
+import type { IProjectStatus } from "../interfaces/projects/IProjectStatus";
 import { createQueryKeys } from "../queryKeys";
 
 const baseProjectsKeys = createQueryKeys("projects");
@@ -28,6 +31,7 @@ const baseProjectsKeys = createQueryKeys("projects");
 export const projectsKeys = {
   ...baseProjectsKeys,
   stat: (projectId: string) => ["projects", "stat", projectId] as const,
+  statuses: () => ["projects", "statuses"] as const,
 };
 
 type ProjectsQueryOptions<TData> = Omit<
@@ -80,6 +84,15 @@ export const useProjectStatQuery = (
   });
 };
 
+export const useProjectStatusesQuery = (): UseQueryResult<
+  IProjectStatus[],
+  Error
+> =>
+  useQuery({
+    queryKey: projectsKeys.statuses(),
+    queryFn: fetchProjectStatuses,
+  });
+
 export const useProjectsMap = (
   options?: ProjectsQueryOptions<IProjectsList[]>,
 ): UseQueryResult<IProjectsList[], Error> & {
@@ -119,6 +132,38 @@ export interface UpdateProjectVariables {
   projectId: string;
   payload: EditableProjectPayload;
 }
+
+export interface UpdateProjectStatusVariables {
+  projectId: string;
+  status: string;
+}
+
+export const useUpdateProjectStatusMutation = (): UseMutationResult<
+  void,
+  Error,
+  UpdateProjectStatusVariables
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ projectId, status }) => updateProjectStatus(projectId, status),
+    onSuccess: (_, variables) => {
+      queryClient.setQueryData<IProjectsList[]>(
+        projectsKeys.list(),
+        (projects) =>
+          projects?.map((project) =>
+            project.project_id === variables.projectId
+              ? { ...project, status: variables.status }
+              : project,
+          ),
+      );
+      queryClient.setQueryData<IProject>(
+        projectsKeys.detail(variables.projectId),
+        (project) =>
+          project ? { ...project, status: variables.status } : project,
+      );
+    },
+  });
+};
 
 export const useUpdateProjectMutation = (): UseMutationResult<
   IProject,
