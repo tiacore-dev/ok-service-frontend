@@ -130,12 +130,8 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
 
         return (
           <Dropdown overlay={menu} trigger={["click"]}>
-            <Button
-              className="import-project-works__dropdown-button"
-            >
-              <span
-                className="import-project-works__dropdown-text"
-              >
+            <Button className="import-project-works__dropdown-button">
+              <span className="import-project-works__dropdown-text">
                 {buttonText}
               </span>
             </Button>

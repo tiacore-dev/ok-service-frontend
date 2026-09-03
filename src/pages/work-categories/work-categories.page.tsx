@@ -14,10 +14,7 @@ import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
 import { Link } from "react-router-dom";
 import { IWorkCategoriesListColumn } from "../../interfaces/workCategories/IWorkCategoriesList";
-import {
-  DeleteTwoTone,
-  EditTwoTone,
-} from "@ant-design/icons";
+import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import {
@@ -49,8 +46,7 @@ export const WorkCategories = () => {
   const deleteWorkCategoryMutation = useDeleteWorkCategoryMutation();
 
   const workCategoriesData: IWorkCategoriesListColumn[] = React.useMemo(
-    () =>
-      workCategories.map((doc) => ({ ...doc, key: doc.work_category_id })),
+    () => workCategories.map((doc) => ({ ...doc, key: doc.work_category_id })),
     [workCategories],
   );
 
@@ -125,9 +121,7 @@ export const WorkCategories = () => {
       });
     } catch (error) {
       const description =
-        error instanceof Error
-          ? error.message
-          : "Не удалось удалить категорию";
+        error instanceof Error ? error.message : "Не удалось удалить категорию";
       notificationApi?.error({
         message: "Ошибка",
         description,
@@ -181,9 +175,7 @@ export const WorkCategories = () => {
           { title: "Категории работ" },
         ]}
       />
-      <Content
-        className="work-categories__content"
-      >
+      <Content className="work-categories__content">
         {currentRole === RoleId.ADMIN && (
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}

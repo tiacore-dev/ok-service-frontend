@@ -1,86 +1,85 @@
 .leaves {
-    padding: 8px;
-    margin: 0;
-    min-height: calc(100vh - 108px);
-    background: #fff;
+  padding: 8px;
+  margin: 0;
+  min-height: calc(100vh - 108px);
+  background: #fff;
 
-    &__table {
-        &__unviewed {
-            color: #e40808;
-            font-size: 28px;
-            cursor: pointer;
+  &__table {
+    &__unviewed {
+      color: #e40808;
+      font-size: 28px;
+      cursor: pointer;
 
-            &__row {
-                margin: -16px;
-                padding: 16px;
-                background-color: #e4dada;
-            }
-        }
-
-        &__number {
-            font-weight: 600;
-            color: #e40808;
-        }
+      &__row {
+        margin: -16px;
+        padding: 16px;
+        background-color: #e4dada;
+      }
     }
 
-    @media all and (max-width:1000px) {
-        &_filters {
-            margin-left: 12px;
-        }
+    &__number {
+      font-weight: 600;
+      color: #e40808;
     }
+  }
 
+  @media all and (max-width: 1000px) {
     &_filters {
-        margin-bottom: 12px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
+      margin-left: 12px;
+    }
+  }
 
-        &_select {
-            min-width: 300px;
-        }
+  &_filters {
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
 
-        &_input {
-            min-width: 240px;
-        }
-
-        &_range {
-            min-width: 260px;
-        }
-
-        &_sort {
-            min-width: 220px;
-        }
+    &_select {
+      min-width: 300px;
     }
 
-    &_actions {
-        margin-bottom: 12px;
+    &_input {
+      min-width: 240px;
     }
 
+    &_range {
+      min-width: 260px;
+    }
+
+    &_sort {
+      min-width: 220px;
+    }
+  }
+
+  &_actions {
+    margin-bottom: 12px;
+  }
 }
 
 @media (max-width: 768px) {
-    .leaves {
-        padding: 4px;
-        min-height: calc(100vh - 110px);
+  .leaves {
+    padding: 4px;
+    min-height: calc(100vh - 110px);
 
-        &_filters {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
+    &_filters {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
 
-            &_select,
-            &_input,
-            &_range,
-            &_sort {
-                min-width: 0;
-                width: 100%;
-            }
-        }
-
-        &_actions {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
-        }
+      &_select,
+      &_input,
+      &_range,
+      &_sort {
+        min-width: 0;
+        width: 100%;
+      }
     }
+
+    &_actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+  }
 }

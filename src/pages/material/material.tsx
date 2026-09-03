@@ -116,9 +116,7 @@ export const Material = () => {
         ]}
       />
       {isLoaded && materialData ? (
-        <Content
-          className="material__content"
-        >
+        <Content className="material__content">
           <Title level={3}>{materialData.name}</Title>
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}

@@ -23,7 +23,9 @@ import type { IApiKeyPermissionRelation } from "../interfaces/apiKeys/IApiKeyPer
 import { createQueryKeys } from "../queryKeys";
 
 export const apiKeysKeys = createQueryKeys("apiKeys");
-export const apiKeyPermissionTypesKeys = createQueryKeys("apiKeyPermissionTypes");
+export const apiKeyPermissionTypesKeys = createQueryKeys(
+  "apiKeyPermissionTypes",
+);
 export const apiKeyPermissionRelationsKeys = createQueryKeys(
   "apiKeyPermissionRelations",
 );

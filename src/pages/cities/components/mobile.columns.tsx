@@ -10,7 +10,7 @@ import { DeleteCityDialog } from "../../../components/ActionDialogs/DeleteCityDi
 export const citiesMobileColumns = (
   usersMap: Record<string, IUser>,
   onDelete: (cityId: string, cityName: string) => void,
-  canManage: boolean
+  canManage: boolean,
 ): ColumnsType<ICitiesListColumn> => [
   {
     dataIndex: "mobileData",

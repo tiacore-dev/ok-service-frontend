@@ -47,6 +47,56 @@
   margin: 0;
 }
 
+.acceptance__attachments-list {
+  border-top: 1px solid #f0f0f0;
+}
+
+.acceptance__attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.acceptance__attachment-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 0 !important;
+  text-align: left;
+}
+
+.acceptance__attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acceptance__attachment-size {
+  flex: 0 0 auto;
+  color: #8c8c8c;
+}
+
+.acceptance__attachment-actions {
+  display: flex;
+  align-items: center;
+}
+
+.acceptance__attachment-pdf-preview {
+  width: 100%;
+  min-height: 70vh;
+}
+
+.acceptance__attachment-text-preview {
+  max-height: 70vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .acceptance__table .ant-table-cell {
   padding: 12px !important;
 }

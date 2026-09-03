@@ -88,6 +88,13 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/work-plans");
           },
         },
+        {
+          key: "objects-progress",
+          label: "Прогресс работ",
+          onClick: () => {
+            navigate("/objects-progress");
+          },
+        },
       ],
     });
 

@@ -47,6 +47,9 @@ export const useDeleteProjectPlaceRelationMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteProjectPlaceRelation,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: projectPlaceRelationsKeys.list() }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: projectPlaceRelationsKeys.list(),
+      }),
   });
 };

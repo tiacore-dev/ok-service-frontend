@@ -144,7 +144,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
           {
             preset: preset,
             draggable: false,
-          }
+          },
         );
 
         mapRef.current.geoObjects.add(marker);
@@ -267,11 +267,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
               .join(" ")}
           >
             {isLoading && (
-              <div
-                className="map-viewer__loading"
-              >
-                Загрузка карты...
-              </div>
+              <div className="map-viewer__loading">Загрузка карты...</div>
             )}
           </div>
         )}

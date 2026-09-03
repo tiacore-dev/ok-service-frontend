@@ -41,7 +41,11 @@ export const leavesDesktopColumns = (
     key: "start_date",
     width: "15%",
     render: (text: string, record: ILeaveListColumn) => (
-      <div>{record.start_date ? dateTimestampToLocalString(record.start_date) : "-"}</div>
+      <div>
+        {record.start_date
+          ? dateTimestampToLocalString(record.start_date)
+          : "-"}
+      </div>
     ),
   },
   {
@@ -50,7 +54,9 @@ export const leavesDesktopColumns = (
     key: "end_date",
     width: "15%",
     render: (text: string, record: ILeaveListColumn) => (
-      <div>{record.end_date ? dateTimestampToLocalString(record.end_date) : "-"}</div>
+      <div>
+        {record.end_date ? dateTimestampToLocalString(record.end_date) : "-"}
+      </div>
     ),
   },
   {

@@ -145,7 +145,8 @@ export const useUpdateProjectStatusMutation = (): UseMutationResult<
 > => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ projectId, status }) => updateProjectStatus(projectId, status),
+    mutationFn: ({ projectId, status }) =>
+      updateProjectStatus(projectId, status),
     onSuccess: (_, variables) => {
       queryClient.setQueryData<IProjectsList[]>(
         projectsKeys.list(),

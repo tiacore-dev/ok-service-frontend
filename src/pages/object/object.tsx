@@ -40,7 +40,7 @@ export const Object = () => {
 
   const isLoaded = useMemo(
     () => Boolean(objectData && objectId === objectData.object_id),
-    [objectData, objectId]
+    [objectData, objectId],
   );
 
   const { citiesMap } = useCitiesMap();
@@ -85,9 +85,7 @@ export const Object = () => {
         ]}
       />
       {isLoaded && objectData && objectId === objectData.object_id ? (
-        <Content
-          className="object__content"
-        >
+        <Content className="object__content">
           <Title level={3}>{objectData.name}</Title>
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}

@@ -9,7 +9,11 @@ import {
   Space,
   Table,
 } from "antd";
-import { DeleteTwoTone, EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
+import {
+  DeleteTwoTone,
+  EditTwoTone,
+  PlusCircleTwoTone,
+} from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
 import type { IProjectMaterialsListColumn } from "../../interfaces/projectMaterials/IProjectMaterialsList";
 import {

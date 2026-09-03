@@ -132,7 +132,11 @@ export const ShiftReportPlaces = ({
       });
     }
   };
-  const openCommentEditor = (relationId: string, placeId: string, value?: string) => {
+  const openCommentEditor = (
+    relationId: string,
+    placeId: string,
+    value?: string,
+  ) => {
     setEditingPlace({ relationId, placeId });
     setComment(value ?? "");
   };

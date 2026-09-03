@@ -67,11 +67,7 @@ export const Login = () => {
     <>
       {contextHolder}
 
-      <Title
-        className="login__title"
-      >
-        Огнезащитная Корпорация
-      </Title>
+      <Title className="login__title">Огнезащитная Корпорация</Title>
       <Form
         name="login"
         labelCol={{ span: 8 }}

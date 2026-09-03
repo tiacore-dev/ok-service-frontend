@@ -33,7 +33,11 @@ export const ObjectProjectsFilters: React.FC<ObjectProjectsFiltersProps> = ({
   };
 
   const sortButtonIcon =
-    filtersState.sortOrder === "ascend" ? <ArrowUpOutlined /> : <ArrowDownOutlined />;
+    filtersState.sortOrder === "ascend" ? (
+      <ArrowUpOutlined />
+    ) : (
+      <ArrowDownOutlined />
+    );
 
   return (
     <Space
@@ -61,13 +65,16 @@ export const ObjectProjectsFilters: React.FC<ObjectProjectsFiltersProps> = ({
       <Select
         className="projects_filters_select"
         value={filtersState.sortField}
-        onChange={(value: ObjectProjectsSortField) => changeFilters({ sortField: value })}
+        onChange={(value: ObjectProjectsSortField) =>
+          changeFilters({ sortField: value })
+        }
         options={sortOptions}
       />
       <Button
         onClick={() =>
           changeFilters({
-            sortOrder: filtersState.sortOrder === "ascend" ? "descend" : "ascend",
+            sortOrder:
+              filtersState.sortOrder === "ascend" ? "descend" : "ascend",
           })
         }
         icon={sortButtonIcon}

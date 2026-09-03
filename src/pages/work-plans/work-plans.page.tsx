@@ -16,6 +16,7 @@ import {
   useUpdateWorkPlanMutation,
   useWorkPlansQuery,
 } from "../../queries/workPlans";
+import { useProjectLeadersStatsQuery } from "../../queries/projectLeaderStats";
 import "./work-plans.page.less";
 import { WorkPlanCell } from "./WorkPlanCell";
 
@@ -48,9 +49,7 @@ const getPlanKey = (userId: string | undefined, month: number) =>
 
 export const WorkPlans = () => {
   const [year, setYear] = React.useState(dayjs().year());
-  const [activeCellKey, setActiveCellKey] = React.useState<string | null>(
-    null,
-  );
+  const [activeCellKey, setActiveCellKey] = React.useState<string | null>(null);
   const role = useSelector(getCurrentRole);
   const notificationApi = React.useContext(NotificationContext);
   const {
@@ -58,6 +57,7 @@ export const WorkPlans = () => {
     isPending: isPlansPending,
     isError: isPlansError,
   } = useWorkPlansQuery(year);
+  useProjectLeadersStatsQuery();
   const { data: users = [], isPending: isUsersPending } = useUsersQuery();
   const createMutation = useCreateWorkPlanMutation();
   const updateMutation = useUpdateWorkPlanMutation();
@@ -162,19 +162,19 @@ export const WorkPlans = () => {
       (month, monthIndex) => ({
         title: month,
         key: month,
-      width: 160,
+        width: 160,
         align: "right",
         render: (_, row) => {
           const key = getPlanKey(row.userId, monthIndex);
           const plan = plansMap[key];
           return (
-          <WorkPlanCell
-            cellKey={key}
-            editing={activeCellKey === key}
-            plan={plan}
-            canEdit={canEdit}
-            onEditStart={handleEditStart}
-            onEditEnd={handleEditEnd}
+            <WorkPlanCell
+              cellKey={key}
+              editing={activeCellKey === key}
+              plan={plan}
+              canEdit={canEdit}
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
               onSave={savePlan}
               onDelete={deletePlan}
               payload={{
@@ -255,9 +255,7 @@ export const WorkPlans = () => {
           dataSource={rows}
           pagination={false}
           scroll={{ x: 1950 }}
-          rowClassName={(row) =>
-            row.userId ? "" : "work-plans__company-row"
-          }
+          rowClassName={(row) => (row.userId ? "" : "work-plans__company-row")}
         />
       )}
     </main>

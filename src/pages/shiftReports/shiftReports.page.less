@@ -1,171 +1,170 @@
 .shift-reports {
-    padding: 8px;
-    margin: 0;
-    min-height: calc(100vh - 108px);
-    background: #fff;
+  padding: 8px;
+  margin: 0;
+  min-height: calc(100vh - 108px);
+  background: #fff;
 
-    &__table {
-        &__row--deleted {
-            background-color: #f5f5f5;
-            color: #8a8a8a;
+  &__table {
+    &__row--deleted {
+      background-color: #f5f5f5;
+      color: #8a8a8a;
 
-            .shift-reports__table__number {
-                color: #8a8a8a;
-            }
-        }
-
-        &__unviewed {
-            color: #e40808;
-            font-size: 28px;
-            cursor: pointer;
-
-            &__row {
-                margin: -16px;
-                padding: 16px;
-                background-color: #e4dada;
-            }
-        }
-
-        &__number {
-            font-weight: 600;
-            color: #e40808;
-        }
+      .shift-reports__table__number {
+        color: #8a8a8a;
+      }
     }
 
-    @media all and (max-width:1000px) {
-        &_actions {
-            margin-left: 12px;
-        }
+    &__unviewed {
+      color: #e40808;
+      font-size: 28px;
+      cursor: pointer;
+
+      &__row {
+        margin: -16px;
+        padding: 16px;
+        background-color: #e4dada;
+      }
     }
 
+    &__number {
+      font-weight: 600;
+      color: #e40808;
+    }
+  }
+
+  @media all and (max-width: 1000px) {
     &_actions {
-        margin-bottom: 12px;
-        position: relative;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 8px;
+      margin-left: 12px;
+    }
+  }
 
-        &_select {
-            min-width: 300px;
-        }
+  &_actions {
+    margin-bottom: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+
+    &_select {
+      min-width: 300px;
+    }
+  }
+
+  &__assignment-button {
+    margin-right: 8px;
+  }
+
+  &_filters {
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    &_select {
+      min-width: 240px;
     }
 
-    &__assignment-button {
-        margin-right: 8px;
+    &_projectTree {
+      min-width: 280px;
     }
 
-    &_filters {
-        margin-bottom: 12px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-
-        &_select {
-            min-width: 240px;
-        }
-
-        &_projectTree {
-            min-width: 280px;
-        }
-
-        &_range {
-            min-width: 260px;
-        }
-
-        &_tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 0 6px;
-            background: #f2f2f2;
-            border-radius: 4px;
-            height: 24px;
-            font-size: 12px;
-        }
-
-        &_tag-close {
-            margin-left: 6px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        &_summary {
-            margin-top: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        &_summaryRow {
-            display: flex;
-            gap: 8px;
-            align-items: flex-start;
-        }
-
-        &_summaryLabel {
-            font-weight: 500;
-        }
-
-        &_summaryChips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        &_summaryChip {
-            border: none;
-            border-radius: 12px;
-            background: #f3f3f3;
-            padding: 2px 10px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        &_summaryChip-close {
-            font-size: 12px;
-        }
+    &_range {
+      min-width: 260px;
     }
 
+    &_tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 6px;
+      background: #f2f2f2;
+      border-radius: 4px;
+      height: 24px;
+      font-size: 12px;
+    }
+
+    &_tag-close {
+      margin-left: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    &_summary {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    &_summaryRow {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    &_summaryLabel {
+      font-weight: 500;
+    }
+
+    &_summaryChips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    &_summaryChip {
+      border: none;
+      border-radius: 12px;
+      background: #f3f3f3;
+      padding: 2px 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    &_summaryChip-close {
+      font-size: 12px;
+    }
+  }
 }
 
 @media (max-width: 768px) {
-    .shift-reports {
-        padding: 4px;
-        min-height: calc(100vh - 110px);
+  .shift-reports {
+    padding: 4px;
+    min-height: calc(100vh - 110px);
 
-        &_actions {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
+    &_actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
 
-            &_select {
-                min-width: 0;
-                width: 100%;
-            }
-        }
-
-        &_filters {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
-
-            &_select,
-            &_projectTree,
-            &_range {
-                min-width: 0;
-                width: 100%;
-            }
-
-            &_summaryRow {
-                flex-direction: column;
-                gap: 4px;
-            }
-        }
+      &_select {
+        min-width: 0;
+        width: 100%;
+      }
     }
+
+    &_filters {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+
+      &_select,
+      &_projectTree,
+      &_range {
+        min-width: 0;
+        width: 100%;
+      }
+
+      &_summaryRow {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  }
 }

@@ -33,14 +33,18 @@ export const objectsDesktopColumns = (
     dataIndex: "address",
     key: "address",
     width: "20%",
-    render: (text: string, record: IObjectsListColumn) => <div>{record.address}</div>,
+    render: (text: string, record: IObjectsListColumn) => (
+      <div>{record.address}</div>
+    ),
   },
   {
     title: "Описание",
     dataIndex: "description",
     key: "description",
     width: "20%",
-    render: (text: string, record: IObjectsListColumn) => <div>{record.description}</div>,
+    render: (text: string, record: IObjectsListColumn) => (
+      <div>{record.description}</div>
+    ),
   },
   {
     title: "Город",

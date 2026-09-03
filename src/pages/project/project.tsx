@@ -456,7 +456,7 @@ export const Project = () => {
             <p>Объект: {objectsMap[projectData.object]?.name}</p>
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
             <p>
-              Статус: {" "}
+              Статус:{" "}
               {canEdit ? (
                 <Select
                   value={projectData.status}
@@ -472,7 +472,9 @@ export const Project = () => {
               ) : (
                 projectStatuses.find(
                   (status) => status.value === projectData.status,
-                )?.label ?? projectData.status ?? "—"
+                )?.label ??
+                projectData.status ??
+                "—"
               )}
             </p>
           </Card>

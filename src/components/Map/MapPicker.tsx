@@ -101,7 +101,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
         {
           draggable: true,
           preset: "islands#redIcon",
-        }
+        },
       );
 
       // Добавляем маркер на карту
@@ -186,7 +186,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
           }
 
           setError(errorMessage);
-        }
+        },
       );
     } else {
       setError("Геолокация не поддерживается вашим браузером");
@@ -260,11 +260,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({
             .join(" ")}
         >
           {isLoading && (
-            <div
-              className="map-picker__loading"
-            >
-              Загрузка карты...
-            </div>
+            <div className="map-picker__loading">Загрузка карты...</div>
           )}
         </div>
 

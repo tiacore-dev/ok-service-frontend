@@ -61,7 +61,12 @@ export const ObjectProjectsCard: React.FC<Props> = ({
   );
 
   return (
-    <Card key={objectId} title={title} size="small" className="object-projects__card">
+    <Card
+      key={objectId}
+      title={title}
+      size="small"
+      className="object-projects__card"
+    >
       {isExpanded && (
         <List
           loading={loading}

@@ -27,6 +27,7 @@ import {
   AcceptanceFormModal,
   acceptanceStatusOptions,
 } from "../../components/acceptances/AcceptanceFormModal";
+import { AcceptanceAttachments } from "./AcceptanceAttachments";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import type {
   IAcceptance,
@@ -293,6 +294,11 @@ export const Acceptance = () => {
           </p>
           {acceptance.comment && <p>Комментарий: {acceptance.comment}</p>}
         </Card>
+
+        <AcceptanceAttachments
+          acceptanceId={acceptance.id}
+          canManage={canManage}
+        />
 
         <section className="acceptance__works">
           <div className="acceptance__section-header">

@@ -14,11 +14,12 @@ interface ProjectWorksFiltersProps {
   workOptions: Array<{ label: string; value: string }>;
 }
 
-const signedOptions: Array<{ label: string; value: ProjectWorksSignedFilter }> = [
-  { label: "Все записи", value: "all" },
-  { label: "Подписанные", value: "signed" },
-  { label: "Неподписанные", value: "unsigned" },
-];
+const signedOptions: Array<{ label: string; value: ProjectWorksSignedFilter }> =
+  [
+    { label: "Все записи", value: "all" },
+    { label: "Подписанные", value: "signed" },
+    { label: "Неподписанные", value: "unsigned" },
+  ];
 
 const sortOptions: Array<{ label: string; value: ProjectWorksSortField }> = [
   { label: "Сортировка: по названию", value: "name" },
@@ -35,7 +36,11 @@ export const ProjectWorksFilters: React.FC<ProjectWorksFiltersProps> = ({
   };
 
   const sortButtonIcon =
-    filtersState.sortOrder === "ascend" ? <ArrowUpOutlined /> : <ArrowDownOutlined />;
+    filtersState.sortOrder === "ascend" ? (
+      <ArrowUpOutlined />
+    ) : (
+      <ArrowDownOutlined />
+    );
 
   return (
     <Space
@@ -63,19 +68,24 @@ export const ProjectWorksFilters: React.FC<ProjectWorksFiltersProps> = ({
       <Select
         className="project-works_filters_select"
         value={filtersState.signed}
-        onChange={(value: ProjectWorksSignedFilter) => changeFilters({ signed: value })}
+        onChange={(value: ProjectWorksSignedFilter) =>
+          changeFilters({ signed: value })
+        }
         options={signedOptions}
       />
       <Select
         className="project-works_filters_select"
         value={filtersState.sortField}
-        onChange={(value: ProjectWorksSortField) => changeFilters({ sortField: value })}
+        onChange={(value: ProjectWorksSortField) =>
+          changeFilters({ sortField: value })
+        }
         options={sortOptions}
       />
       <Button
         onClick={() =>
           changeFilters({
-            sortOrder: filtersState.sortOrder === "ascend" ? "descend" : "ascend",
+            sortOrder:
+              filtersState.sortOrder === "ascend" ? "descend" : "ascend",
           })
         }
         icon={sortButtonIcon}

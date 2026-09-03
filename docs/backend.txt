@@ -88,6 +88,138 @@
         ]
       }
     },
+    "/acceptances/{acceptance_id}/attachments": {
+      "parameters": [
+        {
+          "name": "acceptance_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_acceptance_attachments"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "post_attachment_collection",
+        "parameters": [
+          {
+            "name": "files",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "One or more attachment files"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "work_acceptance_attachments"
+        ]
+      }
+    },
+    "/acceptances/{acceptance_id}/attachments/{attachment_id}": {
+      "parameters": [
+        {
+          "name": "acceptance_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentMessage"
+            }
+          }
+        },
+        "operationId": "delete_attachment_delete",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_acceptance_attachments"
+        ]
+      }
+    },
+    "/acceptances/{acceptance_id}/attachments/{attachment_id}/download": {
+      "parameters": [
+        {
+          "name": "acceptance_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_attachment_download",
+        "tags": [
+          "work_acceptance_attachments"
+        ]
+      }
+    },
     "/acceptances/{acceptance_id}/delete/hard": {
       "parameters": [
         {
@@ -1948,6 +2080,48 @@
         ]
       }
     },
+    "/objects/get-stat": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectStatsCollectionResponse"
+            }
+          }
+        },
+        "operationId": "get_all_objects_stats",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
     "/objects/statuses": {
       "get": {
         "responses": {
@@ -2839,6 +3013,48 @@
         ],
         "tags": [
           "positions"
+        ]
+      }
+    },
+    "/project-leaders/get-stat": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ProjectLeaderStatsCollectionResponse"
+            }
+          }
+        },
+        "operationId": "get_all_project_leaders_stats",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 10
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_leaders"
         ]
       }
     },
@@ -7772,6 +7988,10 @@
       "description": "Place attachments"
     },
     {
+      "name": "work_acceptance_attachments",
+      "description": "Work acceptance attachments"
+    },
+    {
       "name": "roles",
       "description": "Role management operations"
     },
@@ -8855,6 +9075,21 @@
         "stats": {
           "type": "object",
           "description": "Object total and statistics grouped by project"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatsCollectionResponse": {
+      "required": [
+        "msg",
+        "stats"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "stats": {
+          "type": "object"
         }
       },
       "type": "object"
@@ -10099,6 +10334,21 @@
         "stats": {
           "type": "object",
           "description": "Dict of work_id or project_work_id -\u003E stat"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectLeaderStatsCollectionResponse": {
+      "required": [
+        "msg",
+        "stats"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "stats": {
+          "type": "object"
         }
       },
       "type": "object"
@@ -11802,13 +12052,14 @@
           "type": "string"
         },
         "acceptance": {
-          "$ref": "#/definitions/Acceptance"
+          "$ref": "#/definitions/AcceptanceView"
         }
       },
       "type": "object"
     },
-    "Acceptance": {
+    "AcceptanceView": {
       "required": [
+        "attachments",
         "date",
         "id",
         "project_id",
@@ -11836,6 +12087,12 @@
         },
         "comment": {
           "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AttachmentView"
+          }
         }
       },
       "type": "object"
@@ -11870,6 +12127,39 @@
           "items": {
             "$ref": "#/definitions/Acceptance"
           }
+        }
+      },
+      "type": "object"
+    },
+    "Acceptance": {
+      "required": [
+        "date",
+        "id",
+        "project_id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "date": {
+          "type": "integer"
+        },
+        "project_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "example": "presented",
+          "enum": [
+            "presented",
+            "violations_found",
+            "accepted_on_site",
+            "documents_signed"
+          ]
+        },
+        "comment": {
+          "type": "string"
         }
       },
       "type": "object"
