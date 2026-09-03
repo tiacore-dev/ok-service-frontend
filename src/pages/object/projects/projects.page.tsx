@@ -11,15 +11,14 @@ import type { IState } from "../../../store/modules";
 import type { IProjectsListColumn } from "../../../interfaces/projects/IProjectsList";
 import { isMobile } from "../../../utils/isMobile";
 import { useUsersMap } from "../../../queries/users";
+import { useProjectStatusesQuery } from "../../../queries/projects";
 import { useProjectsMap } from "../../../queries/projects";
 import { ObjectProjectsFilters } from "./ObjectProjectsFilters";
 import type {
   IObjectProjectsFiltersState,
   ObjectProjectsSortField,
 } from "../../../interfaces/projects/IObjectProjectsFiltersState";
-import {
-  defaultObjectProjectsFiltersState,
-} from "../../../interfaces/projects/IObjectProjectsFiltersState";
+import { defaultObjectProjectsFiltersState } from "../../../interfaces/projects/IObjectProjectsFiltersState";
 import { saveObjectProjectsFiltersState } from "../../../store/modules/settings/objectProjects";
 
 interface ProjectsProps {
@@ -42,13 +41,12 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
   );
 
   const { usersMap } = useUsersMap();
+  const { data: projectStatuses = [] } = useProjectStatusesQuery();
 
   const filtersState = useSelector((state: IState) => {
     const filtersByObject =
       state.settings.objectProjectsSettings.filtersByObject;
-    return (
-      filtersByObject[object_id] ?? defaultObjectProjectsFiltersState
-    );
+    return filtersByObject[object_id] ?? defaultObjectProjectsFiltersState;
   });
 
   const handleFiltersChange = React.useCallback(
@@ -119,9 +117,9 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
   const columns = React.useMemo(
     () =>
       isMobile()
-        ? projectsMobileColumns(navigate, usersMap)
-        : projectsDesktopColumns(navigate, usersMap),
-    [navigate, usersMap],
+        ? projectsMobileColumns(navigate, usersMap, projectStatuses)
+        : projectsDesktopColumns(navigate, usersMap, projectStatuses),
+    [navigate, projectStatuses, usersMap],
   );
 
   return (

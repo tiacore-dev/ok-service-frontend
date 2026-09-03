@@ -2212,6 +2212,72 @@
         ]
       }
     },
+    "/objects/{object_id}/get-stat": {
+      "parameters": [
+        {
+          "name": "object_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectStatsResponse"
+            }
+          }
+        },
+        "operationId": "get_object_stats",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
+    "/objects/{object_id}/get-stat-details": {
+      "parameters": [
+        {
+          "name": "object_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectStatsDetailsResponse"
+            }
+          }
+        },
+        "operationId": "get_object_stats_details",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "objects"
+        ]
+      }
+    },
     "/objects/{object_id}/view": {
       "parameters": [
         {
@@ -2773,6 +2839,72 @@
         ],
         "tags": [
           "positions"
+        ]
+      }
+    },
+    "/project-leaders/{project_leader_id}/get-stat": {
+      "parameters": [
+        {
+          "name": "project_leader_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectStatsResponse"
+            }
+          }
+        },
+        "operationId": "get_project_leader_stats",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_leaders"
+        ]
+      }
+    },
+    "/project-leaders/{project_leader_id}/get-stat-details": {
+      "parameters": [
+        {
+          "name": "project_leader_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ObjectStatsDetailsResponse"
+            }
+          }
+        },
+        "operationId": "get_project_leader_stats_details",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "project_leaders"
         ]
       }
     },
@@ -7692,6 +7824,10 @@
       "description": "Projects management operations"
     },
     {
+      "name": "project_leaders",
+      "description": "Project leader statistics operations"
+    },
+    {
       "name": "users",
       "description": "User management operations"
     },
@@ -8703,6 +8839,38 @@
         },
         "label": {
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatsResponse": {
+      "required": [
+        "msg",
+        "stats"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "stats": {
+          "type": "object",
+          "description": "Object total and statistics grouped by project"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatsDetailsResponse": {
+      "required": [
+        "msg",
+        "stats"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "stats": {
+          "type": "object",
+          "description": "Object statistics grouped by project and work_id"
         }
       },
       "type": "object"

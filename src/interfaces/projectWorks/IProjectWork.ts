@@ -6,5 +6,7 @@ export interface IProjectWork {
   quantity: number;
   price?: number;
   summ?: number;
+  shift_report_details_quantity?: number;
+  acceptance_status?: "not_checked" | "partial" | "accepted";
   signed: boolean;
 }

@@ -26,3 +26,4 @@ yarn-error.log*
 .codebase-memory/graph.db.zst
 .codebase-memory/artifact.json
 .codebase-memory/.gitattributes
+docs/TODO.md

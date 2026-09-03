@@ -50,6 +50,7 @@ import { Leave } from "../../pages/leave/leave";
 import { Manual } from "../../pages/manual/manual";
 import { ApiKeys } from "../../pages/api-keys/api-keys.page";
 import { WorkPlans } from "../../pages/work-plans/work-plans.page";
+import { Acceptance } from "../../pages/acceptance/acceptance.page";
 import { workPlansKeys } from "../../queries/workPlans";
 import {
   apiKeyPermissionRelationsKeys,
@@ -212,6 +213,7 @@ export const App = () => {
               </Route>
               <Route path="api-keys" element={<ApiKeys />} />
               <Route path="work-plans" element={<WorkPlans />} />
+              <Route path="acceptances/:acceptanceId" element={<Acceptance />} />
               <Route path="shifts">
                 <Route index={true} element={<ShiftReports />} />
                 <Route path="assignment" element={<Assignment />} />

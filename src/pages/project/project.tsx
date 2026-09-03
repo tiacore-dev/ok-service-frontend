@@ -48,6 +48,7 @@ import type { IProjectWorksFiltersState } from "../../interfaces/projectWorks/IP
 import { defaultProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
 import { saveProjectWorksFiltersState } from "../../store/modules/settings/projectWorks";
 import { ProjectPlaces } from "./ProjectPlaces";
+import { ProjectAcceptances } from "./ProjectAcceptances";
 import type { IState } from "../../store/modules";
 
 export const Project = () => {
@@ -524,6 +525,10 @@ export const Project = () => {
             projectId={projectData.project_id}
             objectId={projectData.object}
             canEdit={canEdit}
+          />
+          <ProjectAcceptances
+            projectId={projectData.project_id}
+            canManage={currentRole === RoleId.MANAGER}
           />
           <section className="project__materials-section">
             <Title level={4} className="project__section-title">

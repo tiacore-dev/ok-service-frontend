@@ -29,6 +29,8 @@ export const deleteProjectPlaceRelations = async (
   });
 };
 
-export const deleteProjectPlaceRelation = async (relationId: string): Promise<void> => {
+export const deleteProjectPlaceRelation = async (
+  relationId: string,
+): Promise<void> => {
   await apiClient.delete(`/project_place_relations/${relationId}/delete/hard`);
 };
