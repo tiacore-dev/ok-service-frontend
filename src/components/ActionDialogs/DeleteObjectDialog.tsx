@@ -17,7 +17,7 @@ export const DeleteObjectDialog = (props: IDeleteObjectDialogProps) => {
     <ActionDialog
       onConfirm={onDelete}
       buttonText={iconOnly ? "" : "Удалить"}
-      popoverText={iconOnly && "Удалить"}
+      popoverText={iconOnly ? "Удалить" : undefined}
       buttonType={buttonType}
       buttonIcon={<DeleteTwoTone twoToneColor="#ff1616" />}
       modalTitle={`Подтверждение удаления объекта ${name}`}

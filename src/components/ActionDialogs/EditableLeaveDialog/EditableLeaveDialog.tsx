@@ -143,7 +143,7 @@ export const EditableLeaveDialog = (props: IEditableLeaveDialogProps) => {
       onConfirm={handleConfirm}
       onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
-      popoverText={iconOnly && popoverText}
+      popoverText={iconOnly ? popoverText : undefined}
       buttonType="default"
       buttonIcon={buttonIcon}
       modalTitle={modalTitle}

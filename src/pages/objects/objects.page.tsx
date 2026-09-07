@@ -35,9 +35,9 @@ export const Objects = () => {
 
   const objectsData: IObjectsListColumn[] = React.useMemo(
     () =>
-      (objectsList ?? []).map((doc) => ({
+      (objectsList ?? []).map((doc, index) => ({
         ...doc,
-        key: doc.object_id,
+        key: doc.object_id ?? `object-${index}`,
       })),
     [objectsList],
   );

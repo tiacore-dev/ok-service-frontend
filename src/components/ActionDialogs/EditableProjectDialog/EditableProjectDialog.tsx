@@ -141,7 +141,7 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
       onConfirm={handleConfirm}
       onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
-      popoverText={iconOnly && popoverText}
+      popoverText={iconOnly ? popoverText : undefined}
       buttonType="primary"
       buttonIcon={buttonIcon}
       modalTitle={modalTitle}

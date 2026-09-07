@@ -251,7 +251,7 @@ export const WorkMaterialRelationsTable = ({
       title: "Действия",
       dataIndex: "operation",
       hidden: !canManage,
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       render: (_: string, record: IWorkMaterialRelationsListColumn) => {
         return (
           <Space>

@@ -36,7 +36,10 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
     () =>
       (projects ?? [])
         .filter((doc) => doc.object === object_id)
-        .map((doc) => ({ ...doc, key: doc.project_id })),
+        .map((doc, index) => ({
+          ...doc,
+          key: doc.project_id ?? `project-${index}`,
+        })),
     [projects, object_id],
   );
 

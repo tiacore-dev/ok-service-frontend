@@ -65,7 +65,7 @@ export const Acceptance = () => {
   const { acceptanceId } = useParams();
   const navigate = useNavigate();
   const role = useSelector(getCurrentRole);
-  const canManage = role === RoleId.MANAGER;
+  const canManage = role === RoleId.MANAGER || role === RoleId.ADMIN;
   const notificationApi = React.useContext(NotificationContext);
   const [editOpen, setEditOpen] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);

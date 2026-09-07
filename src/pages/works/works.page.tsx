@@ -32,9 +32,9 @@ export const Works = () => {
 
   const worksData: IWorksListColumn[] = React.useMemo(
     () =>
-      (works ?? []).map((doc) => ({
+      (works ?? []).map((doc, index) => ({
         ...doc,
-        key: doc.work_id,
+        key: doc.work_id ?? `work-${index}`,
       })),
     [works],
   );

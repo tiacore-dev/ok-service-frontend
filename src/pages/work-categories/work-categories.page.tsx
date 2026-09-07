@@ -140,7 +140,7 @@ export const WorkCategories = () => {
     {
       title: "Действия",
       dataIndex: "operation",
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       hidden: currentRole !== RoleId.ADMIN,
       render: (_: string, record: IWorkCategoriesListColumn) => {
         return (

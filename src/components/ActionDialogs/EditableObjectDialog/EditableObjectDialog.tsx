@@ -148,7 +148,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
         onConfirm={handleConfirm}
         onOpen={handeOpen}
         buttonText={iconOnly ? "" : buttonText}
-        popoverText={iconOnly && popoverText}
+        popoverText={iconOnly ? popoverText : undefined}
         buttonType="primary"
         buttonIcon={buttonIcon}
         modalTitle={modalTitle}

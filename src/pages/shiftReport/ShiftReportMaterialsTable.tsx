@@ -245,7 +245,7 @@ export const ShiftReportMaterialsTable = ({
       title: "Действия",
       dataIndex: "operation",
       hidden: !canManage,
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       render: (_: string, record: IShiftReportMaterialsListColumn) => {
         return (
           <Space>

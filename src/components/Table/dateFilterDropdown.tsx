@@ -16,9 +16,13 @@ export const dateFilterDropdown = ({
   confirm,
   clearFilters,
 }: IDateFilterDropdownProps) => {
-  const handleRangeChange = (date: Dayjs | null, dateString: string) => {
-    if (dateString) {
-      setSelectedKeys([dateString]);
+  const handleRangeChange = (
+    date: Dayjs | null,
+    dateString: string | string[],
+  ) => {
+    const value = Array.isArray(dateString) ? dateString[0] : dateString;
+    if (value) {
+      setSelectedKeys([value]);
       confirm();
     }
   };

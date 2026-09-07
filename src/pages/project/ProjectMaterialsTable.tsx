@@ -221,7 +221,7 @@ export const ProjectMaterialsTable = ({
       title: "Действия",
       dataIndex: "operation",
       hidden: !canManage,
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       render: (_: string, record: IProjectMaterialsListColumn) => {
         return (
           <Space>

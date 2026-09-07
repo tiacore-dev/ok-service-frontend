@@ -36,7 +36,7 @@ export const filterDropdown = ({
     </Button>
     <Button
       onClick={() => {
-        clearFilters();
+        clearFilters?.();
         confirm();
       }}
       size="small"

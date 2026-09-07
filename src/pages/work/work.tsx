@@ -207,7 +207,7 @@ export const Work = () => {
       title: "Действия",
       dataIndex: "operation",
       hidden: currentRole !== RoleId.ADMIN,
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       render: (_: string, record: IWorkPricesListColumn) => {
         return (
           <Space>

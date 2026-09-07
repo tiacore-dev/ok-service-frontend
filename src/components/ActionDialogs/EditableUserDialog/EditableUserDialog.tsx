@@ -135,7 +135,7 @@ export const EditableUserDialog = (props: IEditableUserDialogProps) => {
       onOpen={handeOpen}
       modalOkDisabled={disabled}
       buttonText={iconOnly ? "" : buttonText}
-      popoverText={iconOnly && popoverText}
+      popoverText={iconOnly ? popoverText : undefined}
       buttonType="primary"
       buttonIcon={buttonIcon}
       modalTitle={modalTitle}

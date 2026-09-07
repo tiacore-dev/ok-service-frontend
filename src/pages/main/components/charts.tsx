@@ -92,7 +92,7 @@ export const Charts = (props: IChartsProps) => {
   } = props;
 
   const { usersMap } = useUsersMap();
-  const containerRef = React.useRef(null);
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = React.useState(0);
   const role = useSelector(getCurrentRole);
   const mobile = isMobile();

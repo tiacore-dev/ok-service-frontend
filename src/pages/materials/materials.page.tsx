@@ -28,9 +28,9 @@ export const Materials = () => {
 
   const materialsData: IMaterialsListColumn[] = React.useMemo(
     () =>
-      (materials ?? []).map((doc) => ({
+      (materials ?? []).map((doc, index) => ({
         ...doc,
-        key: doc.material_id,
+        key: doc.material_id ?? `material-${index}`,
       })),
     [materials],
   );

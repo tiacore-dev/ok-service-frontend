@@ -383,7 +383,7 @@ export const Project = () => {
           {
             title: "Действия",
             dataIndex: "operation",
-            width: !isMobile() && "116px",
+            width: isMobile() ? undefined : "116px",
             render: (_: string, record: IProjectWorksListColumn) => (
               <Space>
                 <Button
@@ -530,7 +530,9 @@ export const Project = () => {
           />
           <ProjectAcceptances
             projectId={projectData.project_id}
-            canManage={currentRole === RoleId.MANAGER}
+            canManage={
+              currentRole === RoleId.MANAGER || currentRole === RoleId.ADMIN
+            }
           />
           <section className="project__materials-section">
             <Title level={4} className="project__section-title">
