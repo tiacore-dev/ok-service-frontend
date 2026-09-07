@@ -110,9 +110,9 @@ jobs:
           if [[ "${{ github.ref_name }}" == "master" ]]; then
             echo "DEPLOY_PATH=apps/ok-service-frontend" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "dev" ]]; then
-            echo "DEPLOY_PATH=apps/ok-service-frontend-dev" >> $GITHUB_ENV
+            echo "DEPLOY_PATH=/opt/apps/ok-service-frontend-dev" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "stage" ]]; then
-            echo "DEPLOY_PATH=apps/ok-service-frontend-stage" >> $GITHUB_ENV
+            echo "DEPLOY_PATH=/opt/apps/ok-service-frontend-stage" >> $GITHUB_ENV
           else
             echo "❌ Неизвестная ветка! Прерываем процесс."
             exit 1
