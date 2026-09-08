@@ -1,6 +1,7 @@
 import * as React from "react";
 import { notification } from "antd";
 import type { IObject } from "../../interfaces/objects/IObject";
+import { RoleId } from "../../interfaces/roles/IRole";
 import type { IShiftReport } from "../../interfaces/shiftReports/IShiftReport";
 import { calculateDistanceMeters } from "./shiftReport.utils";
 
@@ -15,6 +16,7 @@ type ShiftActionMutation = (
 interface UseShiftReportShiftActionsParams {
   shiftReport?: IShiftReport;
   currentUserId?: string;
+  currentRole?: RoleId;
   objectId?: string;
   objectsMap: Record<string, IObject>;
   startShiftMutation: ShiftActionMutation;
@@ -24,6 +26,7 @@ interface UseShiftReportShiftActionsParams {
 export const useShiftReportShiftActions = ({
   shiftReport,
   currentUserId,
+  currentRole,
   objectId,
   objectsMap,
   startShiftMutation,
@@ -37,8 +40,8 @@ export const useShiftReportShiftActions = ({
     if (shiftReport.deleted) return false;
     if (shiftReport.signed) return false;
     if (shiftReport.date_start) return false;
-    return shiftReport.user === currentUserId;
-  }, [shiftReport, currentUserId]);
+    return currentRole === RoleId.ADMIN || shiftReport.user === currentUserId;
+  }, [currentRole, shiftReport, currentUserId]);
 
   const canCompleteShift = React.useMemo(() => {
     if (!shiftReport) return false;
@@ -46,8 +49,8 @@ export const useShiftReportShiftActions = ({
     if (shiftReport.signed) return false;
     if (!shiftReport.date_start) return false;
     if (shiftReport.date_end) return false;
-    return shiftReport.user === currentUserId;
-  }, [shiftReport, currentUserId]);
+    return currentRole === RoleId.ADMIN || shiftReport.user === currentUserId;
+  }, [currentRole, shiftReport, currentUserId]);
 
   const getDistanceToObjectMeters = React.useCallback(
     (lat: number, lng: number) => {

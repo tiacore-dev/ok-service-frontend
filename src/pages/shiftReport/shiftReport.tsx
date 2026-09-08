@@ -17,6 +17,7 @@ import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { useShiftReportQuery } from "../../hooks/QueryActions/shift-reports/shift-reports.query";
 import {
   useFinishShiftReportMutation,
+  useHardDeleteShiftReportMutation,
   useRestoreShiftReportMutation,
   useSignShiftReportMutation,
   useStartShiftReportMutation,
@@ -69,6 +70,8 @@ export const ShiftReport = () => {
   const { mutate: signShiftReportMutation } = useSignShiftReportMutation();
   const { mutate: deleteReportMutation } = useSoftDeleteShiftReportMutation();
   const { mutate: restoreReportMutation } = useRestoreShiftReportMutation();
+  const { mutate: hardDeleteReportMutation } =
+    useHardDeleteShiftReportMutation();
   const { mutate: createDetail } = useCreateShiftReportDetailMutation();
   const { mutate: editDetail } = useEditShiftReportDetailMutation();
   const { mutate: deleteDetail } = useDeleteShiftReportDetailMutation();
@@ -119,16 +122,29 @@ export const ShiftReport = () => {
     () => currentRole !== RoleId.USER || !isSigned,
     [currentRole, isSigned],
   );
-  const canEdit = canManageReport && !shiftReportData?.deleted;
   const isShiftExecutor =
     Boolean(currentUserId) && currentUserId === shiftReportData?.user;
   const isProjectLeader =
     Boolean(currentUserId) && currentUserId === projectData?.project_leader;
+  const isProjectLeaderForShiftPlaces =
+    currentRole === RoleId.PROJECT_LEADER && isProjectLeader;
+  const canEdit =
+    !shiftReportData?.deleted &&
+    (isSigned
+      ? currentRole === RoleId.ADMIN ||
+        currentRole === RoleId.MANAGER ||
+        isProjectLeader
+      : canManageReport);
   const canEditPlaces =
     !shiftReportData?.deleted &&
     (currentRole === RoleId.ADMIN ||
-      isProjectLeader ||
+      isProjectLeaderForShiftPlaces ||
       (!isSigned && isShiftExecutor));
+  const canViewShiftPlaces =
+    currentRole === RoleId.ADMIN ||
+    currentRole === RoleId.MANAGER ||
+    currentRole === RoleId.PROJECT_LEADER ||
+    isShiftExecutor;
   const canViewAttachments =
     isShiftExecutor ||
     isProjectLeader ||
@@ -141,9 +157,12 @@ export const ShiftReport = () => {
       currentRole === RoleId.MANAGER ||
       isProjectLeader ||
       (!isSigned && isShiftExecutor));
+  const isAdmin = currentRole === RoleId.ADMIN;
   const canDelete =
-    canManageReport && !shiftReportData?.deleted && !shiftReportData?.signed;
-  const canRestore = canManageReport && Boolean(shiftReportData?.deleted);
+    !shiftReportData?.deleted && (isSigned ? isAdmin : canManageReport);
+  const canRestore =
+    Boolean(shiftReportData?.deleted) && (isSigned ? isAdmin : canManageReport);
+  const canHardDelete = canRestore;
   const canCancelByLeave =
     !shiftReportData?.deleted && !shiftReportData?.date_start;
 
@@ -201,6 +220,7 @@ export const ShiftReport = () => {
   } = useShiftReportShiftActions({
     shiftReport: shiftReportData,
     currentUserId,
+    currentRole,
     objectId,
     objectsMap,
     startShiftMutation,
@@ -324,10 +344,16 @@ export const ShiftReport = () => {
   }, [shiftReportDetails.length, totalSum]);
 
   const handleDeleteShiftReport = React.useCallback(() => {
-    if (!shiftReportData?.shift_report_id || shiftReportData.signed) return;
+    if (
+      !shiftReportData?.shift_report_id ||
+      (shiftReportData.signed && currentRole !== RoleId.ADMIN)
+    ) {
+      return;
+    }
     deleteReportMutation(shiftReportData.shift_report_id);
   }, [
     deleteReportMutation,
+    currentRole,
     shiftReportData?.shift_report_id,
     shiftReportData?.signed,
   ]);
@@ -336,6 +362,15 @@ export const ShiftReport = () => {
     if (!shiftReportData?.shift_report_id) return;
     restoreReportMutation(shiftReportData.shift_report_id);
   }, [restoreReportMutation, shiftReportData?.shift_report_id]);
+
+  const handleHardDeleteShiftReport = React.useCallback(() => {
+    if (!shiftReportData?.shift_report_id || !canHardDelete) return;
+    hardDeleteReportMutation(shiftReportData.shift_report_id);
+  }, [
+    canHardDelete,
+    hardDeleteReportMutation,
+    shiftReportData?.shift_report_id,
+  ]);
 
   const handleLeaveCreated = React.useCallback(async () => {
     if (!shiftReportData?.shift_report_id) return;
@@ -424,14 +459,16 @@ export const ShiftReport = () => {
           canEdit={canEdit}
           canDelete={canDelete}
           canRestore={canRestore}
+          canHardDelete={canHardDelete}
           canCancelByLeave={canCancelByLeave}
           onDelete={handleDeleteShiftReport}
           onRestore={handleRestoreShiftReport}
+          onHardDelete={handleHardDeleteShiftReport}
           onLeaveCreated={handleLeaveCreated}
         />
 
         <div
-          className={`shift-report__overview${showShiftPlaces ? "" : " shift-report__overview--single"}`}
+          className={`shift-report__overview${showShiftPlaces && canViewShiftPlaces ? "" : " shift-report__overview--single"}`}
         >
           <ShiftReportInfoCard
             shiftReport={shiftReportData}
@@ -455,7 +492,7 @@ export const ShiftReport = () => {
             signDisabled={disabled}
           />
 
-          {showShiftPlaces && (
+          {showShiftPlaces && canViewShiftPlaces && (
             <section className="shift-report__places-section">
               <Card className="shift-report__places-card">
                 <ShiftReportPlaces

@@ -178,14 +178,28 @@ export const Project = () => {
       });
     }, [projectWorksData, projectWorksFilters, worksMap]);
 
-  const canEdit =
+  const isAdmin = currentRole === RoleId.ADMIN;
+  const isProjectClosed = React.useMemo(
+    () =>
+      projectData?.status === "Закрыто" ||
+      projectStatuses.some(
+        (status) =>
+          status.value === projectData?.status && status.label === "Закрыто",
+      ),
+    [projectData?.status, projectStatuses],
+  );
+  const canManageProject =
     Boolean(
       projectData?.project_leader &&
         currentRole === RoleId.PROJECT_LEADER &&
         currentUserId === projectData.project_leader,
     ) ||
     currentRole === RoleId.MANAGER ||
-    currentRole === RoleId.ADMIN;
+    isAdmin;
+  const canEdit = canManageProject && (!isProjectClosed || isAdmin);
+  const canDelete = isAdmin;
+  const canChangeProjectStatus =
+    isAdmin || (!isProjectClosed && currentRole === RoleId.MANAGER);
 
   const handleSignedChange = React.useCallback(
     async (record: IProjectWorksListColumn, checked: boolean) => {
@@ -372,9 +386,7 @@ export const Project = () => {
         <Checkbox
           checked={value}
           onChange={(e) => handleSignedChange(record, e.target.checked)}
-          disabled={
-            !canEdit || (currentRole === RoleId.PROJECT_LEADER && value)
-          }
+          disabled={!canEdit}
         />
       ),
     },
@@ -444,7 +456,7 @@ export const Project = () => {
             className="project__header-actions"
           >
             {canEdit && <EditableProjectDialog project={projectData} />}
-            {canEdit && (
+            {canDelete && (
               <DeleteProjectDialog
                 onDelete={handleDeleteProject}
                 name={projectData.name}
@@ -457,7 +469,7 @@ export const Project = () => {
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
             <p>
               Статус:{" "}
-              {canEdit ? (
+              {canChangeProjectStatus ? (
                 <Select
                   value={projectData.status}
                   options={projectStatuses}
@@ -523,17 +535,27 @@ export const Project = () => {
               />
             </>
           )}
-          <ProjectPlaces
-            projectId={projectData.project_id}
-            objectId={projectData.object}
-            canEdit={canEdit}
-          />
-          <ProjectAcceptances
-            projectId={projectData.project_id}
-            canManage={
-              currentRole === RoleId.MANAGER || currentRole === RoleId.ADMIN
-            }
-          />
+          {currentRole !== RoleId.USER && (
+            <ProjectPlaces
+              projectId={projectData.project_id}
+              objectId={projectData.object}
+              canAdd={canEdit}
+              canDelete={isAdmin}
+            />
+          )}
+          {(isAdmin ||
+            currentRole === RoleId.MANAGER ||
+            (currentRole === RoleId.PROJECT_LEADER &&
+              currentUserId === projectData.project_leader)) && (
+            <ProjectAcceptances
+              projectId={projectData.project_id}
+              canManage={
+                (currentRole === RoleId.MANAGER || isAdmin) &&
+                (!isProjectClosed || isAdmin)
+              }
+              canManageSigned={isAdmin}
+            />
+          )}
           <section className="project__materials-section">
             <Title level={4} className="project__section-title">
               Материалы

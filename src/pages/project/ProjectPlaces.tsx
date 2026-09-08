@@ -1,9 +1,5 @@
 import { Alert, Button, Checkbox, Empty, Modal, Spin, Typography } from "antd";
-import {
-  DeleteTwoTone,
-  PlusCircleTwoTone,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
 import React from "react";
 import { ActionDialog } from "../../components/ActionDialogs/ActionDialog";
 import { NotificationContext } from "../../contexts/NotificationContext";
@@ -18,12 +14,14 @@ import {
 interface ProjectPlacesProps {
   projectId: string;
   objectId: string;
-  canEdit: boolean;
+  canAdd: boolean;
+  canDelete: boolean;
 }
 export const ProjectPlaces = ({
   projectId,
   objectId,
-  canEdit,
+  canAdd,
+  canDelete,
 }: ProjectPlacesProps) => {
   const notification = React.useContext(NotificationContext);
   const placesQuery = usePlacesQuery();
@@ -61,7 +59,9 @@ export const ProjectPlaces = ({
   const save = async () => {
     try {
       const added = draftIds.filter((id) => !savedIds.includes(id));
-      const removed = savedIds.filter((id) => !draftIds.includes(id));
+      const removed = canDelete
+        ? savedIds.filter((id) => !draftIds.includes(id))
+        : [];
       if (added.length)
         await addMutation.mutateAsync({
           project_id: projectId,
@@ -133,7 +133,7 @@ export const ProjectPlaces = ({
         <Typography.Title level={4} className="project__section-title">
           Места проведения работ
         </Typography.Title>
-        {canEdit && (
+        {canAdd && (
           <Button
             icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
             onClick={openModal}
@@ -152,7 +152,7 @@ export const ProjectPlaces = ({
               <Typography.Text strong>
                 {placeById.get(r.place_id)?.name ?? r.place_id}
               </Typography.Text>
-              {canEdit && (
+              {canDelete && (
                 <ActionDialog
                   buttonText=""
                   buttonType="link"
@@ -188,18 +188,32 @@ export const ProjectPlaces = ({
           onClick={() =>
             setDraftIds(
               draftIds.length === places.length
-                ? []
+                ? canDelete
+                  ? []
+                  : savedIds
                 : places.map((place) => place.place_id),
             )
           }
           style={{ padding: 0, marginBottom: 12 }}
         >
-          {draftIds.length === places.length ? "Снять все" : "Выбрать все"}
+          {draftIds.length === places.length && canDelete
+            ? "Снять все"
+            : "Выбрать все"}
         </Button>
         <Checkbox.Group
           value={draftIds}
-          onChange={(values) => setDraftIds(values as string[])}
-          options={places.map((p) => ({ label: p.name, value: p.place_id }))}
+          onChange={(values) =>
+            setDraftIds(
+              canDelete
+                ? (values as string[])
+                : Array.from(new Set([...savedIds, ...(values as string[])])),
+            )
+          }
+          options={places.map((p) => ({
+            label: p.name,
+            value: p.place_id,
+            disabled: !canDelete && savedIds.includes(p.place_id),
+          }))}
           style={{ display: "flex", flexDirection: "column", gap: 8 }}
         />
       </Modal>

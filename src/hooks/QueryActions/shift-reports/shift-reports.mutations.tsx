@@ -3,6 +3,7 @@ import {
   createShiftReport,
   editShiftReport,
   finishShiftReport,
+  hardDeleteShiftReport,
   restoreShiftReport,
   signShiftReport,
   softDeleteShiftReport,
@@ -238,6 +239,38 @@ export const useRestoreShiftReportMutation = () => {
         duration: 2,
       });
       console.error("Failed to restore shift report:", error.message);
+    },
+  });
+};
+
+export const useHardDeleteShiftReportMutation = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: (reportId: string) => hardDeleteShiftReport(reportId),
+    onSuccess: (_, reportId) => {
+      queryClient.removeQueries({ queryKey: ["shiftReport", reportId] });
+      queryClient.removeQueries({
+        queryKey: ["shiftReportDetails", reportId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["shiftReports"] });
+      navigate("/shifts");
+      notification.success({
+        message: "Успешно",
+        description: "Смена удалена без возможности восстановления",
+        placement: "bottomRight",
+        duration: 2,
+      });
+    },
+    onError: (error: Error) => {
+      notification.error({
+        message: "Ошибка",
+        description: "Не удалось удалить смену без возможности восстановления",
+        placement: "bottomRight",
+        duration: 2,
+      });
+      console.error("Failed to hard delete shift report:", error.message);
     },
   });
 };

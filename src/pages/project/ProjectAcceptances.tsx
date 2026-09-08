@@ -36,9 +36,11 @@ const statusColors = {
 export const ProjectAcceptances = ({
   projectId,
   canManage,
+  canManageSigned,
 }: {
   projectId: string;
   canManage: boolean;
+  canManageSigned: boolean;
 }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [editingAcceptance, setEditingAcceptance] =
@@ -47,6 +49,8 @@ export const ProjectAcceptances = ({
   const { data: acceptances = [], isPending } = useAcceptancesQuery(projectId);
   const deleteMutation = useDeleteAcceptanceMutation();
   const updateMutation = useUpdateAcceptanceMutation();
+  const canManageAcceptance = (acceptance: IAcceptance) =>
+    canManage && (acceptance.status !== "documents_signed" || canManageSigned);
 
   const closeModal = () => {
     setModalOpen(false);
@@ -126,7 +130,7 @@ export const ProjectAcceptances = ({
             dataIndex: "status",
             width: 214,
             render: (value: keyof typeof statusLabels, record: IAcceptance) =>
-              canManage ? (
+              canManageAcceptance(record) ? (
                 <Select
                   size="small"
                   value={value}
@@ -162,7 +166,7 @@ export const ProjectAcceptances = ({
                     <EyeOutlined />
                   </Link>
                 </Tooltip>
-                {canManage && (
+                {canManageAcceptance(record) && (
                   <Tooltip title="Редактировать">
                     <Button
                       type="link"
@@ -175,7 +179,7 @@ export const ProjectAcceptances = ({
                     />
                   </Tooltip>
                 )}
-                {canManage && (
+                {canManageAcceptance(record) && (
                   <Button
                     type="link"
                     className="project__table-action"

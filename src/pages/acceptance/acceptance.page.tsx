@@ -45,11 +45,14 @@ import {
   useUpdateAcceptanceMutation,
 } from "../../queries/acceptances";
 import { useObjectsMap } from "../../queries/objects";
-import { useProjectQuery } from "../../queries/projects";
+import {
+  useProjectQuery,
+  useProjectStatusesQuery,
+} from "../../queries/projects";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { useWorksMap } from "../../queries/works";
 import { useUsersMap } from "../../queries/users";
-import { getCurrentRole } from "../../store/modules/auth";
+import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { dateFormat, dateTimeFormat } from "../../utils/dateConverter";
 import { isMobile } from "../../utils/isMobile";
 import "./acceptance.page.less";
@@ -65,7 +68,7 @@ export const Acceptance = () => {
   const { acceptanceId } = useParams();
   const navigate = useNavigate();
   const role = useSelector(getCurrentRole);
-  const canManage = role === RoleId.MANAGER || role === RoleId.ADMIN;
+  const currentUserId = useSelector(getCurrentUserId);
   const notificationApi = React.useContext(NotificationContext);
   const [editOpen, setEditOpen] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);
@@ -82,9 +85,11 @@ export const Acceptance = () => {
     isPending: isHistoryPending,
     isError: isHistoryError,
   } = useAcceptanceHistoryQuery(acceptanceId, historyOpen);
-  const { data: project } = useProjectQuery(acceptance?.project_id, {
-    enabled: Boolean(acceptance?.project_id),
-  });
+  const { data: project, isPending: isProjectPending } = useProjectQuery(
+    acceptance?.project_id,
+    { enabled: Boolean(acceptance?.project_id) },
+  );
+  const { data: projectStatuses = [] } = useProjectStatusesQuery();
   const { objectsMap } = useObjectsMap();
   const { data: relations = [], isPending: relationsPending } =
     useAcceptanceRelationsQuery(acceptanceId);
@@ -203,12 +208,35 @@ export const Acceptance = () => {
     }
   };
 
-  if (isPending || !acceptance) return <Spin />;
+  if (isPending || !acceptance || isProjectPending) return <Spin />;
 
   const object = project ? objectsMap[project.object] : undefined;
+  const isAdmin = role === RoleId.ADMIN;
+  const isProjectLeader =
+    role === RoleId.PROJECT_LEADER && currentUserId === project?.project_leader;
+  const canView = isAdmin || role === RoleId.MANAGER || isProjectLeader;
+  const isProjectClosed =
+    project?.status === "Закрыто" ||
+    projectStatuses.some(
+      (projectStatus) =>
+        projectStatus.value === project?.status &&
+        projectStatus.label === "Закрыто",
+    );
+  const canManage =
+    (role === RoleId.MANAGER || isAdmin) &&
+    (acceptance.status !== "documents_signed" || isAdmin) &&
+    (!isProjectClosed || isAdmin);
   const status = acceptanceStatusOptions.find(
     (option) => option.value === acceptance.status,
   );
+
+  if (!canView) {
+    return (
+      <main className="acceptance">
+        <Alert type="error" showIcon message="Нет доступа к приёмке работ" />
+      </main>
+    );
+  }
 
   return (
     <>

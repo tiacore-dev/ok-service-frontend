@@ -3046,6 +3046,25 @@
             "type": "string"
           },
           {
+            "name": "date_from",
+            "in": "query",
+            "type": "integer"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "type": "integer"
+          },
+          {
+            "name": "project_leader_ids",
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
             "name": "X-Fields",
             "in": "header",
             "type": "string",
@@ -10348,7 +10367,97 @@
           "type": "string"
         },
         "stats": {
-          "type": "object"
+          "$ref": "#/definitions/ProjectLeaderStatsCollectionPayload"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectLeaderStatsCollectionPayload": {
+      "required": [
+        "project_leaders",
+        "total",
+        "total_count"
+      ],
+      "properties": {
+        "total": {
+          "$ref": "#/definitions/ProjectLeaderFactStats"
+        },
+        "project_leaders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectLeaderStatsCollectionItem"
+          }
+        },
+        "total_count": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectLeaderFactStats": {
+      "required": [
+        "shift_report_details_quantity",
+        "shift_report_details_summ",
+        "shift_report_details_summ_by_estimate"
+      ],
+      "properties": {
+        "shift_report_details_quantity": {
+          "type": "number"
+        },
+        "shift_report_details_summ": {
+          "type": "number"
+        },
+        "shift_report_details_summ_by_estimate": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectLeaderStatsCollectionItem": {
+      "required": [
+        "login",
+        "name",
+        "projects",
+        "stats",
+        "user_id"
+      ],
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "login": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "stats": {
+          "$ref": "#/definitions/ProjectLeaderFactStats"
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectLeaderFactProject"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectLeaderFactProject": {
+      "required": [
+        "name",
+        "project_id",
+        "stats"
+      ],
+      "properties": {
+        "project_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "stats": {
+          "$ref": "#/definitions/ProjectLeaderFactStats"
         }
       },
       "type": "object"

@@ -57,6 +57,12 @@ export const restoreShiftReport = async (report_id: string): Promise<void> => {
   });
 };
 
+export const hardDeleteShiftReport = async (
+  report_id: string,
+): Promise<void> => {
+  await apiClient.delete(`/shift_reports/${report_id}/delete/hard`);
+};
+
 export const createShiftReport = async (
   createbleShiftReportData: Omit<IShiftReport, "shift_report_id" | "number">,
 ): Promise<CreateShiftReportResponse> => {
