@@ -21,6 +21,7 @@ const setProjectData = (
   state.name = projectData.name;
   state.object = projectData.object;
   state.project_leader = projectData.project_leader;
+  state.status = projectData.status;
   state.sent = false;
 };
 
@@ -48,6 +49,13 @@ const editableProjectSlice = createSlice({
       action: { payload: string },
     ) => {
       state.project_leader = action.payload;
+    },
+
+    setStatus: (
+      state: IEditableProjectState,
+      action: { payload: string | undefined },
+    ) => {
+      state.status = action.payload;
     },
 
     sendProject: (state: IEditableProjectState) => {

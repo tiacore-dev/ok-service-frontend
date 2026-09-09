@@ -50,6 +50,8 @@ import { saveProjectWorksFiltersState } from "../../store/modules/settings/proje
 import { ProjectPlaces } from "./ProjectPlaces";
 import { ProjectAcceptances } from "./ProjectAcceptances";
 import type { IState } from "../../store/modules";
+import { ObjectStatusId } from "../../interfaces/objectStatuses/IObjectStatus";
+import { useAcceptancesQuery } from "../../queries/acceptances";
 
 export const Project = () => {
   const { Content } = Layout;
@@ -81,6 +83,8 @@ export const Project = () => {
     useProjectStatusesQuery();
   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
   const deleteProjectWorkMutation = useDeleteProjectWorkMutation();
+  const { data: acceptances = [], isPending: isAcceptancesPending } =
+    useAcceptancesQuery(projectId ?? "");
 
   const currentUserId = useSelector(getCurrentUserId);
   const isProjectLoading = isProjectPending || isProjectFetching;
@@ -179,6 +183,9 @@ export const Project = () => {
     }, [projectWorksData, projectWorksFilters, worksMap]);
 
   const isAdmin = currentRole === RoleId.ADMIN;
+  const object = projectData ? objectsMap[projectData.object] : undefined;
+  const isObjectActive = object?.status === ObjectStatusId.ACTIVE;
+  const isObjectWaiting = object?.status === ObjectStatusId.WAITING;
   const isProjectClosed = React.useMemo(
     () =>
       projectData?.status === "Закрыто" ||
@@ -199,7 +206,19 @@ export const Project = () => {
   const canEdit = canManageProject && (!isProjectClosed || isAdmin);
   const canDelete = isAdmin;
   const canChangeProjectStatus =
-    isAdmin || (!isProjectClosed && currentRole === RoleId.MANAGER);
+    isObjectActive &&
+    (isAdmin || (!isProjectClosed && currentRole === RoleId.MANAGER));
+  const canCloseProject =
+    !isAcceptancesPending &&
+    acceptances.every((acceptance) => acceptance.status === "documents_signed");
+  const isClosingProjectStatus = React.useCallback(
+    (status: string) =>
+      projectStatuses.some(
+        (projectStatus) =>
+          projectStatus.value === status && projectStatus.label === "Закрыто",
+      ),
+    [projectStatuses],
+  );
 
   const handleSignedChange = React.useCallback(
     async (record: IProjectWorksListColumn, checked: boolean) => {
@@ -302,6 +321,16 @@ export const Project = () => {
   const handleStatusChange = React.useCallback(
     async (status: string) => {
       if (!projectData?.project_id) return;
+      if (isClosingProjectStatus(status) && !canCloseProject) {
+        notificationApi?.error({
+          message: "Нельзя закрыть спецификацию",
+          description:
+            "Все приёмки работ должны иметь статус «Документы подписаны».",
+          placement: "bottomRight",
+          duration: 2,
+        });
+        return;
+      }
 
       try {
         await updateProjectStatusMutation.mutateAsync({
@@ -327,7 +356,13 @@ export const Project = () => {
         });
       }
     },
-    [projectData, updateProjectStatusMutation, notificationApi],
+    [
+      projectData,
+      updateProjectStatusMutation,
+      notificationApi,
+      isClosingProjectStatus,
+      canCloseProject,
+    ],
   );
 
   const handleModalCancel = () => {
@@ -426,7 +461,6 @@ export const Project = () => {
   ];
 
   const isLoading = projectWorksLoading;
-  const object = projectData ? objectsMap[projectData.object] : undefined;
   const objectLink = projectData
     ? `/objects/${projectData.object}`
     : "/objects";
@@ -472,7 +506,10 @@ export const Project = () => {
               {canChangeProjectStatus ? (
                 <Select
                   value={projectData.status}
-                  options={projectStatuses}
+                  options={projectStatuses.map((status) => ({
+                    ...status,
+                    disabled: status.label === "Закрыто" && !canCloseProject,
+                  }))}
                   loading={isProjectStatusesPending}
                   disabled={
                     isProjectStatusesPending ||
@@ -552,6 +589,11 @@ export const Project = () => {
               canManage={
                 (currentRole === RoleId.MANAGER || isAdmin) &&
                 (!isProjectClosed || isAdmin)
+              }
+              canCreate={
+                (currentRole === RoleId.MANAGER || isAdmin) &&
+                (!isProjectClosed || isAdmin) &&
+                !isObjectWaiting
               }
               canManageSigned={isAdmin}
             />

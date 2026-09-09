@@ -20,6 +20,8 @@ import {
   useUpdateProjectMutation,
   type EditableProjectPayload,
 } from "../../../queries/projects";
+import { useProjectStatusesQuery } from "../../../queries/projects";
+import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus";
 
 interface IEditableProjectDialogProps {
   project?: IProject;
@@ -65,6 +67,13 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
   const notificationApi = useContext(NotificationContext);
   const createProjectMutation = useCreateProjectMutation();
   const updateProjectMutation = useUpdateProjectMutation();
+  const { data: projectStatuses = [] } = useProjectStatusesQuery();
+  const selectedObject = objects.find(
+    (object) => object.object_id === (objectId ?? data.object),
+  );
+  const coordinationStatus = projectStatuses.find(
+    (status) => status.label === "На согласовании",
+  )?.value;
 
   const handleConfirm = useCallback(async () => {
     dispatch(editProjectAction.sendProject());
@@ -83,9 +92,14 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
           duration: 2,
         });
       } else {
-        const response = await createProjectMutation.mutateAsync(
-          projectData as EditableProjectPayload,
-        );
+        const payload: EditableProjectPayload = {
+          ...projectData,
+          ...(selectedObject?.status === ObjectStatusId.WAITING &&
+          coordinationStatus
+            ? { status: coordinationStatus }
+            : {}),
+        } as EditableProjectPayload;
+        const response = await createProjectMutation.mutateAsync(payload);
         notificationApi?.success({
           message: "Успешно",
           description: "Спецификация создана",
@@ -122,6 +136,8 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
     notificationApi,
     createProjectMutation,
     navigate,
+    selectedObject?.status,
+    coordinationStatus,
   ]);
 
   const handeOpen = useCallback(() => {

@@ -36,10 +36,12 @@ const statusColors = {
 export const ProjectAcceptances = ({
   projectId,
   canManage,
+  canCreate,
   canManageSigned,
 }: {
   projectId: string;
   canManage: boolean;
+  canCreate: boolean;
   canManageSigned: boolean;
 }) => {
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -102,7 +104,7 @@ export const ProjectAcceptances = ({
         <Title level={4} className="project__section-title">
           Приёмки работ
         </Title>
-        {canManage && (
+        {canCreate && (
           <Button
             icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
             onClick={() => setModalOpen(true)}
@@ -201,7 +203,7 @@ export const ProjectAcceptances = ({
           },
         ]}
       />
-      {canManage && (
+      {canCreate && (
         <AcceptanceFormModal
           open={modalOpen}
           projectId={projectId}
