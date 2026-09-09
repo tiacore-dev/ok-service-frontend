@@ -219,6 +219,33 @@ export const Project = () => {
       ),
     [projectStatuses],
   );
+  const availableProjectStatusOptions = React.useMemo(() => {
+    const currentStatus = projectStatuses.find(
+      (status) => status.value === projectData?.status,
+    );
+    const adjacentStatusLabels: Record<string, string[]> = {
+      "На согласовании": ["В работе"],
+      "В работе": ["На согласовании", "Работы выполнены"],
+      "Работы выполнены": ["В работе", "Закрыто"],
+      Закрыто: ["Работы выполнены"],
+    };
+    const allowedLabels = new Set(
+      adjacentStatusLabels[currentStatus?.label ?? ""] ?? [],
+    );
+
+    return projectStatuses
+      .filter(
+        (status) =>
+          status.value === projectData?.status ||
+          allowedLabels.has(status.label),
+      )
+      .map((status) => ({
+        ...status,
+        disabled:
+          status.value === projectData?.status ||
+          (status.label === "Закрыто" && !canCloseProject),
+      }));
+  }, [projectData?.status, projectStatuses, canCloseProject]);
 
   const handleSignedChange = React.useCallback(
     async (record: IProjectWorksListColumn, checked: boolean) => {
@@ -506,10 +533,7 @@ export const Project = () => {
               {canChangeProjectStatus ? (
                 <Select
                   value={projectData.status}
-                  options={projectStatuses.map((status) => ({
-                    ...status,
-                    disabled: status.label === "Закрыто" && !canCloseProject,
-                  }))}
+                  options={availableProjectStatusOptions}
                   loading={isProjectStatusesPending}
                   disabled={
                     isProjectStatusesPending ||
