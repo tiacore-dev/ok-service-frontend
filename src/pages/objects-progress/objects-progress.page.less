@@ -37,6 +37,100 @@
   color: rgba(0, 0, 0, 0.55);
 }
 
+.objects-progress__name {
+  display: inline-block;
+  overflow-wrap: anywhere;
+  position: relative;
+  vertical-align: top;
+  width: calc(100% - 24px);
+}
+
+.objects-progress__tree-table .ant-table-row-level-1 .objects-progress__name {
+  width: calc(100% - 48px);
+}
+
+.objects-progress__tree-table .ant-table-row-level-2 .objects-progress__name {
+  width: calc(100% - 72px);
+}
+
+.objects-progress__object-row > td:first-child .objects-progress__name {
+  font-weight: 600;
+}
+
+.objects-progress__project-row > td {
+  background: #fafafa;
+}
+
+.objects-progress__project-row > td:first-child .objects-progress__name {
+  font-weight: 600;
+}
+
+.objects-progress__work-row > td {
+  background: #fff;
+}
+
+.objects-progress__loading-row > td,
+.objects-progress__error-row > td {
+  background: #fafafa;
+}
+
+.objects-progress__error-row .objects-progress__name {
+  color: #ff4d4f;
+}
+
+.objects-progress__tree-table .ant-table-cell:first-child {
+  position: relative;
+}
+
+.objects-progress__tree-table .ant-table-row-level-1 > td:first-child::before,
+.objects-progress__tree-table .ant-table-row-level-2 > td:first-child::before {
+  border-left: 1px solid #f5222d;
+  bottom: -1px;
+  content: "";
+  left: 23px;
+  position: absolute;
+  top: -1px;
+}
+
+.objects-progress__tree-table .ant-table-row-level-2 > td:first-child::before {
+  left: 48px;
+}
+
+.objects-progress__tree-table .ant-table-row-level-2 > td:first-child::after {
+  border-left: 1px solid #f5222d;
+  bottom: -1px;
+  content: "";
+  left: 23px;
+  position: absolute;
+  top: -1px;
+}
+
+.objects-progress__tree-toggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  display: inline-flex;
+  height: 20px;
+  justify-content: center;
+  margin-right: 4px;
+  padding: 0;
+  position: relative;
+  width: 20px;
+  z-index: 1;
+}
+
+.objects-progress__tree-toggle--placeholder {
+  cursor: default;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.objects-progress__tree-toggle:hover {
+  color: #1677ff;
+}
+
 @media (max-width: 768px) {
   .objects-progress {
     min-height: calc(100vh - 110px);

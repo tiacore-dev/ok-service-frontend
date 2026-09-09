@@ -1,10 +1,33 @@
 import { apiClient } from "./base";
+import type { IObjectWorkStats } from "../interfaces/objects/IObjectStats";
 
-// Временный тип: уточним контракт после получения фактического ответа API.
-export const fetchProjectLeadersStats = async (): Promise<unknown> => {
-  const { data } = await apiClient.get("/project-leaders/get-stat", {
-    params: { offset: 0, limit: 1000 },
+export interface IProjectLeaderStatsItem {
+  user_id: string;
+  login: string;
+  name: string;
+  stats: IObjectWorkStats;
+}
+
+export interface IProjectLeaderStatsCollection {
+  total: IObjectWorkStats;
+  project_leaders: IProjectLeaderStatsItem[];
+  total_count: number;
+}
+
+export interface IProjectLeaderStatsParams {
+  date_from: number;
+  date_to: number;
+}
+
+export const fetchProjectLeadersStats = async ({
+  date_from,
+  date_to,
+}: IProjectLeaderStatsParams): Promise<IProjectLeaderStatsCollection> => {
+  const { data } = await apiClient.get<{
+    stats: IProjectLeaderStatsCollection;
+  }>("/project-leaders/get-stat", {
+    params: { offset: 0, limit: 1000, date_from, date_to },
   });
 
-  return data;
+  return data.stats;
 };

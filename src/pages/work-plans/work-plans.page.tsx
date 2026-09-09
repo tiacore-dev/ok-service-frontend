@@ -16,7 +16,7 @@ import {
   useUpdateWorkPlanMutation,
   useWorkPlansQuery,
 } from "../../queries/workPlans";
-import { useProjectLeadersStatsQuery } from "../../queries/projectLeaderStats";
+import { useProjectLeadersStatsByMonthsQuery } from "../../queries/projectLeaderStats";
 import "./work-plans.page.less";
 import { WorkPlanCell } from "./WorkPlanCell";
 
@@ -57,12 +57,15 @@ export const WorkPlans = () => {
     isPending: isPlansPending,
     isError: isPlansError,
   } = useWorkPlansQuery(year);
-  useProjectLeadersStatsQuery();
+  const projectLeaderStatsQueries = useProjectLeadersStatsByMonthsQuery(year);
   const { data: users = [], isPending: isUsersPending } = useUsersQuery();
   const createMutation = useCreateWorkPlanMutation();
   const updateMutation = useUpdateWorkPlanMutation();
   const deleteMutation = useDeleteWorkPlanMutation();
   const canEdit = role === RoleId.ADMIN;
+  const isProjectLeaderStatsError = projectLeaderStatsQueries.some(
+    (query) => query.isError,
+  );
 
   const plansMap = React.useMemo(() => {
     const result: Record<string, IWorkPlan> = {};
@@ -93,6 +96,21 @@ export const WorkPlans = () => {
         })),
     ],
     [users],
+  );
+
+  const progressByMonth = React.useMemo(
+    () =>
+      projectLeaderStatsQueries.map((query) => ({
+        company: query.data?.total,
+        leaders: new Map(
+          query.data?.project_leaders.map((leader) => [
+            leader.user_id,
+            leader.stats,
+          ]),
+        ),
+        isPending: query.isPending,
+      })),
+    [projectLeaderStatsQueries],
   );
 
   const savePlan = React.useCallback(
@@ -167,6 +185,10 @@ export const WorkPlans = () => {
         render: (_, row) => {
           const key = getPlanKey(row.userId, monthIndex);
           const plan = plansMap[key];
+          const monthlyProgress = progressByMonth[monthIndex];
+          const stats = row.userId
+            ? monthlyProgress?.leaders.get(row.userId)
+            : monthlyProgress?.company;
           return (
             <WorkPlanCell
               cellKey={key}
@@ -177,6 +199,15 @@ export const WorkPlans = () => {
               onEditEnd={handleEditEnd}
               onSave={savePlan}
               onDelete={deletePlan}
+              progress={
+                stats
+                  ? {
+                      completedSumm: stats.shift_report_details_summ,
+                      acceptedSumm: stats.accepted_summ,
+                    }
+                  : undefined
+              }
+              progressPending={Boolean(monthlyProgress?.isPending)}
               payload={{
                 ...(row.userId ? { user_id: row.userId } : {}),
                 date: getMonthDate(year, monthIndex),
@@ -200,16 +231,67 @@ export const WorkPlans = () => {
       {
         title: "Итого за год",
         key: "total",
-        width: 150,
+        width: 180,
         fixed: "right",
         align: "right",
         render: (_, row) => {
-          const total = months.reduce((sum, __, monthIndex) => {
-            const key = getPlanKey(row.userId, monthIndex);
-            const value = Number(plansMap[key]?.summ ?? 0);
-            return sum + (Number.isFinite(value) ? value : 0);
-          }, 0);
-          return formatNumber(total);
+          const total = months.reduce(
+            (result, __, monthIndex) => {
+              const key = getPlanKey(row.userId, monthIndex);
+              const planValue = Number(plansMap[key]?.summ ?? 0);
+              const monthlyProgress = progressByMonth[monthIndex];
+              const stats = row.userId
+                ? monthlyProgress?.leaders.get(row.userId)
+                : monthlyProgress?.company;
+              const completedValue = Number(
+                stats?.shift_report_details_summ ?? 0,
+              );
+              const acceptedValue = stats?.accepted_summ;
+
+              return {
+                plan:
+                  result.plan + (Number.isFinite(planValue) ? planValue : 0),
+                completed:
+                  result.completed +
+                  (Number.isFinite(completedValue) ? completedValue : 0),
+                accepted:
+                  typeof acceptedValue === "number"
+                    ? result.accepted + acceptedValue
+                    : result.accepted,
+                hasAccepted:
+                  result.hasAccepted || typeof acceptedValue === "number",
+              };
+            },
+            { plan: 0, completed: 0, accepted: 0, hasAccepted: false },
+          );
+          const completionPercent =
+            total.plan > 0 ? (total.completed / total.plan) * 100 : null;
+          const isProgressPending = progressByMonth.some(
+            (month) => month.isPending,
+          );
+
+          return (
+            <div className="work-plans__cell">
+              <span className="work-plans__cell-value">
+                {formatNumber(total.plan)}
+              </span>
+              {isProgressPending ? (
+                <span className="work-plans__progress">Загрузка…</span>
+              ) : (
+                <span className="work-plans__progress">
+                  <span>
+                    {formatNumber(total.completed)}
+                    {completionPercent !== null && (
+                      <> · {completionPercent.toFixed(1)}%</>
+                    )}
+                  </span>
+                  {total.hasAccepted && (
+                    <span>Принято: {formatNumber(total.accepted)}</span>
+                  )}
+                </span>
+              )}
+            </div>
+          );
         },
       },
     ];
@@ -220,6 +302,7 @@ export const WorkPlans = () => {
     handleEditEnd,
     handleEditStart,
     plansMap,
+    progressByMonth,
     savePlan,
     year,
   ]);
@@ -242,6 +325,11 @@ export const WorkPlans = () => {
           onChange={(value) => value && setYear(value.year())}
         />
       </div>
+      {isProjectLeaderStatsError && (
+        <Typography.Text type="danger">
+          Не удалось загрузить статистику выполненных работ по прорабам.
+        </Typography.Text>
+      )}
       {isPlansError ? (
         <Typography.Text type="danger">
           Не удалось загрузить планы выработки.

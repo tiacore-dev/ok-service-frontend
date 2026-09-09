@@ -21,3 +21,29 @@ export interface IObjectStatsCollection {
   objects: IObjectStatsItem[];
   total_count: number;
 }
+
+export interface IObjectProjectStatsItem {
+  project_id: string;
+  name: string;
+  stats: IObjectWorkStats;
+}
+
+export interface IObjectStats {
+  total: IObjectWorkStats;
+  projects: IObjectProjectStatsItem[];
+}
+
+export interface IObjectWorkStatsDetails extends IObjectWorkStats {
+  project_work_name: string;
+}
+
+export interface IObjectProjectStatsDetails {
+  project_id: string;
+  name: string;
+  stats: Record<string, IObjectWorkStatsDetails>;
+}
+
+export interface IObjectStatsDetails {
+  total: Record<string, IObjectWorkStatsDetails>;
+  projects: IObjectProjectStatsDetails[];
+}

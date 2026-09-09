@@ -7,6 +7,11 @@ import type {
 } from "../../interfaces/workPlans/IWorkPlan";
 import { formatNumber } from "../../utils/formatNumber";
 
+export interface IWorkPlanProgress {
+  completedSumm: number | null;
+  acceptedSumm: number | null;
+}
+
 interface Props {
   cellKey: string;
   editing: boolean;
@@ -20,6 +25,8 @@ interface Props {
   ) => Promise<void>;
   onDelete: (plan: IWorkPlan) => Promise<void>;
   payload: EditableWorkPlanPayload;
+  progress?: IWorkPlanProgress;
+  progressPending: boolean;
 }
 
 export const WorkPlanCell = React.memo(
@@ -33,15 +40,12 @@ export const WorkPlanCell = React.memo(
     onSave,
     onDelete,
     payload,
+    progress,
+    progressPending,
   }: Props) => {
     const [value, setValue] = React.useState<number | null>(null);
     const [saving, setSaving] = React.useState(false);
     const displayedValue = plan ? Number(plan.summ) : undefined;
-
-    if (!canEdit)
-      return (
-        <>{displayedValue === undefined ? "—" : formatNumber(displayedValue)}</>
-      );
 
     const cancel = () => {
       setValue(null);
@@ -97,21 +101,45 @@ export const WorkPlanCell = React.memo(
       );
     }
 
+    const completionPercent =
+      displayedValue && displayedValue > 0 && progress
+        ? (Number(progress.completedSumm ?? 0) / displayedValue) * 100
+        : null;
+
     return (
-      <span className="work-plans__cell-value">
-        {displayedValue === undefined ? "—" : formatNumber(displayedValue)}
-        <Button
-          type="text"
-          size="small"
-          icon={<EditOutlined />}
-          className="work-plans__edit-button"
-          aria-label="Редактировать"
-          onClick={() => {
-            setValue(displayedValue ?? null);
-            onEditStart(cellKey);
-          }}
-        />
-      </span>
+      <div className="work-plans__cell">
+        <span className="work-plans__cell-value">
+          {displayedValue === undefined ? "—" : formatNumber(displayedValue)}
+          {canEdit && (
+            <Button
+              type="text"
+              size="small"
+              icon={<EditOutlined />}
+              className="work-plans__edit-button"
+              aria-label="Редактировать"
+              onClick={() => {
+                setValue(displayedValue ?? null);
+                onEditStart(cellKey);
+              }}
+            />
+          )}
+        </span>
+        {progressPending ? (
+          <span className="work-plans__progress">Загрузка…</span>
+        ) : progress ? (
+          <span className="work-plans__progress">
+            <span>
+              {formatNumber(progress.completedSumm ?? 0)}
+              {completionPercent !== null && (
+                <> · {completionPercent.toFixed(1)}%</>
+              )}
+            </span>
+            {progress.acceptedSumm != null && (
+              <span>Принято: {formatNumber(progress.acceptedSumm)}</span>
+            )}
+          </span>
+        ) : null}
+      </div>
     );
   },
 );

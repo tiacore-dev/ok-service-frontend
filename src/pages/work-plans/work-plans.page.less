@@ -20,12 +20,7 @@
   width: 100px;
 }
 
-.work-plans__table .ant-table-cell {
-  white-space: nowrap;
-}
-
 .work-plans__table .ant-table-tbody > tr > td {
-  height: 56px;
   vertical-align: middle;
 }
 
@@ -39,16 +34,41 @@
   align-items: center;
   justify-content: flex-end;
   min-width: 110px;
+  position: relative;
+}
+
+.work-plans__cell {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  min-width: 110px;
+}
+
+.work-plans__progress {
+  color: rgba(0, 0, 0, 0.55);
+  display: grid;
+  font-size: 12px;
+  gap: 1px;
+  line-height: 16px;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .work-plans__edit-button {
+  position: absolute;
+  right: -24px;
   visibility: hidden;
-  margin-left: 2px;
 }
 
 .work-plans__table .ant-table-cell:hover .work-plans__edit-button,
 .work-plans__edit-button:focus-visible {
   visibility: visible;
+}
+
+.work-plans__table .ant-table-tbody > tr > td:hover {
+  overflow: visible;
+  position: relative;
+  z-index: 3;
 }
 
 .work-plans__editor {
