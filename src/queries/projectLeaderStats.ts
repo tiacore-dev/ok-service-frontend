@@ -1,4 +1,4 @@
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import {
   fetchProjectLeadersStats,
@@ -12,18 +12,15 @@ export const projectLeaderStatsKeys = {
       : (["projectLeaders", "stats"] as const),
 };
 
-export const useProjectLeadersStatsByMonthsQuery = (year: number) =>
-  useQueries({
-    queries: Array.from({ length: 12 }, (_, month) => {
-      const monthDate = dayjs().year(year).month(month);
-      const params = {
-        date_from: monthDate.startOf("month").unix(),
-        date_to: monthDate.endOf("month").unix(),
-      };
+export const useProjectLeadersStatsQuery = (year: number) => {
+  const yearDate = dayjs().year(year);
+  const params = {
+    date_from: yearDate.startOf("year").valueOf(),
+    date_to: yearDate.endOf("year").valueOf(),
+  };
 
-      return {
-        queryKey: projectLeaderStatsKeys.all(params),
-        queryFn: () => fetchProjectLeadersStats(params),
-      };
-    }),
+  return useQuery({
+    queryKey: projectLeaderStatsKeys.all(params),
+    queryFn: () => fetchProjectLeadersStats(params),
   });
+};

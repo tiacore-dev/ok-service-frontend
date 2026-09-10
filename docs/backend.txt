@@ -10380,7 +10380,8 @@
       ],
       "properties": {
         "total": {
-          "$ref": "#/definitions/ProjectLeaderFactStats"
+          "type": "object",
+          "description": "Statistics grouped by calendar month in YYYY-MM format"
         },
         "project_leaders": {
           "type": "array",
@@ -10390,25 +10391,6 @@
         },
         "total_count": {
           "type": "integer"
-        }
-      },
-      "type": "object"
-    },
-    "ProjectLeaderFactStats": {
-      "required": [
-        "shift_report_details_quantity",
-        "shift_report_details_summ",
-        "shift_report_details_summ_by_estimate"
-      ],
-      "properties": {
-        "shift_report_details_quantity": {
-          "type": "number"
-        },
-        "shift_report_details_summ": {
-          "type": "number"
-        },
-        "shift_report_details_summ_by_estimate": {
-          "type": "number"
         }
       },
       "type": "object"
@@ -10432,7 +10414,8 @@
           "type": "string"
         },
         "stats": {
-          "$ref": "#/definitions/ProjectLeaderFactStats"
+          "type": "object",
+          "description": "Statistics grouped by calendar month in YYYY-MM format"
         },
         "projects": {
           "type": "array",
@@ -10457,7 +10440,8 @@
           "type": "string"
         },
         "stats": {
-          "$ref": "#/definitions/ProjectLeaderFactStats"
+          "type": "object",
+          "description": "Statistics grouped by calendar month in YYYY-MM format"
         }
       },
       "type": "object"

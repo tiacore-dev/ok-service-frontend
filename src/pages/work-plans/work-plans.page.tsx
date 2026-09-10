@@ -16,7 +16,7 @@ import {
   useUpdateWorkPlanMutation,
   useWorkPlansQuery,
 } from "../../queries/workPlans";
-import { useProjectLeadersStatsByMonthsQuery } from "../../queries/projectLeaderStats";
+import { useProjectLeadersStatsQuery } from "../../queries/projectLeaderStats";
 import "./work-plans.page.less";
 import { WorkPlanCell } from "./WorkPlanCell";
 
@@ -57,15 +57,13 @@ export const WorkPlans = () => {
     isPending: isPlansPending,
     isError: isPlansError,
   } = useWorkPlansQuery(year);
-  const projectLeaderStatsQueries = useProjectLeadersStatsByMonthsQuery(year);
+  const projectLeaderStatsQuery = useProjectLeadersStatsQuery(year);
   const { data: users = [], isPending: isUsersPending } = useUsersQuery();
   const createMutation = useCreateWorkPlanMutation();
   const updateMutation = useUpdateWorkPlanMutation();
   const deleteMutation = useDeleteWorkPlanMutation();
   const canEdit = role === RoleId.ADMIN;
-  const isProjectLeaderStatsError = projectLeaderStatsQueries.some(
-    (query) => query.isError,
-  );
+  const isProjectLeaderStatsError = projectLeaderStatsQuery.isError;
 
   const plansMap = React.useMemo(() => {
     const result: Record<string, IWorkPlan> = {};
@@ -100,17 +98,21 @@ export const WorkPlans = () => {
 
   const progressByMonth = React.useMemo(
     () =>
-      projectLeaderStatsQueries.map((query) => ({
-        company: query.data?.total,
-        leaders: new Map(
-          query.data?.project_leaders.map((leader) => [
-            leader.user_id,
-            leader.stats,
-          ]),
-        ),
-        isPending: query.isPending,
-      })),
-    [projectLeaderStatsQueries],
+      months.map((_, monthIndex) => {
+        const monthKey = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
+
+        return {
+          company: projectLeaderStatsQuery.data?.total[monthKey],
+          leaders: new Map(
+            projectLeaderStatsQuery.data?.project_leaders.map((leader) => [
+              leader.user_id,
+              leader.stats[monthKey],
+            ]),
+          ),
+          isPending: projectLeaderStatsQuery.isPending,
+        };
+      }),
+    [projectLeaderStatsQuery.data, projectLeaderStatsQuery.isPending, year],
   );
 
   const savePlan = React.useCallback(

@@ -5,11 +5,18 @@ export interface IProjectLeaderStatsItem {
   user_id: string;
   login: string;
   name: string;
-  stats: IObjectWorkStats;
+  stats: Record<string, IObjectWorkStats>;
+  projects: IProjectLeaderStatsProject[];
+}
+
+export interface IProjectLeaderStatsProject {
+  project_id: string;
+  name: string;
+  stats: Record<string, IObjectWorkStats>;
 }
 
 export interface IProjectLeaderStatsCollection {
-  total: IObjectWorkStats;
+  total: Record<string, IObjectWorkStats>;
   project_leaders: IProjectLeaderStatsItem[];
   total_count: number;
 }
