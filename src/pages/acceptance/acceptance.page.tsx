@@ -1,5 +1,6 @@
 import * as React from "react";
 import dayjs from "dayjs";
+import { isAxiosError } from "axios";
 import {
   Alert,
   Breadcrumb,
@@ -50,6 +51,7 @@ import {
   useProjectStatusesQuery,
 } from "../../queries/projects";
 import { useProjectWorksMap } from "../../queries/projectWorks";
+import { useObjectStatsDetailsQuery } from "../../queries/objectStats";
 import { useWorksMap } from "../../queries/works";
 import { useUsersMap } from "../../queries/users";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
@@ -63,6 +65,34 @@ const statusColors = {
   accepted_on_site: "green",
   documents_signed: "success",
 } as const;
+
+interface IQuantityExceededError {
+  code: "WORK_ACCEPTANCE_QUANTITY_EXCEEDED";
+  specification_quantity: number;
+  available_quantity: number;
+  requested_quantity: number;
+  exceeded_quantity: number;
+}
+
+const getQuantityExceededError = (error: unknown) => {
+  if (
+    !isAxiosError<IQuantityExceededError>(error) ||
+    error.response?.data.code !== "WORK_ACCEPTANCE_QUANTITY_EXCEEDED"
+  ) {
+    return undefined;
+  }
+
+  return error.response.data;
+};
+
+const getQuantityExceededDescription = (error: IQuantityExceededError) => (
+  <>
+    <div>В спецификации: {error.specification_quantity} шт.</div>
+    <div>Доступно для приёмки: {error.available_quantity} шт.</div>
+    <div>Указано: {error.requested_quantity} шт.</div>
+    <div>Превышение: {error.exceeded_quantity} шт.</div>
+  </>
+);
 
 export const Acceptance = () => {
   const { acceptanceId } = useParams();
@@ -91,6 +121,11 @@ export const Acceptance = () => {
   );
   const { data: projectStatuses = [] } = useProjectStatusesQuery();
   const { objectsMap } = useObjectsMap();
+  const {
+    data: objectStatsDetails,
+    isPending: isObjectStatsDetailsPending,
+    isError: isObjectStatsDetailsError,
+  } = useObjectStatsDetailsQuery(project?.object ?? "");
   const { data: relations = [], isPending: relationsPending } =
     useAcceptanceRelationsQuery(acceptanceId);
   const { projectWorks = [] } = useProjectWorksMap(acceptance?.project_id, {
@@ -104,22 +139,66 @@ export const Acceptance = () => {
   const updateRelationMutation = useUpdateAcceptanceRelationMutation();
   const deleteRelationMutation = useDeleteAcceptanceRelationMutation();
 
+  const projectStats = React.useMemo(
+    () =>
+      objectStatsDetails?.projects.find(
+        (item) => item.project_id === acceptance?.project_id,
+      ),
+    [acceptance?.project_id, objectStatsDetails?.projects],
+  );
+  const availableQuantityByWorkId = React.useMemo(() => {
+    const quantities = new Map<string, number>();
+
+    if (!projectStats) return quantities;
+
+    projectWorks.forEach((projectWork) => {
+      if (!projectWork.work) return;
+
+      const stats = projectStats?.stats[projectWork.work];
+      const specificationQuantity = Number(
+        stats?.project_work_quantity ?? projectWork.quantity ?? 0,
+      );
+      const presentedQuantity = Number(stats?.presented_quantity ?? 0);
+      const availableQuantity = Math.max(
+        specificationQuantity - presentedQuantity,
+        0,
+      );
+
+      quantities.set(
+        projectWork.work,
+        (quantities.get(projectWork.work) ?? 0) + availableQuantity,
+      );
+    });
+
+    return quantities;
+  }, [projectStats?.stats, projectWorks]);
   const workOptions = React.useMemo(
     () =>
-      projectWorks.map((work) => ({
-        value: work.work,
-        label: work.project_work_name,
-        max: work.shift_report_details_quantity ?? 0,
-      })),
-    [projectWorks],
+      projectWorks
+        .filter((projectWork) => {
+          const availableQuantity = availableQuantityByWorkId.get(
+            projectWork.work,
+          );
+          return Boolean(availableQuantity && availableQuantity > 0);
+        })
+        .filter(
+          (projectWork, index, works) =>
+            works.findIndex((item) => item.work === projectWork.work) === index,
+        )
+        .map((projectWork) => ({
+          value: projectWork.work,
+          label:
+            worksMap[projectWork.work]?.name ?? projectWork.project_work_name,
+          availableQuantity:
+            availableQuantityByWorkId.get(projectWork.work) ?? 0,
+        })),
+    [availableQuantityByWorkId, projectWorks, worksMap],
   );
-  const maxQuantity = workOptions.find(
-    (option) => option.value === selectedWorkId,
-  )?.max;
-  const quantityMax =
-    typeof maxQuantity === "number" && maxQuantity > 0
-      ? maxQuantity
-      : undefined;
+  const quantityMax = availableQuantityByWorkId.get(selectedWorkId ?? "");
+  const editQuantityMax = editingRelation
+    ? (availableQuantityByWorkId.get(editingRelation.work_id) ?? 0) +
+      Number(editingRelation.quantity)
+    : undefined;
 
   const removeAcceptance = async () => {
     if (!acceptance) return;
@@ -151,10 +230,16 @@ export const Acceptance = () => {
       setSelectedWorkId(undefined);
       setAddWorkOpen(false);
     } catch (error) {
+      const quantityExceededError = getQuantityExceededError(error);
       notificationApi?.error({
-        message: "Ошибка",
-        description:
-          error instanceof Error ? error.message : "Не удалось добавить работу",
+        message: quantityExceededError
+          ? "Общее количество созданных приёмов работ превышает количество, указанное в спецификации для данной работы."
+          : "Ошибка",
+        description: quantityExceededError
+          ? getQuantityExceededDescription(quantityExceededError)
+          : error instanceof Error
+            ? error.message
+            : "Не удалось добавить работу",
         placement: "bottomRight",
       });
     }
@@ -175,10 +260,16 @@ export const Acceptance = () => {
       editRelationForm.resetFields();
       setEditingRelation(null);
     } catch (error) {
+      const quantityExceededError = getQuantityExceededError(error);
       notificationApi?.error({
-        message: "Ошибка",
-        description:
-          error instanceof Error ? error.message : "Не удалось изменить работу",
+        message: quantityExceededError
+          ? "Общее количество созданных приёмов работ превышает количество, указанное в спецификации для данной работы."
+          : "Ошибка",
+        description: quantityExceededError
+          ? getQuantityExceededDescription(quantityExceededError)
+          : error instanceof Error
+            ? error.message
+            : "Не удалось изменить работу",
         placement: "bottomRight",
       });
     }
@@ -336,6 +427,10 @@ export const Acceptance = () => {
             {canManage && (
               <Button
                 icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
+                disabled={
+                  isObjectStatsDetailsPending ||
+                  (!isObjectStatsDetailsError && workOptions.length === 0)
+                }
                 onClick={() => setAddWorkOpen(true)}
               >
                 Добавить работу
@@ -366,6 +461,10 @@ export const Acceptance = () => {
                           <Button
                             type="link"
                             icon={<EditTwoTone twoToneColor="#e40808" />}
+                            disabled={
+                              isObjectStatsDetailsPending ||
+                              isObjectStatsDetailsError
+                            }
                             onClick={() => {
                               setEditingRelation(record);
                               editRelationForm.setFieldsValue({
@@ -420,33 +519,57 @@ export const Acceptance = () => {
             cancelText="Отмена"
             confirmLoading={createRelationMutation.isPending}
           >
-            <Form form={relationForm} layout="vertical">
-              <Form.Item
-                name="work_id"
-                label="Работа"
-                rules={[{ required: true, message: "Выберите работу" }]}
-              >
-                <Select
-                  placeholder="Выберите работу"
-                  options={workOptions}
-                  onChange={(workId) => {
-                    setSelectedWorkId(workId);
-                    relationForm.setFieldValue("quantity", undefined);
-                  }}
-                />
-              </Form.Item>
-              <Form.Item
-                name="quantity"
-                label="Количество"
-                rules={[{ required: true, message: "Укажите количество" }]}
-              >
-                <InputNumber
-                  min={0.01}
-                  max={quantityMax}
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-            </Form>
+            {isObjectStatsDetailsError ? (
+              <Alert
+                type="error"
+                showIcon
+                message="Не удалось загрузить доступное количество работ"
+              />
+            ) : (
+              <Form form={relationForm} layout="vertical">
+                <Form.Item
+                  name="work_id"
+                  label="Работа"
+                  rules={[{ required: true, message: "Выберите работу" }]}
+                >
+                  <Select
+                    placeholder="Выберите работу"
+                    options={workOptions}
+                    loading={isObjectStatsDetailsPending}
+                    disabled={isObjectStatsDetailsPending}
+                    onChange={(workId) => {
+                      setSelectedWorkId(workId);
+                      relationForm.setFieldValue("quantity", undefined);
+                    }}
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="quantity"
+                  label={
+                    quantityMax !== undefined
+                      ? `Количество (доступно: ${quantityMax})`
+                      : "Количество"
+                  }
+                  rules={[
+                    { required: true, message: "Укажите количество" },
+                    {
+                      validator: (_, value) =>
+                        quantityMax === undefined || value <= quantityMax
+                          ? Promise.resolve()
+                          : Promise.reject(
+                              new Error(`Доступно для приёмки: ${quantityMax}`),
+                            ),
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    min={0.01}
+                    max={quantityMax}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Form>
+            )}
           </Modal>
           <Modal
             open={Boolean(editingRelation)}
@@ -463,10 +586,30 @@ export const Acceptance = () => {
             <Form form={editRelationForm} layout="vertical">
               <Form.Item
                 name="quantity"
-                label="Количество"
-                rules={[{ required: true, message: "Укажите количество" }]}
+                label={
+                  editQuantityMax !== undefined
+                    ? `Количество (доступно: ${editQuantityMax})`
+                    : "Количество"
+                }
+                rules={[
+                  { required: true, message: "Укажите количество" },
+                  {
+                    validator: (_, value) =>
+                      editQuantityMax === undefined || value <= editQuantityMax
+                        ? Promise.resolve()
+                        : Promise.reject(
+                            new Error(
+                              `Доступно для приёмки: ${editQuantityMax}`,
+                            ),
+                          ),
+                  },
+                ]}
               >
-                <InputNumber min={0.01} style={{ width: "100%" }} />
+                <InputNumber
+                  min={0.01}
+                  max={editQuantityMax}
+                  style={{ width: "100%" }}
+                />
               </Form.Item>
             </Form>
           </Modal>

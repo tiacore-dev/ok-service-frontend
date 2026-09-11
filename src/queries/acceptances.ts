@@ -15,6 +15,7 @@ import type {
   EditableAcceptancePayload,
   IWorkAcceptanceRelation,
 } from "../interfaces/acceptances/IAcceptance";
+import { objectStatsKeys } from "./objectStats";
 
 export const acceptanceKeys = {
   list: (projectId: string) => ["acceptances", "list", projectId] as const,
@@ -96,10 +97,12 @@ export const useCreateAcceptanceRelationMutation = () => {
   const client = useQueryClient();
   return useMutation({
     mutationFn: createAcceptanceRelation,
-    onSuccess: (_, variables) =>
+    onSuccess: (_, variables) => {
       client.invalidateQueries({
         queryKey: acceptanceKeys.relations(variables.acceptance_id),
-      }),
+      });
+      client.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+    },
   });
 };
 export const useUpdateAcceptanceRelationMutation = () => {
@@ -112,10 +115,12 @@ export const useUpdateAcceptanceRelationMutation = () => {
       id: string;
       payload: Omit<IWorkAcceptanceRelation, "id">;
     }) => updateAcceptanceRelation(id, payload),
-    onSuccess: (_, variables) =>
+    onSuccess: (_, variables) => {
       client.invalidateQueries({
         queryKey: acceptanceKeys.relations(variables.payload.acceptance_id),
-      }),
+      });
+      client.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+    },
   });
 };
 export const useDeleteAcceptanceRelationMutation = () => {
@@ -123,9 +128,11 @@ export const useDeleteAcceptanceRelationMutation = () => {
   return useMutation({
     mutationFn: ({ id }: { id: string; acceptanceId: string }) =>
       deleteAcceptanceRelation(id),
-    onSuccess: (_, variables) =>
+    onSuccess: (_, variables) => {
       client.invalidateQueries({
         queryKey: acceptanceKeys.relations(variables.acceptanceId),
-      }),
+      });
+      client.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+    },
   });
 };

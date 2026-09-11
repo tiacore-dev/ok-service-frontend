@@ -7,6 +7,7 @@ import {
   deleteShiftReportDetailApi,
   editShiftReportDetailApi,
 } from "../../../../api/shift-report-details.api";
+import { objectStatsKeys } from "../../../../queries/objectStats";
 
 export type EditableShiftReportDetail = Omit<
   IShiftReportDetail,
@@ -26,6 +27,7 @@ export const useCreateShiftReportDetailMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportMaterials", variables.shift_report],
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
       notification.success({
         message: "Успешно",
         description: "Запись отчета по смене создана",
@@ -66,6 +68,7 @@ export const useEditShiftReportDetailMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportMaterials", variables.data.shift_report],
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
       notification.success({
         message: "Успешно",
         description: "Отчет по смене изменён",
@@ -98,6 +101,7 @@ export const useDeleteShiftReportDetailMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportMaterials", variables.shiftReportId],
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
       notification.success({
         message: "Успешно",
         description: "Запись отчета по смене удалена",
