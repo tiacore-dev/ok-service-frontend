@@ -3,7 +3,7 @@ import type { IProjectWork } from "../interfaces/projectWorks/IProjectWork";
 import type { IProjectWorksList } from "../interfaces/projectWorks/IProjectWorksList";
 
 export interface EditableProjectWorkPayload
-  extends Omit<IProjectWork, "project_work_id"> {}
+  extends Omit<IProjectWork, "project_work_id" | "summ"> {}
 
 export const fetchProjectWorks = async (
   projectId?: string,

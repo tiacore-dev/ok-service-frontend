@@ -33,7 +33,11 @@ export const Filters: React.FC<UsersFiltersProps> = ({
   };
 
   const sortButtonIcon =
-    filtersState.sortOrder === "ascend" ? <ArrowUpOutlined /> : <ArrowDownOutlined />;
+    filtersState.sortOrder === "ascend" ? (
+      <ArrowUpOutlined />
+    ) : (
+      <ArrowDownOutlined />
+    );
 
   return (
     <Space
@@ -93,7 +97,9 @@ export const Filters: React.FC<UsersFiltersProps> = ({
       <Select
         className="users_filters_sort"
         value={filtersState.sortField}
-        onChange={(value: UsersSortField) => changeFilters({ sortField: value })}
+        onChange={(value: UsersSortField) =>
+          changeFilters({ sortField: value })
+        }
         options={[
           { label: "Сортировка: по имени", value: "name" },
           { label: "Сортировка: по логину", value: "login" },
@@ -105,7 +111,8 @@ export const Filters: React.FC<UsersFiltersProps> = ({
       <Button
         onClick={() =>
           changeFilters({
-            sortOrder: filtersState.sortOrder === "ascend" ? "descend" : "ascend",
+            sortOrder:
+              filtersState.sortOrder === "ascend" ? "descend" : "ascend",
           })
         }
         icon={sortButtonIcon}

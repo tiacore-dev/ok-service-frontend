@@ -130,7 +130,7 @@ export const MeasurementUnits = () => {
     {
       title: "Действия",
       key: "actions",
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       render: (_: unknown, record: IMeasurementUnit) => (
         <Space>
           <Button

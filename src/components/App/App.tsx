@@ -49,6 +49,13 @@ import { Leaves } from "../../pages/leaves/leaves.page";
 import { Leave } from "../../pages/leave/leave";
 import { Manual } from "../../pages/manual/manual";
 import { ApiKeys } from "../../pages/api-keys/api-keys.page";
+import { WorkPlans } from "../../pages/work-plans/work-plans.page";
+import { Acceptance } from "../../pages/acceptance/acceptance.page";
+import { ObjectsProgress } from "../../pages/objects-progress/objects-progress.page";
+import { workPlansKeys } from "../../queries/workPlans";
+import { objectStatsKeys } from "../../queries/objectStats";
+import { projectLeaderStatsKeys } from "../../queries/projectLeaderStats";
+import { acceptanceAttachmentsKeys } from "../../queries/acceptanceAttachments";
 import {
   apiKeyPermissionRelationsKeys,
   apiKeyPermissionTypesKeys,
@@ -86,6 +93,10 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: measurementUnitsKeys.all() });
     queryClient.removeQueries({ queryKey: objectStatusesKeys.all() });
     queryClient.removeQueries({ queryKey: rolesKeys.all() });
+    queryClient.removeQueries({ queryKey: workPlansKeys.all() });
+    queryClient.removeQueries({ queryKey: objectStatsKeys.collection() });
+    queryClient.removeQueries({ queryKey: projectLeaderStatsKeys.all() });
+    queryClient.removeQueries({ queryKey: acceptanceAttachmentsKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeysKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeyPermissionTypesKeys.all() });
     queryClient.removeQueries({
@@ -208,6 +219,12 @@ export const App = () => {
                 <Route path=":materialId" element={<Material />} />
               </Route>
               <Route path="api-keys" element={<ApiKeys />} />
+              <Route path="work-plans" element={<WorkPlans />} />
+              <Route path="objects-progress" element={<ObjectsProgress />} />
+              <Route
+                path="acceptances/:acceptanceId"
+                element={<Acceptance />}
+              />
               <Route path="shifts">
                 <Route index={true} element={<ShiftReports />} />
                 <Route path="assignment" element={<Assignment />} />

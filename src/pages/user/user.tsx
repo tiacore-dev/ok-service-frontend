@@ -149,9 +149,7 @@ export const User = () => {
         ]}
       />
       {isLoaded && userData ? (
-        <Content
-          className="user__content"
-        >
+        <Content className="user__content">
           <Title level={3}>{userData.name}</Title>
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}

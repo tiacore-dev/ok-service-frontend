@@ -115,9 +115,7 @@ export const AppFooter = () => {
   );
 
   return isMobile() ? (
-    <Footer
-      className="app-footer"
-    >
+    <Footer className="app-footer">
       <Flex justify="space-around" align="center">
         {items}
       </Flex>

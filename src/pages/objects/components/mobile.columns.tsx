@@ -8,7 +8,7 @@ import { ICity } from "../../../interfaces/cities/ICity";
 export const objectsMobileColumns = (
   navigate: NavigateFunction,
   statusMap: Record<string, IObjectStatus>,
-  citiesMap: Record<string, ICity>
+  citiesMap: Record<string, ICity>,
 ): ColumnsType<IObjectsListColumn> => [
   {
     dataIndex: "mobileData",

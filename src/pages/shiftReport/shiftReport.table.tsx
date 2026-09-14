@@ -67,9 +67,7 @@ export const createShiftReportColumns = (
       hidden: currentRole === RoleId.USER || !hasShiftReport || isSigned,
       render: (text: string, record: IShiftReportDetailsListColumn) => (
         <span
-          className={
-            record.blocked ? "shift-report__blocked-text" : undefined
-          }
+          className={record.blocked ? "shift-report__blocked-text" : undefined}
         >
           {text}
         </span>
@@ -87,10 +85,7 @@ export const createShiftReportColumns = (
             type="link"
             onClick={() => onEdit(record)}
           />
-          <Popconfirm
-            title="Удалить?"
-            onConfirm={() => onDelete(record.key)}
-          >
+          <Popconfirm title="Удалить?" onConfirm={() => onDelete(record.key)}>
             <Button
               icon={<DeleteTwoTone twoToneColor="#e40808" />}
               type="link"

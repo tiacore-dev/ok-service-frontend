@@ -9,7 +9,11 @@ import {
   Space,
   Table,
 } from "antd";
-import { DeleteTwoTone, EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
+import {
+  DeleteTwoTone,
+  EditTwoTone,
+  PlusCircleTwoTone,
+} from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
 import type { IProjectMaterialsListColumn } from "../../interfaces/projectMaterials/IProjectMaterialsList";
 import {
@@ -217,7 +221,7 @@ export const ProjectMaterialsTable = ({
       title: "Действия",
       dataIndex: "operation",
       hidden: !canManage,
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       render: (_: string, record: IProjectMaterialsListColumn) => {
         return (
           <Space>

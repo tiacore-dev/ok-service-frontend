@@ -8,6 +8,7 @@ import {
   Checkbox,
   Layout,
   Popconfirm,
+  Select,
   Space,
   Spin,
   Table,
@@ -16,6 +17,7 @@ import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { isMobile } from "../../utils/isMobile";
+import { formatNumber } from "../../utils/formatNumber";
 import { EditableProjectDialog } from "../../components/ActionDialogs/EditableProjectDialog/EditableProjectDialog";
 import { DeleteProjectDialog } from "../../components/ActionDialogs/DeleteProjectDialog";
 import type { IProjectWorksListColumn } from "../../interfaces/projectWorks/IProjectWorksList";
@@ -31,6 +33,8 @@ import { useWorksMap } from "../../queries/works";
 import {
   useDeleteProjectMutation,
   useProjectQuery,
+  useProjectStatusesQuery,
+  useUpdateProjectStatusMutation,
 } from "../../queries/projects";
 import {
   useDeleteProjectWorkMutation,
@@ -44,7 +48,10 @@ import type { IProjectWorksFiltersState } from "../../interfaces/projectWorks/IP
 import { defaultProjectWorksFiltersState } from "../../interfaces/projectWorks/IProjectWorksFiltersState";
 import { saveProjectWorksFiltersState } from "../../store/modules/settings/projectWorks";
 import { ProjectPlaces } from "./ProjectPlaces";
+import { ProjectAcceptances } from "./ProjectAcceptances";
 import type { IState } from "../../store/modules";
+import { ObjectStatusId } from "../../interfaces/objectStatuses/IObjectStatus";
+import { useAcceptancesQuery } from "../../queries/acceptances";
 
 export const Project = () => {
   const { Content } = Layout;
@@ -71,8 +78,13 @@ export const Project = () => {
     isFetching: isProjectWorksFetching,
   } = useProjectWorksMap(projectId, { enabled: Boolean(projectId) });
   const deleteProjectMutation = useDeleteProjectMutation();
+  const updateProjectStatusMutation = useUpdateProjectStatusMutation();
+  const { data: projectStatuses = [], isPending: isProjectStatusesPending } =
+    useProjectStatusesQuery();
   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
   const deleteProjectWorkMutation = useDeleteProjectWorkMutation();
+  const { data: acceptances = [], isPending: isAcceptancesPending } =
+    useAcceptancesQuery(projectId ?? "");
 
   const currentUserId = useSelector(getCurrentUserId);
   const isProjectLoading = isProjectPending || isProjectFetching;
@@ -170,14 +182,70 @@ export const Project = () => {
       });
     }, [projectWorksData, projectWorksFilters, worksMap]);
 
-  const canEdit =
+  const isAdmin = currentRole === RoleId.ADMIN;
+  const object = projectData ? objectsMap[projectData.object] : undefined;
+  const isObjectActive = object?.status === ObjectStatusId.ACTIVE;
+  const isObjectWaiting = object?.status === ObjectStatusId.WAITING;
+  const isProjectClosed = React.useMemo(
+    () =>
+      projectData?.status === "Закрыто" ||
+      projectStatuses.some(
+        (status) =>
+          status.value === projectData?.status && status.label === "Закрыто",
+      ),
+    [projectData?.status, projectStatuses],
+  );
+  const canManageProject =
     Boolean(
       projectData?.project_leader &&
         currentRole === RoleId.PROJECT_LEADER &&
         currentUserId === projectData.project_leader,
     ) ||
     currentRole === RoleId.MANAGER ||
-    currentRole === RoleId.ADMIN;
+    isAdmin;
+  const canEdit = canManageProject && (!isProjectClosed || isAdmin);
+  const canDelete = isAdmin;
+  const canChangeProjectStatus =
+    isObjectActive &&
+    (isAdmin || (!isProjectClosed && currentRole === RoleId.MANAGER));
+  const canCloseProject =
+    !isAcceptancesPending &&
+    acceptances.every((acceptance) => acceptance.status === "documents_signed");
+  const isClosingProjectStatus = React.useCallback(
+    (status: string) =>
+      projectStatuses.some(
+        (projectStatus) =>
+          projectStatus.value === status && projectStatus.label === "Закрыто",
+      ),
+    [projectStatuses],
+  );
+  const availableProjectStatusOptions = React.useMemo(() => {
+    const currentStatus = projectStatuses.find(
+      (status) => status.value === projectData?.status,
+    );
+    const adjacentStatusLabels: Record<string, string[]> = {
+      "На согласовании": ["В работе"],
+      "В работе": ["На согласовании", "Работы выполнены"],
+      "Работы выполнены": ["В работе", "Закрыто"],
+      Закрыто: ["Работы выполнены"],
+    };
+    const allowedLabels = new Set(
+      adjacentStatusLabels[currentStatus?.label ?? ""] ?? [],
+    );
+
+    return projectStatuses
+      .filter(
+        (status) =>
+          status.value === projectData?.status ||
+          allowedLabels.has(status.label),
+      )
+      .map((status) => ({
+        ...status,
+        disabled:
+          status.value === projectData?.status ||
+          (status.label === "Закрыто" && !canCloseProject),
+      }));
+  }, [projectData?.status, projectStatuses, canCloseProject]);
 
   const handleSignedChange = React.useCallback(
     async (record: IProjectWorksListColumn, checked: boolean) => {
@@ -190,6 +258,9 @@ export const Project = () => {
             project_work_name: record.project_work_name,
             work: record.work,
             quantity: Number(record.quantity),
+            ...(record.price === undefined || record.price === null
+              ? {}
+              : { price: Number(record.price) }),
             signed: checked,
           },
         });
@@ -274,6 +345,53 @@ export const Project = () => {
     }
   }, [projectData, deleteProjectMutation, notificationApi, navigate]);
 
+  const handleStatusChange = React.useCallback(
+    async (status: string) => {
+      if (!projectData?.project_id) return;
+      if (isClosingProjectStatus(status) && !canCloseProject) {
+        notificationApi?.error({
+          message: "Нельзя закрыть спецификацию",
+          description:
+            "Все приёмки работ должны иметь статус «Документы подписаны».",
+          placement: "bottomRight",
+          duration: 2,
+        });
+        return;
+      }
+
+      try {
+        await updateProjectStatusMutation.mutateAsync({
+          projectId: projectData.project_id,
+          status,
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Статус спецификации изменён",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } catch (error) {
+        const description =
+          error instanceof Error
+            ? error.message
+            : "Не удалось изменить статус спецификации";
+        notificationApi?.error({
+          message: "Ошибка",
+          description,
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+    },
+    [
+      projectData,
+      updateProjectStatusMutation,
+      notificationApi,
+      isClosingProjectStatus,
+      canCloseProject,
+    ],
+  );
+
   const handleModalCancel = () => {
     setModalVisible(false);
     setEditingRecord(null);
@@ -300,10 +418,26 @@ export const Project = () => {
       },
     },
     {
+      title: "Цена",
+      dataIndex: "price",
+      key: "price",
+      width: "130px",
+      render: (value?: number) =>
+        value === undefined || value === null ? "—" : formatNumber(value),
+    },
+    {
       title: "Количество",
       dataIndex: "quantity",
       key: "quantity",
       width: "100px",
+    },
+    {
+      title: "Сумма",
+      dataIndex: "summ",
+      key: "summ",
+      width: "130px",
+      render: (value?: number) =>
+        value === undefined || value === null ? "—" : formatNumber(value),
     },
     {
       title: "Согласовано",
@@ -314,9 +448,7 @@ export const Project = () => {
         <Checkbox
           checked={value}
           onChange={(e) => handleSignedChange(record, e.target.checked)}
-          disabled={
-            !canEdit || (currentRole === RoleId.PROJECT_LEADER && value)
-          }
+          disabled={!canEdit}
         />
       ),
     },
@@ -325,7 +457,7 @@ export const Project = () => {
           {
             title: "Действия",
             dataIndex: "operation",
-            width: !isMobile() && "116px",
+            width: isMobile() ? undefined : "116px",
             render: (_: string, record: IProjectWorksListColumn) => (
               <Space>
                 <Button
@@ -356,7 +488,6 @@ export const Project = () => {
   ];
 
   const isLoading = projectWorksLoading;
-  const object = projectData ? objectsMap[projectData.object] : undefined;
   const objectLink = projectData
     ? `/objects/${projectData.object}`
     : "/objects";
@@ -386,7 +517,7 @@ export const Project = () => {
             className="project__header-actions"
           >
             {canEdit && <EditableProjectDialog project={projectData} />}
-            {canEdit && (
+            {canDelete && (
               <DeleteProjectDialog
                 onDelete={handleDeleteProject}
                 name={projectData.name}
@@ -397,6 +528,28 @@ export const Project = () => {
             <p>Наименование: {projectData.name}</p>
             <p>Объект: {objectsMap[projectData.object]?.name}</p>
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
+            <p>
+              Статус:{" "}
+              {canChangeProjectStatus ? (
+                <Select
+                  value={projectData.status}
+                  options={availableProjectStatusOptions}
+                  loading={isProjectStatusesPending}
+                  disabled={
+                    isProjectStatusesPending ||
+                    updateProjectStatusMutation.isPending
+                  }
+                  onChange={handleStatusChange}
+                  className="project__status-select"
+                />
+              ) : (
+                projectStatuses.find(
+                  (status) => status.value === projectData.status,
+                )?.label ??
+                projectData.status ??
+                "—"
+              )}
+            </p>
           </Card>
 
           {importMode ? (
@@ -443,11 +596,32 @@ export const Project = () => {
               />
             </>
           )}
-          <ProjectPlaces
-            projectId={projectData.project_id}
-            objectId={projectData.object}
-            canEdit={canEdit}
-          />
+          {currentRole !== RoleId.USER && (
+            <ProjectPlaces
+              projectId={projectData.project_id}
+              objectId={projectData.object}
+              canAdd={canEdit}
+              canDelete={isAdmin}
+            />
+          )}
+          {(isAdmin ||
+            currentRole === RoleId.MANAGER ||
+            (currentRole === RoleId.PROJECT_LEADER &&
+              currentUserId === projectData.project_leader)) && (
+            <ProjectAcceptances
+              projectId={projectData.project_id}
+              canManage={
+                (currentRole === RoleId.MANAGER || isAdmin) &&
+                (!isProjectClosed || isAdmin)
+              }
+              canCreate={
+                (currentRole === RoleId.MANAGER || isAdmin) &&
+                (!isProjectClosed || isAdmin) &&
+                !isObjectWaiting
+              }
+              canManageSigned={isAdmin}
+            />
+          )}
           <section className="project__materials-section">
             <Title level={4} className="project__section-title">
               Материалы

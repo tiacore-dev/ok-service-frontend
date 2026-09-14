@@ -64,10 +64,8 @@ export const ApiKeys = () => {
   );
 
   const { data: apiKeysData, isFetching } = useApiKeysQuery();
-  const {
-    data: permissionTypesData,
-    refetch: refetchPermissionTypes,
-  } = useApiKeyPermissionTypesQuery();
+  const { data: permissionTypesData, refetch: refetchPermissionTypes } =
+    useApiKeyPermissionTypesQuery();
   const { data: permissionRelationsData, refetch: refetchPermissionRelations } =
     useApiKeyPermissionRelationsQuery();
 

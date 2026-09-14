@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RollbackOutlined } from "@ant-design/icons";
+import { DeleteTwoTone, RollbackOutlined } from "@ant-design/icons";
 import { Space } from "antd";
 import Title from "antd/es/typography/Title";
 import { dateTimestampToLocalString } from "../../utils/dateConverter";
@@ -15,9 +15,11 @@ interface ShiftReportHeaderProps {
   canEdit: boolean;
   canDelete: boolean;
   canRestore: boolean;
+  canHardDelete: boolean;
   canCancelByLeave: boolean;
   onDelete: () => void;
   onRestore: () => void;
+  onHardDelete: () => void;
   onLeaveCreated: () => void | Promise<void>;
 }
 
@@ -27,9 +29,11 @@ export const ShiftReportHeader = ({
   canEdit,
   canDelete,
   canRestore,
+  canHardDelete,
   canCancelByLeave,
   onDelete,
   onRestore,
+  onHardDelete,
   onLeaveCreated,
 }: ShiftReportHeaderProps) => {
   const shiftNumber = shiftReport.number?.toString().padStart(5, "0");
@@ -62,6 +66,21 @@ export const ShiftReportHeader = ({
               <p>Вы действительно хотите восстановить смену {shiftNumber}?</p>
             }
             onConfirm={onRestore}
+          />
+        )}
+        {canHardDelete && (
+          <ActionDialog
+            buttonText="Удалить навсегда"
+            buttonIcon={<DeleteTwoTone twoToneColor="#ff1616" />}
+            modalTitle={`Безвозвратно удалить смену ${shiftNumber}`}
+            modalText={
+              <p>
+                Смена {shiftNumber} будет удалена без возможности
+                восстановления. Продолжить?
+              </p>
+            }
+            modalOkText="Удалить"
+            onConfirm={onHardDelete}
           />
         )}
         {canCancelByLeave && shiftReport.user && (

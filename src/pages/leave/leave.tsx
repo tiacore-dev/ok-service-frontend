@@ -74,9 +74,7 @@ export const Leave = () => {
         ]}
       />
       {isLoaded && leaveData && leaveId === leaveData.leave_id ? (
-        <Content
-          className="leave__content"
-        >
+        <Content className="leave__content">
           <Space
             direction={isMobile() ? "vertical" : "horizontal"}
             size="small"

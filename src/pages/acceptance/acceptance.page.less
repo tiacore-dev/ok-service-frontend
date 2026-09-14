@@ -1,0 +1,130 @@
+.acceptance {
+  min-height: calc(100vh - 108px);
+  padding: 0 16px 24px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.acceptance__header,
+.acceptance__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.acceptance__title,
+.acceptance__section-title {
+  margin: 0;
+}
+
+.acceptance__section-header {
+  margin-bottom: 10px;
+}
+
+.acceptance__section-title {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.acceptance__card {
+  margin: 0;
+}
+
+.acceptance__card .ant-card-body {
+  padding: 12px;
+  display: grid;
+  row-gap: 8px;
+}
+
+.acceptance__card p {
+  margin: 0;
+}
+
+.acceptance__works {
+  margin: 0;
+}
+
+.acceptance__available-quantity {
+  margin: -12px 0 12px;
+  color: #8c8c8c;
+  font-size: 13px;
+}
+
+.acceptance__attachments-list {
+  border-top: 1px solid #f0f0f0;
+}
+
+.acceptance__attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.acceptance__attachment-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 0 !important;
+  text-align: left;
+}
+
+.acceptance__attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acceptance__attachment-size {
+  flex: 0 0 auto;
+  color: #8c8c8c;
+}
+
+.acceptance__attachment-actions {
+  display: flex;
+  align-items: center;
+}
+
+.acceptance__attachment-pdf-preview {
+  width: 100%;
+  min-height: 70vh;
+}
+
+.acceptance__attachment-text-preview {
+  max-height: 70vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.acceptance__table .ant-table-cell {
+  padding: 12px !important;
+}
+
+@media (max-width: 768px) {
+  .acceptance {
+    min-height: calc(100vh - 110px);
+    padding: 0 12px 20px;
+    gap: 12px;
+  }
+
+  .acceptance__header,
+  .acceptance__section-header {
+    align-items: flex-start;
+  }
+
+  .acceptance__section-title {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .acceptance__table .ant-table-cell {
+    padding: 10px 12px !important;
+  }
+}

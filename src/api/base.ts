@@ -1,6 +1,5 @@
 import axios, {
   AxiosError,
-  AxiosResponse,
   AxiosHeaders,
   InternalAxiosRequestConfig,
 } from "axios";
@@ -23,7 +22,7 @@ type RequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
 interface FailedRequest {
   reject: (error: unknown) => void;
-  resolve: (value?: AxiosResponse) => void;
+  resolve: () => void;
 }
 
 let isRefreshing = false;
@@ -69,7 +68,7 @@ apiClient.interceptors.response.use(
     }
 
     if (isRefreshing) {
-      return new Promise<AxiosResponse>((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         failedQueue.push({ resolve, reject });
       }).then(() => apiClient(originalRequest));
     }

@@ -27,7 +27,7 @@ interface IChartsByUsersProps {
 export const ChartsByUsers = (props: IChartsByUsersProps) => {
   const { totalCostArrayByUser, description } = props;
 
-  const containerRef = React.useRef(null);
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const { usersMap } = useUsersMap();
   const [width, setWidth] = React.useState(0);
 

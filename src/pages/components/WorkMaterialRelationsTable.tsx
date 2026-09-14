@@ -9,10 +9,7 @@ import {
   Space,
   Table,
 } from "antd";
-import {
-  DeleteTwoTone,
-  EditTwoTone,
-} from "@ant-design/icons";
+import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { isMobile } from "../../utils/isMobile";
 import type { IWorkMaterialRelationsListColumn } from "../../interfaces/workMaterialRelations/IWorkMaterialRelationsList";
 import {
@@ -254,7 +251,7 @@ export const WorkMaterialRelationsTable = ({
       title: "Действия",
       dataIndex: "operation",
       hidden: !canManage,
-      width: !isMobile() && "116px",
+      width: isMobile() ? undefined : "116px",
       render: (_: string, record: IWorkMaterialRelationsListColumn) => {
         return (
           <Space>
@@ -317,7 +314,12 @@ export const WorkMaterialRelationsTable = ({
           <Form.Item
             label={relationTitle}
             name={relationField}
-            rules={[{ required: true, message: `Выберите ${relationTitle.toLowerCase()}` }]}
+            rules={[
+              {
+                required: true,
+                message: `Выберите ${relationTitle.toLowerCase()}`,
+              },
+            ]}
           >
             <Select
               showSearch

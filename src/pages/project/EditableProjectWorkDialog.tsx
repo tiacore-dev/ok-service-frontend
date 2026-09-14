@@ -82,11 +82,15 @@ export const EditableProjectWorkDialog: React.FC<
     form
       .validateFields()
       .then(async (values) => {
+        const { price, ...formValues } = values;
         const data: EditableProjectWorkPayload = {
-          ...values,
+          ...formValues,
           project: projectId,
           quantity: Number(values.quantity),
           signed: !!values.signed,
+          ...(price === undefined || price === null
+            ? {}
+            : { price: Number(price) }),
         };
 
         try {
@@ -186,6 +190,13 @@ export const EditableProjectWorkDialog: React.FC<
           ]}
         >
           <InputNumber min={0} className="project-work-modal__input-number" />
+        </Form.Item>
+        <Form.Item name="price" label="Цена, ₽">
+          <InputNumber
+            min={0}
+            precision={2}
+            className="project-work-modal__input-number"
+          />
         </Form.Item>
         <Form.Item
           name="signed"

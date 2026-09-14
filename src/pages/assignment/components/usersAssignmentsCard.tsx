@@ -87,19 +87,13 @@ export const UsersAssignmentsCard: React.FC<Props> = ({
                 ) : item.leaveReason ? (
                   <Space direction="horizontal" align="center">
                     {item.leaveReason === LeaveReasonId.SICK_LEAVE && (
-                      <FrownOutlined
-                        className="users-assignments__leave-icon"
-                      />
+                      <FrownOutlined className="users-assignments__leave-icon" />
                     )}
                     {item.leaveReason === LeaveReasonId.VACATION && (
-                      <ContactsOutlined
-                        className="users-assignments__leave-icon"
-                      />
+                      <ContactsOutlined className="users-assignments__leave-icon" />
                     )}
                     {item.leaveReason === LeaveReasonId.DAY_OFF && (
-                      <SmileOutlined
-                        className="users-assignments__leave-icon"
-                      />
+                      <SmileOutlined className="users-assignments__leave-icon" />
                     )}
 
                     <span className="assignment-page__unassigned">

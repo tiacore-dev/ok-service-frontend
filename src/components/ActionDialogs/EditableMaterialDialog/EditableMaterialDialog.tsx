@@ -43,7 +43,7 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
   const data = useSelector(
     (state: IState) => state.editableEntities.editableMaterial,
   );
-  const { sent, ...createMaterialData } = data;
+  const { sent: _sent, ...createMaterialData } = data;
   const notificationApi = React.useContext(NotificationContext);
   const navigate = useNavigate();
 
@@ -135,7 +135,7 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
       onConfirm={handleConfirm}
       onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
-      popoverText={iconOnly && popoverText}
+      popoverText={iconOnly ? popoverText : undefined}
       buttonType="primary"
       buttonIcon={buttonIcon}
       modalTitle={modalTitle}

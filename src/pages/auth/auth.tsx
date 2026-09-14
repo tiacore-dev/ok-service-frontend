@@ -32,14 +32,9 @@ export const Auth = () => {
     <>
       {" "}
       {authData.isAuth && (
-        <Breadcrumb
-          className="breadcrumb"
-          items={breadcrumbItems}
-        ></Breadcrumb>
+        <Breadcrumb className="breadcrumb" items={breadcrumbItems}></Breadcrumb>
       )}
-      <Content
-        className="auth__content"
-      >
+      <Content className="auth__content">
         {authData.isAuth ? <Account /> : <Login />}
       </Content>
     </>

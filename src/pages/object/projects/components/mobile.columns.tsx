@@ -3,10 +3,12 @@ import { ColumnsType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IUser } from "../../../../interfaces/users/IUser";
 import { IProjectsListColumn } from "../../../../interfaces/projects/IProjectsList";
+import { IProjectStatus } from "../../../../interfaces/projects/IProjectStatus";
 
 export const projectsMobileColumns = (
   navigate: NavigateFunction,
   usersMap: Record<string, IUser>,
+  projectStatuses: IProjectStatus[],
 ): ColumnsType<IProjectsListColumn> => [
   {
     dataIndex: "mobileData",
@@ -21,6 +23,13 @@ export const projectsMobileColumns = (
           {record.name}
         </a>
         <div>Прораб: {usersMap[record.project_leader]?.name}</div>
+        <div>
+          Статус:{" "}
+          {projectStatuses.find((item) => item.value === record.status)
+            ?.label ??
+            record.status ??
+            "—"}
+        </div>
       </div>
     ),
   },

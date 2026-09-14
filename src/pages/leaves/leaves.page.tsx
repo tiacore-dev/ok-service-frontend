@@ -37,9 +37,9 @@ export const Leaves = () => {
 
   const leavesData: ILeaveListColumn[] = React.useMemo(
     () =>
-      (leavesList ?? []).map((doc) => ({
+      (leavesList ?? []).map((doc, index) => ({
         ...doc,
-        key: doc.leave_id,
+        key: doc.leave_id ?? `leave-${index}`,
       })),
     [leavesList],
   );
