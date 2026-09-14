@@ -89,8 +89,6 @@ const getQuantityExceededDescription = (error: IQuantityExceededError) => (
   <>
     <div>В спецификации: {error.specification_quantity} шт.</div>
     <div>Доступно для приёмки: {error.available_quantity} шт.</div>
-    <div>Указано: {error.requested_quantity} шт.</div>
-    <div>Превышение: {error.exceeded_quantity} шт.</div>
   </>
 );
 
@@ -108,7 +106,6 @@ export const Acceptance = () => {
   const [relationForm] = Form.useForm<{ work_id: string; quantity: number }>();
   const [editRelationForm] = Form.useForm<{ quantity: number }>();
   const [selectedWorkId, setSelectedWorkId] = React.useState<string>();
-
   const { data: acceptance, isPending } = useAcceptanceQuery(acceptanceId);
   const {
     data: history = [],
@@ -149,8 +146,6 @@ export const Acceptance = () => {
   const availableQuantityByWorkId = React.useMemo(() => {
     const quantities = new Map<string, number>();
 
-    if (!projectStats) return quantities;
-
     projectWorks.forEach((projectWork) => {
       if (!projectWork.work) return;
 
@@ -159,14 +154,10 @@ export const Acceptance = () => {
         stats?.project_work_quantity ?? projectWork.quantity ?? 0,
       );
       const presentedQuantity = Number(stats?.presented_quantity ?? 0);
-      const availableQuantity = Math.max(
-        specificationQuantity - presentedQuantity,
-        0,
-      );
 
       quantities.set(
         projectWork.work,
-        (quantities.get(projectWork.work) ?? 0) + availableQuantity,
+        Math.max(specificationQuantity - presentedQuantity, 0),
       );
     });
 
@@ -175,12 +166,6 @@ export const Acceptance = () => {
   const workOptions = React.useMemo(
     () =>
       projectWorks
-        .filter((projectWork) => {
-          const availableQuantity = availableQuantityByWorkId.get(
-            projectWork.work,
-          );
-          return Boolean(availableQuantity && availableQuantity > 0);
-        })
         .filter(
           (projectWork, index, works) =>
             works.findIndex((item) => item.work === projectWork.work) === index,
@@ -189,13 +174,13 @@ export const Acceptance = () => {
           value: projectWork.work,
           label:
             worksMap[projectWork.work]?.name ?? projectWork.project_work_name,
-          availableQuantity:
-            availableQuantityByWorkId.get(projectWork.work) ?? 0,
         })),
-    [availableQuantityByWorkId, projectWorks, worksMap],
+    [projectWorks, worksMap],
   );
-  const quantityMax = availableQuantityByWorkId.get(selectedWorkId ?? "");
-  const editQuantityMax = editingRelation
+  const selectedAvailableQuantity = availableQuantityByWorkId.get(
+    selectedWorkId ?? "",
+  );
+  const editAvailableQuantity = editingRelation
     ? (availableQuantityByWorkId.get(editingRelation.work_id) ?? 0) +
       Number(editingRelation.quantity)
     : undefined;
@@ -427,10 +412,6 @@ export const Acceptance = () => {
             {canManage && (
               <Button
                 icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
-                disabled={
-                  isObjectStatsDetailsPending ||
-                  (!isObjectStatsDetailsError && workOptions.length === 0)
-                }
                 onClick={() => setAddWorkOpen(true)}
               >
                 Добавить работу
@@ -461,10 +442,6 @@ export const Acceptance = () => {
                           <Button
                             type="link"
                             icon={<EditTwoTone twoToneColor="#e40808" />}
-                            disabled={
-                              isObjectStatsDetailsPending ||
-                              isObjectStatsDetailsError
-                            }
                             onClick={() => {
                               setEditingRelation(record);
                               editRelationForm.setFieldsValue({
@@ -519,57 +496,37 @@ export const Acceptance = () => {
             cancelText="Отмена"
             confirmLoading={createRelationMutation.isPending}
           >
-            {isObjectStatsDetailsError ? (
-              <Alert
-                type="error"
-                showIcon
-                message="Не удалось загрузить доступное количество работ"
-              />
-            ) : (
-              <Form form={relationForm} layout="vertical">
-                <Form.Item
-                  name="work_id"
-                  label="Работа"
-                  rules={[{ required: true, message: "Выберите работу" }]}
-                >
-                  <Select
-                    placeholder="Выберите работу"
-                    options={workOptions}
-                    loading={isObjectStatsDetailsPending}
-                    disabled={isObjectStatsDetailsPending}
-                    onChange={(workId) => {
-                      setSelectedWorkId(workId);
-                      relationForm.setFieldValue("quantity", undefined);
-                    }}
-                  />
-                </Form.Item>
-                <Form.Item
-                  name="quantity"
-                  label={
-                    quantityMax !== undefined
-                      ? `Количество (доступно: ${quantityMax})`
-                      : "Количество"
-                  }
-                  rules={[
-                    { required: true, message: "Укажите количество" },
-                    {
-                      validator: (_, value) =>
-                        quantityMax === undefined || value <= quantityMax
-                          ? Promise.resolve()
-                          : Promise.reject(
-                              new Error(`Доступно для приёмки: ${quantityMax}`),
-                            ),
-                    },
-                  ]}
-                >
-                  <InputNumber
-                    min={0.01}
-                    max={quantityMax}
-                    style={{ width: "100%" }}
-                  />
-                </Form.Item>
-              </Form>
-            )}
+            <Form form={relationForm} layout="vertical">
+              <Form.Item
+                name="work_id"
+                label="Работа"
+                rules={[{ required: true, message: "Выберите работу" }]}
+              >
+                <Select
+                  placeholder="Выберите работу"
+                  options={workOptions}
+                  onChange={(workId) => setSelectedWorkId(workId)}
+                />
+              </Form.Item>
+              {selectedWorkId && (
+                <div className="acceptance__available-quantity">
+                  {isObjectStatsDetailsPending
+                    ? "Доступно для приёмки: загрузка…"
+                    : isObjectStatsDetailsError
+                      ? "Доступное количество не удалось загрузить"
+                      : "Доступно для приёмки: " +
+                        (selectedAvailableQuantity ?? 0) +
+                        " шт."}
+                </div>
+              )}
+              <Form.Item
+                name="quantity"
+                label="Количество"
+                rules={[{ required: true, message: "Укажите количество" }]}
+              >
+                <InputNumber min={0.01} style={{ width: "100%" }} />
+              </Form.Item>
+            </Form>
           </Modal>
           <Modal
             open={Boolean(editingRelation)}
@@ -584,32 +541,21 @@ export const Acceptance = () => {
             confirmLoading={updateRelationMutation.isPending}
           >
             <Form form={editRelationForm} layout="vertical">
+              <div className="acceptance__available-quantity">
+                {isObjectStatsDetailsPending
+                  ? "Доступно для приёмки: загрузка…"
+                  : isObjectStatsDetailsError
+                    ? "Доступное количество не удалось загрузить"
+                    : "Доступно для приёмки: " +
+                      (editAvailableQuantity ?? 0) +
+                      " шт."}
+              </div>
               <Form.Item
                 name="quantity"
-                label={
-                  editQuantityMax !== undefined
-                    ? `Количество (доступно: ${editQuantityMax})`
-                    : "Количество"
-                }
-                rules={[
-                  { required: true, message: "Укажите количество" },
-                  {
-                    validator: (_, value) =>
-                      editQuantityMax === undefined || value <= editQuantityMax
-                        ? Promise.resolve()
-                        : Promise.reject(
-                            new Error(
-                              `Доступно для приёмки: ${editQuantityMax}`,
-                            ),
-                          ),
-                  },
-                ]}
+                label="Количество"
+                rules={[{ required: true, message: "Укажите количество" }]}
               >
-                <InputNumber
-                  min={0.01}
-                  max={editQuantityMax}
-                  style={{ width: "100%" }}
-                />
+                <InputNumber min={0.01} style={{ width: "100%" }} />
               </Form.Item>
             </Form>
           </Modal>
