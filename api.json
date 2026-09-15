@@ -2,6 +2,376 @@
     "swagger": "2.0",
     "basePath": "/",
     "paths": {
+        "/acceptances/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceMessage"
+                        }
+                    }
+                },
+                "operationId": "post_acceptance_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "acceptances"
+                ]
+            }
+        },
+        "/acceptances/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_acceptance_all",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    {
+                        "name": "project_id",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "type": "string",
+                        "enum": [
+                            "presented",
+                            "violations_found",
+                            "accepted_on_site",
+                            "documents_signed"
+                        ]
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "acceptances"
+                ]
+            }
+        },
+        "/acceptances/{acceptance_id}/attachments": {
+            "parameters": [
+                {
+                    "name": "acceptance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_attachments"
+                ]
+            },
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "post_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "files",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true,
+                        "description": "One or more attachment files"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "work_acceptance_attachments"
+                ]
+            }
+        },
+        "/acceptances/{acceptance_id}/attachments/{attachment_id}": {
+            "parameters": [
+                {
+                    "name": "acceptance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_attachment_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_attachments"
+                ]
+            }
+        },
+        "/acceptances/{acceptance_id}/attachments/{attachment_id}/download": {
+            "parameters": [
+                {
+                    "name": "acceptance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                },
+                {
+                    "name": "attachment_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_attachment_download",
+                "tags": [
+                    "work_acceptance_attachments"
+                ]
+            }
+        },
+        "/acceptances/{acceptance_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "acceptance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_acceptance_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "acceptances"
+                ]
+            }
+        },
+        "/acceptances/{acceptance_id}/edit": {
+            "parameters": [
+                {
+                    "name": "acceptance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_acceptance_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceEdit"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "acceptances"
+                ]
+            }
+        },
+        "/acceptances/{acceptance_id}/history": {
+            "parameters": [
+                {
+                    "name": "acceptance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceHistoryResponse"
+                        }
+                    }
+                },
+                "operationId": "get_acceptance_history",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "acceptances"
+                ]
+            }
+        },
+        "/acceptances/{acceptance_id}/view": {
+            "parameters": [
+                {
+                    "name": "acceptance_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AcceptanceResponse"
+                        }
+                    }
+                },
+                "operationId": "get_acceptance_view",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "acceptances"
+                ]
+            }
+        },
         "/api-key/all": {
             "get": {
                 "responses": {
@@ -1710,6 +2080,73 @@
                 ]
             }
         },
+        "/objects/get-stat": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ObjectStatsCollectionResponse"
+                        }
+                    }
+                },
+                "operationId": "get_all_objects_stats",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 10
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "objects"
+                ]
+            }
+        },
+        "/objects/statuses": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ObjectStatusesResponse"
+                        }
+                    }
+                },
+                "operationId": "get_object_statuses",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "objects"
+                ]
+            }
+        },
         "/objects/{object_id}/attachments": {
             "parameters": [
                 {
@@ -1936,6 +2373,72 @@
                             "$ref": "#/definitions/ObjectEdit"
                         }
                     },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "objects"
+                ]
+            }
+        },
+        "/objects/{object_id}/get-stat": {
+            "parameters": [
+                {
+                    "name": "object_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ObjectStatsResponse"
+                        }
+                    }
+                },
+                "operationId": "get_object_stats",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "objects"
+                ]
+            }
+        },
+        "/objects/{object_id}/get-stat-details": {
+            "parameters": [
+                {
+                    "name": "object_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ObjectStatsDetailsResponse"
+                        }
+                    }
+                },
+                "operationId": "get_object_stats_details",
+                "parameters": [
                     {
                         "name": "X-Fields",
                         "in": "header",
@@ -2510,6 +3013,133 @@
                 ],
                 "tags": [
                     "positions"
+                ]
+            }
+        },
+        "/project-leaders/get-stat": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectLeaderStatsCollectionResponse"
+                        }
+                    }
+                },
+                "operationId": "get_all_project_leaders_stats",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 10
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "query",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "query",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "project_leader_ids",
+                        "in": "query",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_leaders"
+                ]
+            }
+        },
+        "/project-leaders/{project_leader_id}/get-stat": {
+            "parameters": [
+                {
+                    "name": "project_leader_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ObjectStatsResponse"
+                        }
+                    }
+                },
+                "operationId": "get_project_leader_stats",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_leaders"
+                ]
+            }
+        },
+        "/project-leaders/{project_leader_id}/get-stat-details": {
+            "parameters": [
+                {
+                    "name": "project_leader_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ObjectStatsDetailsResponse"
+                        }
+                    }
+                },
+                "operationId": "get_project_leader_stats_details",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_leaders"
                 ]
             }
         },
@@ -3594,6 +4224,18 @@
                         "description": "Flag filter"
                     },
                     {
+                        "name": "status",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by specification status",
+                        "enum": [
+                            "pending",
+                            "in_progress",
+                            "works_completed",
+                            "closed"
+                        ]
+                    },
+                    {
                         "name": "extreme_conditions_available",
                         "in": "query",
                         "type": "string",
@@ -3605,6 +4247,31 @@
                         "type": "string",
                         "description": "Flag filter"
                     },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "projects"
+                ]
+            }
+        },
+        "/projects/statuses": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectStatusesResponse"
+                        }
+                    }
+                },
+                "operationId": "get_project_statuses",
+                "parameters": [
                     {
                         "name": "X-Fields",
                         "in": "header",
@@ -3910,6 +4577,47 @@
                 },
                 "operationId": "get_project_stats_by_project_materials",
                 "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "projects"
+                ]
+            }
+        },
+        "/projects/{project_id}/status": {
+            "parameters": [
+                {
+                    "name": "project_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_project_status_update",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectStatusUpdate"
+                        }
+                    },
                     {
                         "name": "X-Fields",
                         "in": "header",
@@ -5906,6 +6614,193 @@
                 ]
             }
         },
+        "/work-acceptance-relations/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "post_relation_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_relations"
+                ]
+            }
+        },
+        "/work-acceptance-relations/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_relation_all",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    {
+                        "name": "acceptance_id",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "work_id",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_relations"
+                ]
+            }
+        },
+        "/work-acceptance-relations/{relation_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_relation_delete",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_relations"
+                ]
+            }
+        },
+        "/work-acceptance-relations/{relation_id}/edit": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_relation_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationEdit"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_relations"
+                ]
+            }
+        },
+        "/work-acceptance-relations/{relation_id}/view": {
+            "parameters": [
+                {
+                    "name": "relation_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationResponse"
+                        }
+                    }
+                },
+                "operationId": "get_relation_view",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_relations"
+                ]
+            }
+        },
         "/work_categories/add": {
             "post": {
                 "responses": {
@@ -6350,6 +7245,200 @@
                 ],
                 "tags": [
                     "work_material_relations"
+                ]
+            }
+        },
+        "/work_plans/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Work plan created",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanMessage"
+                        }
+                    }
+                },
+                "operationId": "post_work_plan_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanCreate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "work_plans"
+                ]
+            }
+        },
+        "/work_plans/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Work plans found",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_work_plan_all",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "type": "integer"
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "sort_order",
+                        "in": "query",
+                        "type": "string",
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ]
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "user_id_is_null",
+                        "in": "query",
+                        "type": "string"
+                    },
+                    {
+                        "name": "deleted",
+                        "in": "query",
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "work_plans"
+                ]
+            }
+        },
+        "/work_plans/{work_plan_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "work_plan_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Work plan hard deleted",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanMessage"
+                        }
+                    }
+                },
+                "operationId": "delete_work_plan_hard_delete",
+                "tags": [
+                    "work_plans"
+                ]
+            }
+        },
+        "/work_plans/{work_plan_id}/delete/soft": {
+            "parameters": [
+                {
+                    "name": "work_plan_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Work plan soft deleted",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_work_plan_soft_delete",
+                "tags": [
+                    "work_plans"
+                ]
+            }
+        },
+        "/work_plans/{work_plan_id}/edit": {
+            "parameters": [
+                {
+                    "name": "work_plan_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Work plan updated",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanMessage"
+                        }
+                    }
+                },
+                "operationId": "patch_work_plan_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanEdit"
+                        }
+                    }
+                ],
+                "tags": [
+                    "work_plans"
+                ]
+            }
+        },
+        "/work_plans/{work_plan_id}/view": {
+            "parameters": [
+                {
+                    "name": "work_plan_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Work plan found",
+                        "schema": {
+                            "$ref": "#/definitions/WorkPlanResponse"
+                        }
+                    }
+                },
+                "operationId": "get_work_plan_view",
+                "tags": [
+                    "work_plans"
                 ]
             }
         },
@@ -6918,6 +8007,10 @@
             "description": "Place attachments"
         },
         {
+            "name": "work_acceptance_attachments",
+            "description": "Work acceptance attachments"
+        },
+        {
             "name": "roles",
             "description": "Role management operations"
         },
@@ -6970,6 +8063,10 @@
             "description": "Projects management operations"
         },
         {
+            "name": "project_leaders",
+            "description": "Project leader statistics operations"
+        },
+        {
             "name": "users",
             "description": "User management operations"
         },
@@ -6998,12 +8095,24 @@
             "description": "Project Works management operations"
         },
         {
+            "name": "work_plans",
+            "description": "Work plans management operations"
+        },
+        {
             "name": "work_categories",
             "description": "Work category management operations"
         },
         {
             "name": "work_material_relations",
             "description": "Work material relations management operations"
+        },
+        {
+            "name": "acceptances",
+            "description": "Acceptances management operations"
+        },
+        {
+            "name": "work_acceptance_relations",
+            "description": "Work acceptance relations management operations"
         },
         {
             "name": "shift_report_materials",
@@ -7936,6 +9045,86 @@
                     "items": {
                         "$ref": "#/definitions/City"
                     }
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatusesResponse": {
+            "required": [
+                "msg",
+                "statuses"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "statuses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ObjectStatusItem"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatusItem": {
+            "required": [
+                "label",
+                "value"
+            ],
+            "properties": {
+                "value": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatsResponse": {
+            "required": [
+                "msg",
+                "stats"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "stats": {
+                    "type": "object",
+                    "description": "Object total and statistics grouped by project"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatsCollectionResponse": {
+            "required": [
+                "msg",
+                "stats"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "stats": {
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatsDetailsResponse": {
+            "required": [
+                "msg",
+                "stats"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "stats": {
+                    "type": "object",
+                    "description": "Object statistics grouped by project and work_id"
                 }
             },
             "type": "object"
@@ -8939,7 +10128,8 @@
         "ProjectView": {
             "required": [
                 "attachments",
-                "places"
+                "places",
+                "status"
             ],
             "properties": {
                 "project_id": {
@@ -8977,6 +10167,16 @@
                 "deleted": {
                     "type": "boolean",
                     "description": "Deletion status"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "pending",
+                    "enum": [
+                        "pending",
+                        "in_progress",
+                        "works_completed",
+                        "closed"
+                    ]
                 },
                 "places": {
                     "type": "array",
@@ -9036,6 +10236,9 @@
             "type": "object"
         },
         "Project": {
+            "required": [
+                "status"
+            ],
             "properties": {
                 "project_id": {
                     "type": "string",
@@ -9072,6 +10275,67 @@
                 "deleted": {
                     "type": "boolean",
                     "description": "Deletion status"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "pending",
+                    "enum": [
+                        "pending",
+                        "in_progress",
+                        "works_completed",
+                        "closed"
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "ProjectStatusesResponse": {
+            "required": [
+                "msg",
+                "statuses"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "statuses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectStatusItem"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectStatusItem": {
+            "required": [
+                "label",
+                "value"
+            ],
+            "properties": {
+                "value": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectStatusUpdate": {
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "pending",
+                    "enum": [
+                        "pending",
+                        "in_progress",
+                        "works_completed",
+                        "closed"
+                    ]
                 }
             },
             "type": "object"
@@ -9089,6 +10353,95 @@
                 "stats": {
                     "type": "object",
                     "description": "Dict of work_id or project_work_id -> stat"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectLeaderStatsCollectionResponse": {
+            "required": [
+                "msg",
+                "stats"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "stats": {
+                    "$ref": "#/definitions/ProjectLeaderStatsCollectionPayload"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectLeaderStatsCollectionPayload": {
+            "required": [
+                "project_leaders",
+                "total",
+                "total_count"
+            ],
+            "properties": {
+                "total": {
+                    "type": "object",
+                    "description": "Statistics grouped by calendar month in YYYY-MM format"
+                },
+                "project_leaders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectLeaderStatsCollectionItem"
+                    }
+                },
+                "total_count": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectLeaderStatsCollectionItem": {
+            "required": [
+                "login",
+                "name",
+                "projects",
+                "stats",
+                "user_id"
+            ],
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "stats": {
+                    "type": "object",
+                    "description": "Statistics grouped by calendar month in YYYY-MM format"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectLeaderFactProject"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectLeaderFactProject": {
+            "required": [
+                "name",
+                "project_id",
+                "stats"
+            ],
+            "properties": {
+                "project_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "stats": {
+                    "type": "object",
+                    "description": "Statistics grouped by calendar month in YYYY-MM format"
                 }
             },
             "type": "object"
@@ -9406,6 +10759,10 @@
                     "type": "number",
                     "description": "Sum of shift_report_details"
                 },
+                "shift_report_details_summ_by_estimate": {
+                    "type": "number",
+                    "description": "Actual shift work sum calculated using the estimate price"
+                },
                 "places": {
                     "type": "array",
                     "description": "Places selected for this shift with relation comment",
@@ -9661,6 +11018,10 @@
                 "shift_report_details_sum": {
                     "type": "number",
                     "description": "Sum of shift_report_details"
+                },
+                "shift_report_details_summ_by_estimate": {
+                    "type": "number",
+                    "description": "Actual shift work sum calculated using the estimate price"
                 }
             },
             "type": "object"
@@ -9823,7 +11184,16 @@
                 "project_work_quantity": {
                     "type": "number"
                 },
+                "project_work_summ": {
+                    "type": "number"
+                },
                 "shift_report_details_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_summ_by_estimate": {
                     "type": "number"
                 },
                 "acceptance_status": {
@@ -10227,7 +11597,7 @@
                 "quantity": {
                     "type": "number"
                 },
-                "summ": {
+                "price": {
                     "type": "number"
                 },
                 "signed": {
@@ -10318,6 +11688,10 @@
                     "type": "number",
                     "description": "Quantity of the work"
                 },
+                "price": {
+                    "type": "number",
+                    "description": "Price per unit of work"
+                },
                 "summ": {
                     "type": "number",
                     "description": "Sum of the project work"
@@ -10337,7 +11711,16 @@
                 "project_work_quantity": {
                     "type": "number"
                 },
+                "project_work_summ": {
+                    "type": "number"
+                },
                 "shift_report_details_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_summ_by_estimate": {
                     "type": "number"
                 },
                 "acceptance_status": {
@@ -10366,7 +11749,7 @@
                 "quantity": {
                     "type": "number"
                 },
-                "summ": {
+                "price": {
                     "type": "number"
                 },
                 "signed": {
@@ -10389,6 +11772,117 @@
                     "description": "List of project works",
                     "items": {
                         "$ref": "#/definitions/ProjectWork"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkPlanCreate": {
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "summ": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPlanMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "work_plan_id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPlanResponse": {
+            "required": [
+                "msg",
+                "work_plan"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "work_plan": {
+                    "$ref": "#/definitions/WorkPlan"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPlan": {
+            "required": [
+                "date",
+                "deleted",
+                "summ",
+                "work_plan_id"
+            ],
+            "properties": {
+                "work_plan_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string",
+                    "description": "First day of the month"
+                },
+                "summ": {
+                    "type": "string",
+                    "description": "Decimal amount with up to two fractional digits"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPlanEdit": {
+            "properties": {
+                "user_id": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "summ": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkPlanAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "work_plans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/WorkPlan"
                     }
                 }
             },
@@ -10605,6 +12099,337 @@
                     "description": "List of work material relations",
                     "items": {
                         "$ref": "#/definitions/WorkMaterialRelation"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceCreate": {
+            "properties": {
+                "date": {
+                    "type": "integer"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceResponse": {
+            "required": [
+                "acceptance",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "acceptance": {
+                    "$ref": "#/definitions/AcceptanceView"
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceView": {
+            "required": [
+                "attachments",
+                "date",
+                "id",
+                "project_id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "integer"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "presented",
+                    "enum": [
+                        "presented",
+                        "violations_found",
+                        "accepted_on_site",
+                        "documents_signed"
+                    ]
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AttachmentView"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceEdit": {
+            "properties": {
+                "date": {
+                    "type": "integer"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "acceptances": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Acceptance"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "Acceptance": {
+            "required": [
+                "date",
+                "id",
+                "project_id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "integer"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "presented",
+                    "enum": [
+                        "presented",
+                        "violations_found",
+                        "accepted_on_site",
+                        "documents_signed"
+                    ]
+                },
+                "comment": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceHistoryResponse": {
+            "required": [
+                "history",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AcceptanceStatusHistory"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "AcceptanceStatusHistory": {
+            "required": [
+                "acceptance_id",
+                "changed_at",
+                "changed_by",
+                "from_status",
+                "id",
+                "to_status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "acceptance_id": {
+                    "type": "string"
+                },
+                "changed_at": {
+                    "type": "integer"
+                },
+                "changed_by": {
+                    "type": "string"
+                },
+                "from_status": {
+                    "type": "string",
+                    "example": "presented",
+                    "enum": [
+                        "presented",
+                        "violations_found",
+                        "accepted_on_site",
+                        "documents_signed"
+                    ]
+                },
+                "to_status": {
+                    "type": "string",
+                    "example": "presented",
+                    "enum": [
+                        "presented",
+                        "violations_found",
+                        "accepted_on_site",
+                        "documents_signed"
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationCreate": {
+            "properties": {
+                "acceptance_id": {
+                    "type": "string"
+                },
+                "work_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationMessage": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "work_id": {
+                    "type": "string"
+                },
+                "specification_quantity": {
+                    "type": "number"
+                },
+                "available_quantity": {
+                    "type": "number"
+                },
+                "requested_quantity": {
+                    "type": "number"
+                },
+                "exceeded_quantity": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationResponse": {
+            "required": [
+                "msg",
+                "work_acceptance_relation"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "work_acceptance_relation": {
+                    "$ref": "#/definitions/WorkAcceptanceRelation"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelation": {
+            "required": [
+                "acceptance_id",
+                "id",
+                "quantity",
+                "work_id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "acceptance_id": {
+                    "type": "string"
+                },
+                "work_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationEdit": {
+            "properties": {
+                "acceptance_id": {
+                    "type": "string"
+                },
+                "work_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "work_acceptance_relations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/WorkAcceptanceRelation"
                     }
                 }
             },

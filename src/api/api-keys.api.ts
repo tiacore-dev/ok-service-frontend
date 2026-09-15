@@ -19,6 +19,10 @@ export interface AddApiKeyPermissionsManyPayload {
   permission_type_ids: string[];
 }
 
+export interface DeleteApiKeyPermissionsManyPayload {
+  relation_ids: string[];
+}
+
 export const fetchApiKeys = async (): Promise<IApiKey[]> => {
   const { data } = await apiClient.get<{ api_keys?: IApiKey[] }>(
     "/api-key/all",
@@ -75,4 +79,12 @@ export const deleteApiKeyPermissionRelation = async (
   relationId: string,
 ): Promise<void> => {
   await apiClient.delete(`/api-key/permissions/${relationId}/delete`);
+};
+
+export const deleteApiKeyPermissionsMany = async (
+  payload: DeleteApiKeyPermissionsManyPayload,
+): Promise<void> => {
+  await apiClient.delete("/api-key/permissions/delete/many", {
+    data: payload,
+  });
 };

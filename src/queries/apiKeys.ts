@@ -8,12 +8,14 @@ import {
 import {
   addApiKeyPermissionsMany,
   deleteApiKey,
+  deleteApiKeyPermissionsMany,
   deleteApiKeyPermissionRelation,
   fetchApiKeyPermissionRelations,
   fetchApiKeyPermissionTypes,
   fetchApiKeys,
   generateApiKey,
   type AddApiKeyPermissionsManyPayload,
+  type DeleteApiKeyPermissionsManyPayload,
   type GenerateApiKeyPayload,
   type GenerateApiKeyResponse,
 } from "../api/api-keys.api";
@@ -109,6 +111,22 @@ export const useDeleteApiKeyPermissionRelationMutation = (): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteApiKeyPermissionRelation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: apiKeyPermissionRelationsKeys.list(),
+      });
+    },
+  });
+};
+
+export const useDeleteApiKeyPermissionsManyMutation = (): UseMutationResult<
+  void,
+  Error,
+  DeleteApiKeyPermissionsManyPayload
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteApiKeyPermissionsMany,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: apiKeyPermissionRelationsKeys.list(),

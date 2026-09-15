@@ -26,6 +26,7 @@ import {
   useApiKeyPermissionTypesQuery,
   useApiKeysQuery,
   useDeleteApiKeyMutation,
+  useDeleteApiKeyPermissionsManyMutation,
   useGenerateApiKeyMutation,
 } from "../../queries/apiKeys";
 import type { IApiKey } from "../../interfaces/apiKeys/IApiKey";
@@ -72,6 +73,8 @@ export const ApiKeys = () => {
   const generateApiKeyMutation = useGenerateApiKeyMutation();
   const deleteApiKeyMutation = useDeleteApiKeyMutation();
   const addPermissionsManyMutation = useAddApiKeyPermissionsManyMutation();
+  const deletePermissionsManyMutation =
+    useDeleteApiKeyPermissionsManyMutation();
 
   const permissionTypes = permissionTypesData ?? [];
   const permissionRelations = permissionRelationsData ?? [];
@@ -170,27 +173,52 @@ export const ApiKeys = () => {
     refetchPermissionRelations,
   ]);
 
-  // const openPermissionsModal = React.useCallback(
-  //   (apiKey: IApiKey) => {
-  //     const keyRelations = relationsByKey[apiKey.api_key_id] ?? [];
-  //     setSelectedPermissionTypeIds(
-  //       keyRelations.map((relation) => relation.permission_type_id),
-  //     );
-  //     setSelectedKey(apiKey);
-  //     setPermissionsModalOpen(true);
-  //   },
-  //   [relationsByKey],
-  // );
+  const openPermissionsModal = React.useCallback(
+    (apiKey: IApiKey) => {
+      const keyRelations = relationsByKey[apiKey.api_key_id] ?? [];
+      setSelectedPermissionTypeIds(
+        keyRelations.map((relation) => relation.permission_type_id),
+      );
+      setSelectedKey(apiKey);
+      setPermissionsModalOpen(true);
+      void refetchPermissionTypes();
+    },
+    [refetchPermissionTypes, relationsByKey],
+  );
 
   const handleSavePermissions = React.useCallback(async () => {
     if (!selectedKey) {
       return;
     }
 
-    await addPermissionsManyMutation.mutateAsync({
-      api_key_id: selectedKey.api_key_id,
-      permission_type_ids: selectedPermissionTypeIds,
-    });
+    const currentRelations =
+      relationsByKey[selectedKey.api_key_id] ?? [];
+    const selectedPermissionIds = new Set(selectedPermissionTypeIds);
+    const currentPermissionIds = new Set(
+      currentRelations.map((relation) => relation.permission_type_id),
+    );
+    const permissionTypeIdsToAdd = selectedPermissionTypeIds.filter(
+      (permissionTypeId) => !currentPermissionIds.has(permissionTypeId),
+    );
+    const relationIdsToDelete = currentRelations
+      .filter(
+        (relation) => !selectedPermissionIds.has(relation.permission_type_id),
+      )
+      .map((relation) => relation.id);
+
+    await Promise.all([
+      permissionTypeIdsToAdd.length
+        ? addPermissionsManyMutation.mutateAsync({
+            api_key_id: selectedKey.api_key_id,
+            permission_type_ids: permissionTypeIdsToAdd,
+          })
+        : Promise.resolve(),
+      relationIdsToDelete.length
+        ? deletePermissionsManyMutation.mutateAsync({
+            relation_ids: relationIdsToDelete,
+          })
+        : Promise.resolve(),
+    ]);
     await refetchPermissionRelations();
 
     setPermissionsModalOpen(false);
@@ -198,7 +226,9 @@ export const ApiKeys = () => {
     setSelectedPermissionTypeIds([]);
   }, [
     addPermissionsManyMutation,
+    deletePermissionsManyMutation,
     refetchPermissionRelations,
+    relationsByKey,
     selectedKey,
     selectedPermissionTypeIds,
   ]);
@@ -354,9 +384,9 @@ export const ApiKeys = () => {
         width: 240,
         render: (_: unknown, record: (typeof rows)[number]) => (
           <Space>
-            {/* <Button size="small" onClick={() => openPermissionsModal(record)}>
+            <Button size="small" onClick={() => openPermissionsModal(record)}>
               Права
-            </Button> */}
+            </Button>
             <Popconfirm
               title="Удалить API ключ?"
               okText="Удалить"
@@ -373,7 +403,7 @@ export const ApiKeys = () => {
         ),
       },
     ],
-    [deleteApiKeyMutation, rows],
+    [deleteApiKeyMutation, openPermissionsModal, rows],
   );
 
   return (
@@ -459,6 +489,7 @@ export const ApiKeys = () => {
       </Modal>
 
       <Modal
+        width={1000}
         title={
           selectedKey
             ? `Права доступа: ${selectedKey.name}`
@@ -467,7 +498,10 @@ export const ApiKeys = () => {
         open={isPermissionsModalOpen}
         okText="Сохранить"
         cancelText="Отмена"
-        confirmLoading={addPermissionsManyMutation.isPending}
+        confirmLoading={
+          addPermissionsManyMutation.isPending ||
+          deletePermissionsManyMutation.isPending
+        }
         onOk={handleSavePermissions}
         onCancel={() => {
           setPermissionsModalOpen(false);
