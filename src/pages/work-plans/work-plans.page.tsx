@@ -226,6 +226,7 @@ export const WorkPlans = () => {
                   ? {
                       completedSumm:
                         stats.shift_report_details_summ_by_estimate,
+                      completedFotSumm: stats.shift_report_details_summ,
                       acceptedSumm: stats.accepted_summ,
                     }
                   : undefined
@@ -269,6 +270,9 @@ export const WorkPlans = () => {
               const completedValue = Number(
                 stats?.shift_report_details_summ_by_estimate ?? 0,
               );
+              const completedFotValue = Number(
+                stats?.shift_report_details_summ ?? 0,
+              );
               const acceptedValue = stats?.accepted_summ;
 
               return {
@@ -277,6 +281,9 @@ export const WorkPlans = () => {
                 completed:
                   result.completed +
                   (Number.isFinite(completedValue) ? completedValue : 0),
+                completedFot:
+                  result.completedFot +
+                  (Number.isFinite(completedFotValue) ? completedFotValue : 0),
                 accepted:
                   typeof acceptedValue === "number"
                     ? result.accepted + acceptedValue
@@ -285,7 +292,13 @@ export const WorkPlans = () => {
                   result.hasAccepted || typeof acceptedValue === "number",
               };
             },
-            { plan: 0, completed: 0, accepted: 0, hasAccepted: false },
+            {
+              plan: 0,
+              completed: 0,
+              completedFot: 0,
+              accepted: 0,
+              hasAccepted: false,
+            },
           );
           const completionPercent =
             total.plan > 0 ? (total.completed / total.plan) * 100 : null;
@@ -308,6 +321,7 @@ export const WorkPlans = () => {
                       <> · {completionPercent.toFixed(1)}%</>
                     )}
                   </span>
+                  <span>ФОТ: {formatNumber(total.completedFot)}</span>
                   {total.hasAccepted && (
                     <span>Принято: {formatNumber(total.accepted)}</span>
                   )}

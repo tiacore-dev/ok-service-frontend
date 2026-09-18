@@ -1,10 +1,16 @@
 import * as React from "react";
-import { Breadcrumb, Input, Spin, Table, Typography } from "antd";
-import { CaretRightOutlined } from "@ant-design/icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { Breadcrumb, Button, Input, Spin, Table, Tooltip, Typography } from "antd";
+import {
+  CaretRightOutlined,
+  CheckOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { Link } from "react-router-dom";
 import type { IObjectWorkStats } from "../../interfaces/objects/IObjectStats";
 import {
+  objectStatsKeys,
   useObjectStatsQueries,
   useObjectsStatsQuery,
 } from "../../queries/objectStats";
@@ -23,27 +29,57 @@ const formatCurrency = (value: number | null | undefined) =>
 
 const ProgressMetric = ({
   quantity,
+  totalQuantity,
   summ,
   estimateSumm,
 }: {
   quantity: number | null;
+  totalQuantity?: number | null;
   summ: number | null;
   estimateSumm?: number | null;
 }) => (
   <div className="objects-progress__metric">
+    {/*
     <div>{formatQuantity(quantity)} шт.</div>
+    */}
+    <QuantityProgress quantity={quantity} totalQuantity={totalQuantity} />
     {estimateSumm === undefined ? (
       <div>{formatCurrency(summ)}</div>
     ) : (
       <>
-        <div>Факт: {formatCurrency(summ)}</div>
-        <div className="objects-progress__metric-secondary">
-          Смета: {formatCurrency(estimateSumm)}
-        </div>
+        <div>{formatCurrency(estimateSumm)}</div>
+        <div>ФОТ: {formatCurrency(summ)}</div>
       </>
     )}
   </div>
 );
+
+const QuantityProgress = ({
+  quantity,
+  totalQuantity,
+}: {
+  quantity: number | null;
+  totalQuantity?: number | null;
+}) => {
+  const currentQuantity = Number(quantity ?? 0);
+  const total = Number(totalQuantity ?? 0);
+  const isZero = currentQuantity === 0;
+  const isComplete =
+    totalQuantity !== undefined && total > 0 && currentQuantity === total;
+  const remaining =
+    totalQuantity !== undefined && currentQuantity > 0 && currentQuantity < total
+      ? total - currentQuantity
+      : null;
+
+  return (
+    <div className={isZero ? "objects-progress__quantity--zero" : undefined}>
+      {formatQuantity(currentQuantity)}
+      {totalQuantity !== undefined && ` из ${formatQuantity(total)}`} шт.
+      {remaining !== null && ` (ост: ${formatQuantity(remaining)})`}
+      {isComplete && <CheckOutlined className="objects-progress__quantity-check" />}
+    </div>
+  );
+};
 
 type ProgressRowKind = "object" | "project" | "work" | "loading" | "error";
 
@@ -71,7 +107,8 @@ const emptyStats: IObjectWorkStats = {
 const isStatusRow = (record: IProgressTreeRow) =>
   record.kind === "loading" || record.kind === "error";
 
-const createColumns = (): ColumnsType<IProgressTreeRow> => [
+const createColumns = (): ColumnsType<IProgressTreeRow> => {
+  const columns: ColumnsType<IProgressTreeRow> = [
   {
     title: "Объект",
     dataIndex: "name",
@@ -90,41 +127,44 @@ const createColumns = (): ColumnsType<IProgressTreeRow> => [
     },
   },
   {
-    title: "Предъявлено",
-    key: "presented",
-    width: "15%",
-    align: "right",
-    render: (_: unknown, record) =>
-      isStatusRow(record) ? null : (
-        <ProgressMetric
-          quantity={record.stats.presented_quantity}
-          summ={record.stats.presented_summ}
-        />
-      ),
-  },
-  {
     title: "Выполнено",
     key: "completed",
-    width: "20%",
+    width: "22%",
     align: "right",
     render: (_: unknown, record) =>
       isStatusRow(record) ? null : (
         <ProgressMetric
           quantity={record.stats.shift_report_details_quantity}
+          totalQuantity={record.stats.project_work_quantity}
           summ={record.stats.shift_report_details_summ}
           estimateSumm={record.stats.shift_report_details_summ_by_estimate}
         />
       ),
   },
   {
+    title: "Предъявлено",
+    key: "presented",
+    width: "22%",
+    align: "right",
+    render: (_: unknown, record) =>
+      isStatusRow(record) ? null : (
+        <ProgressMetric
+          quantity={record.stats.presented_quantity}
+          totalQuantity={record.stats.project_work_quantity}
+          summ={record.stats.presented_summ}
+        />
+      ),
+  },
+  {
     title: "Принято",
     key: "accepted",
-    width: "15%",
+    width: "22%",
     align: "right",
     render: (_: unknown, record) =>
       isStatusRow(record) ? null : (
         <ProgressMetric
           quantity={record.stats.accepted_quantity}
+          totalQuantity={record.stats.project_work_quantity}
           summ={record.stats.accepted_summ}
         />
       ),
@@ -142,34 +182,34 @@ const createColumns = (): ColumnsType<IProgressTreeRow> => [
         />
       ),
   },
-];
+  ];
+
+  return columns.filter((column) => column.key !== "total");
+};
 
 const renderTotalRow = (stats: IObjectWorkStats) => (
   <Table.Summary.Row className="objects-progress__total-row">
     <Table.Summary.Cell index={0}>Итого</Table.Summary.Cell>
     <Table.Summary.Cell index={1}>
       <ProgressMetric
-        quantity={stats.presented_quantity}
-        summ={stats.presented_summ}
+        quantity={stats.shift_report_details_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.shift_report_details_summ}
+        estimateSumm={stats.shift_report_details_summ_by_estimate}
       />
     </Table.Summary.Cell>
     <Table.Summary.Cell index={2}>
       <ProgressMetric
-        quantity={stats.shift_report_details_quantity}
-        summ={stats.shift_report_details_summ}
-        estimateSumm={stats.shift_report_details_summ_by_estimate}
+        quantity={stats.presented_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.presented_summ}
       />
     </Table.Summary.Cell>
     <Table.Summary.Cell index={3}>
       <ProgressMetric
         quantity={stats.accepted_quantity}
+        totalQuantity={stats.project_work_quantity}
         summ={stats.accepted_summ}
-      />
-    </Table.Summary.Cell>
-    <Table.Summary.Cell index={4}>
-      <ProgressMetric
-        quantity={stats.project_work_quantity}
-        summ={stats.project_work_summ}
       />
     </Table.Summary.Cell>
   </Table.Summary.Row>
@@ -183,7 +223,8 @@ export const ObjectsProgress = () => {
   const [requestedObjectIds, setRequestedObjectIds] = React.useState<string[]>(
     [],
   );
-  const { data, isPending, isError } = useObjectsStatsQuery({
+  const queryClient = useQueryClient();
+  const { data, isPending, isError, isFetching } = useObjectsStatsQuery({
     offset: (page - 1) * pageSize,
     limit: pageSize,
     search,
@@ -282,6 +323,10 @@ export const ObjectsProgress = () => {
     setRequestedObjectIds([]);
   };
 
+  const refreshStatistics = React.useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+  }, [queryClient]);
+
   return (
     <main className="objects-progress">
       <Breadcrumb
@@ -295,15 +340,25 @@ export const ObjectsProgress = () => {
         <Typography.Title level={3}>
           Прогресс выполненных работ
         </Typography.Title>
-        <Input.Search
-          allowClear
-          placeholder="Поиск по объекту"
-          onSearch={(value) => {
-            setPage(1);
-            setSearch(value.trim());
-            resetExpandedObjects();
-          }}
-        />
+        <div className="objects-progress__actions">
+          <Input.Search
+            allowClear
+            placeholder="Поиск по объекту"
+            onSearch={(value) => {
+              setPage(1);
+              setSearch(value.trim());
+              resetExpandedObjects();
+            }}
+          />
+          <Tooltip title="Обновить статистику">
+            <Button
+              aria-label="Обновить статистику"
+              icon={<ReloadOutlined />}
+              loading={isFetching}
+              onClick={refreshStatistics}
+            />
+          </Tooltip>
+        </div>
       </div>
       {isError ? (
         <Typography.Text type="danger">
