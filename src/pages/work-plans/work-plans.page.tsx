@@ -1,6 +1,16 @@
 import * as React from "react";
 import dayjs from "dayjs";
-import { Breadcrumb, DatePicker, Spin, Table, Typography } from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  Breadcrumb,
+  Button,
+  DatePicker,
+  Spin,
+  Table,
+  Tooltip,
+  Typography,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -16,7 +26,10 @@ import {
   useUpdateWorkPlanMutation,
   useWorkPlansQuery,
 } from "../../queries/workPlans";
-import { useProjectLeadersStatsQuery } from "../../queries/projectLeaderStats";
+import {
+  projectLeaderStatsKeys,
+  useProjectLeadersStatsQuery,
+} from "../../queries/projectLeaderStats";
 import "./work-plans.page.less";
 import { WorkPlanCell } from "./WorkPlanCell";
 
@@ -51,6 +64,7 @@ export const WorkPlans = () => {
   const [year, setYear] = React.useState(dayjs().year());
   const [activeCellKey, setActiveCellKey] = React.useState<string | null>(null);
   const role = useSelector(getCurrentRole);
+  const queryClient = useQueryClient();
   const notificationApi = React.useContext(NotificationContext);
   const {
     data: plans = [],
@@ -64,6 +78,12 @@ export const WorkPlans = () => {
   const deleteMutation = useDeleteWorkPlanMutation();
   const canEdit = role === RoleId.ADMIN;
   const isProjectLeaderStatsError = projectLeaderStatsQuery.isError;
+
+  const refreshStatistics = React.useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: projectLeaderStatsKeys.all(),
+    });
+  }, [queryClient]);
 
   const plansMap = React.useMemo(() => {
     const result: Record<string, IWorkPlan> = {};
@@ -204,7 +224,8 @@ export const WorkPlans = () => {
               progress={
                 stats
                   ? {
-                      completedSumm: stats.shift_report_details_summ,
+                      completedSumm:
+                        stats.shift_report_details_summ_by_estimate,
                       acceptedSumm: stats.accepted_summ,
                     }
                   : undefined
@@ -246,7 +267,7 @@ export const WorkPlans = () => {
                 ? monthlyProgress?.leaders.get(row.userId)
                 : monthlyProgress?.company;
               const completedValue = Number(
-                stats?.shift_report_details_summ ?? 0,
+                stats?.shift_report_details_summ_by_estimate ?? 0,
               );
               const acceptedValue = stats?.accepted_summ;
 
@@ -320,12 +341,22 @@ export const WorkPlans = () => {
       />
       <div className="work-plans__header">
         <Typography.Title level={3}>План выработки</Typography.Title>
-        <DatePicker
-          picker="year"
-          allowClear={false}
-          value={dayjs().year(year)}
-          onChange={(value) => value && setYear(value.year())}
-        />
+        <div className="work-plans__actions">
+          <DatePicker
+            picker="year"
+            allowClear={false}
+            value={dayjs().year(year)}
+            onChange={(value) => value && setYear(value.year())}
+          />
+          <Tooltip title="Обновить статистику">
+            <Button
+              aria-label="Обновить статистику"
+              icon={<ReloadOutlined />}
+              loading={projectLeaderStatsQuery.isFetching}
+              onClick={refreshStatistics}
+            />
+          </Tooltip>
+        </div>
       </div>
       {isProjectLeaderStatsError && (
         <Typography.Text type="danger">
