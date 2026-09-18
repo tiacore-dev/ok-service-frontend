@@ -1,5 +1,13 @@
 import * as React from "react";
-import { Breadcrumb, Card, Layout, Space, Spin, Typography } from "antd";
+import {
+  Breadcrumb,
+  Card,
+  Layout,
+  Select,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -11,10 +19,15 @@ import { RoleId } from "../../interfaces/roles/IRole";
 import { useUsersMap } from "../../queries/users";
 import { Projects } from "./projects/projects.page";
 import { ObjectPlaces } from "./ObjectPlaces";
-import { useDeleteObjectMutation, useObjectQuery } from "../../queries/objects";
+import {
+  useDeleteObjectMutation,
+  useObjectQuery,
+  useUpdateObjectMutation,
+} from "../../queries/objects";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { useContext, useMemo } from "react";
 import { useObjectStatuses } from "../../queries/objectStatuses";
+import { ObjectStatusId } from "../../interfaces/objectStatuses/IObjectStatus";
 import { useCitiesMap } from "../../queries/cities";
 import { MapViewer } from "../../components/Map/MapViewer";
 import "./object.less";
@@ -25,7 +38,8 @@ export const Object = () => {
   const routeParams = useParams();
   const navigate = useNavigate();
   const { usersMap } = useUsersMap();
-  const { statusMap: objectStatusesMap } = useObjectStatuses();
+  const { statusMap: objectStatusesMap, statusOptions } =
+    useObjectStatuses();
   const notificationApi = useContext(NotificationContext);
   const objectId = routeParams.objectId;
   const {
@@ -36,6 +50,7 @@ export const Object = () => {
     enabled: Boolean(objectId),
   });
   const { mutateAsync: deleteObjectMutation } = useDeleteObjectMutation();
+  const updateObjectMutation = useUpdateObjectMutation();
   const currentRole = useSelector(getCurrentRole);
 
   const isLoaded = useMemo(
@@ -71,6 +86,43 @@ export const Object = () => {
   }, [deleteObjectMutation, notificationApi, objectData, navigate]);
 
   const hasCoordinates = objectData?.ltd && objectData?.lng;
+
+  const handleStatusChange = React.useCallback(
+    async (status: ObjectStatusId) => {
+      if (!objectData?.object_id || status === objectData.status) return;
+
+      const {
+        object_id: _objectId,
+        created_at: _createdAt,
+        created_by: _createdBy,
+        deleted: _deleted,
+        ...payload
+      } = objectData;
+      try {
+        await updateObjectMutation.mutateAsync({
+          objectId: objectData.object_id,
+          payload: { ...payload, status },
+        });
+        notificationApi?.success({
+          message: "Успешно",
+          description: "Статус объекта изменён",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      } catch (error) {
+        notificationApi?.error({
+          message: "Ошибка",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Не удалось изменить статус объекта",
+          placement: "bottomRight",
+          duration: 2,
+        });
+      }
+    },
+    [objectData, updateObjectMutation, notificationApi],
+  );
 
   return (
     <>
@@ -129,7 +181,20 @@ export const Object = () => {
               Город: {objectData.city ? citiesMap[objectData.city]?.name : "—"}
             </p>
             <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
-            <p>Статус: {objectStatusesMap[objectData.status]?.name}</p>
+            <p>
+              Статус:{" "}
+              {currentRole === RoleId.ADMIN ? (
+                <Select
+                  value={objectData.status}
+                  options={statusOptions}
+                  onChange={handleStatusChange}
+                  loading={updateObjectMutation.isPending}
+                  disabled={updateObjectMutation.isPending}
+                />
+              ) : (
+                objectStatusesMap[objectData.status]?.name
+              )}
+            </p>
           </Card>
           {objectData.object_id && (
             <ObjectPlaces objectId={objectData.object_id} />

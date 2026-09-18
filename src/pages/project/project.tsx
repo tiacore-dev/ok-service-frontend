@@ -12,6 +12,7 @@ import {
   Space,
   Spin,
   Table,
+  Tooltip,
 } from "antd";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -205,9 +206,10 @@ export const Project = () => {
     isAdmin;
   const canEdit = canManageProject && (!isProjectClosed || isAdmin);
   const canDelete = isAdmin;
-  const canChangeProjectStatus =
-    isObjectActive &&
-    (isAdmin || (!isProjectClosed && currentRole === RoleId.MANAGER));
+  // Keep the control visible for every role that may manage specification
+  // statuses. Restrictions on a particular transition are shown on its option.
+  const canManageProjectStatus =
+    currentRole === RoleId.MANAGER || isAdmin;
   const canCloseProject =
     !isAcceptancesPending &&
     acceptances.every((acceptance) => acceptance.status === "documents_signed");
@@ -219,7 +221,7 @@ export const Project = () => {
       ),
     [projectStatuses],
   );
-  const availableProjectStatusOptions = React.useMemo(() => {
+  const projectStatusOptions = React.useMemo(() => {
     const currentStatus = projectStatuses.find(
       (status) => status.value === projectData?.status,
     );
@@ -233,19 +235,45 @@ export const Project = () => {
       adjacentStatusLabels[currentStatus?.label ?? ""] ?? [],
     );
 
-    return projectStatuses
-      .filter(
-        (status) =>
-          status.value === projectData?.status ||
-          allowedLabels.has(status.label),
-      )
-      .map((status) => ({
+    return projectStatuses.map((status) => {
+      let disabledReason: string | undefined;
+
+      if (status.value === projectData?.status) {
+        disabledReason = "Это текущий статус спецификации.";
+      } else if (!isObjectActive) {
+        disabledReason =
+          "Статусы спецификации можно менять только у действующего объекта.";
+      } else if (isProjectClosed && !isAdmin) {
+        disabledReason =
+          "Вернуть спецификацию из статуса «Закрыто» может только администратор.";
+      } else if (!allowedLabels.has(status.label)) {
+        disabledReason =
+          "Статус можно изменить только на один шаг вперёд или назад.";
+      } else if (status.label === "Закрыто" && !canCloseProject) {
+        disabledReason =
+          "Все приёмки работ должны иметь статус «Документы подписаны».";
+      }
+
+      return {
         ...status,
-        disabled:
-          status.value === projectData?.status ||
-          (status.label === "Закрыто" && !canCloseProject),
-      }));
-  }, [projectData?.status, projectStatuses, canCloseProject]);
+        disabled: Boolean(disabledReason),
+        label: disabledReason ? (
+          <Tooltip title={disabledReason}>
+            <span>{status.label}</span>
+          </Tooltip>
+        ) : (
+          status.label
+        ),
+      };
+    });
+  }, [
+    projectData?.status,
+    projectStatuses,
+    canCloseProject,
+    isObjectActive,
+    isProjectClosed,
+    isAdmin,
+  ]);
 
   const handleSignedChange = React.useCallback(
     async (record: IProjectWorksListColumn, checked: boolean) => {
@@ -530,10 +558,10 @@ export const Project = () => {
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
             <p>
               Статус:{" "}
-              {canChangeProjectStatus ? (
+              {canManageProjectStatus ? (
                 <Select
                   value={projectData.status}
-                  options={availableProjectStatusOptions}
+                  options={projectStatusOptions}
                   loading={isProjectStatusesPending}
                   disabled={
                     isProjectStatusesPending ||
