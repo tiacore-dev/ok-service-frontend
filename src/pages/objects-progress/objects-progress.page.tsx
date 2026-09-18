@@ -1,6 +1,14 @@
 import * as React from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Breadcrumb, Button, Input, Spin, Table, Tooltip, Typography } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Input,
+  Spin,
+  Table,
+  Tooltip,
+  Typography,
+} from "antd";
 import {
   CaretRightOutlined,
   CheckOutlined,
@@ -67,7 +75,9 @@ const QuantityProgress = ({
   const isComplete =
     totalQuantity !== undefined && total > 0 && currentQuantity === total;
   const remaining =
-    totalQuantity !== undefined && currentQuantity > 0 && currentQuantity < total
+    totalQuantity !== undefined &&
+    currentQuantity > 0 &&
+    currentQuantity < total
       ? total - currentQuantity
       : null;
 
@@ -76,7 +86,9 @@ const QuantityProgress = ({
       {formatQuantity(currentQuantity)}
       {totalQuantity !== undefined && ` из ${formatQuantity(total)}`} шт.
       {remaining !== null && ` (ост: ${formatQuantity(remaining)})`}
-      {isComplete && <CheckOutlined className="objects-progress__quantity-check" />}
+      {isComplete && (
+        <CheckOutlined className="objects-progress__quantity-check" />
+      )}
     </div>
   );
 };
@@ -109,79 +121,79 @@ const isStatusRow = (record: IProgressTreeRow) =>
 
 const createColumns = (): ColumnsType<IProgressTreeRow> => {
   const columns: ColumnsType<IProgressTreeRow> = [
-  {
-    title: "Объект",
-    dataIndex: "name",
-    key: "name",
-    width: "34%",
-    render: (name: string, record) => {
-      if (record.kind === "loading") {
-        return <Spin size="small" />;
-      }
+    {
+      title: "Объект",
+      dataIndex: "name",
+      key: "name",
+      width: "34%",
+      render: (name: string, record) => {
+        if (record.kind === "loading") {
+          return <Spin size="small" />;
+        }
 
-      return (
-        <span className="objects-progress__name" title={name}>
-          {name}
-        </span>
-      );
+        return (
+          <span className="objects-progress__name" title={name}>
+            {name}
+          </span>
+        );
+      },
     },
-  },
-  {
-    title: "Выполнено",
-    key: "completed",
-    width: "22%",
-    align: "right",
-    render: (_: unknown, record) =>
-      isStatusRow(record) ? null : (
-        <ProgressMetric
-          quantity={record.stats.shift_report_details_quantity}
-          totalQuantity={record.stats.project_work_quantity}
-          summ={record.stats.shift_report_details_summ}
-          estimateSumm={record.stats.shift_report_details_summ_by_estimate}
-        />
-      ),
-  },
-  {
-    title: "Предъявлено",
-    key: "presented",
-    width: "22%",
-    align: "right",
-    render: (_: unknown, record) =>
-      isStatusRow(record) ? null : (
-        <ProgressMetric
-          quantity={record.stats.presented_quantity}
-          totalQuantity={record.stats.project_work_quantity}
-          summ={record.stats.presented_summ}
-        />
-      ),
-  },
-  {
-    title: "Принято",
-    key: "accepted",
-    width: "22%",
-    align: "right",
-    render: (_: unknown, record) =>
-      isStatusRow(record) ? null : (
-        <ProgressMetric
-          quantity={record.stats.accepted_quantity}
-          totalQuantity={record.stats.project_work_quantity}
-          summ={record.stats.accepted_summ}
-        />
-      ),
-  },
-  {
-    title: "Итого",
-    key: "total",
-    width: "16%",
-    align: "right",
-    render: (_: unknown, record) =>
-      isStatusRow(record) ? null : (
-        <ProgressMetric
-          quantity={record.stats.project_work_quantity}
-          summ={record.stats.project_work_summ}
-        />
-      ),
-  },
+    {
+      title: "Выполнено",
+      key: "completed",
+      width: "22%",
+      align: "right",
+      render: (_: unknown, record) =>
+        isStatusRow(record) ? null : (
+          <ProgressMetric
+            quantity={record.stats.shift_report_details_quantity}
+            totalQuantity={record.stats.project_work_quantity}
+            summ={record.stats.shift_report_details_summ}
+            estimateSumm={record.stats.shift_report_details_summ_by_estimate}
+          />
+        ),
+    },
+    {
+      title: "Предъявлено",
+      key: "presented",
+      width: "22%",
+      align: "right",
+      render: (_: unknown, record) =>
+        isStatusRow(record) ? null : (
+          <ProgressMetric
+            quantity={record.stats.presented_quantity}
+            totalQuantity={record.stats.project_work_quantity}
+            summ={record.stats.presented_summ}
+          />
+        ),
+    },
+    {
+      title: "Принято",
+      key: "accepted",
+      width: "22%",
+      align: "right",
+      render: (_: unknown, record) =>
+        isStatusRow(record) ? null : (
+          <ProgressMetric
+            quantity={record.stats.accepted_quantity}
+            totalQuantity={record.stats.project_work_quantity}
+            summ={record.stats.accepted_summ}
+          />
+        ),
+    },
+    {
+      title: "Итого",
+      key: "total",
+      width: "16%",
+      align: "right",
+      render: (_: unknown, record) =>
+        isStatusRow(record) ? null : (
+          <ProgressMetric
+            quantity={record.stats.project_work_quantity}
+            summ={record.stats.project_work_summ}
+          />
+        ),
+    },
   ];
 
   return columns.filter((column) => column.key !== "total");

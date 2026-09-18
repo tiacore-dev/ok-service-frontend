@@ -208,8 +208,7 @@ export const Project = () => {
   const canDelete = isAdmin;
   // Keep the control visible for every role that may manage specification
   // statuses. Restrictions on a particular transition are shown on its option.
-  const canManageProjectStatus =
-    currentRole === RoleId.MANAGER || isAdmin;
+  const canManageProjectStatus = currentRole === RoleId.MANAGER || isAdmin;
   const canCloseProject =
     !isAcceptancesPending &&
     acceptances.every((acceptance) => acceptance.status === "documents_signed");

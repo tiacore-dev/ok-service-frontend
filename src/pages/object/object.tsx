@@ -38,8 +38,7 @@ export const Object = () => {
   const routeParams = useParams();
   const navigate = useNavigate();
   const { usersMap } = useUsersMap();
-  const { statusMap: objectStatusesMap, statusOptions } =
-    useObjectStatuses();
+  const { statusMap: objectStatusesMap, statusOptions } = useObjectStatuses();
   const notificationApi = useContext(NotificationContext);
   const objectId = routeParams.objectId;
   const {
