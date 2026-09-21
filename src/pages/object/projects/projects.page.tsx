@@ -20,6 +20,10 @@ import type {
 } from "../../../interfaces/projects/IObjectProjectsFiltersState";
 import { defaultObjectProjectsFiltersState } from "../../../interfaces/projects/IObjectProjectsFiltersState";
 import { saveObjectProjectsFiltersState } from "../../../store/modules/settings/objectProjects";
+import {
+  useObjectStatsDetailsQuery,
+  useObjectStatsQuery,
+} from "../../../queries/objectStats";
 
 interface ProjectsProps {
   object_id: string;
@@ -32,6 +36,10 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
   const canCreate = currentRole !== RoleId.USER;
 
   const { projects, isPending, isFetching } = useProjectsMap();
+  const { data: objectStats, isPending: isStatsPending } =
+    useObjectStatsQuery(object_id);
+  const { data: objectStatsDetails, isPending: isStatsDetailsPending } =
+    useObjectStatsDetailsQuery(object_id);
   const projectsData = React.useMemo<IProjectsListColumn[]>(
     () =>
       (projects ?? [])
@@ -102,7 +110,7 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
     const compareText = (a: string, b: string) =>
       a.localeCompare(b, undefined, { sensitivity: "base" }) * direction;
 
-    return filtered.sort((a, b) => {
+    const sortedProjects = filtered.sort((a, b) => {
       const sortField: ObjectProjectsSortField = filtersState.sortField;
       switch (sortField) {
         case "leader":
@@ -115,7 +123,43 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
           return compareText(a.name ?? "", b.name ?? "");
       }
     });
-  }, [projectsData, filtersState, usersMap]);
+
+    const statsByProjectId = new Map(
+      objectStats?.projects.map((project) => [
+        project.project_id,
+        project.stats,
+      ]),
+    );
+    const detailsByProjectId = new Map(
+      objectStatsDetails?.projects.map((project) => [
+        project.project_id,
+        project,
+      ]),
+    );
+
+    return sortedProjects.map<IProjectsListColumn>((project) => {
+      const details = project.project_id
+        ? detailsByProjectId.get(project.project_id)
+        : undefined;
+
+      return {
+        ...project,
+        stats: project.project_id
+          ? statsByProjectId.get(project.project_id)
+          : undefined,
+        children: details
+          ? Object.entries(details.stats).map(([projectWorkId, stats]) => ({
+              key: `work-${projectWorkId}`,
+              name: stats.project_work_name,
+              object: project.object,
+              project_leader: project.project_leader,
+              stats,
+              isWork: true,
+            }))
+          : undefined,
+      };
+    });
+  }, [projectsData, filtersState, usersMap, objectStats, objectStatsDetails]);
 
   const columns = React.useMemo(
     () =>
@@ -137,8 +181,13 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
       <Table
         dataSource={filteredProjectsData}
         columns={columns}
-        loading={isPending || isFetching}
+        loading={
+          isPending || isFetching || isStatsPending || isStatsDetailsPending
+        }
         pagination={false}
+        expandable={{
+          rowExpandable: (record) => Boolean(record.children?.length),
+        }}
       />
     </>
   );
