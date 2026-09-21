@@ -2,8 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createAcceptance,
   createAcceptanceRelation,
+  createAcceptanceRelationsBulk,
   deleteAcceptance,
   deleteAcceptanceRelation,
+  deleteAcceptanceRelationsBulk,
   fetchAcceptance,
   fetchAcceptanceHistory,
   fetchAcceptanceRelations,
@@ -14,6 +16,7 @@ import {
 import type {
   EditableAcceptancePayload,
   IWorkAcceptanceRelation,
+  IWorkAcceptanceRelationBulkCreatePayload,
 } from "../interfaces/acceptances/IAcceptance";
 import { objectStatsKeys } from "./objectStats";
 
@@ -24,11 +27,10 @@ export const acceptanceKeys = {
   history: (id: string) => ["acceptances", "history", id] as const,
 };
 
-export const useAcceptancesQuery = (projectId: string) =>
+export const useAcceptancesQuery = (projectId?: string) =>
   useQuery({
-    queryKey: acceptanceKeys.list(projectId),
+    queryKey: acceptanceKeys.list(projectId ?? "all"),
     queryFn: () => fetchAcceptances(projectId),
-    enabled: Boolean(projectId),
   });
 export const useAcceptanceQuery = (id?: string) =>
   useQuery({
@@ -54,9 +56,12 @@ export const useCreateAcceptanceMutation = () => {
   return useMutation({
     mutationFn: createAcceptance,
     onSuccess: (_, payload) =>
-      client.invalidateQueries({
-        queryKey: acceptanceKeys.list(payload.project_id),
-      }),
+      Promise.all([
+        client.invalidateQueries({
+          queryKey: acceptanceKeys.list(payload.project_id),
+        }),
+        client.invalidateQueries({ queryKey: acceptanceKeys.list("all") }),
+      ]),
   });
 };
 export const useUpdateAcceptanceMutation = () => {
@@ -76,6 +81,7 @@ export const useUpdateAcceptanceMutation = () => {
       client.invalidateQueries({
         queryKey: acceptanceKeys.list(variables.payload.project_id),
       });
+      client.invalidateQueries({ queryKey: acceptanceKeys.list("all") });
       client.invalidateQueries({
         queryKey: acceptanceKeys.history(variables.id),
       });
@@ -88,9 +94,12 @@ export const useDeleteAcceptanceMutation = () => {
     mutationFn: ({ id }: { id: string; projectId: string }) =>
       deleteAcceptance(id),
     onSuccess: (_, variables) =>
-      client.invalidateQueries({
-        queryKey: acceptanceKeys.list(variables.projectId),
-      }),
+      Promise.all([
+        client.invalidateQueries({
+          queryKey: acceptanceKeys.list(variables.projectId),
+        }),
+        client.invalidateQueries({ queryKey: acceptanceKeys.list("all") }),
+      ]),
   });
 };
 export const useCreateAcceptanceRelationMutation = () => {
@@ -128,6 +137,37 @@ export const useDeleteAcceptanceRelationMutation = () => {
   return useMutation({
     mutationFn: ({ id }: { id: string; acceptanceId: string }) =>
       deleteAcceptanceRelation(id),
+    onSuccess: (_, variables) => {
+      client.invalidateQueries({
+        queryKey: acceptanceKeys.relations(variables.acceptanceId),
+      });
+      client.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+    },
+  });
+};
+
+export const useReplaceAcceptanceRelationsMutation = () => {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      acceptanceId,
+      relationIds,
+      works,
+    }: {
+      acceptanceId: string;
+      relationIds: string[];
+      works: IWorkAcceptanceRelationBulkCreatePayload["works"];
+    }) => {
+      if (relationIds.length) {
+        await deleteAcceptanceRelationsBulk(relationIds);
+      }
+      if (works.length) {
+        await createAcceptanceRelationsBulk({
+          acceptance_id: acceptanceId,
+          works,
+        });
+      }
+    },
     onSuccess: (_, variables) => {
       client.invalidateQueries({
         queryKey: acceptanceKeys.relations(variables.acceptanceId),

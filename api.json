@@ -97,29 +97,6 @@
                     "type": "string"
                 }
             ],
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
-                ],
-                "tags": [
-                    "work_acceptance_attachments"
-                ]
-            },
             "post": {
                 "responses": {
                     "200": {
@@ -148,6 +125,29 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
+                ],
+                "tags": [
+                    "work_acceptance_attachments"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
                 ],
                 "tags": [
                     "work_acceptance_attachments"
@@ -2156,29 +2156,6 @@
                     "type": "string"
                 }
             ],
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
-                ],
-                "tags": [
-                    "object_attachments"
-                ]
-            },
             "post": {
                 "responses": {
                     "200": {
@@ -2207,6 +2184,29 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
+                ],
+                "tags": [
+                    "object_attachments"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
                 ],
                 "tags": [
                     "object_attachments"
@@ -2552,29 +2552,6 @@
                     "type": "string"
                 }
             ],
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
-                ],
-                "tags": [
-                    "place_attachments"
-                ]
-            },
             "post": {
                 "responses": {
                     "200": {
@@ -2603,6 +2580,29 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
+                ],
+                "tags": [
+                    "place_attachments"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
                 ],
                 "tags": [
                     "place_attachments"
@@ -4294,29 +4294,6 @@
                     "type": "string"
                 }
             ],
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
-                ],
-                "tags": [
-                    "project_attachments"
-                ]
-            },
             "post": {
                 "responses": {
                     "200": {
@@ -4345,6 +4322,29 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
+                ],
+                "tags": [
+                    "project_attachments"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
                 ],
                 "tags": [
                     "project_attachments"
@@ -5970,29 +5970,6 @@
                     "type": "string"
                 }
             ],
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
-                ],
-                "tags": [
-                    "shift_report_attachments"
-                ]
-            },
             "post": {
                 "responses": {
                     "200": {
@@ -6021,6 +5998,29 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
+                ],
+                "tags": [
+                    "shift_report_attachments"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
                 ],
                 "tags": [
                     "shift_report_attachments"
@@ -6647,6 +6647,32 @@
                 ]
             }
         },
+        "/work-acceptance-relations/add-bulk": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Work acceptance relations created",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationBulkCreateResponse"
+                        }
+                    }
+                },
+                "operationId": "post_relation_bulk_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationBulkCreate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_relations"
+                ]
+            }
+        },
         "/work-acceptance-relations/all": {
             "get": {
                 "responses": {
@@ -6687,6 +6713,32 @@
                         "type": "string",
                         "format": "mask",
                         "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_relations"
+                ]
+            }
+        },
+        "/work-acceptance-relations/delete-bulk": {
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Work acceptance relations deleted",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationBulkDeleteResponse"
+                        }
+                    }
+                },
+                "operationId": "delete_relation_bulk_delete",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/WorkAcceptanceRelationBulkDelete"
+                        }
                     }
                 ],
                 "tags": [
@@ -12366,6 +12418,53 @@
             },
             "type": "object"
         },
+        "WorkAcceptanceRelationBulkCreate": {
+            "properties": {
+                "acceptance_id": {
+                    "type": "string"
+                },
+                "works": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/WorkAcceptanceRelationBulkWork"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationBulkWork": {
+            "properties": {
+                "work_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationBulkCreateResponse": {
+            "required": [
+                "created_count",
+                "ids",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created_count": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
         "WorkAcceptanceRelationResponse": {
             "required": [
                 "msg",
@@ -12414,6 +12513,32 @@
                 },
                 "quantity": {
                     "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationBulkDelete": {
+            "properties": {
+                "relation_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkAcceptanceRelationBulkDeleteResponse": {
+            "required": [
+                "deleted_count",
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "deleted_count": {
+                    "type": "integer"
                 }
             },
             "type": "object"

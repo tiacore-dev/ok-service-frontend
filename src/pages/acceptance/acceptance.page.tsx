@@ -6,7 +6,6 @@ import {
   Breadcrumb,
   Button,
   Card,
-  Form,
   InputNumber,
   Modal,
   Select,
@@ -15,12 +14,7 @@ import {
   Table,
   Tag,
 } from "antd";
-import {
-  DeleteTwoTone,
-  EditTwoTone,
-  HistoryOutlined,
-  PlusCircleTwoTone,
-} from "@ant-design/icons";
+import { DeleteTwoTone, EditTwoTone, HistoryOutlined } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -30,19 +24,14 @@ import {
 } from "../../components/acceptances/AcceptanceFormModal";
 import { AcceptanceAttachments } from "./AcceptanceAttachments";
 import { NotificationContext } from "../../contexts/NotificationContext";
-import type {
-  IAcceptance,
-  IWorkAcceptanceRelation,
-} from "../../interfaces/acceptances/IAcceptance";
+import type { IAcceptance } from "../../interfaces/acceptances/IAcceptance";
 import { RoleId } from "../../interfaces/roles/IRole";
 import {
   useAcceptanceQuery,
   useAcceptanceHistoryQuery,
   useAcceptanceRelationsQuery,
-  useCreateAcceptanceRelationMutation,
   useDeleteAcceptanceMutation,
-  useDeleteAcceptanceRelationMutation,
-  useUpdateAcceptanceRelationMutation,
+  useReplaceAcceptanceRelationsMutation,
   useUpdateAcceptanceMutation,
 } from "../../queries/acceptances";
 import { useObjectsMap } from "../../queries/objects";
@@ -100,12 +89,10 @@ export const Acceptance = () => {
   const notificationApi = React.useContext(NotificationContext);
   const [editOpen, setEditOpen] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);
-  const [addWorkOpen, setAddWorkOpen] = React.useState(false);
-  const [editingRelation, setEditingRelation] =
-    React.useState<IWorkAcceptanceRelation | null>(null);
-  const [relationForm] = Form.useForm<{ work_id: string; quantity: number }>();
-  const [editRelationForm] = Form.useForm<{ quantity: number }>();
-  const [selectedWorkId, setSelectedWorkId] = React.useState<string>();
+  const [draftQuantities, setDraftQuantities] = React.useState<
+    Record<string, number | null>
+  >({});
+  const draftSourceKeyRef = React.useRef<string | undefined>(undefined);
   const { data: acceptance, isPending } = useAcceptanceQuery(acceptanceId);
   const {
     data: history = [],
@@ -118,23 +105,20 @@ export const Acceptance = () => {
   );
   const { data: projectStatuses = [] } = useProjectStatusesQuery();
   const { objectsMap } = useObjectsMap();
-  const {
-    data: objectStatsDetails,
-    isPending: isObjectStatsDetailsPending,
-    isError: isObjectStatsDetailsError,
-  } = useObjectStatsDetailsQuery(project?.object ?? "");
+  const { data: objectStatsDetails } = useObjectStatsDetailsQuery(
+    project?.object ?? "",
+  );
   const { data: relations = [], isPending: relationsPending } =
     useAcceptanceRelationsQuery(acceptanceId);
-  const { projectWorks = [] } = useProjectWorksMap(acceptance?.project_id, {
-    enabled: Boolean(acceptance?.project_id),
-  });
+  const { projectWorks = [], isPending: projectWorksPending } =
+    useProjectWorksMap(acceptance?.project_id, {
+      enabled: Boolean(acceptance?.project_id),
+    });
   const { worksMap } = useWorksMap();
   const { usersMap } = useUsersMap();
   const deleteMutation = useDeleteAcceptanceMutation();
   const updateMutation = useUpdateAcceptanceMutation();
-  const createRelationMutation = useCreateAcceptanceRelationMutation();
-  const updateRelationMutation = useUpdateAcceptanceRelationMutation();
-  const deleteRelationMutation = useDeleteAcceptanceRelationMutation();
+  const replaceRelationsMutation = useReplaceAcceptanceRelationsMutation();
 
   const projectStats = React.useMemo(
     () =>
@@ -143,47 +127,96 @@ export const Acceptance = () => {
       ),
     [acceptance?.project_id, objectStatsDetails?.projects],
   );
-  const availableQuantityByWorkId = React.useMemo(() => {
+  const persistedQuantitiesByWorkId = React.useMemo(() => {
     const quantities = new Map<string, number>();
-
-    projectWorks.forEach((projectWork) => {
-      if (!projectWork.work) return;
-
-      const stats = projectStats?.stats[projectWork.work];
-      const specificationQuantity = Number(
-        stats?.project_work_quantity ?? projectWork.quantity ?? 0,
-      );
-      const presentedQuantity = Number(stats?.presented_quantity ?? 0);
-
+    relations.forEach((relation) => {
       quantities.set(
-        projectWork.work,
-        Math.max(specificationQuantity - presentedQuantity, 0),
+        relation.work_id,
+        (quantities.get(relation.work_id) ?? 0) + Number(relation.quantity),
       );
     });
-
     return quantities;
-  }, [projectStats?.stats, projectWorks]);
-  const workOptions = React.useMemo(
+  }, [relations]);
+  const specificationWorks = React.useMemo(() => {
+    const works = new Map<
+      string,
+      { workId: string; name: string; specificationQuantity: number }
+    >();
+
+    projectWorks.forEach((projectWork) => {
+      if (!projectWork.work || works.has(projectWork.work)) return;
+      works.set(projectWork.work, {
+        workId: projectWork.work,
+        name: worksMap[projectWork.work]?.name ?? projectWork.project_work_name,
+        specificationQuantity: Number(projectWork.quantity ?? 0),
+      });
+    });
+
+    return Array.from(works.values());
+  }, [projectWorks, worksMap]);
+  const workQuantitiesByWorkId = React.useMemo(
     () =>
-      projectWorks
-        .filter(
-          (projectWork, index, works) =>
-            works.findIndex((item) => item.work === projectWork.work) === index,
+      new Map<
+        string,
+        {
+          specificationQuantity: number;
+          presentedQuantity: number;
+          availableQuantity: number;
+        }
+      >(
+        specificationWorks.map((work) => {
+          const stats = projectStats?.stats[work.workId];
+          const specificationQuantity = Number(
+            stats?.project_work_quantity ?? work.specificationQuantity,
+          );
+          const presentedQuantity = Number(stats?.presented_quantity ?? 0);
+
+          return [
+            work.workId,
+            {
+              specificationQuantity,
+              presentedQuantity,
+              availableQuantity: Math.max(
+                specificationQuantity - presentedQuantity,
+                0,
+              ),
+            },
+          ] as const;
+        }),
+      ),
+    [projectStats?.stats, specificationWorks],
+  );
+  const savedDraftQuantities = React.useMemo(
+    () =>
+      specificationWorks.reduce<Record<string, number>>((quantities, work) => {
+        quantities[work.workId] =
+          persistedQuantitiesByWorkId.get(work.workId) ?? 0;
+        return quantities;
+      }, {}),
+    [persistedQuantitiesByWorkId, specificationWorks],
+  );
+  const draftSourceKey = React.useMemo(
+    () =>
+      specificationWorks
+        .map(
+          (work) =>
+            `${work.workId}:${persistedQuantitiesByWorkId.get(work.workId) ?? 0}`,
         )
-        .map((projectWork) => ({
-          value: projectWork.work,
-          label:
-            worksMap[projectWork.work]?.name ?? projectWork.project_work_name,
-        })),
-    [projectWorks, worksMap],
+        .join("|"),
+    [persistedQuantitiesByWorkId, specificationWorks],
   );
-  const selectedAvailableQuantity = availableQuantityByWorkId.get(
-    selectedWorkId ?? "",
+
+  React.useEffect(() => {
+    if (draftSourceKeyRef.current === draftSourceKey) return;
+    draftSourceKeyRef.current = draftSourceKey;
+    setDraftQuantities(savedDraftQuantities);
+  }, [draftSourceKey, savedDraftQuantities]);
+
+  const hasDraftChanges = specificationWorks.some(
+    (work) =>
+      Number(draftQuantities[work.workId] ?? 0) !==
+      Number(savedDraftQuantities[work.workId] ?? 0),
   );
-  const editAvailableQuantity = editingRelation
-    ? (availableQuantityByWorkId.get(editingRelation.work_id) ?? 0) +
-      Number(editingRelation.quantity)
-    : undefined;
 
   const removeAcceptance = async () => {
     if (!acceptance) return;
@@ -203,17 +236,19 @@ export const Acceptance = () => {
     }
   };
 
-  const addRelation = async () => {
+  const saveRelations = async () => {
     if (!acceptance) return;
-    const values = await relationForm.validateFields();
     try {
-      await createRelationMutation.mutateAsync({
-        acceptance_id: acceptance.id,
-        ...values,
+      await replaceRelationsMutation.mutateAsync({
+        acceptanceId: acceptance.id,
+        relationIds: relations.map((relation) => relation.id),
+        works: specificationWorks
+          .map((work) => ({
+            work_id: work.workId,
+            quantity: Number(draftQuantities[work.workId] ?? 0),
+          }))
+          .filter((work) => work.quantity > 0),
       });
-      relationForm.resetFields();
-      setSelectedWorkId(undefined);
-      setAddWorkOpen(false);
     } catch (error) {
       const quantityExceededError = getQuantityExceededError(error);
       notificationApi?.error({
@@ -224,37 +259,7 @@ export const Acceptance = () => {
           ? getQuantityExceededDescription(quantityExceededError)
           : error instanceof Error
             ? error.message
-            : "Не удалось добавить работу",
-        placement: "bottomRight",
-      });
-    }
-  };
-
-  const updateRelation = async () => {
-    if (!editingRelation) return;
-    const values = await editRelationForm.validateFields();
-    try {
-      await updateRelationMutation.mutateAsync({
-        id: editingRelation.id,
-        payload: {
-          acceptance_id: editingRelation.acceptance_id,
-          work_id: editingRelation.work_id,
-          quantity: values.quantity,
-        },
-      });
-      editRelationForm.resetFields();
-      setEditingRelation(null);
-    } catch (error) {
-      const quantityExceededError = getQuantityExceededError(error);
-      notificationApi?.error({
-        message: quantityExceededError
-          ? "Общее количество созданных приёмов работ превышает количество, указанное в спецификации для данной работы."
-          : "Ошибка",
-        description: quantityExceededError
-          ? getQuantityExceededDescription(quantityExceededError)
-          : error instanceof Error
-            ? error.message
-            : "Не удалось изменить работу",
+            : "Не удалось сохранить работы",
         placement: "bottomRight",
       });
     }
@@ -410,156 +415,99 @@ export const Acceptance = () => {
               Работы
             </Title>
             {canManage && (
-              <Button
-                icon={<PlusCircleTwoTone twoToneColor="#ff1616" />}
-                onClick={() => setAddWorkOpen(true)}
-              >
-                Добавить работу
-              </Button>
+              <Space size="small">
+                <Button
+                  disabled={
+                    !hasDraftChanges || replaceRelationsMutation.isPending
+                  }
+                  onClick={() => setDraftQuantities(savedDraftQuantities)}
+                >
+                  Отменить
+                </Button>
+                <Button
+                  type="primary"
+                  disabled={!hasDraftChanges}
+                  loading={replaceRelationsMutation.isPending}
+                  onClick={saveRelations}
+                >
+                  Сохранить
+                </Button>
+              </Space>
             )}
           </div>
           <Table
             bordered={!isMobile()}
             className="acceptance__table"
-            loading={relationsPending}
-            rowKey="id"
+            loading={relationsPending || projectWorksPending}
+            rowKey="workId"
             pagination={false}
-            dataSource={relations}
+            dataSource={specificationWorks}
             columns={[
               {
                 title: "Работа",
-                dataIndex: "work_id",
-                render: (id: string) => worksMap[id]?.name ?? id,
+                dataIndex: "name",
               },
-              { title: "Количество", dataIndex: "quantity", width: 180 },
-              ...(canManage
-                ? [
-                    {
-                      title: "Действия",
-                      width: 96,
-                      render: (_: unknown, record: IWorkAcceptanceRelation) => (
-                        <Space size={4}>
-                          <Button
-                            type="link"
-                            icon={<EditTwoTone twoToneColor="#e40808" />}
-                            onClick={() => {
-                              setEditingRelation(record);
-                              editRelationForm.setFieldsValue({
-                                quantity: record.quantity,
-                              });
-                            }}
-                          />
-                          <Button
-                            type="link"
-                            icon={<DeleteTwoTone twoToneColor="#e40808" />}
-                            onClick={() =>
-                              Modal.confirm({
-                                title: "Удалить работу из приёмки?",
-                                okText: "Удалить",
-                                cancelText: "Отмена",
-                                okButtonProps: { danger: true },
-                                onOk: () =>
-                                  deleteRelationMutation.mutateAsync({
-                                    id: record.id,
-                                    acceptanceId: acceptance.id,
-                                  }),
-                              })
-                            }
-                          />
-                        </Space>
-                      ),
-                    },
-                  ]
-                : []),
+              {
+                title: "По спецификации",
+                dataIndex: "workId",
+                width: 150,
+                render: (workId: string) =>
+                  workQuantitiesByWorkId.get(workId)?.specificationQuantity ??
+                  0,
+              },
+              {
+                title: "Предъявлено",
+                dataIndex: "workId",
+                width: 130,
+                render: (workId: string) =>
+                  workQuantitiesByWorkId.get(workId)?.presentedQuantity ?? 0,
+              },
+              {
+                title: "Доступно",
+                dataIndex: "workId",
+                width: 120,
+                render: (workId: string) =>
+                  workQuantitiesByWorkId.get(workId)?.availableQuantity ?? 0,
+              },
+              {
+                title: "Количество в приёмке",
+                dataIndex: "workId",
+                width: 220,
+                render: (workId: string) => {
+                  const quantities = workQuantitiesByWorkId.get(workId);
+                  const maximumQuantity =
+                    (quantities?.availableQuantity ?? 0) +
+                    (persistedQuantitiesByWorkId.get(workId) ?? 0);
+                  return canManage ? (
+                    <InputNumber
+                      min={0}
+                      max={maximumQuantity}
+                      value={draftQuantities[workId] ?? null}
+                      disabled={replaceRelationsMutation.isPending}
+                      style={{ width: "100%" }}
+                      onChange={(value) =>
+                        setDraftQuantities((quantities) => ({
+                          ...quantities,
+                          [workId]: value,
+                        }))
+                      }
+                    />
+                  ) : (
+                    savedDraftQuantities[workId] ?? 0
+                  );
+                },
+              },
             ]}
           />
         </section>
       </main>
       {canManage && (
-        <>
-          <AcceptanceFormModal
-            open={editOpen}
-            projectId={acceptance.project_id}
-            acceptance={acceptance}
-            onClose={() => setEditOpen(false)}
-          />
-          <Modal
-            open={addWorkOpen}
-            title="Добавить работу в приёмку"
-            onCancel={() => {
-              setAddWorkOpen(false);
-              relationForm.resetFields();
-              setSelectedWorkId(undefined);
-            }}
-            onOk={addRelation}
-            okText="Добавить"
-            cancelText="Отмена"
-            confirmLoading={createRelationMutation.isPending}
-          >
-            <Form form={relationForm} layout="vertical">
-              <Form.Item
-                name="work_id"
-                label="Работа"
-                rules={[{ required: true, message: "Выберите работу" }]}
-              >
-                <Select
-                  placeholder="Выберите работу"
-                  options={workOptions}
-                  onChange={(workId) => setSelectedWorkId(workId)}
-                />
-              </Form.Item>
-              {selectedWorkId && (
-                <div className="acceptance__available-quantity">
-                  {isObjectStatsDetailsPending
-                    ? "Доступно для приёмки: загрузка…"
-                    : isObjectStatsDetailsError
-                      ? "Доступное количество не удалось загрузить"
-                      : "Доступно для приёмки: " +
-                        (selectedAvailableQuantity ?? 0) +
-                        " шт."}
-                </div>
-              )}
-              <Form.Item
-                name="quantity"
-                label="Количество"
-                rules={[{ required: true, message: "Укажите количество" }]}
-              >
-                <InputNumber min={0.01} style={{ width: "100%" }} />
-              </Form.Item>
-            </Form>
-          </Modal>
-          <Modal
-            open={Boolean(editingRelation)}
-            title="Редактировать количество"
-            onCancel={() => {
-              editRelationForm.resetFields();
-              setEditingRelation(null);
-            }}
-            onOk={updateRelation}
-            okText="Сохранить"
-            cancelText="Отмена"
-            confirmLoading={updateRelationMutation.isPending}
-          >
-            <Form form={editRelationForm} layout="vertical">
-              <div className="acceptance__available-quantity">
-                {isObjectStatsDetailsPending
-                  ? "Доступно для приёмки: загрузка…"
-                  : isObjectStatsDetailsError
-                    ? "Доступное количество не удалось загрузить"
-                    : "Доступно для приёмки: " +
-                      (editAvailableQuantity ?? 0) +
-                      " шт."}
-              </div>
-              <Form.Item
-                name="quantity"
-                label="Количество"
-                rules={[{ required: true, message: "Укажите количество" }]}
-              >
-                <InputNumber min={0.01} style={{ width: "100%" }} />
-              </Form.Item>
-            </Form>
-          </Modal>
-        </>
+        <AcceptanceFormModal
+          open={editOpen}
+          projectId={acceptance.project_id}
+          acceptance={acceptance}
+          onClose={() => setEditOpen(false)}
+        />
       )}
       <Modal
         open={historyOpen}

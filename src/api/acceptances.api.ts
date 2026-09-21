@@ -4,16 +4,26 @@ import type {
   IAcceptance,
   IAcceptanceStatusHistory,
   IWorkAcceptanceRelation,
+  IWorkAcceptanceRelationBulkCreatePayload,
 } from "../interfaces/acceptances/IAcceptance";
 
 export const fetchAcceptances = async (
-  projectId: string,
+  projectId?: string,
 ): Promise<IAcceptance[]> => {
-  const { data } = await apiClient.get<{ acceptances: IAcceptance[] }>(
-    "/acceptances/all",
-    { params: { project_id: projectId, limit: 1000 } },
-  );
-  return data.acceptances;
+  const limit = 1000;
+  const acceptances: IAcceptance[] = [];
+
+  for (let offset = 0; ; offset += limit) {
+    const { data } = await apiClient.get<{ acceptances: IAcceptance[] }>(
+      "/acceptances/all",
+      { params: { project_id: projectId, offset, limit } },
+    );
+    acceptances.push(...data.acceptances);
+
+    if (data.acceptances.length < limit) {
+      return acceptances;
+    }
+  }
 };
 
 export const fetchAcceptance = async (
@@ -91,4 +101,24 @@ export const deleteAcceptanceRelation = async (
   await apiClient.delete(
     `/work-acceptance-relations/${relationId}/delete/hard`,
   );
+};
+
+export const createAcceptanceRelationsBulk = async (
+  payload: IWorkAcceptanceRelationBulkCreatePayload,
+): Promise<void> => {
+  await apiClient.post("/work-acceptance-relations/add-bulk", {
+    acceptance_id: payload.acceptance_id,
+    works: payload.works.map((work) => ({
+      work_id: work.work_id,
+      quantity: String(work.quantity),
+    })),
+  });
+};
+
+export const deleteAcceptanceRelationsBulk = async (
+  relationIds: string[],
+): Promise<void> => {
+  await apiClient.delete("/work-acceptance-relations/delete-bulk", {
+    data: { relation_ids: relationIds },
+  });
 };
