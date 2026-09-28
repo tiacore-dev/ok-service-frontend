@@ -23,7 +23,8 @@ interface ShiftReportInfoCardProps {
   projectName?: string;
   projectLeaderName?: string;
   userName?: string;
-  showDistances: boolean;
+  startDistance?: number;
+  endDistance?: number;
   canShowStartMapButton: boolean;
   canShowEndMapButton: boolean;
   mapStartCoordinates: ShiftReportMapCoordinate[];
@@ -45,7 +46,8 @@ export const ShiftReportInfoCard = ({
   projectName,
   projectLeaderName,
   userName,
-  showDistances,
+  startDistance,
+  endDistance,
   canShowStartMapButton,
   canShowEndMapButton,
   mapStartCoordinates,
@@ -107,8 +109,8 @@ export const ShiftReportInfoCard = ({
         <p>
           Дата начала:{" "}
           {dateTimestampToLocalDateTimeString(shiftReport.date_start)}
-          {showDistances && shiftReport.distance_start !== null && (
-            <> ({shiftReport.distance_start} м)</>
+          {canShowStartMapButton && typeof startDistance === "number" && (
+            <> ({startDistance} м)</>
           )}
           {canShowStartMapButton && (
             <MapViewer
@@ -124,8 +126,8 @@ export const ShiftReportInfoCard = ({
         <p>
           Дата завершения:{" "}
           {dateTimestampToLocalDateTimeString(shiftReport.date_end)}
-          {showDistances && shiftReport.distance_end !== null && (
-            <> ({shiftReport.distance_end} м)</>
+          {canShowEndMapButton && typeof endDistance === "number" && (
+            <> ({endDistance} м)</>
           )}
           {canShowEndMapButton && (
             <MapViewer

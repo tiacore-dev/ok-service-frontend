@@ -115,6 +115,16 @@ export const ApiKeys = () => {
     [permissionTypes],
   );
 
+  const readPermissionTypeIds = React.useMemo(
+    () =>
+      permissionTypes
+        .filter(({ code, description }) =>
+          /(^|[^a-z])get([^a-z]|$)/i.test(`${code} ${description ?? ""}`),
+        )
+        .map((permissionType) => permissionType.permission_type_id),
+    [permissionTypes],
+  );
+
   const rows = React.useMemo(
     () =>
       apiKeys.map((apiKey) => {
@@ -478,6 +488,18 @@ export const ApiKeys = () => {
           </Form.Item>
         </Form>
         <Typography.Text>Права доступа</Typography.Text>
+        <Space className="api-keys__permission-actions">
+          <Button
+            onClick={() => setCreatePermissionTypeIds(allPermissionTypeIds)}
+          >
+            Добавить все права
+          </Button>
+          <Button
+            onClick={() => setCreatePermissionTypeIds(readPermissionTypeIds)}
+          >
+            Только для чтения
+          </Button>
+        </Space>
         <Table
           className="api-keys__permissions-table"
           rowKey="permission_type_id"
@@ -509,6 +531,18 @@ export const ApiKeys = () => {
           setSelectedPermissionTypeIds([]);
         }}
       >
+        <Space className="api-keys__permission-actions">
+          <Button
+            onClick={() => setSelectedPermissionTypeIds(allPermissionTypeIds)}
+          >
+            Добавить все права
+          </Button>
+          <Button
+            onClick={() => setSelectedPermissionTypeIds(readPermissionTypeIds)}
+          >
+            Только для чтения
+          </Button>
+        </Space>
         <Table
           className="api-keys__permissions-table"
           rowKey="permission_type_id"
