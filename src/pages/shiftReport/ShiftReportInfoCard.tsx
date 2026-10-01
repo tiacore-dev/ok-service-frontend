@@ -110,7 +110,7 @@ export const ShiftReportInfoCard = ({
           Дата начала:{" "}
           {dateTimestampToLocalDateTimeString(shiftReport.date_start)}
           {canShowStartMapButton && typeof startDistance === "number" && (
-            <> ({startDistance} м)</>
+            <> ({Math.round(startDistance)} м)</>
           )}
           {canShowStartMapButton && (
             <MapViewer
@@ -127,7 +127,7 @@ export const ShiftReportInfoCard = ({
           Дата завершения:{" "}
           {dateTimestampToLocalDateTimeString(shiftReport.date_end)}
           {canShowEndMapButton && typeof endDistance === "number" && (
-            <> ({endDistance} м)</>
+            <> ({Math.round(endDistance)} м)</>
           )}
           {canShowEndMapButton && (
             <MapViewer
