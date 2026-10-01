@@ -30,6 +30,8 @@ import { useObjectStatuses } from "../../queries/objectStatuses";
 import { ObjectStatusId } from "../../interfaces/objectStatuses/IObjectStatus";
 import { useCitiesMap } from "../../queries/cities";
 import { MapViewer } from "../../components/Map/MapViewer";
+import dayjs from "dayjs";
+import { dateFormat } from "../../utils/dateConverter";
 import "./object.less";
 const { Text } = Typography;
 
@@ -180,6 +182,23 @@ export const Object = () => {
               Город: {objectData.city ? citiesMap[objectData.city]?.name : "—"}
             </p>
             <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
+            <p>
+              Дата начала действия договора: {" "}
+              {objectData.contract_start_date
+                ? dayjs(objectData.contract_start_date).format(dateFormat)
+                : "—"}
+            </p>
+            <p>
+              Дата окончания действия договора: {" "}
+              {objectData.contract_end_date
+                ? dayjs(objectData.contract_end_date).format(dateFormat)
+                : "—"}
+            </p>
+            <p>Номер заказа: {objectData.order_number || "—"}</p>
+            <p>
+              День закрывающих КС: {" "}
+              {objectData.monthly_ks_closing_date ?? "—"}
+            </p>
             <p>
               Статус:{" "}
               {currentRole === RoleId.ADMIN ? (

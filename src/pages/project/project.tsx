@@ -184,6 +184,8 @@ export const Project = () => {
     }, [projectWorksData, projectWorksFilters, worksMap]);
 
   const isAdmin = currentRole === RoleId.ADMIN;
+  const canViewPayrollPlan =
+    isAdmin || currentRole === RoleId.MANAGER;
   const object = projectData ? objectsMap[projectData.object] : undefined;
   const isObjectActive = object?.status === ObjectStatusId.ACTIVE;
   const isObjectWaiting = object?.status === ObjectStatusId.WAITING;
@@ -555,6 +557,14 @@ export const Project = () => {
             <p>Наименование: {projectData.name}</p>
             <p>Объект: {objectsMap[projectData.object]?.name}</p>
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
+            {canViewPayrollPlan && (
+              <p>
+                Плановый ФОТ: {" "}
+                {projectData.payroll_plan == null
+                  ? "—"
+                  : formatNumber(projectData.payroll_plan)}
+              </p>
+            )}
             <p>
               Статус:{" "}
               {canManageProjectStatus ? (

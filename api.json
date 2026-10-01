@@ -9206,6 +9206,18 @@
                 },
                 "ltd": {
                     "type": "number"
+                },
+                "contract_start_date": {
+                    "type": "string"
+                },
+                "contract_end_date": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "monthly_ks_closing_date": {
+                    "type": "integer"
                 }
             },
             "type": "object"
@@ -9287,6 +9299,20 @@
                 "ltd": {
                     "type": "number",
                     "description": "Latitude of the object"
+                },
+                "contract_start_date": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "contract_end_date": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "monthly_ks_closing_date": {
+                    "type": "integer"
                 },
                 "created_at": {
                     "type": "integer",
@@ -9406,6 +9432,18 @@
                 },
                 "ltd": {
                     "type": "number"
+                },
+                "contract_start_date": {
+                    "type": "string"
+                },
+                "contract_end_date": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "monthly_ks_closing_date": {
+                    "type": "integer"
                 }
             },
             "type": "object"
@@ -9472,6 +9510,20 @@
                 "ltd": {
                     "type": "number",
                     "description": "Latitude of the object"
+                },
+                "contract_start_date": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "contract_end_date": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "order_number": {
+                    "type": "string"
+                },
+                "monthly_ks_closing_date": {
+                    "type": "integer"
                 },
                 "created_at": {
                     "type": "integer",
@@ -10141,6 +10193,9 @@
                 },
                 "extreme_conditions_available": {
                     "type": "boolean"
+                },
+                "payroll_plan": {
+                    "type": "number"
                 }
             },
             "type": "object"
@@ -10208,6 +10263,9 @@
                     "type": "boolean",
                     "description": "If extreme conditions are available"
                 },
+                "payroll_plan": {
+                    "type": "number"
+                },
                 "created_at": {
                     "type": "integer",
                     "description": "Unix epoch milliseconds: project creation time"
@@ -10264,6 +10322,9 @@
                 },
                 "deleted": {
                     "type": "boolean"
+                },
+                "payroll_plan": {
+                    "type": "number"
                 }
             },
             "type": "object"
@@ -10315,6 +10376,9 @@
                 "extreme_conditions_available": {
                     "type": "boolean",
                     "description": "If extreme conditions are available"
+                },
+                "payroll_plan": {
+                    "type": "number"
                 },
                 "created_at": {
                     "type": "integer",

@@ -10,6 +10,10 @@ export interface IObject {
   city?: string;
   lng: number;
   ltd: number;
+  contract_start_date?: string;
+  contract_end_date?: string;
+  order_number?: string;
+  monthly_ks_closing_date?: number;
   created_at: string;
   created_by: string;
   deleted: boolean;
