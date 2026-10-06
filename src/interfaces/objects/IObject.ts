@@ -10,6 +10,7 @@ export interface IObject {
   city?: string;
   lng: number;
   ltd: number;
+  order_number?: string;
   created_at: string;
   created_by: string;
   deleted: boolean;

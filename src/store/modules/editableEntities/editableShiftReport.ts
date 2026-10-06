@@ -16,6 +16,7 @@ const initialState: IEditableShiftReportState = {
   signed: false,
   night_shift: false,
   extreme_conditions: false,
+  short_shift: false,
   lng_start: undefined,
   ltd_start: undefined,
   lng_end: undefined,
@@ -37,6 +38,7 @@ const setShiftReportData = (
   state.signed = shiftReportData.signed;
   state.night_shift = shiftReportData.night_shift;
   state.extreme_conditions = shiftReportData.extreme_conditions;
+  state.short_shift = shiftReportData.short_shift;
   state.lng_start = shiftReportData.lng_start;
   state.ltd_start = shiftReportData.ltd_start;
   state.lng_end = shiftReportData.lng_end;
@@ -105,6 +107,9 @@ const editableShiftReportSlice = createSlice({
     },
     toggleExtremeConditions: (state: IEditableShiftReportState) => {
       state.extreme_conditions = !state.extreme_conditions;
+    },
+    toggleShortShift: (state: IEditableShiftReportState) => {
+      state.short_shift = !state.short_shift;
     },
     sendShiftReport: (state: IEditableShiftReportState) => {
       state.sent = true;

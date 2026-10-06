@@ -191,8 +191,7 @@ export const ApiKeys = () => {
       return;
     }
 
-    const currentRelations =
-      relationsByKey[selectedKey.api_key_id] ?? [];
+    const currentRelations = relationsByKey[selectedKey.api_key_id] ?? [];
     const selectedPermissionIds = new Set(selectedPermissionTypeIds);
     const currentPermissionIds = new Set(
       currentRelations.map((relation) => relation.permission_type_id),

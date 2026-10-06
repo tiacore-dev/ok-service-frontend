@@ -16,6 +16,7 @@ export interface IShiftReport {
   signed: boolean;
   night_shift: boolean;
   extreme_conditions: boolean;
+  short_shift: boolean;
   deleted?: boolean;
   leave_id?: string;
   shift_report_details_sum?: number;
@@ -53,6 +54,7 @@ export interface IShiftReportQueryParams {
   distance_end?: number;
   night_shift?: string;
   extreme_conditions?: string;
+  short_shift?: string;
   deleted?: string;
 }
 

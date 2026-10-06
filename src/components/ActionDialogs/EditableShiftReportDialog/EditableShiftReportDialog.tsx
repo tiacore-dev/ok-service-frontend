@@ -54,6 +54,11 @@ export const EditableShiftReportDialog = (
 
   const userId = useSelector(getCurrentUserId);
   const role = useSelector(getCurrentRole);
+  const canSetShortShift =
+    !shiftReport &&
+    (role === RoleId.ADMIN ||
+      role === RoleId.MANAGER ||
+      role === RoleId.PROJECT_LEADER);
 
   const dispatch = useDispatch();
 
@@ -260,6 +265,21 @@ export const EditableShiftReportDialog = (
                   checked={data.extreme_conditions}
                   onChange={() =>
                     dispatch(editShiftReportAction.toggleExtremeConditions())
+                  }
+                  disabled={sent}
+                />
+              </Form.Item>
+            )}
+            {canSetShortShift && (
+              <Form.Item
+                labelCol={{ span: 10 }}
+                wrapperCol={{ span: 14 }}
+                label="Неполная смена"
+              >
+                <Checkbox
+                  checked={data.short_shift}
+                  onChange={() =>
+                    dispatch(editShiftReportAction.toggleShortShift())
                   }
                   disabled={sent}
                 />

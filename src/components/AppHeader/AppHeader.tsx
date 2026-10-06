@@ -152,8 +152,22 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/materials");
           },
         },
+        {
+          key: "shift-standards",
+          label: "Стандарты смен",
+          onClick: () => {
+            navigate("/shift-standards");
+          },
+        },
         ...(role === RoleId.ADMIN
           ? [
+              {
+                key: "system-settings",
+                label: "Системные настройки",
+                onClick: () => {
+                  navigate("/system-settings");
+                },
+              },
               {
                 key: "api-keys",
                 label: "API ключи",

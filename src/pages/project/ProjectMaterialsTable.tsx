@@ -26,6 +26,7 @@ import { useMaterialsMap } from "../../queries/materials";
 import { useProjectWorksMap } from "../../queries/projectWorks";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { selectFilterHandler } from "../../utils/selectFilterHandler";
+import { formatNumber } from "../../utils/formatNumber";
 import "./ProjectMaterialsTable.less";
 
 interface ProjectMaterialsTableProps {
@@ -37,7 +38,11 @@ export const ProjectMaterialsTable = ({
   projectId,
   canManage,
 }: ProjectMaterialsTableProps) => {
-  const [form] = Form.useForm<{ material: string; quantity: number }>();
+  const [form] = Form.useForm<{
+    material: string;
+    quantity: number;
+    price: number;
+  }>();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [editingRecord, setEditingRecord] =
@@ -97,6 +102,7 @@ export const ProjectMaterialsTable = ({
     form.setFieldsValue({
       material: record.material,
       quantity: Number(record.quantity ?? 0),
+      price: Number(record.price ?? 0),
     });
     setModalOpen(true);
   };
@@ -128,6 +134,7 @@ export const ProjectMaterialsTable = ({
             project: projectId,
             material: rowData.material,
             quantity: Number(rowData.quantity),
+            price: Number(rowData.price),
             project_work: editingRecord.project_work ?? null,
           },
         });
@@ -142,6 +149,7 @@ export const ProjectMaterialsTable = ({
           project: projectId,
           material: rowData.material,
           quantity: Number(rowData.quantity),
+          price: Number(rowData.price),
           project_work: null,
         });
         notificationApi?.success({
@@ -204,6 +212,30 @@ export const ProjectMaterialsTable = ({
       title: "Количество",
       dataIndex: "quantity",
       key: "quantity",
+    },
+    {
+      title: "Сметная стоимость",
+      dataIndex: "price",
+      key: "price",
+      render: (value?: number) =>
+        typeof value === "number" ? formatNumber(value) : "—",
+    },
+    {
+      title: "Итого",
+      dataIndex: "summ",
+      key: "summ",
+      render: (
+        value: number | undefined,
+        record: IProjectMaterialsListColumn,
+      ) => {
+        const sum =
+          typeof value === "number"
+            ? value
+            : typeof record.price === "number"
+              ? record.quantity * record.price
+              : undefined;
+        return typeof sum === "number" ? formatNumber(sum) : "—";
+      },
     },
     {
       title: "Работа",
@@ -305,6 +337,20 @@ export const ProjectMaterialsTable = ({
                     : Promise.reject(
                         new Error("Укажите количество больше нуля"),
                       ),
+              },
+            ]}
+          >
+            <InputNumber min={0} style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item
+            label="Сметная стоимость"
+            name="price"
+            rules={[
+              {
+                validator: (_, value) =>
+                  typeof value === "number" && value >= 0
+                    ? Promise.resolve()
+                    : Promise.reject(new Error("Укажите сметную стоимость")),
               },
             ]}
           >

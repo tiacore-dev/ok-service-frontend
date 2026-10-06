@@ -2056,6 +2056,12 @@
             "description": "Filter by latitude"
           },
           {
+            "name": "order_number",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by order number"
+          },
+          {
             "name": "created_by",
             "in": "query",
             "type": "string",
@@ -5692,6 +5698,12 @@
             "description": "Флаг для фильтрации по удаленным отчетам"
           },
           {
+            "name": "short_shift",
+            "in": "query",
+            "type": "string",
+            "description": "Filter by short shifts"
+          },
+          {
             "name": "signed",
             "in": "query",
             "type": "string",
@@ -6093,6 +6105,134 @@
         ]
       }
     },
+    "/shift_standards/add": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "post_shift_standard_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftStandardCreate"
+            }
+          }
+        ],
+        "tags": [
+          "shift_standards"
+        ]
+      }
+    },
+    "/shift_standards/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_shift_standard_all",
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "default": 1000
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "integer"
+          }
+        ],
+        "tags": [
+          "shift_standards"
+        ]
+      }
+    },
+    "/shift_standards/{shift_standard_id}/delete/hard": {
+      "parameters": [
+        {
+          "name": "shift_standard_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "delete_shift_standard_delete",
+        "tags": [
+          "shift_standards"
+        ]
+      }
+    },
+    "/shift_standards/{shift_standard_id}/edit": {
+      "parameters": [
+        {
+          "name": "shift_standard_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "patch_shift_standard_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftStandardEdit"
+            }
+          }
+        ],
+        "tags": [
+          "shift_standards"
+        ]
+      }
+    },
+    "/shift_standards/{shift_standard_id}/view": {
+      "parameters": [
+        {
+          "name": "shift_standard_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_shift_standard_view",
+        "tags": [
+          "shift_standards"
+        ]
+      }
+    },
     "/subscriptions/all": {
       "get": {
         "responses": {
@@ -6262,6 +6402,80 @@
         ],
         "tags": [
           "subscriptions"
+        ]
+      }
+    },
+    "/system_settings/all": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SystemSettingAllResponse"
+            }
+          }
+        },
+        "operationId": "get_system_setting_all",
+        "tags": [
+          "system_settings"
+        ]
+      }
+    },
+    "/system_settings/{system_setting_id}/edit": {
+      "parameters": [
+        {
+          "name": "system_setting_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SystemSettingResponse"
+            }
+          }
+        },
+        "operationId": "patch_system_setting_edit",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/SystemSettingEdit"
+            }
+          }
+        ],
+        "tags": [
+          "system_settings"
+        ]
+      }
+    },
+    "/system_settings/{system_setting_id}/view": {
+      "parameters": [
+        {
+          "name": "system_setting_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/SystemSettingResponse"
+            }
+          }
+        },
+        "operationId": "get_system_setting_view",
+        "tags": [
+          "system_settings"
         ]
       }
     },
@@ -6647,6 +6861,32 @@
         ]
       }
     },
+    "/work-acceptance-relations/add-bulk": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Work acceptance relations created",
+            "schema": {
+              "$ref": "#/definitions/WorkAcceptanceRelationBulkCreateResponse"
+            }
+          }
+        },
+        "operationId": "post_relation_bulk_add",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkAcceptanceRelationBulkCreate"
+            }
+          }
+        ],
+        "tags": [
+          "work_acceptance_relations"
+        ]
+      }
+    },
     "/work-acceptance-relations/all": {
       "get": {
         "responses": {
@@ -6687,6 +6927,32 @@
             "type": "string",
             "format": "mask",
             "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "work_acceptance_relations"
+        ]
+      }
+    },
+    "/work-acceptance-relations/delete-bulk": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Work acceptance relations deleted",
+            "schema": {
+              "$ref": "#/definitions/WorkAcceptanceRelationBulkDeleteResponse"
+            }
+          }
+        },
+        "operationId": "delete_relation_bulk_delete",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WorkAcceptanceRelationBulkDelete"
+            }
           }
         ],
         "tags": [
@@ -8079,6 +8345,10 @@
       "description": "Shift report details management operations"
     },
     {
+      "name": "shift_standards",
+      "description": "Shift standard reference operations"
+    },
+    {
       "name": "project_materials",
       "description": "Project materials management operations"
     },
@@ -8129,6 +8399,10 @@
     {
       "name": "templates",
       "description": "template management operations"
+    },
+    {
+      "name": "system_settings",
+      "description": "System settings reference operations"
     }
   ],
   "definitions": {
@@ -9154,6 +9428,18 @@
         },
         "ltd": {
           "type": "number"
+        },
+        "contract_start_date": {
+          "type": "string"
+        },
+        "contract_end_date": {
+          "type": "string"
+        },
+        "order_number": {
+          "type": "string"
+        },
+        "monthly_ks_closing_date": {
+          "type": "integer"
         }
       },
       "type": "object"
@@ -9235,6 +9521,20 @@
         "ltd": {
           "type": "number",
           "description": "Latitude of the object"
+        },
+        "contract_start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "contract_end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "order_number": {
+          "type": "string"
+        },
+        "monthly_ks_closing_date": {
+          "type": "integer"
         },
         "created_at": {
           "type": "integer",
@@ -9354,6 +9654,18 @@
         },
         "ltd": {
           "type": "number"
+        },
+        "contract_start_date": {
+          "type": "string"
+        },
+        "contract_end_date": {
+          "type": "string"
+        },
+        "order_number": {
+          "type": "string"
+        },
+        "monthly_ks_closing_date": {
+          "type": "integer"
         }
       },
       "type": "object"
@@ -9420,6 +9732,20 @@
         "ltd": {
           "type": "number",
           "description": "Latitude of the object"
+        },
+        "contract_start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "contract_end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "order_number": {
+          "type": "string"
+        },
+        "monthly_ks_closing_date": {
+          "type": "integer"
         },
         "created_at": {
           "type": "integer",
@@ -10089,6 +10415,9 @@
         },
         "extreme_conditions_available": {
           "type": "boolean"
+        },
+        "payroll_plan": {
+          "type": "number"
         }
       },
       "type": "object"
@@ -10156,6 +10485,9 @@
           "type": "boolean",
           "description": "If extreme conditions are available"
         },
+        "payroll_plan": {
+          "type": "number"
+        },
         "created_at": {
           "type": "integer",
           "description": "Unix epoch milliseconds: project creation time"
@@ -10212,6 +10544,9 @@
         },
         "deleted": {
           "type": "boolean"
+        },
+        "payroll_plan": {
+          "type": "number"
         }
       },
       "type": "object"
@@ -10263,6 +10598,9 @@
         "extreme_conditions_available": {
           "type": "boolean",
           "description": "If extreme conditions are available"
+        },
+        "payroll_plan": {
+          "type": "number"
         },
         "created_at": {
           "type": "integer",
@@ -10567,6 +10905,9 @@
         "extreme_conditions": {
           "type": "boolean"
         },
+        "short_shift": {
+          "type": "boolean"
+        },
         "comment": {
           "type": "string"
         },
@@ -10609,6 +10950,10 @@
           "type": "string",
           "description": "ID of shift report"
         },
+        "browser_id": {
+          "type": "string",
+          "description": "Browser UUID used for the operation"
+        },
         "detail": {
           "type": "object",
           "description": "Additional details (e.g., validation errors)"
@@ -10645,6 +10990,7 @@
         "places",
         "project",
         "shift_report_id",
+        "short_shift",
         "signed",
         "user"
       ],
@@ -10705,6 +11051,14 @@
           "type": "number",
           "description": "Distance at the shift end"
         },
+        "start_browser_id": {
+          "type": "string",
+          "description": "Browser UUID captured at shift start"
+        },
+        "finish_browser_id": {
+          "type": "string",
+          "description": "Browser UUID captured at shift finish"
+        },
         "signed": {
           "type": "boolean",
           "description": "Is the report signed"
@@ -10750,6 +11104,10 @@
         "extreme_conditions": {
           "type": "boolean",
           "description": "Extreme conditions"
+        },
+        "short_shift": {
+          "type": "boolean",
+          "description": "Short shift"
         },
         "comment": {
           "type": "string",
@@ -10858,6 +11216,9 @@
         "extreme_conditions": {
           "type": "boolean"
         },
+        "short_shift": {
+          "type": "boolean"
+        },
         "deleted": {
           "type": "boolean"
         },
@@ -10905,6 +11266,7 @@
         "number",
         "project",
         "shift_report_id",
+        "short_shift",
         "signed",
         "user"
       ],
@@ -10965,6 +11327,14 @@
           "type": "number",
           "description": "Distance at the shift end"
         },
+        "start_browser_id": {
+          "type": "string",
+          "description": "Browser UUID captured at shift start"
+        },
+        "finish_browser_id": {
+          "type": "string",
+          "description": "Browser UUID captured at shift finish"
+        },
         "signed": {
           "type": "boolean",
           "description": "Is the report signed"
@@ -11010,6 +11380,10 @@
         "extreme_conditions": {
           "type": "boolean",
           "description": "Extreme conditions"
+        },
+        "short_shift": {
+          "type": "boolean",
+          "description": "Short shift"
         },
         "comment": {
           "type": "string",
@@ -11261,6 +11635,34 @@
       },
       "type": "object"
     },
+    "ShiftStandardCreate": {
+      "properties": {
+        "category": {
+          "type": "integer"
+        },
+        "standard": {
+          "type": "number"
+        },
+        "notification_text": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftStandardEdit": {
+      "properties": {
+        "category": {
+          "type": "integer"
+        },
+        "standard": {
+          "type": "number"
+        },
+        "notification_text": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "ProjectMaterialCreate": {
       "properties": {
         "project": {
@@ -11270,6 +11672,9 @@
           "type": "string"
         },
         "quantity": {
+          "type": "number"
+        },
+        "price": {
           "type": "number"
         },
         "project_work": {
@@ -11336,6 +11741,14 @@
           "type": "number",
           "description": "Quantity of material"
         },
+        "price": {
+          "type": "number",
+          "description": "Price per unit of material"
+        },
+        "summ": {
+          "type": "number",
+          "description": "Sum of the project material"
+        },
         "project_work": {
           "type": "string",
           "description": "Project work ID (optional)"
@@ -11360,6 +11773,9 @@
           "type": "string"
         },
         "quantity": {
+          "type": "number"
+        },
+        "price": {
           "type": "number"
         },
         "project_work": {
@@ -12344,6 +12760,71 @@
         },
         "id": {
           "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "work_id": {
+          "type": "string"
+        },
+        "specification_quantity": {
+          "type": "number"
+        },
+        "available_quantity": {
+          "type": "number"
+        },
+        "requested_quantity": {
+          "type": "number"
+        },
+        "exceeded_quantity": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "WorkAcceptanceRelationBulkCreate": {
+      "properties": {
+        "acceptance_id": {
+          "type": "string"
+        },
+        "works": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkAcceptanceRelationBulkWork"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "WorkAcceptanceRelationBulkWork": {
+      "properties": {
+        "work_id": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "WorkAcceptanceRelationBulkCreateResponse": {
+      "required": [
+        "created_count",
+        "ids",
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "created_count": {
+          "type": "integer"
         }
       },
       "type": "object"
@@ -12396,6 +12877,32 @@
         },
         "quantity": {
           "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "WorkAcceptanceRelationBulkDelete": {
+      "properties": {
+        "relation_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "WorkAcceptanceRelationBulkDeleteResponse": {
+      "required": [
+        "deleted_count",
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "deleted_count": {
+          "type": "integer"
         }
       },
       "type": "object"
@@ -12809,6 +13316,69 @@
         },
         "document_data": {
           "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "SystemSettingAllResponse": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "system_settings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SystemSetting"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "SystemSetting": {
+      "required": [
+        "system_setting_id"
+      ],
+      "properties": {
+        "system_setting_id": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "modified_at": {
+          "type": "integer"
+        },
+        "modified_by": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "SystemSettingResponse": {
+      "required": [
+        "msg",
+        "system_setting"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        },
+        "system_setting": {
+          "$ref": "#/definitions/SystemSetting"
+        }
+      },
+      "type": "object"
+    },
+    "SystemSettingEdit": {
+      "required": [
+        "value"
+      ],
+      "properties": {
+        "value": {
+          "type": "string"
         }
       },
       "type": "object"

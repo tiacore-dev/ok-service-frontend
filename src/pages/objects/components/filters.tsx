@@ -46,9 +46,16 @@ export const Filters: React.FC<ObjectsFiltersProps> = ({
         onChange={(event) => changeFilters({ search: event.target.value })}
         className="objects_filters_input"
       />
+      <Input
+        allowClear
+        placeholder="Заказ покупателя"
+        value={filtersState.orderNumber ?? ""}
+        onChange={(event) => changeFilters({ orderNumber: event.target.value })}
+        className="objects_filters_input"
+      />
       <Select
         allowClear
-        className="objects_filters_select"
+        className="objects_filters_select objects_filters_status"
         placeholder="Статус"
         value={filtersState.statusId}
         onChange={(value) => changeFilters({ statusId: value || undefined })}
@@ -56,7 +63,7 @@ export const Filters: React.FC<ObjectsFiltersProps> = ({
       />
       <Select
         allowClear
-        className="objects_filters_select"
+        className="objects_filters_select objects_filters_city"
         placeholder="Город"
         value={filtersState.cityId}
         onChange={(value) => changeFilters({ cityId: value || undefined })}

@@ -52,10 +52,14 @@ import { ApiKeys } from "../../pages/api-keys/api-keys.page";
 import { WorkPlans } from "../../pages/work-plans/work-plans.page";
 import { Acceptance } from "../../pages/acceptance/acceptance.page";
 import { ObjectsProgress } from "../../pages/objects-progress/objects-progress.page";
+import { SystemSettings } from "../../pages/system-settings/system-settings.page";
+import { ShiftStandards } from "../../pages/shift-standards/shift-standards.page";
 import { workPlansKeys } from "../../queries/workPlans";
 import { objectStatsKeys } from "../../queries/objectStats";
 import { projectLeaderStatsKeys } from "../../queries/projectLeaderStats";
 import { acceptanceAttachmentsKeys } from "../../queries/acceptanceAttachments";
+import { systemSettingsKeys } from "../../queries/systemSettings";
+import { shiftStandardsKeys } from "../../queries/shiftStandards";
 import {
   apiKeyPermissionRelationsKeys,
   apiKeyPermissionTypesKeys,
@@ -97,6 +101,8 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: objectStatsKeys.collection() });
     queryClient.removeQueries({ queryKey: projectLeaderStatsKeys.all() });
     queryClient.removeQueries({ queryKey: acceptanceAttachmentsKeys.all() });
+    queryClient.removeQueries({ queryKey: systemSettingsKeys.all() });
+    queryClient.removeQueries({ queryKey: shiftStandardsKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeysKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeyPermissionTypesKeys.all() });
     queryClient.removeQueries({
@@ -219,6 +225,8 @@ export const App = () => {
                 <Route path=":materialId" element={<Material />} />
               </Route>
               <Route path="api-keys" element={<ApiKeys />} />
+              <Route path="system-settings" element={<SystemSettings />} />
+              <Route path="shift-standards" element={<ShiftStandards />} />
               <Route path="work-plans" element={<WorkPlans />} />
               <Route path="objects-progress" element={<ObjectsProgress />} />
               <Route

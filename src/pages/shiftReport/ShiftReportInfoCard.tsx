@@ -10,6 +10,24 @@ import { MapViewer } from "../../components/Map/MapViewer";
 
 const { Text } = Typography;
 
+const formatShiftDuration = (dateStart?: number, dateEnd?: number) => {
+  if (!dateStart || !dateEnd || dateEnd < dateStart) {
+    return "—";
+  }
+
+  const durationInMinutes = Math.floor((dateEnd - dateStart) / 60_000);
+  const hours = Math.floor(durationInMinutes / 60);
+  const minutes = durationInMinutes % 60;
+
+  if (!hours) {
+    return `${minutes} мин.`;
+  }
+  if (!minutes) {
+    return `${hours} ч.`;
+  }
+  return `${hours} ч. ${minutes} мин.`;
+};
+
 export interface ShiftReportMapCoordinate {
   lat: number;
   lng: number;
@@ -137,6 +155,10 @@ export const ShiftReportInfoCard = ({
           )}
         </p>
       )}
+      <p>
+        Продолжительность смены:{" "}
+        {formatShiftDuration(shiftReport.date_start, shiftReport.date_end)}
+      </p>
       {shiftReport.night_shift && <p>Ночная смена (+25%)</p>}
       {shiftReport.extreme_conditions && <p>Особые условия (+25%)</p>}
       {(canStartShift || canCompleteShift) && (
