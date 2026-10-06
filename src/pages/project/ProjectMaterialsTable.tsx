@@ -72,6 +72,19 @@ export const ProjectMaterialsTable = ({
       })),
     [projectMaterials],
   );
+  const totalMaterialsSum = React.useMemo(
+    () =>
+      projectMaterialsData.reduce((total, material) => {
+        const sum =
+          typeof material.summ === "number"
+            ? material.summ
+            : typeof material.price === "number"
+              ? material.quantity * material.price
+              : 0;
+        return total + sum;
+      }, 0),
+    [projectMaterialsData],
+  );
 
   const materialsOptions = React.useMemo(
     () =>
@@ -214,7 +227,7 @@ export const ProjectMaterialsTable = ({
       key: "quantity",
     },
     {
-      title: "Сметная стоимость",
+      title: "Сметная стоимость, ₽/шт.",
       dataIndex: "price",
       key: "price",
       render: (value?: number) =>
@@ -302,6 +315,22 @@ export const ProjectMaterialsTable = ({
         columns={tableColumns}
         loading={isPending || isFetching}
         className="project__materials-table"
+        summary={() => (
+          <Table.Summary>
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} colSpan={3}>
+                Итого
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={3}>
+                {formatNumber(totalMaterialsSum)}
+              </Table.Summary.Cell>
+              <Table.Summary.Cell
+                index={4}
+                colSpan={canManage ? 2 : 1}
+              />
+            </Table.Summary.Row>
+          </Table.Summary>
+        )}
       />
       <Modal
         title={
@@ -343,7 +372,7 @@ export const ProjectMaterialsTable = ({
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
-            label="Сметная стоимость"
+            label="Сметная стоимость, ₽/шт."
             name="price"
             rules={[
               {

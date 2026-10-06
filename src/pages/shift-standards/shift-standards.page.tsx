@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSelector } from "react-redux";
 import {
   Alert,
   Breadcrumb,
@@ -31,8 +32,9 @@ import { categoryMap } from "../../utils/categoryMap";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import "./shift-standards.page.less";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
-import { dateTimestampToLocalDateTimeString } from "../../utils/dateConverter";
 import type { IShiftStandard } from "../../interfaces/shiftStandards/IShiftStandard";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
 
 interface ShiftStandardFormValues {
   category: number;
@@ -52,13 +54,19 @@ const allowedIntegerKeys = new Set([
 
 export const ShiftStandards = () => {
   const { Content } = Layout;
+  const currentRole = useSelector(getCurrentRole);
+  const canView =
+    currentRole === RoleId.ADMIN ||
+    currentRole === RoleId.MANAGER ||
+    currentRole === RoleId.PROJECT_LEADER;
+  const isAdmin = currentRole === RoleId.ADMIN;
   const [form] = Form.useForm<ShiftStandardFormValues>();
   const {
     data: shiftStandards = [],
     isPending,
     isFetching,
     isError,
-  } = useShiftStandardsQuery();
+  } = useShiftStandardsQuery({ enabled: canView });
   const [isCreateModalOpen, setCreateModalOpen] = React.useState(false);
   const [editingStandard, setEditingStandard] =
     React.useState<IShiftStandard | null>(null);
@@ -260,59 +268,77 @@ export const ShiftStandards = () => {
         ]}
       />
       <Content className="shift-standards">
-        <div className="shift-standards__toolbar">
-          <Space wrap className="shift-standards__filters">
-            <Input
-              allowClear
-              value={notificationSearch}
-              placeholder="Поиск по уведомлению"
-              onChange={(event) => setNotificationSearch(event.target.value)}
-            />
-            <InputNumber
-              min={1}
-              max={24}
-              precision={0}
-              value={standardSearch}
-              placeholder="Норматив, ч."
-              onChange={(value) =>
-                setStandardSearch(typeof value === "number" ? value : undefined)
-              }
-              onKeyDown={preventNonIntegerKey}
-              onPaste={preventInvalidIntegerPaste}
-            />
-            <Select
-              allowClear
-              value={category}
-              placeholder="Категория"
-              options={categoryMap}
-              onChange={(value) => setCategory(value)}
-            />
-          </Space>
-          <Button
-            type="primary"
-            icon={<PlusCircleTwoTone twoToneColor="#ffffff" />}
-            onClick={openCreateModal}
-          >
-            Создать стандарт
-          </Button>
-        </div>
-        {isPending && <Spin />}
-        {isError && (
-          <Alert
-            type="error"
-            message="Не удалось загрузить стандарты смен"
-            showIcon
-          />
-        )}
-        {!isError && !isPending && (
-          <Table<IShiftStandard>
-            rowKey="shift_standard_id"
-            dataSource={filteredShiftStandards}
-            columns={columns}
-            loading={isFetching}
-            pagination={false}
-            locale={{ emptyText: "Стандарты смен не найдены" }}
-          />
+        {!canView ? (
+          <Typography.Text>
+            Раздел доступен администратору, менеджеру и прорабу.
+          </Typography.Text>
+        ) : (
+          <>
+            <div className="shift-standards__toolbar">
+              <Space wrap className="shift-standards__filters">
+                <Input
+                  allowClear
+                  value={notificationSearch}
+                  placeholder="Поиск по уведомлению"
+                  onChange={(event) =>
+                    setNotificationSearch(event.target.value)
+                  }
+                />
+                <InputNumber
+                  min={1}
+                  max={24}
+                  precision={0}
+                  value={standardSearch}
+                  placeholder="Норматив, ч."
+                  onChange={(value) =>
+                    setStandardSearch(
+                      typeof value === "number" ? value : undefined,
+                    )
+                  }
+                  onKeyDown={preventNonIntegerKey}
+                  onPaste={preventInvalidIntegerPaste}
+                />
+                <Select
+                  allowClear
+                  value={category}
+                  placeholder="Категория"
+                  options={categoryMap}
+                  onChange={(value) => setCategory(value)}
+                />
+              </Space>
+              {isAdmin && (
+                <Button
+                  type="primary"
+                  icon={<PlusCircleTwoTone twoToneColor="#ffffff" />}
+                  onClick={openCreateModal}
+                >
+                  Создать стандарт
+                </Button>
+              )}
+            </div>
+            {isPending && <Spin />}
+            {isError && (
+              <Alert
+                type="error"
+                message="Не удалось загрузить стандарты смен"
+                showIcon
+              />
+            )}
+            {!isError && !isPending && (
+              <Table<IShiftStandard>
+                rowKey="shift_standard_id"
+                dataSource={filteredShiftStandards}
+                columns={
+                  isAdmin
+                    ? columns
+                    : columns.filter((column) => column.key !== "actions")
+                }
+                loading={isFetching}
+                pagination={false}
+                locale={{ emptyText: "Стандарты смен не найдены" }}
+              />
+            )}
+          </>
         )}
       </Content>
       <Modal

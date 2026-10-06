@@ -55,10 +55,9 @@ export const EditableShiftReportDialog = (
   const userId = useSelector(getCurrentUserId);
   const role = useSelector(getCurrentRole);
   const canSetShortShift =
-    !shiftReport &&
-    (role === RoleId.ADMIN ||
-      role === RoleId.MANAGER ||
-      role === RoleId.PROJECT_LEADER);
+    role === RoleId.ADMIN ||
+    role === RoleId.MANAGER ||
+    role === RoleId.PROJECT_LEADER;
 
   const dispatch = useDispatch();
 
