@@ -119,8 +119,8 @@ export const SystemSettings = () => {
   const columns = [
     {
       title: "Настройка",
-      dataIndex: "system_setting_id",
-      key: "system_setting_id",
+      dataIndex: "name",
+      key: "name",
       width: "28%",
     },
     {
@@ -195,7 +195,7 @@ export const SystemSettings = () => {
       </Content>
 
       <Modal
-        title={selectedSetting?.system_setting_id ?? "Системная настройка"}
+        title={selectedSetting?.name ?? "Системная настройка"}
         open={isViewModalOpen}
         onCancel={closeViewModal}
         footer={null}
@@ -211,7 +211,7 @@ export const SystemSettings = () => {
       </Modal>
 
       <Modal
-        title={selectedSetting?.system_setting_id ?? "Редактирование настройки"}
+        title={selectedSetting?.name ?? "Редактирование настройки"}
         open={isEditModalOpen}
         onOk={save}
         onCancel={closeEditModal}

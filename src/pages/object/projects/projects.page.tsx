@@ -148,14 +148,20 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
           ? statsByProjectId.get(project.project_id)
           : undefined,
         children: details
-          ? Object.entries(details.stats).map(([projectWorkId, stats]) => ({
-              key: `work-${projectWorkId}`,
-              name: stats.project_work_name,
-              object: project.object,
-              project_leader: project.project_leader,
-              stats,
-              isWork: true,
-            }))
+          ? Object.entries(details.stats).flatMap(([projectWorkId, stats]) =>
+              stats
+                ? [
+                    {
+                      key: `work-${projectWorkId}`,
+                      name: stats.project_work_name,
+                      object: project.object,
+                      project_leader: project.project_leader,
+                      stats,
+                      isWork: true,
+                    },
+                  ]
+                : [],
+            )
           : undefined,
       };
     });

@@ -97,29 +97,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "work_acceptance_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -148,6 +125,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "work_acceptance_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "work_acceptance_attachments"
@@ -2162,29 +2162,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "object_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -2213,6 +2190,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "object_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "object_attachments"
@@ -2558,29 +2558,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "place_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -2609,6 +2586,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "place_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "place_attachments"
@@ -4266,6 +4266,33 @@
         ]
       }
     },
+    "/projects/parse-project-specification": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Project specification parsed",
+            "schema": {
+              "$ref": "#/definitions/ProjectSpecificationParseResponse"
+            }
+          }
+        },
+        "operationId": "post_project_specification_parse",
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "type": "file",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "projects"
+        ]
+      }
+    },
     "/projects/statuses": {
       "get": {
         "responses": {
@@ -4300,29 +4327,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "project_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -4351,6 +4355,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "project_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "project_attachments"
@@ -4563,7 +4590,7 @@
         ]
       }
     },
-    "/projects/{project_id}/get-stat-by-project-materials": {
+    "/projects/{project_id}/import-works-and-materials": {
       "parameters": [
         {
           "name": "project_id",
@@ -4572,25 +4599,16 @@
           "type": "string"
         }
       ],
-      "get": {
+      "post": {
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Project specification imported",
             "schema": {
-              "$ref": "#/definitions/ProjectStatsResponse"
+              "$ref": "#/definitions/ProjectSpecificationImportResponse"
             }
           }
         },
-        "operationId": "get_project_stats_by_project_materials",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
+        "operationId": "post_project_specification_import",
         "tags": [
           "projects"
         ]
@@ -5982,29 +6000,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "shift_report_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -6033,6 +6028,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "shift_report_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "shift_report_attachments"
@@ -9366,8 +9384,139 @@
           "type": "string"
         },
         "stats": {
+          "$ref": "#/definitions/ObjectStatsPayload"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatsPayload": {
+      "required": [
+        "material_totals",
+        "projects",
+        "total"
+      ],
+      "properties": {
+        "total": {
+          "$ref": "#/definitions/WorkStatsSummary"
+        },
+        "material_totals": {
+          "$ref": "#/definitions/MaterialStatsSummary"
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectProjectStats"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "WorkStatsSummary": {
+      "properties": {
+        "project_work_quantity": {
+          "type": "number"
+        },
+        "project_work_summ": {
+          "type": "number"
+        },
+        "shift_report_details_quantity": {
+          "type": "number"
+        },
+        "shift_report_details_summ": {
+          "type": "number"
+        },
+        "shift_report_details_summ_by_estimate": {
+          "type": "number"
+        },
+        "presented_quantity": {
+          "type": "number"
+        },
+        "presented_summ": {
+          "type": "number"
+        },
+        "accepted_quantity": {
+          "type": "number"
+        },
+        "accepted_summ": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "MaterialStatsSummary": {
+      "required": [
+        "project_material_quantity",
+        "project_material_summ",
+        "shift_report_material_quantity",
+        "shift_report_material_summ_by_estimate"
+      ],
+      "properties": {
+        "project_material_quantity": {
+          "type": "number"
+        },
+        "project_material_summ": {
+          "type": "number"
+        },
+        "shift_report_material_quantity": {
+          "type": "number"
+        },
+        "shift_report_material_summ_by_estimate": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectProjectStats": {
+      "required": [
+        "material_stats",
+        "name",
+        "project_id",
+        "stats"
+      ],
+      "properties": {
+        "project_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "stats": {
           "type": "object",
-          "description": "Object total and statistics grouped by project"
+          "additionalProperties": {
+            "$ref": "#/definitions/WorkStatsSummary"
+          }
+        },
+        "material_stats": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/MaterialStatsItem"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "MaterialStatsItem": {
+      "required": [
+        "project_material_quantity",
+        "project_material_summ",
+        "shift_report_material_quantity",
+        "shift_report_material_summ_by_estimate"
+      ],
+      "properties": {
+        "project_material_quantity": {
+          "type": "number"
+        },
+        "project_material_summ": {
+          "type": "number"
+        },
+        "shift_report_material_quantity": {
+          "type": "number"
+        },
+        "shift_report_material_summ_by_estimate": {
+          "type": "number"
+        },
+        "material_name": {
+          "type": "string"
         }
       },
       "type": "object"
@@ -9382,7 +9531,56 @@
           "type": "string"
         },
         "stats": {
-          "type": "object"
+          "$ref": "#/definitions/ObjectStatsCollectionPayload"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatsCollectionPayload": {
+      "required": [
+        "material_totals",
+        "objects",
+        "total",
+        "total_count"
+      ],
+      "properties": {
+        "total": {
+          "$ref": "#/definitions/WorkStatsSummary"
+        },
+        "material_totals": {
+          "$ref": "#/definitions/MaterialStatsSummary"
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectStatsCollectionItem"
+          }
+        },
+        "total_count": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatsCollectionItem": {
+      "required": [
+        "material_totals",
+        "name",
+        "object_id",
+        "stats"
+      ],
+      "properties": {
+        "object_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "stats": {
+          "$ref": "#/definitions/WorkStatsSummary"
+        },
+        "material_totals": {
+          "$ref": "#/definitions/MaterialStatsSummary"
         }
       },
       "type": "object"
@@ -9397,8 +9595,35 @@
           "type": "string"
         },
         "stats": {
+          "$ref": "#/definitions/ObjectStatsDetailsPayload"
+        }
+      },
+      "type": "object"
+    },
+    "ObjectStatsDetailsPayload": {
+      "required": [
+        "material_totals",
+        "projects",
+        "total"
+      ],
+      "properties": {
+        "total": {
           "type": "object",
-          "description": "Object statistics grouped by project and work_id"
+          "additionalProperties": {
+            "$ref": "#/definitions/WorkStatsSummary"
+          }
+        },
+        "material_totals": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/MaterialStatsItem"
+          }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectProjectStats"
+          }
         }
       },
       "type": "object"
@@ -10399,6 +10624,32 @@
       },
       "type": "object"
     },
+    "ProjectSpecificationParseResponse": {
+      "required": [
+        "project_specification"
+      ],
+      "properties": {
+        "project_specification": {
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectSpecificationImportResponse": {
+      "required": [
+        "project_materials_created",
+        "project_works_created"
+      ],
+      "properties": {
+        "project_works_created": {
+          "type": "integer"
+        },
+        "project_materials_created": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "ProjectCreate": {
       "properties": {
         "name": {
@@ -10680,6 +10931,7 @@
     },
     "ProjectStatsResponse": {
       "required": [
+        "material_stats",
         "msg",
         "stats"
       ],
@@ -10690,7 +10942,85 @@
         },
         "stats": {
           "type": "object",
-          "description": "Dict of work_id or project_work_id -\u003E stat"
+          "description": "Statistics grouped by work_id",
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectStats"
+          }
+        },
+        "material_stats": {
+          "type": "object",
+          "description": "Statistics grouped by material_id",
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectMaterialStats"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectStats": {
+      "required": [
+        "project_work_quantity",
+        "project_work_summ",
+        "shift_report_details_quantity",
+        "shift_report_details_summ",
+        "shift_report_details_summ_by_estimate"
+      ],
+      "properties": {
+        "project_work_quantity": {
+          "type": "number"
+        },
+        "project_work_summ": {
+          "type": "number"
+        },
+        "shift_report_details_quantity": {
+          "type": "number"
+        },
+        "shift_report_details_summ": {
+          "type": "number"
+        },
+        "shift_report_details_summ_by_estimate": {
+          "type": "number"
+        },
+        "presented_quantity": {
+          "type": "number"
+        },
+        "presented_summ": {
+          "type": "number"
+        },
+        "accepted_quantity": {
+          "type": "number"
+        },
+        "accepted_summ": {
+          "type": "number"
+        },
+        "project_work_name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectMaterialStats": {
+      "required": [
+        "project_material_quantity",
+        "project_material_summ",
+        "shift_report_material_quantity",
+        "shift_report_material_summ_by_estimate"
+      ],
+      "properties": {
+        "project_material_quantity": {
+          "type": "number"
+        },
+        "project_material_summ": {
+          "type": "number"
+        },
+        "shift_report_material_quantity": {
+          "type": "number"
+        },
+        "shift_report_material_summ_by_estimate": {
+          "type": "number"
+        },
+        "material_name": {
+          "type": "string"
         }
       },
       "type": "object"
@@ -10712,6 +11042,7 @@
     },
     "ProjectLeaderStatsCollectionPayload": {
       "required": [
+        "material_totals",
         "project_leaders",
         "total",
         "total_count"
@@ -10719,7 +11050,15 @@
       "properties": {
         "total": {
           "type": "object",
-          "description": "Statistics grouped by calendar month in YYYY-MM format"
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectLeaderFactStats"
+          }
+        },
+        "material_totals": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectLeaderMaterialFactStats"
+          }
         },
         "project_leaders": {
           "type": "array",
@@ -10733,9 +11072,44 @@
       },
       "type": "object"
     },
+    "ProjectLeaderFactStats": {
+      "required": [
+        "shift_report_details_quantity",
+        "shift_report_details_summ",
+        "shift_report_details_summ_by_estimate"
+      ],
+      "properties": {
+        "shift_report_details_quantity": {
+          "type": "number"
+        },
+        "shift_report_details_summ": {
+          "type": "number"
+        },
+        "shift_report_details_summ_by_estimate": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectLeaderMaterialFactStats": {
+      "required": [
+        "shift_report_material_quantity",
+        "shift_report_material_summ_by_estimate"
+      ],
+      "properties": {
+        "shift_report_material_quantity": {
+          "type": "number"
+        },
+        "shift_report_material_summ_by_estimate": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
     "ProjectLeaderStatsCollectionItem": {
       "required": [
         "login",
+        "material_stats",
         "name",
         "projects",
         "stats",
@@ -10753,7 +11127,15 @@
         },
         "stats": {
           "type": "object",
-          "description": "Statistics grouped by calendar month in YYYY-MM format"
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectLeaderFactStats"
+          }
+        },
+        "material_stats": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectLeaderMaterialFactStats"
+          }
         },
         "projects": {
           "type": "array",
@@ -10766,6 +11148,7 @@
     },
     "ProjectLeaderFactProject": {
       "required": [
+        "material_stats",
         "name",
         "project_id",
         "stats"
@@ -10779,7 +11162,15 @@
         },
         "stats": {
           "type": "object",
-          "description": "Statistics grouped by calendar month in YYYY-MM format"
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectLeaderFactStats"
+          }
+        },
+        "material_stats": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ProjectLeaderMaterialFactStats"
+          }
         }
       },
       "type": "object"
@@ -13339,10 +13730,14 @@
     },
     "SystemSetting": {
       "required": [
+        "name",
         "system_setting_id"
       ],
       "properties": {
         "system_setting_id": {
+          "type": "string"
+        },
+        "name": {
           "type": "string"
         },
         "value": {
@@ -13373,11 +13768,11 @@
       "type": "object"
     },
     "SystemSettingEdit": {
-      "required": [
-        "value"
-      ],
       "properties": {
         "value": {
+          "type": "string"
+        },
+        "name": {
           "type": "string"
         }
       },
