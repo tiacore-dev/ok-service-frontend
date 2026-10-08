@@ -56,7 +56,7 @@ export const objectsDesktopColumns = (
     ),
   },
   {
-    title: "Прораб",
+    title: "Менеджер",
     dataIndex: "manager",
     key: "manager",
     width: "20%",

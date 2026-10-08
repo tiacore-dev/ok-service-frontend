@@ -26,6 +26,14 @@ export interface IWorkAcceptanceRelation {
   quantity: number;
 }
 
+export interface IWorkAcceptanceRelationBulkCreatePayload {
+  acceptance_id: string;
+  works: Array<{
+    work_id: string;
+    quantity: number;
+  }>;
+}
+
 export interface IAcceptanceStatusHistory {
   id: string;
   acceptance_id: string;

@@ -25,6 +25,7 @@ interface DownloadObjectVolumeReportProps {
     projects?: string[];
     date_from?: number;
     date_to?: number;
+    signed?: string;
     deleted?: string;
   };
 }
@@ -39,6 +40,7 @@ export const useDownloadObjectVolumeReport = ({
     project: currentFilters?.projects,
     date_from: currentFilters?.date_from ?? undefined,
     date_to: currentFilters?.date_to ?? undefined,
+    signed: currentFilters?.signed,
     deleted: currentFilters?.deleted,
     offset: 0,
     limit: 10000,

@@ -72,7 +72,7 @@ export const Filters: React.FC<ObjectsFiltersProps> = ({
       <Select
         allowClear
         className="objects_filters_select"
-        placeholder="Прораб"
+        placeholder="Менеджер"
         value={filtersState.managerId}
         onChange={(value) => changeFilters({ managerId: value || undefined })}
         showSearch
@@ -95,7 +95,7 @@ export const Filters: React.FC<ObjectsFiltersProps> = ({
           { label: "Сортировка: по названию", value: "name" },
           { label: "Сортировка: по городу", value: "city" },
           { label: "Сортировка: по статусу", value: "status" },
-          { label: "Сортировка: по прорабу", value: "manager" },
+          { label: "Сортировка: по менеджеру", value: "manager" },
         ]}
       />
       <Button

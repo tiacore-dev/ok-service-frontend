@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Form, Input, Select, Space } from "antd";
+import { Form, Input, InputNumber, Select, Space } from "antd";
 import { IProject } from "../../../interfaces/projects/IProject";
 import {
   clearCreateProjectState,
@@ -22,6 +22,7 @@ import {
 } from "../../../queries/projects";
 import { useProjectStatusesQuery } from "../../../queries/projects";
 import { ObjectStatusId } from "../../../interfaces/objectStatuses/IObjectStatus";
+import { getCurrentRole } from "../../../store/modules/auth";
 
 interface IEditableProjectDialogProps {
   project?: IProject;
@@ -48,6 +49,9 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
   const data = useSelector(
     (state: IState) => state.editableEntities.editableProject,
   );
+  const currentRole = useSelector(getCurrentRole);
+  const canManagePayrollPlan =
+    currentRole === RoleId.ADMIN || currentRole === RoleId.MANAGER;
   const { objects } = useObjectsMap();
   const objectMap = objects.map((el) => ({
     label: el.name,
@@ -62,7 +66,16 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
       value: el.user_id,
     }));
 
-  const { sent, project_id: projectIdFromState, ...projectData } = data;
+  const {
+    sent,
+    project_id: projectIdFromState,
+    payroll_plan,
+    ...projectDataWithoutPayrollPlan
+  } = data;
+  const projectData = {
+    ...projectDataWithoutPayrollPlan,
+    ...(canManagePayrollPlan ? { payroll_plan } : {}),
+  };
   const navigate = useNavigate();
   const notificationApi = useContext(NotificationContext);
   const createProjectMutation = useCreateProjectMutation();
@@ -209,6 +222,27 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
                 disabled={sent}
               />
             </Form.Item>
+
+            {canManagePayrollPlan && (
+              <Form.Item
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                label="Плановый ФОТ"
+              >
+                <InputNumber
+                  value={data.payroll_plan}
+                  onChange={(value) =>
+                    dispatch(
+                      editProjectAction.setPayrollPlan(value ?? undefined),
+                    )
+                  }
+                  min={0}
+                  precision={2}
+                  disabled={sent}
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            )}
           </Form>
         </Space>
       }

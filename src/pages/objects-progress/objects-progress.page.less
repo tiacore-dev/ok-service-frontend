@@ -16,7 +16,12 @@
   margin: 0;
 }
 
-.objects-progress__header .ant-input-search {
+.objects-progress__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.objects-progress__actions .ant-input-search {
   width: 280px;
 }
 
@@ -35,6 +40,15 @@
 
 .objects-progress__metric-secondary {
   color: rgba(0, 0, 0, 0.55);
+}
+
+.objects-progress__quantity--zero {
+  opacity: 0.6;
+}
+
+.objects-progress__quantity-check {
+  color: #52c41a;
+  margin-left: 6px;
 }
 
 .objects-progress__name {
@@ -144,7 +158,11 @@
     margin-bottom: 12px;
   }
 
-  .objects-progress__header .ant-input-search {
+  .objects-progress__actions {
+    width: 100%;
+  }
+
+  .objects-progress__actions .ant-input-search {
     width: 100%;
   }
 }

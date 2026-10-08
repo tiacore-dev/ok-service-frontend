@@ -3,6 +3,7 @@ export interface IProject {
   name: string;
   object: string;
   project_leader: string;
+  payroll_plan?: number | null;
   status?: string;
   deleted?: boolean;
 }

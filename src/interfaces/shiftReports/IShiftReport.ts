@@ -54,6 +54,7 @@ export interface IShiftReportQueryParams {
   distance_end?: number;
   night_shift?: string;
   extreme_conditions?: string;
+  signed?: string;
   short_shift?: string;
   deleted?: string;
 }

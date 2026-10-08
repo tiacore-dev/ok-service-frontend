@@ -56,6 +56,39 @@
     margin-right: 8px;
   }
 
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    [class^="shift-reports__status-icon--"] {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    &-icon--not-opened {
+      color: #a0a0b0;
+      background-color: #a0a0b0;
+    }
+
+    &-icon--signed {
+      color: #2bba23;
+      background-color: #2bba23;
+    }
+
+    &-icon--not-signed {
+      color: #6940ff;
+      background-color: #6940ff;
+    }
+
+    &-icon--empty {
+      color: #ffac40;
+      background-color: #ffac40;
+    }
+  }
+
   &_filters {
     margin-bottom: 12px;
     display: flex;

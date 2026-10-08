@@ -4,10 +4,10 @@ import type { NavigateFunction } from "react-router-dom";
 import type { IShiftReportsListColumn } from "../../../interfaces/shiftReports/IShiftReportsList";
 import type { IUser } from "../../../interfaces/users/IUser";
 import { dateTimestampToLocalString } from "../../../utils/dateConverter";
-import { Checkbox } from "antd";
 import type { IProject } from "../../../interfaces/projects/IProject";
 import type { IObject } from "../../../interfaces/objects/IObject";
 import type { SorterResult } from "antd/es/table/interface";
+import { ShiftReportStatusIndicator } from "./status";
 
 const formatComment = (value?: string | null) => {
   if (!value) return "";
@@ -97,14 +97,11 @@ export const shiftReportsDesktopColumns = (
       ),
     },
     {
-      title: "Подписан",
-      dataIndex: "signed",
-      key: "signed",
-      sorter: true,
+      title: "Статус",
+      dataIndex: "status",
+      key: "status",
       render: (_text: string, record: IShiftReportsListColumn) => (
-        <div>
-          <Checkbox checked={!!record.signed} disabled />
-        </div>
+        <ShiftReportStatusIndicator report={record} />
       ),
     },
   ].map((column) => ({

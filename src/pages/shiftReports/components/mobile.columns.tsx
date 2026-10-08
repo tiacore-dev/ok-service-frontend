@@ -8,6 +8,7 @@ import {
   dateTimestampToLocalString,
 } from "../../../utils/dateConverter";
 import { IProject } from "../../../interfaces/projects/IProject";
+import { ShiftReportStatusIndicator } from "./status";
 
 const formatDistance = (meters?: number | null) =>
   meters ? ` (${meters} м)` : null;
@@ -42,6 +43,9 @@ export const shiftReportsMobileColumns = (
             {userName} {dateTimestampToLocalString(record.date)}
           </a>
 
+          <div>
+            Статус: <ShiftReportStatusIndicator report={record} />
+          </div>
           <div>Спецификация: {projectName}</div>
           <div>Прораб: {leaderName}</div>
           <div>

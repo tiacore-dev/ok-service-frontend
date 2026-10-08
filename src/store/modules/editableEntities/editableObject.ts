@@ -17,6 +17,10 @@ const initialState: IEditableObjectState = {
   city: undefined,
   lng: 0,
   ltd: 0,
+  contract_start_date: undefined,
+  contract_end_date: undefined,
+  order_number: undefined,
+  monthly_ks_closing_date: undefined,
   created_at: "",
   created_by: "",
   deleted: false,
@@ -35,6 +39,10 @@ const setObjectData = (
   state.city = objectData.city;
   state.lng = objectData.lng ?? initialState.lng;
   state.ltd = objectData.ltd ?? initialState.ltd;
+  state.contract_start_date = objectData.contract_start_date;
+  state.contract_end_date = objectData.contract_end_date;
+  state.order_number = objectData.order_number;
+  state.monthly_ks_closing_date = objectData.monthly_ks_closing_date;
   state.created_at = objectData.created_at ?? initialState.created_at;
   state.created_by = objectData.created_by ?? initialState.created_by;
   state.deleted = objectData.deleted ?? initialState.deleted;
@@ -91,6 +99,34 @@ const editableObjectSlice = createSlice({
 
     setLtd: (state: IEditableObjectState, action: { payload: number }) => {
       state.ltd = action.payload;
+    },
+
+    setContractStartDate: (
+      state: IEditableObjectState,
+      action: { payload: string | undefined },
+    ) => {
+      state.contract_start_date = action.payload;
+    },
+
+    setContractEndDate: (
+      state: IEditableObjectState,
+      action: { payload: string | undefined },
+    ) => {
+      state.contract_end_date = action.payload;
+    },
+
+    setOrderNumber: (
+      state: IEditableObjectState,
+      action: { payload: string | undefined },
+    ) => {
+      state.order_number = action.payload;
+    },
+
+    setMonthlyKsClosingDate: (
+      state: IEditableObjectState,
+      action: { payload: number | undefined },
+    ) => {
+      state.monthly_ks_closing_date = action.payload;
     },
 
     sendObject: (state: IEditableObjectState) => {

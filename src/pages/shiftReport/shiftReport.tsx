@@ -196,7 +196,6 @@ export const ShiftReport = () => {
     [objectId, objectsMap],
   );
 
-  const showDistances = currentRole !== RoleId.USER;
   const canSign = !isSigned && currentRole !== RoleId.USER;
 
   const projectWorksData = React.useMemo(
@@ -216,6 +215,8 @@ export const ShiftReport = () => {
   const {
     mapStartCoordinates,
     mapEndCoordinates,
+    startDistance,
+    endDistance,
     canShowStartMapButton,
     canShowEndMapButton,
   } = useShiftReportMap({
@@ -502,7 +503,8 @@ export const ShiftReport = () => {
             projectName={projectName}
             projectLeaderName={projectLeaderName}
             userName={userName}
-            showDistances={showDistances}
+            startDistance={startDistance}
+            endDistance={endDistance}
             canShowStartMapButton={canShowStartMapButton}
             canShowEndMapButton={canShowEndMapButton}
             mapStartCoordinates={mapStartCoordinates}

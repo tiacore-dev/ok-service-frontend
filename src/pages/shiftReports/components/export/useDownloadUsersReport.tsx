@@ -24,6 +24,7 @@ interface DownloadUsersReportProps {
     users?: string[];
     date_from?: number;
     date_to?: number;
+    signed?: string;
     deleted?: string;
   };
 }
@@ -37,6 +38,7 @@ export const useDownloadUsersReport = ({
     user: currentFilters?.users,
     date_from: currentFilters?.date_from ?? undefined,
     date_to: currentFilters?.date_to ?? undefined,
+    signed: currentFilters?.signed,
     deleted: currentFilters?.deleted,
     offset: 0,
     limit: 10000,

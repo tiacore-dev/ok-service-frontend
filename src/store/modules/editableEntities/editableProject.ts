@@ -11,6 +11,7 @@ const initialState: IEditableProjectState = {
   name: "",
   object: "",
   project_leader: "",
+  payroll_plan: undefined,
 };
 
 const setProjectData = (
@@ -21,6 +22,7 @@ const setProjectData = (
   state.name = projectData.name;
   state.object = projectData.object;
   state.project_leader = projectData.project_leader;
+  state.payroll_plan = projectData.payroll_plan;
   state.status = projectData.status;
   state.sent = false;
 };
@@ -56,6 +58,13 @@ const editableProjectSlice = createSlice({
       action: { payload: string | undefined },
     ) => {
       state.status = action.payload;
+    },
+
+    setPayrollPlan: (
+      state: IEditableProjectState,
+      action: { payload: number | undefined },
+    ) => {
+      state.payroll_plan = action.payload;
     },
 
     sendProject: (state: IEditableProjectState) => {

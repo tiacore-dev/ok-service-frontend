@@ -4,7 +4,6 @@ import { Button, Modal, Select, Table, Tag, Tooltip } from "antd";
 import {
   DeleteTwoTone,
   EditTwoTone,
-  EyeOutlined,
   PlusCircleTwoTone,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
@@ -125,7 +124,14 @@ export const ProjectAcceptances = ({
             title: "Дата",
             dataIndex: "date",
             width: 130,
-            render: (value: number) => dayjs(value).format(dateFormat),
+            render: (value: number, record: IAcceptance) => (
+              <Link
+                className="project__acceptance-date"
+                to={`/acceptances/${record.id}`}
+              >
+                {dayjs(value).format(dateFormat)}
+              </Link>
+            ),
           },
           {
             title: "Статус",
@@ -155,52 +161,48 @@ export const ProjectAcceptances = ({
             dataIndex: "comment",
             render: (value?: string) => value || "—",
           },
-          {
-            title: "",
-            width: canManage ? 112 : 48,
-            render: (_: unknown, record: IAcceptance) => (
-              <div className="project__table-actions">
-                <Tooltip title="Открыть">
-                  <Link
-                    className="project__table-action"
-                    to={`/acceptances/${record.id}`}
-                  >
-                    <EyeOutlined />
-                  </Link>
-                </Tooltip>
-                {canManageAcceptance(record) && (
-                  <Tooltip title="Редактировать">
-                    <Button
-                      type="link"
-                      className="project__table-action"
-                      icon={<EditTwoTone twoToneColor="#e40808" />}
-                      onClick={() => {
-                        setEditingAcceptance(record);
-                        setModalOpen(true);
-                      }}
-                    />
-                  </Tooltip>
-                )}
-                {canManageAcceptance(record) && (
-                  <Button
-                    type="link"
-                    className="project__table-action"
-                    icon={<DeleteTwoTone twoToneColor="#e40808" />}
-                    onClick={() =>
-                      Modal.confirm({
-                        title: "Удалить приёмку?",
-                        content: "Все добавленные работы будут удалены.",
-                        okText: "Удалить",
-                        cancelText: "Отмена",
-                        okButtonProps: { danger: true },
-                        onOk: () => remove(record),
-                      })
-                    }
-                  />
-                )}
-              </div>
-            ),
-          },
+          ...(canManage
+            ? [
+                {
+                  title: "",
+                  width: 80,
+                  render: (_: unknown, record: IAcceptance) => (
+                    <div className="project__table-actions">
+                      {canManageAcceptance(record) && (
+                        <Tooltip title="Редактировать">
+                          <Button
+                            type="link"
+                            className="project__table-action"
+                            icon={<EditTwoTone twoToneColor="#e40808" />}
+                            onClick={() => {
+                              setEditingAcceptance(record);
+                              setModalOpen(true);
+                            }}
+                          />
+                        </Tooltip>
+                      )}
+                      {canManageAcceptance(record) && (
+                        <Button
+                          type="link"
+                          className="project__table-action"
+                          icon={<DeleteTwoTone twoToneColor="#e40808" />}
+                          onClick={() =>
+                            Modal.confirm({
+                              title: "Удалить приёмку?",
+                              content: "Все добавленные работы будут удалены.",
+                              okText: "Удалить",
+                              cancelText: "Отмена",
+                              okButtonProps: { danger: true },
+                              onOk: () => remove(record),
+                            })
+                          }
+                        />
+                      )}
+                    </div>
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
       {canCreate && (

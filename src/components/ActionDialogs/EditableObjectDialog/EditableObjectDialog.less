@@ -1,5 +1,9 @@
 .editable_object_dialog {
-  width: auto;
+  width: 100%;
+
+  > .ant-space-item {
+    width: 100%;
+  }
 
   .ant-space-compact {
     display: flex;
@@ -15,8 +19,15 @@
 }
 
 .editable-object-dialog__form {
-  width: calc(100vw - 64px);
-  max-width: 452px;
+  width: 100%;
+
+  .ant-form-item-label {
+    white-space: normal;
+
+    > label {
+      height: auto;
+    }
+  }
 }
 
 .editable-object-dialog__input {

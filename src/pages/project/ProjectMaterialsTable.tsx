@@ -324,10 +324,7 @@ export const ProjectMaterialsTable = ({
               <Table.Summary.Cell index={3}>
                 {formatNumber(totalMaterialsSum)}
               </Table.Summary.Cell>
-              <Table.Summary.Cell
-                index={4}
-                colSpan={canManage ? 2 : 1}
-              />
+              <Table.Summary.Cell index={4} colSpan={canManage ? 2 : 1} />
             </Table.Summary.Row>
           </Table.Summary>
         )}

@@ -136,6 +136,10 @@ export const ShiftReports = () => {
       params.date_to = shiftReportsFilters.dateTo;
     }
 
+    if (shiftReportsFilters.signed !== undefined) {
+      params.signed = shiftReportsFilters.signed;
+    }
+
     if (shiftReportsFilters.deletedFilter !== "all") {
       params.deleted =
         shiftReportsFilters.deletedFilter === "deleted" ? "true" : "false";
@@ -363,6 +367,7 @@ export const ShiftReports = () => {
       projects,
       date_from: shiftReportsFilters.dateFrom ?? undefined,
       date_to: shiftReportsFilters.dateTo ?? undefined,
+      signed: shiftReportsFilters.signed,
       deleted:
         shiftReportsFilters.deletedFilter === "all"
           ? undefined

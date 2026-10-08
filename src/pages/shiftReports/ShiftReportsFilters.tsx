@@ -10,6 +10,7 @@ import {
   defaultShiftReportsFiltersState,
   type IShiftReportsFiltersState,
   type ShiftReportsDeletedFilter,
+  type ShiftReportsSignedFilter,
 } from "../../interfaces/shiftReports/IShiftReportsFiltersState";
 
 const { RangePicker } = DatePicker;
@@ -86,6 +87,10 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
 
   const handleDeletedFilterChange = (value: ShiftReportsDeletedFilter) => {
     changeFilters({ deletedFilter: value });
+  };
+
+  const handleSignedFilterChange = (value?: ShiftReportsSignedFilter) => {
+    changeFilters({ signed: value });
   };
 
   const treeValue = React.useMemo(() => {
@@ -289,6 +294,17 @@ export const ShiftReportsFilters: React.FC<ShiftReportsFiltersProps> = ({
           placeholder={["Дата с", "Дата по"]}
           value={rangeValue}
           onChange={handleDateChange}
+        />
+        <Select
+          allowClear
+          placeholder="Согласовано"
+          className="shift-reports_filters_active"
+          value={filtersState.signed}
+          onChange={handleSignedFilterChange}
+          options={[
+            { label: "Согласовано", value: "true" },
+            { label: "Не согласовано", value: "false" },
+          ]}
         />
         <Select
           className="shift-reports_filters_active"

@@ -1,7 +1,17 @@
 import React, { useCallback, useContext, useState } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Button, Form, Input, InputNumber, Select, Space, Modal } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Space,
+  Modal,
+} from "antd";
+import dayjs, { type Dayjs } from "dayjs";
 import { IObject } from "../../../interfaces/objects/IObject";
 import {
   clearCreateObjectState,
@@ -23,11 +33,19 @@ import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useObjectStatuses } from "../../../queries/objectStatuses";
 import { useCitiesMap } from "../../../queries/cities";
 import { MapPicker } from "../../Map/MapPicker";
+import { dateFormat } from "../../../utils/dateConverter";
 
 interface IEditableObjectDialogProps {
   object?: IObject;
   iconOnly?: boolean;
 }
+
+const toUtcDate = (value: Dayjs | null): string | undefined =>
+  value
+    ? new Date(Date.UTC(value.year(), value.month(), value.date()))
+        .toISOString()
+        .slice(0, 10)
+    : undefined;
 
 export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   const { object, iconOnly } = props;
@@ -144,6 +162,7 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
   return (
     <>
       <ActionDialog
+        customModalWidth={1000}
         modalOkText="Сохранить"
         onConfirm={handleConfirm}
         onOpen={handeOpen}
@@ -251,6 +270,88 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                     )
                   }
                   disabled={sent}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Дата начала действия договора"
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+              >
+                <DatePicker
+                  value={
+                    data.contract_start_date
+                      ? dayjs(data.contract_start_date)
+                      : null
+                  }
+                  onChange={(value) =>
+                    dispatch(
+                      editObjectAction.setContractStartDate(toUtcDate(value)),
+                    )
+                  }
+                  format={dateFormat}
+                  inputReadOnly
+                  disabled={sent}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Дата окончания действия договора"
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+              >
+                <DatePicker
+                  value={
+                    data.contract_end_date
+                      ? dayjs(data.contract_end_date)
+                      : null
+                  }
+                  onChange={(value) =>
+                    dispatch(
+                      editObjectAction.setContractEndDate(toUtcDate(value)),
+                    )
+                  }
+                  format={dateFormat}
+                  inputReadOnly
+                  disabled={sent}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Номер заказа"
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+              >
+                <Input
+                  value={data.order_number}
+                  onChange={(event) =>
+                    dispatch(
+                      editObjectAction.setOrderNumber(event.target.value),
+                    )
+                  }
+                  disabled={sent}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="День закрывающих КС"
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+              >
+                <InputNumber
+                  value={data.monthly_ks_closing_date}
+                  onChange={(value) =>
+                    dispatch(
+                      editObjectAction.setMonthlyKsClosingDate(
+                        value ?? undefined,
+                      ),
+                    )
+                  }
+                  min={1}
+                  max={31}
+                  precision={0}
+                  disabled={sent}
+                  className="editable-object-dialog__input"
                 />
               </Form.Item>
 

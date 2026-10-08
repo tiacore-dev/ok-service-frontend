@@ -51,6 +51,7 @@ import { Manual } from "../../pages/manual/manual";
 import { ApiKeys } from "../../pages/api-keys/api-keys.page";
 import { WorkPlans } from "../../pages/work-plans/work-plans.page";
 import { Acceptance } from "../../pages/acceptance/acceptance.page";
+import { Acceptances } from "../../pages/acceptances/acceptances.page";
 import { ObjectsProgress } from "../../pages/objects-progress/objects-progress.page";
 import { SystemSettings } from "../../pages/system-settings/system-settings.page";
 import { ShiftStandards } from "../../pages/shift-standards/shift-standards.page";
@@ -233,6 +234,7 @@ export const App = () => {
                 path="acceptances/:acceptanceId"
                 element={<Acceptance />}
               />
+              <Route path="acceptances" element={<Acceptances />} />
               <Route path="shifts">
                 <Route index={true} element={<ShiftReports />} />
                 <Route path="assignment" element={<Assignment />} />

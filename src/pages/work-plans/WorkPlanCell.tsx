@@ -9,6 +9,7 @@ import { formatNumber } from "../../utils/formatNumber";
 
 export interface IWorkPlanProgress {
   completedSumm: number | null;
+  completedFotSumm: number | null;
   acceptedSumm: number | null;
 }
 
@@ -134,6 +135,7 @@ export const WorkPlanCell = React.memo(
                 <> · {completionPercent.toFixed(1)}%</>
               )}
             </span>
+            <span>ФОТ: {formatNumber(progress.completedFotSumm ?? 0)}</span>
             {progress.acceptedSumm != null && (
               <span>Принято: {formatNumber(progress.acceptedSumm)}</span>
             )}
