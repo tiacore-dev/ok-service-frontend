@@ -4609,6 +4609,16 @@
           }
         },
         "operationId": "post_project_specification_import",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ProjectSpecificationImportRequest"
+            }
+          }
+        ],
         "tags": [
           "projects"
         ]
@@ -10631,6 +10641,78 @@
       "properties": {
         "project_specification": {
           "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectSpecificationImportRequest": {
+      "required": [
+        "project_materials",
+        "project_works"
+      ],
+      "properties": {
+        "project_works": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectSpecificationImportWork"
+          }
+        },
+        "project_materials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProjectSpecificationImportMaterial"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ProjectSpecificationImportWork": {
+      "required": [
+        "project_work_id",
+        "project_work_name",
+        "quantity",
+        "work"
+      ],
+      "properties": {
+        "project_work_id": {
+          "type": "string"
+        },
+        "project_work_name": {
+          "type": "string"
+        },
+        "work": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "price": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "ProjectSpecificationImportMaterial": {
+      "required": [
+        "material",
+        "project_material_id",
+        "quantity"
+      ],
+      "properties": {
+        "project_material_id": {
+          "type": "string"
+        },
+        "material": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "price": {
+          "type": "number"
+        },
+        "project_work": {
+          "type": "string"
         }
       },
       "type": "object"

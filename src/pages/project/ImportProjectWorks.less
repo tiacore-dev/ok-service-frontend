@@ -68,3 +68,65 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
+.import-project-specification__body {
+  display: grid;
+  flex: none;
+  grid-template-columns: minmax(300px, 375px) minmax(0, 1fr);
+  min-height: 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.import-project-specification .import-project-works__sidebar {
+  width: auto;
+  gap: 12px;
+}
+
+.import-project-specification__step {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.import-project-specification__results {
+  width: 100%;
+}
+
+.import-project-specification__empty {
+  display: flex;
+  min-height: 280px;
+  padding: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  color: #8c8c8c;
+  text-align: center;
+}
+
+.import-project-specification .ant-upload-wrapper {
+  margin-bottom: 0;
+}
+
+.import-project-specification .import-project-works__analyze-button {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.import-project-specification__footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .import-project-specification__body {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+
+  .import-project-specification__empty {
+    min-height: 180px;
+  }
+}
