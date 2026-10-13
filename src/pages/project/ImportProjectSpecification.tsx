@@ -1,5 +1,14 @@
 import * as React from "react";
-import { Button, Space, Table, Typography, Upload } from "antd";
+import {
+  Button,
+  InputNumber,
+  Select,
+  Space,
+  Spin,
+  Table,
+  Typography,
+  Upload,
+} from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import type { UploadFile, UploadProps } from "antd";
 import type { IProject } from "../../interfaces/projects/IProject";
@@ -8,6 +17,7 @@ import type {
   IProjectSpecificationImportPayload,
   IProjectSpecificationImportWork,
   IProjectSpecificationParseResult,
+  IProjectSpecificationUnresolvedItem,
 } from "../../interfaces/projects/IProjectSpecificationImport";
 import { useWorksMap } from "../../queries/works";
 import { useMaterialsMap } from "../../queries/materials";
@@ -25,13 +35,24 @@ interface ImportProjectSpecificationProps {
   close: () => void;
 }
 
-const SUPPORTED_FILE_EXTENSIONS = ["csv", "xml", "json"];
+const SUPPORTED_FILE_EXTENSIONS = ["csv", "xml", "json", "xlsx"];
 
 const getFileExtension = (fileName: string) =>
   fileName.split(".").pop()?.toLowerCase();
 
 const formatPrice = (price?: number | null) =>
   price == null ? "—" : formatNumber(price);
+
+interface UnresolvedItemRow extends IProjectSpecificationUnresolvedItem {
+  key: string;
+}
+
+interface UnresolvedItemDraft {
+  catalogId?: string;
+  quantity?: number;
+  price?: number;
+  projectWorkId?: string;
+}
 
 export const ImportProjectSpecification: React.FC<
   ImportProjectSpecificationProps
@@ -40,8 +61,11 @@ export const ImportProjectSpecification: React.FC<
   const [file, setFile] = React.useState<File | null>(null);
   const [parsedSpecification, setParsedSpecification] =
     React.useState<IProjectSpecificationParseResult | null>(null);
-  const { worksMap } = useWorksMap();
-  const { materialsMap } = useMaterialsMap();
+  const [unresolvedDrafts, setUnresolvedDrafts] = React.useState<
+    Record<string, UnresolvedItemDraft>
+  >({});
+  const { works, worksMap } = useWorksMap();
+  const { materials, materialsMap } = useMaterialsMap();
   const parseMutation = useParseProjectSpecificationMutation();
   const importMutation = useImportProjectWorksAndMaterialsMutation();
 
@@ -50,7 +74,7 @@ export const ImportProjectSpecification: React.FC<
     if (!extension || !SUPPORTED_FILE_EXTENSIONS.includes(extension)) {
       notificationApi?.error({
         message: "Неподдерживаемый формат",
-        description: "Выберите файл в формате CSV, XML или JSON.",
+        description: "Выберите файл в формате CSV, XML, JSON или XLSX.",
         placement: "bottomRight",
         duration: 3,
       });
@@ -59,12 +83,14 @@ export const ImportProjectSpecification: React.FC<
 
     setFile(nextFile as File);
     setParsedSpecification(null);
+    setUnresolvedDrafts({});
     return false;
   };
 
   const removeFile = () => {
     setFile(null);
     setParsedSpecification(null);
+    setUnresolvedDrafts({});
   };
 
   const handleParse = async () => {
@@ -75,6 +101,7 @@ export const ImportProjectSpecification: React.FC<
     try {
       const result = await parseMutation.mutateAsync(file);
       setParsedSpecification(result);
+      setUnresolvedDrafts({});
     } catch (error) {
       notificationApi?.error({
         message: "Не удалось распознать спецификацию",
@@ -88,6 +115,91 @@ export const ImportProjectSpecification: React.FC<
     }
   };
 
+  const unresolvedRows = React.useMemo<UnresolvedItemRow[]>(
+    () =>
+      (parsedSpecification?.unresolved_items ?? []).map((item, index) => ({
+        ...item,
+        key: `unresolved-${index}`,
+      })),
+    [parsedSpecification],
+  );
+
+  const updateUnresolvedDraft = React.useCallback(
+    (key: string, patch: Partial<UnresolvedItemDraft>) => {
+      setUnresolvedDrafts((current) => ({
+        ...current,
+        [key]: { ...current[key], ...patch },
+      }));
+    },
+    [],
+  );
+
+  const resolvedUnresolvedWorks = React.useMemo<
+    IProjectSpecificationImportWork[]
+  >(
+    () =>
+      unresolvedRows.flatMap((item) => {
+        const draft = unresolvedDrafts[item.key];
+        if (
+          item.kind !== "work" ||
+          !draft?.catalogId ||
+          !draft.quantity ||
+          draft.quantity <= 0
+        ) {
+          return [];
+        }
+
+        return [
+          {
+            project_work_id: `manual-work-${item.key}`,
+            project_work_name: item.name,
+            work: draft.catalogId,
+            quantity: draft.quantity,
+            ...(draft.price === undefined ? {} : { price: draft.price }),
+          },
+        ];
+      }),
+    [unresolvedDrafts, unresolvedRows],
+  );
+
+  const linkedWorkOptions = React.useMemo(() => {
+    const parsedWorks = parsedSpecification?.project_works ?? [];
+    return [...parsedWorks, ...resolvedUnresolvedWorks].map((work) => ({
+      label: work.project_work_name,
+      value: work.project_work_id,
+    }));
+  }, [parsedSpecification?.project_works, resolvedUnresolvedWorks]);
+
+  const resolvedUnresolvedMaterials = React.useMemo<
+    IProjectSpecificationImportMaterial[]
+  >(
+    () =>
+      unresolvedRows.flatMap((item) => {
+        const draft = unresolvedDrafts[item.key];
+        if (
+          item.kind !== "material" ||
+          !draft?.catalogId ||
+          !draft.quantity ||
+          draft.quantity <= 0
+        ) {
+          return [];
+        }
+
+        return [
+          {
+            project_material_id: `manual-material-${item.key}`,
+            material: draft.catalogId,
+            quantity: draft.quantity,
+            ...(draft.price === undefined ? {} : { price: draft.price }),
+            ...(draft.projectWorkId === undefined
+              ? {}
+              : { project_work: draft.projectWorkId }),
+          },
+        ];
+      }),
+    [unresolvedDrafts, unresolvedRows],
+  );
+
   const importPayload =
     React.useMemo<IProjectSpecificationImportPayload | null>(() => {
       if (!parsedSpecification) {
@@ -95,21 +207,29 @@ export const ImportProjectSpecification: React.FC<
       }
 
       return {
-        project_works: parsedSpecification.project_works.map((work) => ({
-          ...work,
-          ...(work.price == null ? { price: undefined } : {}),
-        })),
-        project_materials: parsedSpecification.project_materials.map(
-          (material) => ({
+        project_works: [
+          ...parsedSpecification.project_works.map((work) => ({
+            ...work,
+            ...(work.price == null ? { price: undefined } : {}),
+          })),
+          ...resolvedUnresolvedWorks,
+        ],
+        project_materials: [
+          ...parsedSpecification.project_materials.map((material) => ({
             ...material,
             ...(material.price == null ? { price: undefined } : {}),
             ...(material.project_work == null
               ? { project_work: undefined }
               : {}),
-          }),
-        ),
+          })),
+          ...resolvedUnresolvedMaterials,
+        ],
       };
-    }, [parsedSpecification]);
+    }, [
+      parsedSpecification,
+      resolvedUnresolvedMaterials,
+      resolvedUnresolvedWorks,
+    ]);
 
   const handleImport = async () => {
     if (!project.project_id || !importPayload) {
@@ -197,45 +317,85 @@ export const ImportProjectSpecification: React.FC<
     },
   ];
 
+  const workOptions = React.useMemo(
+    () =>
+      works
+        .filter((work) => !work.deleted && Boolean(work.work_id))
+        .map((work) => ({ label: work.name, value: work.work_id! })),
+    [works],
+  );
+
+  const materialOptions = React.useMemo(
+    () =>
+      materials
+        .filter(
+          (material) => !material.deleted && Boolean(material.material_id),
+        )
+        .map((material) => ({
+          label: material.name,
+          value: material.material_id!,
+        })),
+    [materials],
+  );
+
   const unresolvedItems = parsedSpecification?.unresolved_items ?? [];
   const uploadedFileList: UploadFile[] = file
     ? [{ uid: "specification-file", name: file.name, status: "done" }]
     : [];
 
   return (
-    <div className="import-project-works import-project-specification">
+    <div
+      className={`import-project-works import-project-specification${
+        parsedSpecification ? " import-project-specification--parsed" : ""
+      }`}
+    >
       <div className="import-project-works__body import-project-specification__body">
-        <div className="import-project-works__sidebar">
-          <div className="import-project-specification__step">
-            <Typography.Text strong>1. Выберите файл</Typography.Text>
+        {!parsedSpecification && (
+          <div className="import-project-works__sidebar">
+            <div className="import-project-specification__step">
+              <Typography.Text strong>1. Выберите файл</Typography.Text>
+            </div>
+            <Upload.Dragger
+              accept=".csv,.xml,.json,.xlsx"
+              maxCount={1}
+              fileList={uploadedFileList}
+              beforeUpload={beforeUpload}
+              onRemove={removeFile}
+              disabled={parseMutation.isPending || importMutation.isPending}
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">Перетащите файл спецификации</p>
+              <p className="ant-upload-hint">
+                Поддерживаются CSV, XML, JSON и XLSX.
+              </p>
+            </Upload.Dragger>
+            <Button
+              className="import-project-works__analyze-button"
+              type="primary"
+              onClick={handleParse}
+              disabled={!file || importMutation.isPending}
+              loading={parseMutation.isPending}
+            >
+              Распознать с помощью ИИ
+            </Button>
           </div>
-          <Upload.Dragger
-            accept=".csv,.xml,.json"
-            maxCount={1}
-            fileList={uploadedFileList}
-            beforeUpload={beforeUpload}
-            onRemove={removeFile}
-            disabled={parseMutation.isPending || importMutation.isPending}
-          >
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">Перетащите файл спецификации</p>
-            <p className="ant-upload-hint">Поддерживаются CSV, XML и JSON.</p>
-          </Upload.Dragger>
-          <Button
-            className="import-project-works__analyze-button"
-            type="primary"
-            onClick={handleParse}
-            disabled={!file || importMutation.isPending}
-            loading={parseMutation.isPending}
-          >
-            Распознать с помощью ИИ
-          </Button>
-        </div>
+        )}
 
         <div className="import-project-works__table-wrapper">
-          {!parsedSpecification ? (
+          {parseMutation.isPending ? (
+            <div className="import-project-specification__processing">
+              <Spin size="large" />
+              <Typography.Title level={5}>
+                ИИ распознаёт спецификацию
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                Это может занять несколько минут. Не покидайте страницу до
+                завершения обработки.
+              </Typography.Text>
+            </div>
+          ) : !parsedSpecification ? (
             <div className="import-project-specification__empty">
               <Space direction="vertical" size={4}>
                 <Typography.Text strong>
@@ -278,25 +438,98 @@ export const ImportProjectSpecification: React.FC<
               {unresolvedItems.length > 0 && (
                 <section>
                   <Typography.Title level={5}>
-                    Не удалось сопоставить: {unresolvedItems.length}
+                    Не удалось сопоставить: {unresolvedRows.length}
                   </Typography.Title>
-                  <Table
-                    pagination={false}
-                    rowKey={(_, index) => `unresolved-${index}`}
-                    dataSource={unresolvedItems}
-                    size="small"
-                    columns={[
-                      {
-                        title: "Тип",
-                        dataIndex: "kind",
-                        render: (kind: string) =>
-                          kind === "work" ? "Работа" : "Материал",
-                        width: "120px",
-                      },
-                      { title: "Позиция", dataIndex: "name" },
-                      { title: "Причина", dataIndex: "reason" },
-                    ]}
-                  />
+                  <Typography.Paragraph type="secondary">
+                    Выберите позицию из справочника и заполните количество.
+                    Исправленные строки будут добавлены в импорт.
+                  </Typography.Paragraph>
+                  <div className="import-project-specification__unresolved-list">
+                    {unresolvedRows.map((record) => {
+                      const draft = unresolvedDrafts[record.key];
+                      const isWork = record.kind === "work";
+
+                      return (
+                        <article
+                          key={record.key}
+                          className="import-project-specification__unresolved-item"
+                        >
+                          <div className="import-project-specification__unresolved-info">
+                            <Typography.Text type="secondary">
+                              {isWork ? "Работа" : "Материал"}
+                            </Typography.Text>
+                            <Typography.Text strong>
+                              {record.name}
+                            </Typography.Text>
+                            <Typography.Text type="secondary">
+                              {record.reason}
+                            </Typography.Text>
+                          </div>
+                          <div className="import-project-specification__unresolved-fields">
+                            <Select
+                              allowClear
+                              showSearch
+                              optionFilterProp="label"
+                              placeholder={
+                                isWork
+                                  ? "Выберите работу из справочника"
+                                  : "Выберите материал из справочника"
+                              }
+                              options={isWork ? workOptions : materialOptions}
+                              value={draft?.catalogId}
+                              onChange={(catalogId?: string) =>
+                                updateUnresolvedDraft(record.key, {
+                                  catalogId,
+                                })
+                              }
+                              className="import-project-specification__catalog-field"
+                            />
+                            <InputNumber
+                              min={0.0001}
+                              precision={4}
+                              placeholder="Количество *"
+                              value={draft?.quantity}
+                              onChange={(quantity) =>
+                                updateUnresolvedDraft(record.key, {
+                                  quantity:
+                                    quantity === null ? undefined : quantity,
+                                })
+                              }
+                              className="import-project-specification__number-field"
+                            />
+                            <InputNumber
+                              min={0}
+                              precision={2}
+                              placeholder="Цена, ₽/шт."
+                              value={draft?.price}
+                              onChange={(price) =>
+                                updateUnresolvedDraft(record.key, {
+                                  price: price === null ? undefined : price,
+                                })
+                              }
+                              className="import-project-specification__number-field"
+                            />
+                            {!isWork && (
+                              <Select
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                placeholder="Связать с работой"
+                                options={linkedWorkOptions}
+                                value={draft?.projectWorkId}
+                                onChange={(projectWorkId?: string) =>
+                                  updateUnresolvedDraft(record.key, {
+                                    projectWorkId,
+                                  })
+                                }
+                                className="import-project-specification__work-field"
+                              />
+                            )}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
                 </section>
               )}
             </Space>
@@ -311,8 +544,8 @@ export const ImportProjectSpecification: React.FC<
             disabled={!importPayload || parseMutation.isPending}
             loading={importMutation.isPending}
           >
-            Импортировать {parsedSpecification?.project_works.length ?? 0} работ
-            и {parsedSpecification?.project_materials.length ?? 0} материалов
+            Импортировать {importPayload?.project_works.length ?? 0} работ и{" "}
+            {importPayload?.project_materials.length ?? 0} материалов
           </Button>
           <Button
             onClick={close}
