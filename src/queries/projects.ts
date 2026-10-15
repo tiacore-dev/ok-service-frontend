@@ -16,6 +16,8 @@ import {
   fetchProjects,
   updateProjectStatus,
   updateProject,
+  parseProjectSpecification,
+  importProjectWorksAndMaterials,
   type CreateProjectResponse,
   type EditableProjectPayload,
 } from "../api/projects.api";
@@ -25,6 +27,13 @@ import type { IProjectsList } from "../interfaces/projects/IProjectsList";
 import type { IProjectStat } from "../interfaces/projects/IProjectStat";
 import type { IProjectStatus } from "../interfaces/projects/IProjectStatus";
 import { createQueryKeys } from "../queryKeys";
+import { projectWorksKeys } from "./projectWorks";
+import { projectMaterialsKeys } from "./projectMaterials";
+import type {
+  IProjectSpecificationImportPayload,
+  IProjectSpecificationImportResponse,
+  IProjectSpecificationParseResult,
+} from "../interfaces/projects/IProjectSpecificationImport";
 
 const baseProjectsKeys = createQueryKeys("projects");
 
@@ -195,6 +204,43 @@ export const useDeleteProjectMutation = (): UseMutationResult<
       queryClient.invalidateQueries({ queryKey: projectsKeys.list() });
       queryClient.removeQueries({ queryKey: projectsKeys.detail(projectId) });
       queryClient.removeQueries({ queryKey: projectsKeys.stat(projectId) });
+    },
+  });
+};
+
+export const useParseProjectSpecificationMutation = (): UseMutationResult<
+  IProjectSpecificationParseResult,
+  Error,
+  File
+> =>
+  useMutation({
+    mutationFn: parseProjectSpecification,
+  });
+
+interface ImportProjectWorksAndMaterialsVariables {
+  projectId: string;
+  payload: IProjectSpecificationImportPayload;
+}
+
+export const useImportProjectWorksAndMaterialsMutation = (): UseMutationResult<
+  IProjectSpecificationImportResponse,
+  Error,
+  ImportProjectWorksAndMaterialsVariables
+> => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ projectId, payload }) =>
+      importProjectWorksAndMaterials(projectId, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: projectWorksKeys.listByProject(variables.projectId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: projectMaterialsKeys.listByProject(variables.projectId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: projectsKeys.detail(variables.projectId),
+      });
     },
   });
 };

@@ -63,9 +63,10 @@ export const useShiftReportMap = ({
       if (!shiftReport?.date_start) return null;
       if (typeof shiftReport.lng_start !== "number") return null;
       if (typeof shiftReport.ltd_start !== "number") return null;
-      const distanceLabel = typeof startDistance === "number"
-        ? ` (${startDistance} м от объекта)`
-        : "";
+      const distanceLabel =
+        typeof startDistance === "number"
+          ? ` (${startDistance} м от объекта)`
+          : "";
 
       return {
         lat: shiftReport.ltd_start,
@@ -104,9 +105,8 @@ export const useShiftReportMap = ({
       if (!shiftReport?.date_end) return null;
       if (typeof shiftReport.lng_end !== "number") return null;
       if (typeof shiftReport.ltd_end !== "number") return null;
-      const distanceLabel = typeof endDistance === "number"
-        ? ` (${endDistance} м от объекта)`
-        : "";
+      const distanceLabel =
+        typeof endDistance === "number" ? ` (${endDistance} м от объекта)` : "";
 
       return {
         lat: shiftReport.ltd_end,

@@ -3,6 +3,11 @@ import type { IProject } from "../interfaces/projects/IProject";
 import type { IProjectsList } from "../interfaces/projects/IProjectsList";
 import type { IProjectStat } from "../interfaces/projects/IProjectStat";
 import type { IProjectStatus } from "../interfaces/projects/IProjectStatus";
+import type {
+  IProjectSpecificationImportPayload,
+  IProjectSpecificationImportResponse,
+  IProjectSpecificationParseResult,
+} from "../interfaces/projects/IProjectSpecificationImport";
 
 export interface EditableProjectPayload extends Omit<IProject, "project_id"> {}
 
@@ -72,4 +77,26 @@ export const updateProject = async (
 
 export const deleteProject = async (projectId: string): Promise<void> => {
   await apiClient.delete(`/projects/${projectId}/delete/hard`);
+};
+
+export const parseProjectSpecification = async (
+  file: File,
+): Promise<IProjectSpecificationParseResult> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await apiClient.post<{
+    project_specification: IProjectSpecificationParseResult;
+  }>("/projects/parse-project-specification", formData);
+  return data.project_specification;
+};
+
+export const importProjectWorksAndMaterials = async (
+  projectId: string,
+  payload: IProjectSpecificationImportPayload,
+): Promise<IProjectSpecificationImportResponse> => {
+  const { data } = await apiClient.post<IProjectSpecificationImportResponse>(
+    `/projects/${projectId}/import-works-and-materials`,
+    payload,
+  );
+  return data;
 };

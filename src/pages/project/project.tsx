@@ -28,6 +28,7 @@ import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
 import { getCurrentRole, getCurrentUserId } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { ImportProjectWorks } from "./ImportProjectWorks";
+import { ImportProjectSpecification } from "./ImportProjectSpecification";
 import { EditableProjectWorkDialog } from "./EditableProjectWorkDialog";
 import { ProjectMaterialsTable } from "./ProjectMaterialsTable";
 import { useWorksMap } from "../../queries/works";
@@ -64,6 +65,7 @@ export const Project = () => {
   const { usersMap } = useUsersMap();
   const { objectsMap } = useObjectsMap();
   const [importMode, setImportMode] = React.useState(false);
+  const [aiImportMode, setAiImportMode] = React.useState(false);
   const routeParams = useParams();
   const navigate = useNavigate();
   const notificationApi = React.useContext(NotificationContext);
@@ -184,8 +186,7 @@ export const Project = () => {
     }, [projectWorksData, projectWorksFilters, worksMap]);
 
   const isAdmin = currentRole === RoleId.ADMIN;
-  const canViewPayrollPlan =
-    isAdmin || currentRole === RoleId.MANAGER;
+  const canViewPayrollPlan = isAdmin || currentRole === RoleId.MANAGER;
   const object = projectData ? objectsMap[projectData.object] : undefined;
   const isObjectActive = object?.status === ObjectStatusId.ACTIVE;
   const isObjectWaiting = object?.status === ObjectStatusId.WAITING;
@@ -559,7 +560,7 @@ export const Project = () => {
             <p>Прораб: {usersMap[projectData.project_leader]?.name}</p>
             {canViewPayrollPlan && (
               <p>
-                Плановый ФОТ: {" "}
+                Плановый ФОТ:{" "}
                 {projectData.payroll_plan == null
                   ? "—"
                   : formatNumber(projectData.payroll_plan)}
@@ -596,6 +597,13 @@ export const Project = () => {
                 setImportMode(false);
               }}
             />
+          ) : aiImportMode ? (
+            <ImportProjectSpecification
+              project={projectData}
+              close={() => {
+                setAiImportMode(false);
+              }}
+            />
           ) : (
             <>
               {canEdit && (
@@ -614,6 +622,14 @@ export const Project = () => {
                     type="default"
                   >
                     Загрузить
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setAiImportMode(true);
+                    }}
+                    type="default"
+                  >
+                    Загрузить с ИИ
                   </Button>
                 </Space>
               )}

@@ -42,9 +42,9 @@ interface IEditableObjectDialogProps {
 
 const toUtcDate = (value: Dayjs | null): string | undefined =>
   value
-    ? new Date(
-        Date.UTC(value.year(), value.month(), value.date()),
-      ).toISOString().slice(0, 10)
+    ? new Date(Date.UTC(value.year(), value.month(), value.date()))
+        .toISOString()
+        .slice(0, 10)
     : undefined;
 
 export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
@@ -302,10 +302,14 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
               >
                 <DatePicker
                   value={
-                    data.contract_end_date ? dayjs(data.contract_end_date) : null
+                    data.contract_end_date
+                      ? dayjs(data.contract_end_date)
+                      : null
                   }
                   onChange={(value) =>
-                    dispatch(editObjectAction.setContractEndDate(toUtcDate(value)))
+                    dispatch(
+                      editObjectAction.setContractEndDate(toUtcDate(value)),
+                    )
                   }
                   format={dateFormat}
                   inputReadOnly
@@ -321,7 +325,9 @@ export const EditableObjectDialog = (props: IEditableObjectDialogProps) => {
                 <Input
                   value={data.order_number}
                   onChange={(event) =>
-                    dispatch(editObjectAction.setOrderNumber(event.target.value))
+                    dispatch(
+                      editObjectAction.setOrderNumber(event.target.value),
+                    )
                   }
                   disabled={sent}
                 />

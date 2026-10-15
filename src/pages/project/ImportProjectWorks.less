@@ -68,3 +68,131 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
+.import-project-specification__body {
+  display: grid;
+  flex: none;
+  grid-template-columns: minmax(300px, 375px) minmax(0, 1fr);
+  min-height: 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+.import-project-specification--parsed .import-project-specification__body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.import-project-specification .import-project-works__sidebar {
+  width: auto;
+  gap: 12px;
+}
+
+.import-project-specification__step {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.import-project-specification__results {
+  width: 100%;
+}
+
+.import-project-specification__empty {
+  display: flex;
+  min-height: 280px;
+  padding: 24px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  color: #8c8c8c;
+  text-align: center;
+}
+
+.import-project-specification__processing {
+  display: flex;
+  min-height: 280px;
+  padding: 24px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.import-project-specification .ant-upload-wrapper {
+  margin-bottom: 0;
+}
+
+.import-project-specification .import-project-works__analyze-button {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.import-project-specification__unresolved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.import-project-specification__unresolved-item {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.6fr);
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.import-project-specification__unresolved-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.import-project-specification__unresolved-fields {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 130px 130px;
+  gap: 8px;
+  align-items: center;
+}
+
+.import-project-specification__catalog-field,
+.import-project-specification__work-field,
+.import-project-specification__number-field {
+  width: 100%;
+}
+
+.import-project-specification__work-field {
+  grid-column: 1 / -1;
+}
+
+.import-project-specification__footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .import-project-specification__body {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+
+  .import-project-specification__empty {
+    min-height: 180px;
+  }
+
+  .import-project-specification__unresolved-item,
+  .import-project-specification__unresolved-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .import-project-specification__work-field {
+    grid-column: auto;
+  }
+}

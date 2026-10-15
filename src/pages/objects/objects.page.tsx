@@ -113,12 +113,14 @@ export const Objects = () => {
 
   const filteredObjectsData: IObjectsListColumn[] = React.useMemo(() => {
     const searchValue = filtersState.search.trim().toLowerCase();
+    const orderNumber = (filtersState.orderNumber ?? "").trim().toLowerCase();
 
     const filtered = objectsData.filter((object) => {
       const name = (object.name ?? "").toLowerCase();
       const address = (object.address ?? "").toLowerCase();
       const description = (object.description ?? "").toLowerCase();
       const managerName = (usersMap[object.manager]?.name ?? "").toLowerCase();
+      const objectOrderNumber = (object.order_number ?? "").toLowerCase();
 
       const matchesSearch = searchValue
         ? name.includes(searchValue) ||
@@ -135,8 +137,17 @@ export const Objects = () => {
       const matchesManager = filtersState.managerId
         ? object.manager === filtersState.managerId
         : true;
+      const matchesOrderNumber = orderNumber
+        ? objectOrderNumber.includes(orderNumber)
+        : true;
 
-      return matchesSearch && matchesStatus && matchesCity && matchesManager;
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesCity &&
+        matchesManager &&
+        matchesOrderNumber
+      );
     });
 
     const direction = filtersState.sortOrder === "ascend" ? 1 : -1;

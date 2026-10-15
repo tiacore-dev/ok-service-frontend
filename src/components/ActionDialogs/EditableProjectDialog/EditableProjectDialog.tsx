@@ -232,7 +232,9 @@ export const EditableProjectDialog = (props: IEditableProjectDialogProps) => {
                 <InputNumber
                   value={data.payroll_plan}
                   onChange={(value) =>
-                    dispatch(editProjectAction.setPayrollPlan(value ?? undefined))
+                    dispatch(
+                      editProjectAction.setPayrollPlan(value ?? undefined),
+                    )
                   }
                   min={0}
                   precision={2}

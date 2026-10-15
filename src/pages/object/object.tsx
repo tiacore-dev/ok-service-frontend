@@ -183,21 +183,20 @@ export const Object = () => {
             </p>
             <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
             <p>
-              Дата начала действия договора: {" "}
+              Дата начала действия договора:{" "}
               {objectData.contract_start_date
                 ? dayjs(objectData.contract_start_date).format(dateFormat)
                 : "—"}
             </p>
             <p>
-              Дата окончания действия договора: {" "}
+              Дата окончания действия договора:{" "}
               {objectData.contract_end_date
                 ? dayjs(objectData.contract_end_date).format(dateFormat)
                 : "—"}
             </p>
             <p>Номер заказа: {objectData.order_number || "—"}</p>
             <p>
-              День закрывающих КС: {" "}
-              {objectData.monthly_ks_closing_date ?? "—"}
+              День закрывающих КС: {objectData.monthly_ks_closing_date ?? "—"}
             </p>
             <p>
               Статус:{" "}

@@ -44,6 +44,8 @@ import { useShiftReportShiftActions } from "./useShiftReportShiftActions";
 import "./shiftReport.less";
 import { ShiftReportPlaces } from "./ShiftReportPlaces";
 import { ShiftReportAttachments } from "./ShiftReportAttachments";
+import { ShiftCompletionModal } from "./ShiftCompletionModal";
+import { useShiftStandardsQuery } from "../../queries/shiftStandards";
 
 export const ShiftReport = () => {
   const currentRole = useSelector(getCurrentRole);
@@ -81,9 +83,14 @@ export const ShiftReport = () => {
   const [currentRecord, setCurrentRecord] =
     React.useState<IShiftReportDetailsListColumn | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [isCompletionModalOpen, setCompletionModalOpen] = React.useState(false);
+  const [completionTime, setCompletionTime] = React.useState<number>();
 
   // API actions
   const { usersMap } = useUsersMap();
+  const { data: shiftStandards = [] } = useShiftStandardsQuery({
+    enabled: isCompletionModalOpen,
+  });
   const { objectsMap } = useObjectsMap();
   const { projectsMap } = useProjectsMap({
     enabled: Boolean(shiftReportData?.project),
@@ -164,12 +171,22 @@ export const ShiftReport = () => {
     Boolean(shiftReportData?.deleted) && (isSigned ? isAdmin : canManageReport);
   const canHardDelete = canRestore;
   const canCancelByLeave =
-    !shiftReportData?.deleted && !shiftReportData?.date_start;
+    !shiftReportData?.deleted &&
+    !shiftReportData?.date_start &&
+    currentRole !== RoleId.USER;
 
   const userName = React.useMemo(
     () => (shiftReportData ? usersMap[shiftReportData.user]?.name : undefined),
     [shiftReportData, usersMap],
   );
+  const shiftStandard = React.useMemo(() => {
+    const userCategory = shiftReportData
+      ? usersMap[shiftReportData.user]?.category
+      : undefined;
+    return shiftStandards.find(
+      (standard) => standard.category === userCategory,
+    );
+  }, [shiftReportData, shiftStandards, usersMap]);
 
   const projectName = projectData?.name;
   const projectLeaderName = projectData
@@ -227,6 +244,17 @@ export const ShiftReport = () => {
     startShiftMutation,
     finishShiftMutation,
   });
+
+  const openCompletionModal = React.useCallback(() => {
+    setCompletionTime(Date.now());
+    setCompletionModalOpen(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (shiftReportData?.date_end) {
+      setCompletionModalOpen(false);
+    }
+  }, [shiftReportData?.date_end]);
 
   const handleAdd = React.useCallback(() => {
     setCurrentRecord(null);
@@ -486,7 +514,7 @@ export const ShiftReport = () => {
             canStartShift={canStartShift}
             canCompleteShift={canCompleteShift}
             onStartShift={handleStartShift}
-            onCompleteShift={handleCompleteShift}
+            onCompleteShift={openCompletionModal}
             isStartingShift={isStartingShift}
             isCompletingShift={isCompletingShift}
             canSign={canSign}
@@ -515,6 +543,18 @@ export const ShiftReport = () => {
           totalSum={totalSum}
           mobile={mobile}
         />
+
+        {completionTime && (
+          <ShiftCompletionModal
+            open={isCompletionModalOpen}
+            shiftReport={shiftReportData}
+            completedAt={completionTime}
+            shiftStandard={shiftStandard}
+            loading={isCompletingShift}
+            onConfirm={handleCompleteShift}
+            onCancel={() => setCompletionModalOpen(false)}
+          />
+        )}
 
         <Table
           pagination={false}

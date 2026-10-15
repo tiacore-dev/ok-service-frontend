@@ -120,6 +120,7 @@ export const Assignment = () => {
           signed: false,
           night_shift: false,
           extreme_conditions: false,
+          short_shift: false,
         },
         {
           onSuccess: () => {

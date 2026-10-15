@@ -40,7 +40,7 @@ export interface IObjectWorkStatsDetails extends IObjectWorkStats {
 export interface IObjectProjectStatsDetails {
   project_id: string;
   name: string;
-  stats: Record<string, IObjectWorkStatsDetails>;
+  stats: Record<string, IObjectWorkStatsDetails | null>;
 }
 
 export interface IObjectStatsDetails {

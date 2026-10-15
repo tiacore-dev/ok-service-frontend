@@ -11,7 +11,7 @@ import { IProject } from "../../../interfaces/projects/IProject";
 import { ShiftReportStatusIndicator } from "./status";
 
 const formatDistance = (meters?: number | null) =>
-  meters ? ` (${meters} м)` : null;
+  meters ? ` (${Math.round(meters)} м)` : null;
 const formatComment = (value?: string | null) => {
   if (!value) return "";
   return value.length > 30 ? `${value.slice(0, 30)}...` : value;
