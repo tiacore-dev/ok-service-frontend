@@ -171,7 +171,9 @@ export const ShiftReport = () => {
     Boolean(shiftReportData?.deleted) && (isSigned ? isAdmin : canManageReport);
   const canHardDelete = canRestore;
   const canCancelByLeave =
-    !shiftReportData?.deleted && !shiftReportData?.date_start;
+    !shiftReportData?.deleted &&
+    !shiftReportData?.date_start &&
+    currentRole !== RoleId.USER;
 
   const userName = React.useMemo(
     () => (shiftReportData ? usersMap[shiftReportData.user]?.name : undefined),
