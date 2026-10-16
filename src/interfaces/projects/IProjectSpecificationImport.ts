@@ -17,6 +17,9 @@ export interface IProjectSpecificationImportMaterial {
 export interface IProjectSpecificationUnresolvedItem {
   kind: "work" | "material";
   name: string;
+  quantity?: number | null;
+  price?: number | null;
+  project_work?: string | null;
   reason: string;
 }
 
