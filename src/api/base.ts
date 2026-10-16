@@ -10,12 +10,12 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 const refreshClient = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 type RequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };
