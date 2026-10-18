@@ -48,6 +48,7 @@ interface UnresolvedItemRow extends IProjectSpecificationUnresolvedItem {
 }
 
 interface UnresolvedItemDraft {
+  id: string;
   catalogId?: string;
   quantity?: number;
   price?: number;
@@ -106,6 +107,8 @@ export const ImportProjectSpecification: React.FC<
           Record<string, UnresolvedItemDraft>
         >((drafts, item, index) => {
           drafts[`unresolved-${index}`] = {
+            // Keep the import ID stable when editing this row or linking materials.
+            id: crypto.randomUUID(),
             ...(item.quantity == null ? {} : { quantity: item.quantity }),
             ...(item.price == null ? {} : { price: item.price }),
             ...(item.kind !== "material" || item.project_work == null
@@ -164,7 +167,7 @@ export const ImportProjectSpecification: React.FC<
 
         return [
           {
-            project_work_id: `manual-work-${item.key}`,
+            project_work_id: draft.id,
             project_work_name: item.name,
             work: draft.catalogId,
             quantity: draft.quantity,
@@ -200,7 +203,7 @@ export const ImportProjectSpecification: React.FC<
 
         return [
           {
-            project_material_id: `manual-material-${item.key}`,
+            project_material_id: draft.id,
             material: draft.catalogId,
             quantity: draft.quantity,
             ...(draft.price === undefined ? {} : { price: draft.price }),
