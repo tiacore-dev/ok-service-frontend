@@ -101,7 +101,20 @@ export const ImportProjectSpecification: React.FC<
     try {
       const result = await parseMutation.mutateAsync(file);
       setParsedSpecification(result);
-      setUnresolvedDrafts({});
+      setUnresolvedDrafts(
+        (result.unresolved_items ?? []).reduce<
+          Record<string, UnresolvedItemDraft>
+        >((drafts, item, index) => {
+          drafts[`unresolved-${index}`] = {
+            ...(item.quantity == null ? {} : { quantity: item.quantity }),
+            ...(item.price == null ? {} : { price: item.price }),
+            ...(item.kind !== "material" || item.project_work == null
+              ? {}
+              : { projectWorkId: item.project_work }),
+          };
+          return drafts;
+        }, {}),
+      );
     } catch (error) {
       notificationApi?.error({
         message: "Не удалось распознать спецификацию",
