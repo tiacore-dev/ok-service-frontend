@@ -210,7 +210,7 @@ export const useDownloadObjectVolumeReport = ({
         });
 
         for (const detail of reportDetails) {
-          const projectDetailName = detail.project_work.name;
+          const projectDetailName = detail.project_work?.name || "";
           let projectDetail = accumulator.work.get(projectDetailName);
 
           if (!projectDetail) {
