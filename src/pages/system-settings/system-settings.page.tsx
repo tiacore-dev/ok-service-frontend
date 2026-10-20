@@ -35,6 +35,10 @@ export const SystemSettings = () => {
   const { Content } = Layout;
   const currentRole = useSelector(getCurrentRole);
   const isAdmin = currentRole === RoleId.ADMIN;
+  const canView =
+    isAdmin ||
+    currentRole === RoleId.MANAGER ||
+    currentRole === RoleId.PROJECT_LEADER;
   const notificationApi = React.useContext(NotificationContext);
   const [form] = Form.useForm<SystemSettingFormValues>();
   const [selectedSetting, setSelectedSetting] =
@@ -47,10 +51,10 @@ export const SystemSettings = () => {
     isPending,
     isFetching,
     isError,
-  } = useSystemSettingsQuery({ enabled: isAdmin });
+  } = useSystemSettingsQuery({ enabled: canView });
   const { data: selectedSettingDetails, isPending: isSettingPending } =
     useSystemSettingQuery(selectedSetting?.system_setting_id ?? "", {
-      enabled: isAdmin && Boolean(selectedSetting),
+      enabled: canView && Boolean(selectedSetting),
     });
   const updateSystemSettingMutation = useUpdateSystemSettingMutation();
 
@@ -151,12 +155,14 @@ export const SystemSettings = () => {
             onClick={() => openViewModal(record)}
             aria-label="Просмотреть системную настройку"
           />
-          <Button
-            type="link"
-            icon={<EditTwoTone twoToneColor="#e40808" />}
-            onClick={() => openEditModal(record)}
-            aria-label="Редактировать системную настройку"
-          />
+          {isAdmin && (
+            <Button
+              type="link"
+              icon={<EditTwoTone twoToneColor="#e40808" />}
+              onClick={() => openEditModal(record)}
+              aria-label="Редактировать системную настройку"
+            />
+          )}
         </Space>
       ),
     },
@@ -172,9 +178,9 @@ export const SystemSettings = () => {
         ]}
       />
       <Content className="system-settings">
-        {!isAdmin ? (
+        {!canView ? (
           <Typography.Text>
-            Раздел доступен только администратору.
+            Раздел доступен администратору, менеджеру и прорабу.
           </Typography.Text>
         ) : isError ? (
           <Alert
