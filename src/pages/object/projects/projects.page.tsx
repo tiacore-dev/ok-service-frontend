@@ -3,13 +3,20 @@ import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "./projects.page.less";
 import { useNavigate } from "react-router-dom";
-import { projectsDesktopColumns } from "./components/desktop.columns";
-import { projectsMobileColumns } from "./components/mobile.columns";
+import {
+  projectsDesktopColumns,
+  projectsDesktopSummary,
+} from "./components/desktop.columns";
+import {
+  projectsMobileColumns,
+  projectsMobileSummary,
+} from "./components/mobile.columns";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { getCurrentRole } from "../../../store/modules/auth";
 import type { IState } from "../../../store/modules";
 import type { IProjectsListColumn } from "../../../interfaces/projects/IProjectsList";
 import { isMobile } from "../../../utils/isMobile";
+import { getObjectProgressStats } from "../../../utils/getObjectProgressStats";
 import { useUsersMap } from "../../../queries/users";
 import { useProjectStatusesQuery } from "../../../queries/projects";
 import { useProjectsMap } from "../../../queries/projects";
@@ -127,7 +134,7 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
     const statsByProjectId = new Map(
       objectStats?.projects.map((project) => [
         project.project_id,
-        project.stats,
+        getObjectProgressStats(project.stats, project.material_stats),
       ]),
     );
     const detailsByProjectId = new Map(
@@ -174,6 +181,13 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
         : projectsDesktopColumns(navigate, usersMap, projectStatuses),
     [navigate, projectStatuses, usersMap],
   );
+  const totalStats = React.useMemo(
+    () =>
+      objectStats?.total
+        ? getObjectProgressStats(objectStats.total, objectStats.material_totals)
+        : undefined,
+    [objectStats],
+  );
 
   return (
     <>
@@ -194,6 +208,13 @@ export const Projects: React.FC<ProjectsProps> = ({ object_id }) => {
         expandable={{
           rowExpandable: (record) => Boolean(record.children?.length),
         }}
+        summary={() =>
+          totalStats
+            ? columns.length === 1
+              ? projectsMobileSummary(totalStats)
+              : projectsDesktopSummary(totalStats)
+            : null
+        }
       />
     </>
   );

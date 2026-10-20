@@ -1,10 +1,12 @@
 import * as React from "react";
+import { Table } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IUser } from "../../../../interfaces/users/IUser";
 import { IProjectsListColumn } from "../../../../interfaces/projects/IProjectsList";
 import { IProjectStatus } from "../../../../interfaces/projects/IProjectStatus";
+import type { IObjectProgressStats } from "../../../../interfaces/objects/IObjectStats";
 import { formatNumber } from "../../../../utils/formatNumber";
 
 const ProgressValue = ({
@@ -36,6 +38,32 @@ const ProgressValue = ({
     </div>
   );
 };
+
+export const projectsMobileSummary = (stats: IObjectProgressStats) => (
+  <Table.Summary.Row className="projects__total-row">
+    <Table.Summary.Cell index={0}>
+      <div>????? ?? ???????</div>
+      <ProgressValue
+        title="?????????"
+        quantity={stats.shift_report_details_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.completed_summ ?? stats.shift_report_details_summ}
+      />
+      <ProgressValue
+        title="???????????"
+        quantity={stats.presented_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.presented_summ}
+      />
+      <ProgressValue
+        title="???????"
+        quantity={stats.accepted_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.accepted_summ}
+      />
+    </Table.Summary.Cell>
+  </Table.Summary.Row>
+);
 
 export const projectsMobileColumns = (
   navigate: NavigateFunction,
@@ -72,7 +100,10 @@ export const projectsMobileColumns = (
               title="Выполнено"
               quantity={record.stats.shift_report_details_quantity}
               totalQuantity={record.stats.project_work_quantity}
-              summ={record.stats.shift_report_details_summ}
+              summ={
+                record.stats.completed_summ ??
+                record.stats.shift_report_details_summ
+              }
             />
             <ProgressValue
               title="Предъявлено"

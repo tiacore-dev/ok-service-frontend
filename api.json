@@ -97,6 +97,29 @@
                     "type": "string"
                 }
             ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "work_acceptance_attachments"
+                ]
+            },
             "post": {
                 "responses": {
                     "200": {
@@ -125,29 +148,6 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
-                ],
-                "tags": [
-                    "work_acceptance_attachments"
-                ]
-            },
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
                 ],
                 "tags": [
                     "work_acceptance_attachments"
@@ -2056,6 +2056,12 @@
                         "description": "Filter by latitude"
                     },
                     {
+                        "name": "order_number",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by order number"
+                    },
+                    {
                         "name": "created_by",
                         "in": "query",
                         "type": "string",
@@ -2156,6 +2162,29 @@
                     "type": "string"
                 }
             ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "object_attachments"
+                ]
+            },
             "post": {
                 "responses": {
                     "200": {
@@ -2184,29 +2213,6 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
-                ],
-                "tags": [
-                    "object_attachments"
-                ]
-            },
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
                 ],
                 "tags": [
                     "object_attachments"
@@ -2552,6 +2558,29 @@
                     "type": "string"
                 }
             ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "place_attachments"
+                ]
+            },
             "post": {
                 "responses": {
                     "200": {
@@ -2580,29 +2609,6 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
-                ],
-                "tags": [
-                    "place_attachments"
-                ]
-            },
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
                 ],
                 "tags": [
                     "place_attachments"
@@ -3207,6 +3213,12 @@
                         "in": "query",
                         "type": "string",
                         "description": "Filter by project ID"
+                    },
+                    {
+                        "name": "project_material_name",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by project material name"
                     },
                     {
                         "name": "material",
@@ -4260,6 +4272,33 @@
                 ]
             }
         },
+        "/projects/parse-project-specification": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Project specification parsed",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectSpecificationParseResponse"
+                        }
+                    }
+                },
+                "operationId": "post_project_specification_parse",
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "projects"
+                ]
+            }
+        },
         "/projects/statuses": {
             "get": {
                 "responses": {
@@ -4294,6 +4333,29 @@
                     "type": "string"
                 }
             ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "project_attachments"
+                ]
+            },
             "post": {
                 "responses": {
                     "200": {
@@ -4322,29 +4384,6 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
-                ],
-                "tags": [
-                    "project_attachments"
-                ]
-            },
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
                 ],
                 "tags": [
                     "project_attachments"
@@ -4557,7 +4596,7 @@
                 ]
             }
         },
-        "/projects/{project_id}/get-stat-by-project-materials": {
+        "/projects/{project_id}/import-works-and-materials": {
             "parameters": [
                 {
                     "name": "project_id",
@@ -4566,23 +4605,24 @@
                     "type": "string"
                 }
             ],
-            "get": {
+            "post": {
                 "responses": {
                     "200": {
-                        "description": "Success",
+                        "description": "Project specification imported",
                         "schema": {
-                            "$ref": "#/definitions/ProjectStatsResponse"
+                            "$ref": "#/definitions/ProjectSpecificationImportResponse"
                         }
                     }
                 },
-                "operationId": "get_project_stats_by_project_materials",
+                "operationId": "post_project_specification_import",
                 "parameters": [
                     {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ProjectSpecificationImportRequest"
+                        }
                     }
                 ],
                 "tags": [
@@ -5692,6 +5732,12 @@
                         "description": "\u0424\u043b\u0430\u0433 \u0434\u043b\u044f \u0444\u0438\u043b\u044c\u0442\u0440\u0430\u0446\u0438\u0438 \u043f\u043e \u0443\u0434\u0430\u043b\u0435\u043d\u043d\u044b\u043c \u043e\u0442\u0447\u0435\u0442\u0430\u043c"
                     },
                     {
+                        "name": "short_shift",
+                        "in": "query",
+                        "type": "string",
+                        "description": "Filter by short shifts"
+                    },
+                    {
                         "name": "signed",
                         "in": "query",
                         "type": "string",
@@ -5970,6 +6016,29 @@
                     "type": "string"
                 }
             ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentList"
+                        }
+                    }
+                },
+                "operationId": "get_attachment_collection",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_report_attachments"
+                ]
+            },
             "post": {
                 "responses": {
                     "200": {
@@ -5998,29 +6067,6 @@
                 ],
                 "consumes": [
                     "multipart/form-data"
-                ],
-                "tags": [
-                    "shift_report_attachments"
-                ]
-            },
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/AttachmentList"
-                        }
-                    }
-                },
-                "operationId": "get_attachment_collection",
-                "parameters": [
-                    {
-                        "name": "X-Fields",
-                        "in": "header",
-                        "type": "string",
-                        "format": "mask",
-                        "description": "An optional fields mask"
-                    }
                 ],
                 "tags": [
                     "shift_report_attachments"
@@ -6090,6 +6136,134 @@
                 "operationId": "get_attachment_download",
                 "tags": [
                     "shift_report_attachments"
+                ]
+            }
+        },
+        "/shift_standards/add": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "post_shift_standard_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftStandardCreate"
+                        }
+                    }
+                ],
+                "tags": [
+                    "shift_standards"
+                ]
+            }
+        },
+        "/shift_standards/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_shift_standard_all",
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "type": "integer"
+                    }
+                ],
+                "tags": [
+                    "shift_standards"
+                ]
+            }
+        },
+        "/shift_standards/{shift_standard_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "shift_standard_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "delete_shift_standard_delete",
+                "tags": [
+                    "shift_standards"
+                ]
+            }
+        },
+        "/shift_standards/{shift_standard_id}/edit": {
+            "parameters": [
+                {
+                    "name": "shift_standard_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "patch_shift_standard_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftStandardEdit"
+                        }
+                    }
+                ],
+                "tags": [
+                    "shift_standards"
+                ]
+            }
+        },
+        "/shift_standards/{shift_standard_id}/view": {
+            "parameters": [
+                {
+                    "name": "shift_standard_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_shift_standard_view",
+                "tags": [
+                    "shift_standards"
                 ]
             }
         },
@@ -6262,6 +6436,80 @@
                 ],
                 "tags": [
                     "subscriptions"
+                ]
+            }
+        },
+        "/system_settings/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/SystemSettingAllResponse"
+                        }
+                    }
+                },
+                "operationId": "get_system_setting_all",
+                "tags": [
+                    "system_settings"
+                ]
+            }
+        },
+        "/system_settings/{system_setting_id}/edit": {
+            "parameters": [
+                {
+                    "name": "system_setting_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/SystemSettingResponse"
+                        }
+                    }
+                },
+                "operationId": "patch_system_setting_edit",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/SystemSettingEdit"
+                        }
+                    }
+                ],
+                "tags": [
+                    "system_settings"
+                ]
+            }
+        },
+        "/system_settings/{system_setting_id}/view": {
+            "parameters": [
+                {
+                    "name": "system_setting_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/SystemSettingResponse"
+                        }
+                    }
+                },
+                "operationId": "get_system_setting_view",
+                "tags": [
+                    "system_settings"
                 ]
             }
         },
@@ -8131,6 +8379,10 @@
             "description": "Shift report details management operations"
         },
         {
+            "name": "shift_standards",
+            "description": "Shift standard reference operations"
+        },
+        {
             "name": "project_materials",
             "description": "Project materials management operations"
         },
@@ -8181,6 +8433,10 @@
         {
             "name": "templates",
             "description": "template management operations"
+        },
+        {
+            "name": "system_settings",
+            "description": "System settings reference operations"
         }
     ],
     "definitions": {
@@ -9144,8 +9400,139 @@
                     "type": "string"
                 },
                 "stats": {
+                    "$ref": "#/definitions/ObjectStatsPayload"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatsPayload": {
+            "required": [
+                "material_totals",
+                "projects",
+                "total"
+            ],
+            "properties": {
+                "total": {
+                    "$ref": "#/definitions/WorkStatsSummary"
+                },
+                "material_totals": {
+                    "$ref": "#/definitions/MaterialStatsSummary"
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ObjectProjectStats"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkStatsSummary": {
+            "properties": {
+                "project_work_quantity": {
+                    "type": "number"
+                },
+                "project_work_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_summ_by_estimate": {
+                    "type": "number"
+                },
+                "presented_quantity": {
+                    "type": "number"
+                },
+                "presented_summ": {
+                    "type": "number"
+                },
+                "accepted_quantity": {
+                    "type": "number"
+                },
+                "accepted_summ": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "MaterialStatsSummary": {
+            "required": [
+                "project_material_quantity",
+                "project_material_summ",
+                "shift_report_material_quantity",
+                "shift_report_material_summ_by_estimate"
+            ],
+            "properties": {
+                "project_material_quantity": {
+                    "type": "number"
+                },
+                "project_material_summ": {
+                    "type": "number"
+                },
+                "shift_report_material_quantity": {
+                    "type": "number"
+                },
+                "shift_report_material_summ_by_estimate": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectProjectStats": {
+            "required": [
+                "material_stats",
+                "name",
+                "project_id",
+                "stats"
+            ],
+            "properties": {
+                "project_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "stats": {
                     "type": "object",
-                    "description": "Object total and statistics grouped by project"
+                    "additionalProperties": {
+                        "$ref": "#/definitions/WorkStatsSummary"
+                    }
+                },
+                "material_stats": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/MaterialStatsItem"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "MaterialStatsItem": {
+            "required": [
+                "project_material_quantity",
+                "project_material_summ",
+                "shift_report_material_quantity",
+                "shift_report_material_summ_by_estimate"
+            ],
+            "properties": {
+                "project_material_quantity": {
+                    "type": "number"
+                },
+                "project_material_summ": {
+                    "type": "number"
+                },
+                "shift_report_material_quantity": {
+                    "type": "number"
+                },
+                "shift_report_material_summ_by_estimate": {
+                    "type": "number"
+                },
+                "material_name": {
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -9160,7 +9547,56 @@
                     "type": "string"
                 },
                 "stats": {
-                    "type": "object"
+                    "$ref": "#/definitions/ObjectStatsCollectionPayload"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatsCollectionPayload": {
+            "required": [
+                "material_totals",
+                "objects",
+                "total",
+                "total_count"
+            ],
+            "properties": {
+                "total": {
+                    "$ref": "#/definitions/WorkStatsSummary"
+                },
+                "material_totals": {
+                    "$ref": "#/definitions/MaterialStatsSummary"
+                },
+                "objects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ObjectStatsCollectionItem"
+                    }
+                },
+                "total_count": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatsCollectionItem": {
+            "required": [
+                "material_totals",
+                "name",
+                "object_id",
+                "stats"
+            ],
+            "properties": {
+                "object_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "stats": {
+                    "$ref": "#/definitions/WorkStatsSummary"
+                },
+                "material_totals": {
+                    "$ref": "#/definitions/MaterialStatsSummary"
                 }
             },
             "type": "object"
@@ -9175,8 +9611,35 @@
                     "type": "string"
                 },
                 "stats": {
+                    "$ref": "#/definitions/ObjectStatsDetailsPayload"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectStatsDetailsPayload": {
+            "required": [
+                "material_totals",
+                "projects",
+                "total"
+            ],
+            "properties": {
+                "total": {
                     "type": "object",
-                    "description": "Object statistics grouped by project and work_id"
+                    "additionalProperties": {
+                        "$ref": "#/definitions/WorkStatsSummary"
+                    }
+                },
+                "material_totals": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/MaterialStatsItem"
+                    }
+                },
+                "projects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ObjectProjectStats"
+                    }
                 }
             },
             "type": "object"
@@ -10177,6 +10640,228 @@
             },
             "type": "object"
         },
+        "ProjectSpecificationParseResponse": {
+            "required": [
+                "project_specification"
+            ],
+            "properties": {
+                "project_specification": {
+                    "$ref": "#/definitions/ProjectSpecificationParsed"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationParsed": {
+            "required": [
+                "project_materials",
+                "project_works",
+                "unresolved_items"
+            ],
+            "properties": {
+                "project_works": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectSpecificationParsedWork"
+                    }
+                },
+                "project_materials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectSpecificationParsedMaterial"
+                    }
+                },
+                "unresolved_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectSpecificationUnresolvedItem"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationParsedWork": {
+            "required": [
+                "price",
+                "project_work_id",
+                "project_work_name",
+                "quantity",
+                "work"
+            ],
+            "properties": {
+                "project_work_id": {
+                    "type": "string"
+                },
+                "project_work_name": {
+                    "type": "string"
+                },
+                "work": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "price": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationParsedMaterial": {
+            "required": [
+                "material",
+                "price",
+                "project_material_id",
+                "project_work",
+                "quantity"
+            ],
+            "properties": {
+                "project_material_id": {
+                    "type": "string"
+                },
+                "project_material_name": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "project_work": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationUnresolvedItem": {
+            "required": [
+                "kind",
+                "name",
+                "price",
+                "project_work",
+                "quantity",
+                "reason"
+            ],
+            "properties": {
+                "kind": {
+                    "type": "string",
+                    "example": "work",
+                    "enum": [
+                        "work",
+                        "material"
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "project_work": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationImportRequest": {
+            "required": [
+                "project_materials",
+                "project_works"
+            ],
+            "properties": {
+                "project_works": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectSpecificationImportWork"
+                    }
+                },
+                "project_materials": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ProjectSpecificationImportMaterial"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationImportWork": {
+            "required": [
+                "project_work_id",
+                "project_work_name",
+                "quantity",
+                "work"
+            ],
+            "properties": {
+                "project_work_id": {
+                    "type": "string"
+                },
+                "project_work_name": {
+                    "type": "string"
+                },
+                "work": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "price": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationImportMaterial": {
+            "required": [
+                "material",
+                "project_material_id",
+                "quantity"
+            ],
+            "properties": {
+                "project_material_id": {
+                    "type": "string"
+                },
+                "project_material_name": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "project_work": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectSpecificationImportResponse": {
+            "required": [
+                "project_materials_created",
+                "project_works_created"
+            ],
+            "properties": {
+                "project_works_created": {
+                    "type": "integer"
+                },
+                "project_materials_created": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
         "ProjectCreate": {
             "properties": {
                 "name": {
@@ -10458,6 +11143,7 @@
         },
         "ProjectStatsResponse": {
             "required": [
+                "material_stats",
                 "msg",
                 "stats"
             ],
@@ -10468,7 +11154,85 @@
                 },
                 "stats": {
                     "type": "object",
-                    "description": "Dict of work_id or project_work_id -> stat"
+                    "description": "Statistics grouped by work_id",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectStats"
+                    }
+                },
+                "material_stats": {
+                    "type": "object",
+                    "description": "Statistics grouped by material_id",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectMaterialStats"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ProjectStats": {
+            "required": [
+                "project_work_quantity",
+                "project_work_summ",
+                "shift_report_details_quantity",
+                "shift_report_details_summ",
+                "shift_report_details_summ_by_estimate"
+            ],
+            "properties": {
+                "project_work_quantity": {
+                    "type": "number"
+                },
+                "project_work_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_summ_by_estimate": {
+                    "type": "number"
+                },
+                "presented_quantity": {
+                    "type": "number"
+                },
+                "presented_summ": {
+                    "type": "number"
+                },
+                "accepted_quantity": {
+                    "type": "number"
+                },
+                "accepted_summ": {
+                    "type": "number"
+                },
+                "project_work_name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectMaterialStats": {
+            "required": [
+                "project_material_quantity",
+                "project_material_summ",
+                "shift_report_material_quantity",
+                "shift_report_material_summ_by_estimate"
+            ],
+            "properties": {
+                "project_material_quantity": {
+                    "type": "number"
+                },
+                "project_material_summ": {
+                    "type": "number"
+                },
+                "shift_report_material_quantity": {
+                    "type": "number"
+                },
+                "shift_report_material_summ_by_estimate": {
+                    "type": "number"
+                },
+                "material_name": {
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -10490,6 +11254,7 @@
         },
         "ProjectLeaderStatsCollectionPayload": {
             "required": [
+                "material_totals",
                 "project_leaders",
                 "total",
                 "total_count"
@@ -10497,7 +11262,15 @@
             "properties": {
                 "total": {
                     "type": "object",
-                    "description": "Statistics grouped by calendar month in YYYY-MM format"
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectLeaderFactStats"
+                    }
+                },
+                "material_totals": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectLeaderMaterialFactStats"
+                    }
                 },
                 "project_leaders": {
                     "type": "array",
@@ -10511,9 +11284,44 @@
             },
             "type": "object"
         },
+        "ProjectLeaderFactStats": {
+            "required": [
+                "shift_report_details_quantity",
+                "shift_report_details_summ",
+                "shift_report_details_summ_by_estimate"
+            ],
+            "properties": {
+                "shift_report_details_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_summ_by_estimate": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
+        "ProjectLeaderMaterialFactStats": {
+            "required": [
+                "shift_report_material_quantity",
+                "shift_report_material_summ_by_estimate"
+            ],
+            "properties": {
+                "shift_report_material_quantity": {
+                    "type": "number"
+                },
+                "shift_report_material_summ_by_estimate": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
         "ProjectLeaderStatsCollectionItem": {
             "required": [
                 "login",
+                "material_stats",
                 "name",
                 "projects",
                 "stats",
@@ -10531,7 +11339,15 @@
                 },
                 "stats": {
                     "type": "object",
-                    "description": "Statistics grouped by calendar month in YYYY-MM format"
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectLeaderFactStats"
+                    }
+                },
+                "material_stats": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectLeaderMaterialFactStats"
+                    }
                 },
                 "projects": {
                     "type": "array",
@@ -10544,6 +11360,7 @@
         },
         "ProjectLeaderFactProject": {
             "required": [
+                "material_stats",
                 "name",
                 "project_id",
                 "stats"
@@ -10557,7 +11374,15 @@
                 },
                 "stats": {
                     "type": "object",
-                    "description": "Statistics grouped by calendar month in YYYY-MM format"
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectLeaderFactStats"
+                    }
+                },
+                "material_stats": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/ProjectLeaderMaterialFactStats"
+                    }
                 }
             },
             "type": "object"
@@ -10683,6 +11508,9 @@
                 "extreme_conditions": {
                     "type": "boolean"
                 },
+                "short_shift": {
+                    "type": "boolean"
+                },
                 "comment": {
                     "type": "string"
                 },
@@ -10725,6 +11553,10 @@
                     "type": "string",
                     "description": "ID of shift report"
                 },
+                "browser_id": {
+                    "type": "string",
+                    "description": "Browser UUID used for the operation"
+                },
                 "detail": {
                     "type": "object",
                     "description": "Additional details (e.g., validation errors)"
@@ -10761,6 +11593,7 @@
                 "places",
                 "project",
                 "shift_report_id",
+                "short_shift",
                 "signed",
                 "user"
             ],
@@ -10821,6 +11654,14 @@
                     "type": "number",
                     "description": "Distance at the shift end"
                 },
+                "start_browser_id": {
+                    "type": "string",
+                    "description": "Browser UUID captured at shift start"
+                },
+                "finish_browser_id": {
+                    "type": "string",
+                    "description": "Browser UUID captured at shift finish"
+                },
                 "signed": {
                     "type": "boolean",
                     "description": "Is the report signed"
@@ -10866,6 +11707,10 @@
                 "extreme_conditions": {
                     "type": "boolean",
                     "description": "Extreme conditions"
+                },
+                "short_shift": {
+                    "type": "boolean",
+                    "description": "Short shift"
                 },
                 "comment": {
                     "type": "string",
@@ -10974,6 +11819,9 @@
                 "extreme_conditions": {
                     "type": "boolean"
                 },
+                "short_shift": {
+                    "type": "boolean"
+                },
                 "deleted": {
                     "type": "boolean"
                 },
@@ -11021,6 +11869,7 @@
                 "number",
                 "project",
                 "shift_report_id",
+                "short_shift",
                 "signed",
                 "user"
             ],
@@ -11081,6 +11930,14 @@
                     "type": "number",
                     "description": "Distance at the shift end"
                 },
+                "start_browser_id": {
+                    "type": "string",
+                    "description": "Browser UUID captured at shift start"
+                },
+                "finish_browser_id": {
+                    "type": "string",
+                    "description": "Browser UUID captured at shift finish"
+                },
                 "signed": {
                     "type": "boolean",
                     "description": "Is the report signed"
@@ -11126,6 +11983,10 @@
                 "extreme_conditions": {
                     "type": "boolean",
                     "description": "Extreme conditions"
+                },
+                "short_shift": {
+                    "type": "boolean",
+                    "description": "Short shift"
                 },
                 "comment": {
                     "type": "string",
@@ -11377,8 +12238,39 @@
             },
             "type": "object"
         },
+        "ShiftStandardCreate": {
+            "properties": {
+                "category": {
+                    "type": "integer"
+                },
+                "standard": {
+                    "type": "number"
+                },
+                "notification_text": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftStandardEdit": {
+            "properties": {
+                "category": {
+                    "type": "integer"
+                },
+                "standard": {
+                    "type": "number"
+                },
+                "notification_text": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "ProjectMaterialCreate": {
             "properties": {
+                "project_material_name": {
+                    "type": "string"
+                },
                 "project": {
                     "type": "string"
                 },
@@ -11386,6 +12278,9 @@
                     "type": "string"
                 },
                 "quantity": {
+                    "type": "number"
+                },
+                "price": {
                     "type": "number"
                 },
                 "project_work": {
@@ -11440,6 +12335,10 @@
                     "type": "string",
                     "description": "ID of the project material"
                 },
+                "project_material_name": {
+                    "type": "string",
+                    "description": "Name of the project material"
+                },
                 "project": {
                     "type": "string",
                     "description": "Project ID"
@@ -11451,6 +12350,14 @@
                 "quantity": {
                     "type": "number",
                     "description": "Quantity of material"
+                },
+                "price": {
+                    "type": "number",
+                    "description": "Price per unit of material"
+                },
+                "summ": {
+                    "type": "number",
+                    "description": "Sum of the project material"
                 },
                 "project_work": {
                     "type": "string",
@@ -11469,6 +12376,9 @@
         },
         "ProjectMaterialEdit": {
             "properties": {
+                "project_material_name": {
+                    "type": "string"
+                },
                 "project": {
                     "type": "string"
                 },
@@ -11476,6 +12386,9 @@
                     "type": "string"
                 },
                 "quantity": {
+                    "type": "number"
+                },
+                "price": {
                     "type": "number"
                 },
                 "project_work": {
@@ -13016,6 +13929,73 @@
                 },
                 "document_data": {
                     "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "SystemSettingAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "system_settings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SystemSetting"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "SystemSetting": {
+            "required": [
+                "name",
+                "system_setting_id"
+            ],
+            "properties": {
+                "system_setting_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                },
+                "modified_at": {
+                    "type": "integer"
+                },
+                "modified_by": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "SystemSettingResponse": {
+            "required": [
+                "msg",
+                "system_setting"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "system_setting": {
+                    "$ref": "#/definitions/SystemSetting"
+                }
+            },
+            "type": "object"
+        },
+        "SystemSettingEdit": {
+            "properties": {
+                "value": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             },
             "type": "object"

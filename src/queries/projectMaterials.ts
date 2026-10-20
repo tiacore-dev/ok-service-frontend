@@ -16,6 +16,7 @@ import {
 import type { IProjectMaterial } from "../interfaces/projectMaterials/IProjectMaterial";
 import type { IProjectMaterialsList } from "../interfaces/projectMaterials/IProjectMaterialsList";
 import { createQueryKeys } from "../queryKeys";
+import { objectStatsKeys } from "./objectStats";
 
 const baseProjectMaterialsKeys = createQueryKeys("projectMaterials");
 
@@ -56,6 +57,7 @@ export const useCreateProjectMaterialMutation = (): UseMutationResult<
       queryClient.invalidateQueries({
         queryKey: projectMaterialsKeys.list(),
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
     },
   });
 };
@@ -81,6 +83,7 @@ export const useUpdateProjectMaterialMutation = (): UseMutationResult<
       queryClient.invalidateQueries({
         queryKey: projectMaterialsKeys.list(),
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
     },
   });
 };
@@ -106,6 +109,7 @@ export const useDeleteProjectMaterialMutation = (): UseMutationResult<
       queryClient.invalidateQueries({
         queryKey: projectMaterialsKeys.list(),
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
     },
   });
 };

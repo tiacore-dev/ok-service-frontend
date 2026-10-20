@@ -1,11 +1,12 @@
 import * as React from "react";
+import { Table } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { NavigateFunction } from "react-router-dom";
 import type { IProjectsListColumn } from "../../../../interfaces/projects/IProjectsList";
 import type { IProjectStatus } from "../../../../interfaces/projects/IProjectStatus";
 import type { IUser } from "../../../../interfaces/users/IUser";
-import type { IObjectWorkStats } from "../../../../interfaces/objects/IObjectStats";
+import type { IObjectProgressStats } from "../../../../interfaces/objects/IObjectStats";
 import { formatNumber } from "../../../../utils/formatNumber";
 
 const formatQuantity = (value: number | null | undefined) =>
@@ -50,8 +51,8 @@ const ProgressValue = ({
 const progressColumn = (
   title: string,
   key: string,
-  getQuantity: (stats: IObjectWorkStats) => number | null,
-  getSumm: (stats: IObjectWorkStats) => number | null,
+  getQuantity: (stats: IObjectProgressStats) => number | null,
+  getSumm: (stats: IObjectProgressStats) => number | null,
 ) => ({
   title,
   key,
@@ -68,6 +69,35 @@ const progressColumn = (
       "—"
     ),
 });
+
+export const projectsDesktopSummary = (stats: IObjectProgressStats) => (
+  <Table.Summary.Row className="projects__total-row">
+    <Table.Summary.Cell index={0} colSpan={3}>
+      ????? ?? ???????
+    </Table.Summary.Cell>
+    <Table.Summary.Cell index={3} align="right">
+      <ProgressValue
+        quantity={stats.shift_report_details_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.completed_summ ?? stats.shift_report_details_summ}
+      />
+    </Table.Summary.Cell>
+    <Table.Summary.Cell index={4} align="right">
+      <ProgressValue
+        quantity={stats.presented_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.presented_summ}
+      />
+    </Table.Summary.Cell>
+    <Table.Summary.Cell index={5} align="right">
+      <ProgressValue
+        quantity={stats.accepted_quantity}
+        totalQuantity={stats.project_work_quantity}
+        summ={stats.accepted_summ}
+      />
+    </Table.Summary.Cell>
+  </Table.Summary.Row>
+);
 
 export const projectsDesktopColumns = (
   navigate: NavigateFunction,
@@ -117,7 +147,7 @@ export const projectsDesktopColumns = (
     "Выполнено",
     "completed",
     (stats) => stats.shift_report_details_quantity,
-    (stats) => stats.shift_report_details_summ,
+    (stats) => stats.completed_summ ?? stats.shift_report_details_summ,
   ),
   progressColumn(
     "Предъявлено",

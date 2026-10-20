@@ -82,17 +82,25 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
           },
         },
         {
-          key: "work-plans",
-          label: "План выработки",
-          onClick: () => {
-            navigate("/work-plans");
-          },
-        },
-        {
           key: "acceptances",
           label: "Приёмки работ",
           onClick: () => {
             navigate("/acceptances");
+          },
+        },
+      ],
+    });
+
+    desktopItems.push({
+      label: "Отчеты",
+      key: "reports",
+      icon: <BarChartOutlined />,
+      children: [
+        {
+          key: "work-plans",
+          label: "План выработки",
+          onClick: () => {
+            navigate("/work-plans");
           },
         },
         {

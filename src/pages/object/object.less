@@ -9,7 +9,25 @@
   margin: 8px 0;
 }
 
+.object__overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 8px 0 16px;
+
+  > .object__card,
+  > .object__places-card {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
 @media (max-width: 768px) {
+  .object__overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .object__content {
     min-height: calc(100vh - 110px);
     padding: 0 12px;

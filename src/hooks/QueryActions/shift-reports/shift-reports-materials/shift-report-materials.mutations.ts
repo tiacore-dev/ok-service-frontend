@@ -5,6 +5,7 @@ import {
   deleteShiftReportMaterialApi,
   editShiftReportMaterialApi,
 } from "../../../../api/shift-report-materials.api";
+import { objectStatsKeys } from "../../../../queries/objectStats";
 
 export type EditableShiftReportMaterial = Omit<
   IShiftReportMaterial,
@@ -21,6 +22,7 @@ export const useCreateShiftReportMaterialMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportMaterials", variables.shift_report],
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
     },
   });
 };
@@ -40,6 +42,7 @@ export const useEditShiftReportMaterialMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportMaterials", variables.data.shift_report],
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
     },
   });
 };
@@ -54,6 +57,7 @@ export const useDeleteShiftReportMaterialMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["shiftReportMaterials", variables.shiftReportId],
       });
+      queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
     },
   });
 };

@@ -1,11 +1,11 @@
 import { IProject } from "./IProject";
-import type { IObjectWorkStats } from "../objects/IObjectStats";
+import type { IObjectProgressStats } from "../objects/IObjectStats";
 
 export interface IProjectsList extends IProject {}
 
 export interface IProjectsListColumn extends IProjectsList {
   key: string;
-  stats?: IObjectWorkStats;
+  stats?: IObjectProgressStats;
   children?: IProjectsListColumn[];
   isWork?: boolean;
 }

@@ -16,13 +16,17 @@ import {
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { Link } from "react-router-dom";
-import type { IObjectWorkStats } from "../../interfaces/objects/IObjectStats";
+import type {
+  IObjectProgressStats,
+  IObjectWorkStats,
+} from "../../interfaces/objects/IObjectStats";
 import {
   objectStatsKeys,
   useObjectStatsQueries,
   useObjectsStatsQuery,
 } from "../../queries/objectStats";
 import { formatNumber } from "../../utils/formatNumber";
+import { getObjectProgressStats } from "../../utils/getObjectProgressStats";
 import "./objects-progress.page.less";
 
 const defaultPageSize = 20;
@@ -93,14 +97,14 @@ const QuantityProgress = ({
   );
 };
 
-type ProgressRowKind = "object" | "project" | "work" | "loading" | "error";
+type ProgressRowKind = "object" | "project" | "loading" | "error";
 
 interface IProgressTreeRow {
   key: string;
   kind: ProgressRowKind;
   objectId?: string;
   name: string;
-  stats: IObjectWorkStats;
+  stats: IObjectProgressStats | null;
   children?: IProgressTreeRow[];
 }
 
@@ -144,12 +148,15 @@ const createColumns = (): ColumnsType<IProgressTreeRow> => {
       width: "22%",
       align: "right",
       render: (_: unknown, record) =>
-        isStatusRow(record) ? null : (
+        isStatusRow(record) || record.stats == null ? null : (
           <ProgressMetric
             quantity={record.stats.shift_report_details_quantity}
             totalQuantity={record.stats.project_work_quantity}
             summ={record.stats.shift_report_details_summ}
-            estimateSumm={record.stats.shift_report_details_summ_by_estimate}
+            estimateSumm={
+              record.stats.completed_estimate_summ ??
+              record.stats.shift_report_details_summ_by_estimate
+            }
           />
         ),
     },
@@ -159,7 +166,7 @@ const createColumns = (): ColumnsType<IProgressTreeRow> => {
       width: "22%",
       align: "right",
       render: (_: unknown, record) =>
-        isStatusRow(record) ? null : (
+        isStatusRow(record) || record.stats == null ? null : (
           <ProgressMetric
             quantity={record.stats.presented_quantity}
             totalQuantity={record.stats.project_work_quantity}
@@ -173,7 +180,7 @@ const createColumns = (): ColumnsType<IProgressTreeRow> => {
       width: "22%",
       align: "right",
       render: (_: unknown, record) =>
-        isStatusRow(record) ? null : (
+        isStatusRow(record) || record.stats == null ? null : (
           <ProgressMetric
             quantity={record.stats.accepted_quantity}
             totalQuantity={record.stats.project_work_quantity}
@@ -187,10 +194,12 @@ const createColumns = (): ColumnsType<IProgressTreeRow> => {
       width: "16%",
       align: "right",
       render: (_: unknown, record) =>
-        isStatusRow(record) ? null : (
+        isStatusRow(record) || record.stats == null ? null : (
           <ProgressMetric
             quantity={record.stats.project_work_quantity}
-            summ={record.stats.project_work_summ}
+            summ={
+              record.stats.specification_summ ?? record.stats.project_work_summ
+            }
           />
         ),
     },
@@ -199,7 +208,7 @@ const createColumns = (): ColumnsType<IProgressTreeRow> => {
   return columns.filter((column) => column.key !== "total");
 };
 
-const renderTotalRow = (stats: IObjectWorkStats) => (
+const renderTotalRow = (stats: IObjectProgressStats) => (
   <Table.Summary.Row className="objects-progress__total-row">
     <Table.Summary.Cell index={0}>Итого</Table.Summary.Cell>
     <Table.Summary.Cell index={1}>
@@ -207,7 +216,10 @@ const renderTotalRow = (stats: IObjectWorkStats) => (
         quantity={stats.shift_report_details_quantity}
         totalQuantity={stats.project_work_quantity}
         summ={stats.shift_report_details_summ}
-        estimateSumm={stats.shift_report_details_summ_by_estimate}
+        estimateSumm={
+          stats.completed_estimate_summ ??
+          stats.shift_report_details_summ_by_estimate
+        }
       />
     </Table.Summary.Cell>
     <Table.Summary.Cell index={2}>
@@ -241,8 +253,7 @@ export const ObjectsProgress = () => {
     limit: pageSize,
     search,
   });
-  const { statsQueries, detailsQueries } =
-    useObjectStatsQueries(requestedObjectIds);
+  const { statsQueries } = useObjectStatsQueries(requestedObjectIds);
   const columns = React.useMemo(createColumns, []);
   const objectQueryById = React.useMemo(
     () =>
@@ -251,22 +262,17 @@ export const ObjectsProgress = () => {
           objectId,
           {
             statsQuery: statsQueries[index],
-            detailsQuery: detailsQueries[index],
           },
         ]),
       ),
-    [detailsQueries, requestedObjectIds, statsQueries],
+    [requestedObjectIds, statsQueries],
   );
   const treeData = React.useMemo<IProgressTreeRow[]>(
     () =>
       (data?.objects ?? []).map((object) => {
         const queries = objectQueryById.get(object.object_id);
-        const isLoadingDetails =
-          !queries ||
-          queries.statsQuery?.isPending ||
-          queries.detailsQuery?.isPending;
-        const hasDetailsError =
-          queries?.statsQuery?.isError || queries?.detailsQuery?.isError;
+        const isLoadingDetails = !queries || queries.statsQuery?.isPending;
+        const hasDetailsError = queries?.statsQuery?.isError;
 
         if (isLoadingDetails || hasDetailsError) {
           return {
@@ -274,7 +280,7 @@ export const ObjectsProgress = () => {
             kind: "object",
             objectId: object.object_id,
             name: object.name,
-            stats: object.stats,
+            stats: getObjectProgressStats(object.stats, object.material_totals),
             children: [
               {
                 key: `object-${object.object_id}-${
@@ -290,40 +296,22 @@ export const ObjectsProgress = () => {
           };
         }
 
-        const detailsByProjectId = new Map(
-          queries.detailsQuery?.data?.projects.map((project) => [
-            project.project_id,
-            project,
-          ]),
-        );
-
         return {
           key: `object-${object.object_id}`,
           kind: "object",
           objectId: object.object_id,
           name: object.name,
-          stats: object.stats,
+          stats: getObjectProgressStats(object.stats, object.material_totals),
           children: (queries.statsQuery?.data?.projects ?? []).map(
-            (project) => {
-              const details = detailsByProjectId.get(project.project_id);
-
-              return {
-                key: `project-${project.project_id}`,
-                kind: "project",
-                name: project.name,
-                stats: project.stats,
-                children: details
-                  ? Object.entries(details.stats).map(
-                      ([projectWorkId, stat]): IProgressTreeRow => ({
-                        key: `work-${projectWorkId}`,
-                        kind: "work",
-                        name: stat.project_work_name,
-                        stats: stat,
-                      }),
-                    )
-                  : undefined,
-              };
-            },
+            (project) => ({
+              key: `project-${project.project_id}`,
+              kind: "project",
+              name: project.name,
+              stats: getObjectProgressStats(
+                project.stats,
+                project.material_stats,
+              ),
+            }),
           ),
         };
       }),
@@ -389,8 +377,7 @@ export const ObjectsProgress = () => {
           expandable={{
             expandedRowKeys,
             indentSize: 24,
-            rowExpandable: (record) =>
-              record.kind === "object" || record.kind === "project",
+            rowExpandable: (record) => record.kind === "object",
             onExpand: (expanded, record) => {
               setExpandedRowKeys((previousKeys) =>
                 expanded
@@ -407,7 +394,7 @@ export const ObjectsProgress = () => {
               }
             },
             expandIcon: ({ expanded, onExpand, record }) =>
-              record.kind === "object" || record.kind === "project" ? (
+              record.kind === "object" ? (
                 <button
                   aria-label={expanded ? "Свернуть" : "Развернуть"}
                   className="objects-progress__tree-toggle"
@@ -437,7 +424,9 @@ export const ObjectsProgress = () => {
           }}
           summary={(pageData) =>
             data?.total && pageData.length > 0
-              ? renderTotalRow(data.total)
+              ? renderTotalRow(
+                  getObjectProgressStats(data.total, data.material_totals),
+                )
               : null
           }
         />

@@ -154,68 +154,71 @@ export const Object = () => {
               />
             )}
           </Space>
-          <Card className="object__card">
-            <p>Наименование: {objectData.name}</p>
-            <p>
-              Адрес: {objectData.address}
-              {hasCoordinates && (
-                <>
-                  <Text type="secondary">
-                    {" ("} {objectData.lng}, {objectData.ltd}
-                    {" )"}
-                  </Text>
-                  <MapViewer
-                    coordinates={{
-                      lat: objectData.ltd,
-                      lng: objectData.lng,
-                      title: objectData.name,
-                    }}
-                    buttonType="icon"
-                    buttonText="Посмотреть на карте"
-                    modalTitle={`Объект: ${objectData.name}`}
+          <div className="object__overview">
+            <Card className="object__card">
+              <p>Наименование: {objectData.name}</p>
+              <p>
+                Адрес: {objectData.address}
+                {hasCoordinates && (
+                  <>
+                    <Text type="secondary">
+                      {" ("} {objectData.lng}, {objectData.ltd}
+                      {" )"}
+                    </Text>
+                    <MapViewer
+                      coordinates={{
+                        lat: objectData.ltd,
+                        lng: objectData.lng,
+                        title: objectData.name,
+                      }}
+                      buttonType="icon"
+                      buttonText="Посмотреть на карте"
+                      modalTitle={`Объект: ${objectData.name}`}
+                    />
+                  </>
+                )}
+              </p>
+              <p>Описание: {objectData.description}</p>
+              <p>
+                Город:{" "}
+                {objectData.city ? citiesMap[objectData.city]?.name : "—"}
+              </p>
+              <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
+              <p>
+                Дата начала действия договора:{" "}
+                {objectData.contract_start_date
+                  ? dayjs(objectData.contract_start_date).format(dateFormat)
+                  : "—"}
+              </p>
+              <p>
+                Дата окончания действия договора:{" "}
+                {objectData.contract_end_date
+                  ? dayjs(objectData.contract_end_date).format(dateFormat)
+                  : "—"}
+              </p>
+              <p>Номер заказа: {objectData.order_number || "—"}</p>
+              <p>
+                День закрывающих КС: {objectData.monthly_ks_closing_date ?? "—"}
+              </p>
+              <p>
+                Статус:{" "}
+                {currentRole === RoleId.ADMIN ? (
+                  <Select
+                    value={objectData.status}
+                    options={statusOptions}
+                    onChange={handleStatusChange}
+                    loading={updateObjectMutation.isPending}
+                    disabled={updateObjectMutation.isPending}
                   />
-                </>
-              )}
-            </p>
-            <p>Описание: {objectData.description}</p>
-            <p>
-              Город: {objectData.city ? citiesMap[objectData.city]?.name : "—"}
-            </p>
-            <p>Менеджер: {usersMap[objectData.manager]?.name}</p>
-            <p>
-              Дата начала действия договора:{" "}
-              {objectData.contract_start_date
-                ? dayjs(objectData.contract_start_date).format(dateFormat)
-                : "—"}
-            </p>
-            <p>
-              Дата окончания действия договора:{" "}
-              {objectData.contract_end_date
-                ? dayjs(objectData.contract_end_date).format(dateFormat)
-                : "—"}
-            </p>
-            <p>Номер заказа: {objectData.order_number || "—"}</p>
-            <p>
-              День закрывающих КС: {objectData.monthly_ks_closing_date ?? "—"}
-            </p>
-            <p>
-              Статус:{" "}
-              {currentRole === RoleId.ADMIN ? (
-                <Select
-                  value={objectData.status}
-                  options={statusOptions}
-                  onChange={handleStatusChange}
-                  loading={updateObjectMutation.isPending}
-                  disabled={updateObjectMutation.isPending}
-                />
-              ) : (
-                objectStatusesMap[objectData.status]?.name
-              )}
-            </p>
-          </Card>
-          {objectData.object_id && (
-            <ObjectPlaces objectId={objectData.object_id} />
-          )}
+                ) : (
+                  objectStatusesMap[objectData.status]?.name
+                )}
+              </p>
+            </Card>
+            {objectData.object_id && (
+              <ObjectPlaces objectId={objectData.object_id} />
+            )}
+          </div>
           {objectData.object_id && (
             <Projects object_id={objectData.object_id} />
           )}

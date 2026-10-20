@@ -43,10 +43,4 @@ export const useObjectStatsQueries = (objectIds: string[]) => ({
       queryFn: () => fetchObjectStats(objectId),
     })),
   }),
-  detailsQueries: useQueries({
-    queries: objectIds.map((objectId) => ({
-      queryKey: objectStatsKeys.details(objectId),
-      queryFn: () => fetchObjectStatsDetails(objectId),
-    })),
-  }),
 });
