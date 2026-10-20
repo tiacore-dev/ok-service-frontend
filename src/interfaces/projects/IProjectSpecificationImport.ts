@@ -8,6 +8,7 @@ export interface IProjectSpecificationImportWork {
 
 export interface IProjectSpecificationImportMaterial {
   project_material_id: string;
+  project_material_name?: string;
   material: string;
   quantity: number;
   price?: number | null;

@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Button,
   Form,
+  Input,
   InputNumber,
   Modal,
   Popconfirm,
@@ -40,6 +41,7 @@ export const ProjectMaterialsTable = ({
 }: ProjectMaterialsTableProps) => {
   const [form] = Form.useForm<{
     material: string;
+    project_material_name: string;
     quantity: number;
     price: number;
   }>();
@@ -114,6 +116,7 @@ export const ProjectMaterialsTable = ({
     setEditingRecord(record);
     form.setFieldsValue({
       material: record.material,
+      project_material_name: record.project_material_name,
       quantity: Number(record.quantity ?? 0),
       price: Number(record.price ?? 0),
     });
@@ -146,6 +149,7 @@ export const ProjectMaterialsTable = ({
           payload: {
             project: projectId,
             material: rowData.material,
+            project_material_name: rowData.project_material_name,
             quantity: Number(rowData.quantity),
             price: Number(rowData.price),
             project_work: editingRecord.project_work ?? null,
@@ -161,6 +165,7 @@ export const ProjectMaterialsTable = ({
         await createProjectMaterialMutation.mutateAsync({
           project: projectId,
           material: rowData.material,
+          project_material_name: rowData.project_material_name,
           quantity: Number(rowData.quantity),
           price: Number(rowData.price),
           project_work: null,
@@ -220,6 +225,12 @@ export const ProjectMaterialsTable = ({
       dataIndex: "material",
       key: "material",
       render: (value: string) => materialsMap[value]?.name ?? value,
+    },
+    {
+      title: "Наименование в спецификации",
+      dataIndex: "project_material_name",
+      key: "project_material_name",
+      render: (value: string | undefined) => value ?? "—",
     },
     {
       title: "Количество",
@@ -318,13 +329,13 @@ export const ProjectMaterialsTable = ({
         summary={() => (
           <Table.Summary>
             <Table.Summary.Row>
-              <Table.Summary.Cell index={0} colSpan={3}>
+              <Table.Summary.Cell index={0} colSpan={4}>
                 Итого
               </Table.Summary.Cell>
-              <Table.Summary.Cell index={3}>
+              <Table.Summary.Cell index={4}>
                 {formatNumber(totalMaterialsSum)}
               </Table.Summary.Cell>
-              <Table.Summary.Cell index={4} colSpan={canManage ? 2 : 1} />
+              <Table.Summary.Cell index={5} colSpan={canManage ? 2 : 1} />
             </Table.Summary.Row>
           </Table.Summary>
         )}
@@ -351,6 +362,19 @@ export const ProjectMaterialsTable = ({
               filterOption={selectFilterHandler}
               options={selectableMaterialsOptions}
             />
+          </Form.Item>
+          <Form.Item
+            label="Наименование в спецификации"
+            name="project_material_name"
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: "Введите наименование",
+              },
+            ]}
+          >
+            <Input />
           </Form.Item>
           <Form.Item
             label="Количество"

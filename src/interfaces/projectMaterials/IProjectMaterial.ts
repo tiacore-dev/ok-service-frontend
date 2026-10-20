@@ -1,5 +1,6 @@
 export interface IProjectMaterial {
   project_material_id?: string;
+  project_material_name?: string;
   project: string;
   material: string;
   quantity: number;

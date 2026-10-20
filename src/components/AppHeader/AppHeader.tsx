@@ -102,6 +102,17 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/objects-progress");
           },
         },
+        ...(role === RoleId.ADMIN || role === RoleId.MANAGER
+          ? [
+              {
+                key: "templates",
+                label: "Шаблоны",
+                onClick: () => {
+                  navigate("/templates");
+                },
+              },
+            ]
+          : []),
       ],
     });
 

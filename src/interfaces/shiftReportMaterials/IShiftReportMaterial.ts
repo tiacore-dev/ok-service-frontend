@@ -1,5 +1,6 @@
 export interface IShiftReportMaterial {
   shift_report_material_id?: string;
+  project_material_name?: string;
   shift_report: string;
   material: string;
   quantity: number;

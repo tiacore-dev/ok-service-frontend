@@ -66,7 +66,7 @@ export const ImportProjectSpecification: React.FC<
     Record<string, UnresolvedItemDraft>
   >({});
   const { works, worksMap } = useWorksMap();
-  const { materials, materialsMap } = useMaterialsMap();
+  const { materials } = useMaterialsMap();
   const parseMutation = useParseProjectSpecificationMutation();
   const importMutation = useImportProjectWorksAndMaterialsMutation();
 
@@ -204,6 +204,7 @@ export const ImportProjectSpecification: React.FC<
         return [
           {
             project_material_id: draft.id,
+            project_material_name: item.name,
             material: draft.catalogId,
             quantity: draft.quantity,
             ...(draft.price === undefined ? {} : { price: draft.price }),
@@ -303,11 +304,10 @@ export const ImportProjectSpecification: React.FC<
 
   const materialsColumns = [
     {
-      title: "Материал из справочника",
-      dataIndex: "material",
-      key: "material",
-      render: (materialId: string) =>
-        materialsMap[materialId]?.name ?? materialId,
+      title: "Наименование материала",
+      dataIndex: "project_material_name",
+      key: "project_material_name",
+      render: (value: string | undefined) => value ?? "—",
     },
     {
       title: "Связанная работа",
