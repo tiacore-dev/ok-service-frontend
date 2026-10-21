@@ -42,21 +42,21 @@ const ProgressValue = ({
 export const projectsMobileSummary = (stats: IObjectProgressStats) => (
   <Table.Summary.Row className="projects__total-row">
     <Table.Summary.Cell index={0}>
-      <div>????? ?? ???????</div>
+      <div>Итого по объекту</div>
       <ProgressValue
-        title="?????????"
+        title="Выполнено"
         quantity={stats.shift_report_details_quantity}
         totalQuantity={stats.project_work_quantity}
         summ={stats.completed_summ ?? stats.shift_report_details_summ}
       />
       <ProgressValue
-        title="???????????"
+        title="Предъявлено"
         quantity={stats.presented_quantity}
         totalQuantity={stats.project_work_quantity}
         summ={stats.presented_summ}
       />
       <ProgressValue
-        title="???????"
+        title="Принято"
         quantity={stats.accepted_quantity}
         totalQuantity={stats.project_work_quantity}
         summ={stats.accepted_summ}

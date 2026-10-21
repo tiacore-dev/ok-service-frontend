@@ -73,7 +73,7 @@ const progressColumn = (
 export const projectsDesktopSummary = (stats: IObjectProgressStats) => (
   <Table.Summary.Row className="projects__total-row">
     <Table.Summary.Cell index={0} colSpan={3}>
-      ????? ?? ???????
+      Итого по объекту
     </Table.Summary.Cell>
     <Table.Summary.Cell index={3} align="right">
       <ProgressValue
