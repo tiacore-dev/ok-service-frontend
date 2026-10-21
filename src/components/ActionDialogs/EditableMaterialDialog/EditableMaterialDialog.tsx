@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Checkbox, Form, Input, Space } from "antd";
+import { Checkbox, Form, Input, Select, Space } from "antd";
 import { IMaterial } from "../../../interfaces/materials/IMaterial";
 import {
   clearCreateMaterialState,
@@ -17,6 +17,8 @@ import {
 import type { EditableMaterialPayload } from "../../../queries/materials";
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useNavigate } from "react-router-dom";
+import { useMeasurementUnitsQuery } from "../../../queries/measurementUnits";
+import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 
 interface IEditableMaterialDialogProps {
   material?: IMaterial;
@@ -27,6 +29,16 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
   const { material, iconOnly } = props;
   const createMaterialMutation = useCreateMaterialMutation();
   const updateMaterialMutation = useUpdateMaterialMutation();
+  const { data: measurementUnits = [], isPending: isMeasurementUnitsPending } =
+    useMeasurementUnitsQuery();
+  const measurementUnitOptions = useMemo(
+    () =>
+      measurementUnits.map((unit) => ({
+        label: unit.name,
+        value: unit.measurement_unit_id,
+      })),
+    [measurementUnits],
+  );
   const buttonText = material ? "Редактировать" : "Создать";
   const popoverText = material ? "Редактировать материал" : "Создать материал";
   const buttonIcon = material ? (
@@ -101,7 +113,7 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
       dispatch(
         editMaterialAction.setMaterialData({
           name: material.name,
-          measurement_unit: material.measurement_unit.name,
+          measurement_unit: material.measurement_unit?.measurement_unit_id ?? "",
           deleted: material.deleted,
           sent: false,
         }),
@@ -119,10 +131,10 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
   );
 
   const handleMeasurementUnitChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      dispatch(editMaterialAction.setMeasurementUnit(event.target.value));
+    (value: string) => {
+      dispatch(editMaterialAction.setMeasurementUnit(value));
     },
-    [],
+    [dispatch],
   );
 
   const handleDeleteToggle = useCallback(() => {
@@ -132,6 +144,7 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
   return (
     <ActionDialog
       modalOkText="Сохранить"
+      modalOkDisabled={!data.measurement_unit}
       onConfirm={handleConfirm}
       onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
@@ -155,9 +168,14 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
               wrapperCol={{ span: 18 }}
               label="Ед. измерения"
             >
-              <Input
-                value={data.measurement_unit}
+              <Select
+                showSearch
+                filterOption={selectFilterHandler}
+                placeholder="Выберите единицу измерения"
+                loading={isMeasurementUnitsPending}
+                value={data.measurement_unit || undefined}
                 onChange={handleMeasurementUnitChange}
+                options={measurementUnitOptions}
               />
             </Form.Item>
 

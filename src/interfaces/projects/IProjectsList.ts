@@ -6,6 +6,4 @@ export interface IProjectsList extends IProject {}
 export interface IProjectsListColumn extends IProjectsList {
   key: string;
   stats?: IObjectProgressStats;
-  children?: IProjectsListColumn[];
-  isWork?: boolean;
 }

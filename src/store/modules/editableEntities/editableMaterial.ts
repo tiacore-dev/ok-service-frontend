@@ -13,7 +13,7 @@ export interface IEditableMaterialState
 const initialState: IEditableMaterialState = {
   sent: false,
   name: "",
-  measurement_unit: "шт.",
+  measurement_unit: "",
   deleted: false,
 };
 

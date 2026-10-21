@@ -76,16 +76,12 @@ export const projectsMobileColumns = (
     width: "100%",
     render: (text: string, record: IProjectsListColumn) => (
       <div>
-        {record.isWork ? (
-          <span>{record.name}</span>
-        ) : (
-          <a
-            className="projects__table__number"
-            onClick={() => navigate && navigate(`/projects/${record.key}`)}
-          >
-            {record.name}
-          </a>
-        )}
+        <a
+          className="projects__table__number"
+          onClick={() => navigate && navigate(`/projects/${record.key}`)}
+        >
+          {record.name}
+        </a>
         <div>Прораб: {usersMap[record.project_leader]?.name}</div>
         <div>
           Статус:{" "}
