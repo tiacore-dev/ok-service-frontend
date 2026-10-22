@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Button, Space } from "antd";
 import { DownloadShiftReport } from "./downloadShiftReport";
+import { TemplateExportButton } from "../../components/TemplateExport/TemplateExportButton";
 
 interface ShiftReportActionsProps {
   canEdit: boolean;
@@ -32,6 +33,11 @@ export const ShiftReportActions = ({
         </Button>
       )}
       <DownloadShiftReport shiftId={shiftId} summ={totalSum} />
+      <TemplateExportButton
+        templateType="shift_report"
+        title="Отчёт по смене"
+        parameters={{ shift_report_id: shiftId }}
+      />
     </Space>
   );
 };

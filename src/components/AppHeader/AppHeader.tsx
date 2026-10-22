@@ -110,6 +110,17 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/objects-progress");
           },
         },
+        ...(role === RoleId.ADMIN || role === RoleId.MANAGER
+          ? [
+              {
+                key: "templates",
+                label: "Шаблоны",
+                onClick: () => {
+                  navigate("/templates");
+                },
+              },
+            ]
+          : []),
       ],
     });
 
@@ -174,7 +185,9 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
             navigate("/shift-standards");
           },
         },
-        ...(role === RoleId.ADMIN
+        ...(role === RoleId.ADMIN ||
+        role === RoleId.MANAGER ||
+        role === RoleId.PROJECT_LEADER
           ? [
               {
                 key: "system-settings",
@@ -183,6 +196,10 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
                   navigate("/system-settings");
                 },
               },
+            ]
+          : []),
+        ...(role === RoleId.ADMIN
+          ? [
               {
                 key: "api-keys",
                 label: "API ключи",

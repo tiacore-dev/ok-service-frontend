@@ -228,8 +228,15 @@ export const ShiftReportMaterialsTable = ({
       title: "Материал",
       dataIndex: "material",
       key: "material",
-      render: (value: string) => materialsMap[value]?.name ?? value,
+      render: (materialId: string) =>
+        materialsMap[materialId]?.name ?? materialId,
     },
+    // {
+    //   title: "Наименование в спецификации",
+    //   dataIndex: "project_material_name",
+    //   key: "project_material_name",
+    //   render: (value: string | undefined) => value ?? "—",
+    // },
     {
       title: "Количество",
       dataIndex: "quantity",

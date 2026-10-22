@@ -23,6 +23,8 @@ import { useObjectsMap } from "../../../queries/objects";
 import { useProjectsMap } from "../../../queries/projects";
 import { useDownloadUsersReport } from "./export/useDownloadUsersReport";
 import { MenuProps } from "antd/lib";
+import { TemplateExportButton } from "../../../components/TemplateExport/TemplateExportButton";
+import { formatDate } from "../../../utils/dateConverter";
 
 interface IExportedData {
   number: number;
@@ -139,11 +141,66 @@ export const Actions: React.FC<ActionsProps> = ({ currentFilters }) => {
     ],
   };
 
+  const hasExportPeriod = Boolean(
+    currentFilters?.date_from && currentFilters?.date_to,
+  );
+  const hasPayrollUser = currentFilters?.users?.length === 1;
+  const canServerExport = role === RoleId.ADMIN || role === RoleId.MANAGER;
+
   if (role !== RoleId.USER) {
+    if (canServerExport) {
+      reportsMenu.items.push({
+        key: "serverShiftReportsExport",
+        label: (
+          <TemplateExportButton
+            templateType="shift_report_list"
+            title="Список смен"
+            parameters={{
+              date_from: currentFilters?.date_from
+                ? formatDate(new Date(currentFilters.date_from))
+                : "",
+              date_to: currentFilters?.date_to
+                ? formatDate(new Date(currentFilters.date_to))
+                : "",
+              users: currentFilters?.users ?? [],
+              projects: currentFilters?.projects ?? [],
+            }}
+            disabled={!hasExportPeriod}
+            disabledTooltip="Для серверного экспорта выберите дату начала и дату окончания"
+            menuItem
+          />
+        ),
+      });
+    }
+
     reportsMenu.items.push({
       key: "shiftReportsWithDetails",
       ...shiftReportsWithDetails,
     });
+
+    if (canServerExport) {
+      reportsMenu.items.push({
+        key: "serverPayrollExport",
+        label: (
+          <TemplateExportButton
+            templateType="payroll"
+            title="Зарплатная ведомость"
+            parameters={{
+              date_from: currentFilters?.date_from
+                ? formatDate(new Date(currentFilters.date_from))
+                : "",
+              date_to: currentFilters?.date_to
+                ? formatDate(new Date(currentFilters.date_to))
+                : "",
+              user: currentFilters?.users?.[0] ?? "",
+            }}
+            disabled={!hasExportPeriod || !hasPayrollUser}
+            disabledTooltip="Для серверного экспорта выберите дату начала, дату окончания и одного исполнителя"
+            menuItem
+          />
+        ),
+      });
+    }
 
     reportsMenu.items.push({
       key: "objectVolumeReport",

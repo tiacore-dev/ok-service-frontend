@@ -19,14 +19,14 @@ export const categoryMap = [
     label: "4 разряд",
     value: 4,
   },
-  {
-    label: "5 разряд",
-    value: 5,
-  },
-  {
-    label: "6 разряд",
-    value: 6,
-  },
+  // {
+  //   label: "5 разряд",
+  //   value: 5,
+  // },
+  // {
+  //   label: "6 разряд",
+  //   value: 6,
+  // },
 ];
 
 export const categoryFilterOptions = [
@@ -50,12 +50,12 @@ export const categoryFilterOptions = [
     text: "4 разряд",
     value: 4,
   },
-  {
-    text: "5 разряд",
-    value: 5,
-  },
-  {
-    text: "6 разряд",
-    value: 6,
-  },
+  // {
+  //   text: "5 разряд",
+  //   value: 5,
+  // },
+  // {
+  //   text: "6 разряд",
+  //   value: 6,
+  // },
 ];

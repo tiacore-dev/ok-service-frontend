@@ -55,12 +55,15 @@ import { Acceptances } from "../../pages/acceptances/acceptances.page";
 import { ObjectsProgress } from "../../pages/objects-progress/objects-progress.page";
 import { SystemSettings } from "../../pages/system-settings/system-settings.page";
 import { ShiftStandards } from "../../pages/shift-standards/shift-standards.page";
+import { Templates } from "../../pages/templates/templates.page";
+import { TemplateParameters } from "../../pages/templates/template-parameters.page";
 import { workPlansKeys } from "../../queries/workPlans";
 import { objectStatsKeys } from "../../queries/objectStats";
 import { projectLeaderStatsKeys } from "../../queries/projectLeaderStats";
 import { acceptanceAttachmentsKeys } from "../../queries/acceptanceAttachments";
 import { systemSettingsKeys } from "../../queries/systemSettings";
 import { shiftStandardsKeys } from "../../queries/shiftStandards";
+import { templatesKeys } from "../../queries/templates";
 import {
   apiKeyPermissionRelationsKeys,
   apiKeyPermissionTypesKeys,
@@ -104,6 +107,7 @@ export const useloadSourse = (): {
     queryClient.removeQueries({ queryKey: acceptanceAttachmentsKeys.all() });
     queryClient.removeQueries({ queryKey: systemSettingsKeys.all() });
     queryClient.removeQueries({ queryKey: shiftStandardsKeys.all() });
+    queryClient.removeQueries({ queryKey: templatesKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeysKeys.all() });
     queryClient.removeQueries({ queryKey: apiKeyPermissionTypesKeys.all() });
     queryClient.removeQueries({
@@ -228,6 +232,11 @@ export const App = () => {
               <Route path="api-keys" element={<ApiKeys />} />
               <Route path="system-settings" element={<SystemSettings />} />
               <Route path="shift-standards" element={<ShiftStandards />} />
+              <Route path="templates" element={<Templates />} />
+              <Route
+                path="templates/parameters"
+                element={<TemplateParameters />}
+              />
               <Route path="work-plans" element={<WorkPlans />} />
               <Route path="objects-progress" element={<ObjectsProgress />} />
               <Route
