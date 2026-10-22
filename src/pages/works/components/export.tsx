@@ -1,7 +1,8 @@
 import { FileExcelOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { Button, Space } from "antd";
 import * as React from "react";
 import type { IWorksList } from "../../../interfaces/works/IWorksList";
+import { TemplateExportButton } from "../../../components/TemplateExport/TemplateExportButton";
 
 interface IExportProps {
   works: IWorksList[];
@@ -81,12 +82,19 @@ export const WorksExport = ({ works }: IExportProps) => {
   }, [exportedData]);
 
   return (
-    <Button
-      icon={<FileExcelOutlined />}
-      onClick={handleExport}
-      disabled={!exportedData.length}
-    >
-      Экспорт CSV
-    </Button>
+    <Space>
+      <Button
+        icon={<FileExcelOutlined />}
+        onClick={handleExport}
+        disabled={!exportedData.length}
+      >
+        Экспорт CSV
+      </Button>
+      <TemplateExportButton
+        templateType="work_types"
+        title="Виды работ"
+        parameters={{}}
+      />
+    </Space>
   );
 };

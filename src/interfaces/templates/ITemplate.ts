@@ -33,3 +33,10 @@ export interface ITemplateParametersResponse {
   parameters: string[];
   schema: Record<string, unknown>;
 }
+
+export interface ITemplateGenerationPayload {
+  template_id: string;
+  template_type: string;
+  parameters: Record<string, unknown>;
+  is_pdf?: boolean;
+}

@@ -3,13 +3,18 @@ import { useSelector } from "react-redux";
 import { EditableObjectDialog } from "../../../components/ActionDialogs/EditableObjectDialog/EditableObjectDialog";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { getCurrentRole } from "../../../store/modules/auth";
+import { ObjectReportExportButton } from "./ObjectReportExportButton";
 
 export const Actions = () => {
   const currentRole = useSelector(getCurrentRole);
 
-  return currentRole === RoleId.ADMIN ? (
+  const canServerExport =
+    currentRole === RoleId.ADMIN || currentRole === RoleId.MANAGER;
+
+  return currentRole === RoleId.ADMIN || canServerExport ? (
     <div className="objects_actions">
-      <EditableObjectDialog />
+      {currentRole === RoleId.ADMIN && <EditableObjectDialog />}
+      {canServerExport && <ObjectReportExportButton />}
     </div>
   ) : null;
 };

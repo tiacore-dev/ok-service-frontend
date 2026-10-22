@@ -2,6 +2,7 @@ import { apiClient } from "./base";
 import type {
   ITemplate,
   ITemplateFormValues,
+  ITemplateGenerationPayload,
   ITemplateParametersResponse,
   ITemplateType,
 } from "../interfaces/templates/ITemplate";
@@ -86,3 +87,9 @@ export const fetchTemplateParameters = async (
   );
   return data;
 };
+
+export const generateTemplate = (payload: ITemplateGenerationPayload) =>
+  apiClient.post<Blob>("/templates/generate-new", payload, {
+    responseType: "blob",
+    validateStatus: () => true,
+  });

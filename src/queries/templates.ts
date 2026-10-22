@@ -10,6 +10,7 @@ import {
   fetchTemplateParameters,
   fetchTemplateTypes,
   fetchTemplates,
+  generateTemplate,
   updateTemplate,
 } from "../api/templates.api";
 import type {
@@ -72,3 +73,6 @@ export const useDeleteTemplateMutation = () => {
       queryClient.invalidateQueries({ queryKey: templatesKeys.all() }),
   });
 };
+
+export const useGenerateTemplateMutation = () =>
+  useMutation({ mutationFn: generateTemplate });
