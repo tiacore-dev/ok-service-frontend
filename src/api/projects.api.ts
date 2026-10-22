@@ -1,7 +1,7 @@
 import { apiClient } from "./base";
 import type { IProject } from "../interfaces/projects/IProject";
 import type { IProjectsList } from "../interfaces/projects/IProjectsList";
-import type { IProjectStat } from "../interfaces/projects/IProjectStat";
+import type { IProjectStatsResponse } from "../interfaces/projects/IProjectStat";
 import type { IProjectStatus } from "../interfaces/projects/IProjectStatus";
 import type {
   IProjectSpecificationImportPayload,
@@ -33,11 +33,11 @@ export const fetchProject = async (projectId: string): Promise<IProject> => {
 
 export const fetchProjectStat = async (
   projectId: string,
-): Promise<Record<string, IProjectStat>> => {
-  const { data } = await apiClient.get<{ stats: Record<string, IProjectStat> }>(
+): Promise<IProjectStatsResponse> => {
+  const { data } = await apiClient.get<IProjectStatsResponse>(
     `/projects/${projectId}/get-stat`,
   );
-  return data.stats;
+  return data;
 };
 
 export const fetchProjectStatuses = async (): Promise<IProjectStatus[]> => {

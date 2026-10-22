@@ -23,6 +23,7 @@ export const useCreateShiftReportMaterialMutation = () => {
         queryKey: ["shiftReportMaterials", variables.shift_report],
       });
       queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+      queryClient.invalidateQueries({ queryKey: ["projects", "stat"] });
     },
   });
 };
@@ -43,6 +44,7 @@ export const useEditShiftReportMaterialMutation = () => {
         queryKey: ["shiftReportMaterials", variables.data.shift_report],
       });
       queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+      queryClient.invalidateQueries({ queryKey: ["projects", "stat"] });
     },
   });
 };
@@ -58,6 +60,7 @@ export const useDeleteShiftReportMaterialMutation = () => {
         queryKey: ["shiftReportMaterials", variables.shiftReportId],
       });
       queryClient.invalidateQueries({ queryKey: objectStatsKeys.collection() });
+      queryClient.invalidateQueries({ queryKey: ["projects", "stat"] });
     },
   });
 };

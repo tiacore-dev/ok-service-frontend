@@ -29,15 +29,20 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 import type { IShiftReportDetailsList } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { selectFilterHandler } from "../../utils/selectFilterHandler";
 import "./ShiftReportMaterialsTable.less";
+import type { IProjectMaterialStat } from "../../interfaces/projects/IProjectStat";
 
 interface ShiftReportMaterialsTableProps {
   shiftReportId: string;
   canManage: boolean;
+  showCheck: boolean;
+  materialStats?: Record<string, IProjectMaterialStat>;
 }
 
 export const ShiftReportMaterialsTable = ({
   shiftReportId,
   canManage,
+  showCheck,
+  materialStats,
 }: ShiftReportMaterialsTableProps) => {
   const [form] = Form.useForm<{ material: string; quantity: number }>();
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -249,6 +254,28 @@ export const ShiftReportMaterialsTable = ({
       render: renderSource,
     },
     {
+      title: "Проверка",
+      key: "check",
+      hidden: !showCheck,
+      render: (_: unknown, record: IShiftReportMaterialsListColumn) => {
+        const stat = materialStats?.[record.material];
+        if (!stat) return "—";
+        const available =
+          stat.project_material_quantity - stat.shift_report_material_quantity;
+        return (
+          <span
+            className={
+              available < record.quantity
+                ? "shift-report__blocked-text"
+                : undefined
+            }
+          >
+            {`Израсходовано: ${stat.shift_report_material_quantity} из ${stat.project_material_quantity} Доступно: ${Math.max(available, 0)}`}
+          </span>
+        );
+      },
+    },
+    {
       title: "Действия",
       dataIndex: "operation",
       hidden: !canManage,
@@ -277,9 +304,7 @@ export const ShiftReportMaterialsTable = ({
       },
     },
   ];
-  const tableColumns = canManage
-    ? columns
-    : columns.filter((col) => !col.hidden);
+  const tableColumns = columns.filter((col) => !col.hidden);
 
   return (
     <>

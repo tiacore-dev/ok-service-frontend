@@ -5395,10 +5395,10 @@
                         "description": "Filter by shift report ID"
                     },
                     {
-                        "name": "material",
+                        "name": "project_material",
                         "in": "query",
                         "type": "string",
-                        "description": "Filter by material ID"
+                        "description": "Filter by project material ID"
                     },
                     {
                         "name": "shift_report_detail",
@@ -5568,6 +5568,32 @@
                         "type": "string",
                         "format": "mask",
                         "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "shift_reports"
+                ]
+            }
+        },
+        "/shift_reports/add-bulk": {
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftReportBulkMessage"
+                        }
+                    }
+                },
+                "operationId": "post_shift_report_bulk_add",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftReportBulkCreate"
+                        }
                     }
                 ],
                 "tags": [
@@ -6166,7 +6192,10 @@
             "get": {
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftStandardAllResponse"
+                        }
                     }
                 },
                 "operationId": "get_shift_standard_all",
@@ -6258,7 +6287,10 @@
             "get": {
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ShiftStandardResponse"
+                        }
                     }
                 },
                 "operationId": "get_shift_standard_view",
@@ -6513,10 +6545,130 @@
                 ]
             }
         },
-        "/templates/generate": {
+        "/templates/add": {
             "post": {
                 "responses": {
                     "201": {
+                        "description": "\u0428\u0430\u0431\u043b\u043e\u043d \u0441\u043e\u0437\u0434\u0430\u043d",
+                        "schema": {
+                            "$ref": "#/definitions/StoredTemplate"
+                        }
+                    }
+                },
+                "operationId": "post_template_add",
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "type": "file",
+                        "required": true
+                    },
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "type": "string",
+                        "required": true,
+                        "description": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0448\u0430\u0431\u043b\u043e\u043d\u0430"
+                    },
+                    {
+                        "name": "template_type",
+                        "in": "formData",
+                        "type": "string",
+                        "required": true,
+                        "description": "\u0422\u0438\u043f \u0448\u0430\u0431\u043b\u043e\u043d\u0430",
+                        "enum": [
+                            "work_types",
+                            "shift_report",
+                            "shift_report_list",
+                            "payroll",
+                            "object_report"
+                        ]
+                    },
+                    {
+                        "name": "description",
+                        "in": "formData",
+                        "type": "string",
+                        "description": "\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435"
+                    },
+                    {
+                        "name": "output_file_name",
+                        "in": "formData",
+                        "type": "string",
+                        "description": "\u0418\u043c\u044f \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0430"
+                    },
+                    {
+                        "name": "is_horizontal",
+                        "in": "formData",
+                        "type": "boolean",
+                        "description": "\u0410\u043b\u044c\u0431\u043e\u043c\u043d\u0430\u044f \u043e\u0440\u0438\u0435\u043d\u0442\u0430\u0446\u0438\u044f",
+                        "default": false
+                    },
+                    {
+                        "name": "is_pdf",
+                        "in": "formData",
+                        "type": "boolean",
+                        "description": "\u0424\u043e\u0440\u043c\u0438\u0440\u043e\u0432\u0430\u0442\u044c PDF",
+                        "default": false
+                    },
+                    {
+                        "name": "is_default",
+                        "in": "formData",
+                        "type": "boolean",
+                        "description": "\u0428\u0430\u0431\u043b\u043e\u043d \u043f\u043e \u0443\u043c\u043e\u043b\u0447\u0430\u043d\u0438\u044e",
+                        "default": false
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_template_all",
+                "parameters": [
+                    {
+                        "name": "template_type",
+                        "in": "query",
+                        "type": "string",
+                        "enum": [
+                            "work_types",
+                            "shift_report",
+                            "shift_report_list",
+                            "payroll",
+                            "object_report"
+                        ]
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 0
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "integer",
+                        "default": 100
+                    }
+                ],
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/generate": {
+            "post": {
+                "responses": {
+                    "200": {
                         "description": "\u0424\u0430\u0439\u043b \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u043d",
                         "headers": {
                             "Content-Disposition": {
@@ -6524,7 +6676,7 @@
                                 "type": "string"
                             },
                             "Content-Type": {
-                                "description": "application/vnd.openxmlformats-officedocument.\n            wordprocessingml.document",
+                                "description": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                 "type": "string"
                             }
                         }
@@ -6544,10 +6696,211 @@
                         "required": true,
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/templateCreate"
+                            "$ref": "#/definitions/LegacyTemplateGenerationRequest"
                         }
                     }
                 ],
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/generate-new": {
+            "post": {
+                "responses": {
+                    "500": {
+                        "description": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0433\u0435\u043d\u0435\u0440\u0430\u0446\u0438\u0438"
+                    },
+                    "404": {
+                        "description": "\u0428\u0430\u0431\u043b\u043e\u043d \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d"
+                    },
+                    "403": {
+                        "description": "\u041d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e \u043f\u0440\u0430\u0432"
+                    },
+                    "400": {
+                        "description": "\u041d\u0435\u043a\u043e\u0440\u0440\u0435\u043a\u0442\u043d\u044b\u0435 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b, \u043d\u0435\u0442 \u0434\u0435\u0444\u043e\u043b\u0442\u043d\u043e\u0433\u043e \u0448\u0430\u0431\u043b\u043e\u043d\u0430 \u0438\u043b\u0438 \u0442\u0438\u043f \u043d\u0435 \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u0435\u0442"
+                    },
+                    "200": {
+                        "description": "\u041f\u043e\u0442\u043e\u043a \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0433\u043e DOCX/XLSX/PDF"
+                    }
+                },
+                "operationId": "post_template_generate_new",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/TemplateGenerationRequest"
+                        }
+                    }
+                ],
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/params": {
+            "get": {
+                "responses": {
+                    "400": {
+                        "description": "\u041d\u0435\u043a\u043e\u0440\u0440\u0435\u043a\u0442\u043d\u044b\u0439 \u0438\u043b\u0438 \u043e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u044e\u0449\u0438\u0439 \u0442\u0438\u043f \u0448\u0430\u0431\u043b\u043e\u043d\u0430"
+                    },
+                    "200": {
+                        "description": "\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b \u043f\u0435\u0447\u0430\u0442\u043d\u044b\u0445 \u0434\u0430\u043d\u043d\u044b\u0445",
+                        "schema": {
+                            "$ref": "#/definitions/StoredTemplateParams"
+                        }
+                    }
+                },
+                "operationId": "get_template_params",
+                "parameters": [
+                    {
+                        "name": "template_type",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "enum": [
+                            "work_types",
+                            "shift_report",
+                            "shift_report_list",
+                            "payroll",
+                            "object_report"
+                        ]
+                    }
+                ],
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/types/all": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/StoredTemplateTypes"
+                        }
+                    }
+                },
+                "operationId": "get_template_types_all",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/{template_id}/delete/hard": {
+            "parameters": [
+                {
+                    "name": "template_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "delete_template_delete",
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/{template_id}/download": {
+            "parameters": [
+                {
+                    "name": "template_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "operationId": "get_template_download",
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/{template_id}/edit": {
+            "parameters": [
+                {
+                    "name": "template_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "patch": {
+                "responses": {
+                    "200": {
+                        "description": "\u0428\u0430\u0431\u043b\u043e\u043d \u043e\u0431\u043d\u043e\u0432\u043b\u0451\u043d",
+                        "schema": {
+                            "$ref": "#/definitions/StoredTemplate"
+                        }
+                    }
+                },
+                "description": "JSON StoredTemplateEdit \u043b\u0438\u0431\u043e multipart: data (JSON) \u0438 \u043d\u0435\u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u044c\u043d\u044b\u0439 file. template_type \u043d\u0435\u0438\u0437\u043c\u0435\u043d\u044f\u0435\u043c.",
+                "operationId": "patch_template_edit",
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "type": "file"
+                    },
+                    {
+                        "name": "data",
+                        "in": "formData",
+                        "type": "string",
+                        "description": "JSON: {\"name\":\"\u0428\u0430\u0431\u043b\u043e\u043d\",\"template_type\":\"work_types\",\"description\":null,\"output_file_name\":null,\"is_horizontal\":false,\"is_pdf\":false,\"is_default\":false}. Create requires name and template_type; PATCH forbids template_type and accepts partial metadata."
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "templates"
+                ]
+            }
+        },
+        "/templates/{template_id}/view": {
+            "parameters": [
+                {
+                    "name": "template_id",
+                    "in": "path",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "\u041c\u0435\u0442\u0430\u0434\u0430\u043d\u043d\u044b\u0435 \u0448\u0430\u0431\u043b\u043e\u043d\u0430",
+                        "schema": {
+                            "$ref": "#/definitions/StoredTemplate"
+                        }
+                    }
+                },
+                "operationId": "get_template_view",
                 "tags": [
                     "templates"
                 ]
@@ -8432,7 +8785,7 @@
         },
         {
             "name": "templates",
-            "description": "template management operations"
+            "description": "\u0428\u0430\u0431\u043b\u043e\u043d\u044b \u0438 \u0433\u0435\u043d\u0435\u0440\u0430\u0446\u0438\u044f \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u043e\u0432: admin \u0438 manager"
         },
         {
             "name": "system_settings",
@@ -9497,10 +9850,7 @@
                     "type": "string"
                 },
                 "stats": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/WorkStatsSummary"
-                    }
+                    "$ref": "#/definitions/WorkStatsSummary"
                 },
                 "material_stats": {
                     "type": "object",
@@ -9626,7 +9976,7 @@
                 "total": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/WorkStatsSummary"
+                        "$ref": "#/definitions/WorkStatsItem"
                     }
                 },
                 "material_totals": {
@@ -9638,7 +9988,71 @@
                 "projects": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/ObjectProjectStats"
+                        "$ref": "#/definitions/ObjectProjectStatsDetails"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "WorkStatsItem": {
+            "properties": {
+                "project_work_quantity": {
+                    "type": "number"
+                },
+                "project_work_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_quantity": {
+                    "type": "number"
+                },
+                "shift_report_details_summ": {
+                    "type": "number"
+                },
+                "shift_report_details_summ_by_estimate": {
+                    "type": "number"
+                },
+                "presented_quantity": {
+                    "type": "number"
+                },
+                "presented_summ": {
+                    "type": "number"
+                },
+                "accepted_quantity": {
+                    "type": "number"
+                },
+                "accepted_summ": {
+                    "type": "number"
+                },
+                "project_work_name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ObjectProjectStatsDetails": {
+            "required": [
+                "material_stats",
+                "name",
+                "project_id",
+                "stats"
+            ],
+            "properties": {
+                "project_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "stats": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/WorkStatsItem"
+                    }
+                },
+                "material_stats": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/MaterialStatsItem"
                     }
                 }
             },
@@ -11564,6 +11978,90 @@
             },
             "type": "object"
         },
+        "ShiftReportBulkCreate": {
+            "required": [
+                "user_ids"
+            ],
+            "properties": {
+                "date": {
+                    "type": "integer"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "date_start": {
+                    "type": "integer"
+                },
+                "date_end": {
+                    "type": "integer"
+                },
+                "lng_start": {
+                    "type": "number"
+                },
+                "ltd_start": {
+                    "type": "number"
+                },
+                "lng_end": {
+                    "type": "number"
+                },
+                "ltd_end": {
+                    "type": "number"
+                },
+                "distance_start": {
+                    "type": "number"
+                },
+                "distance_end": {
+                    "type": "number"
+                },
+                "signed": {
+                    "type": "boolean"
+                },
+                "night_shift": {
+                    "type": "boolean"
+                },
+                "extreme_conditions": {
+                    "type": "boolean"
+                },
+                "short_shift": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ShiftReportDetail"
+                    }
+                },
+                "user_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ShiftReportBulkMessage": {
+            "required": [
+                "msg",
+                "shift_report_ids"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "shift_report_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
         "ShiftReportResponse": {
             "required": [
                 "msg",
@@ -11657,6 +12155,10 @@
                 "start_browser_id": {
                     "type": "string",
                     "description": "Browser UUID captured at shift start"
+                },
+                "modified_browser_id": {
+                    "type": "string",
+                    "description": "Browser UUID captured at the last successful edit"
                 },
                 "finish_browser_id": {
                     "type": "string",
@@ -11933,6 +12435,10 @@
                 "start_browser_id": {
                     "type": "string",
                     "description": "Browser UUID captured at shift start"
+                },
+                "modified_browser_id": {
+                    "type": "string",
+                    "description": "Browser UUID captured at the last successful edit"
                 },
                 "finish_browser_id": {
                     "type": "string",
@@ -12246,7 +12752,64 @@
                 "standard": {
                     "type": "number"
                 },
+                "production_rate_rub": {
+                    "type": "number"
+                },
+                "penalty_rate_percent": {
+                    "type": "number"
+                },
                 "notification_text": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftStandardResponse": {
+            "required": [
+                "msg",
+                "shift_standard"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "shift_standard": {
+                    "$ref": "#/definitions/ShiftStandard"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftStandard": {
+            "required": [
+                "category",
+                "created_at",
+                "created_by",
+                "shift_standard_id",
+                "standard"
+            ],
+            "properties": {
+                "shift_standard_id": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "integer"
+                },
+                "standard": {
+                    "type": "number"
+                },
+                "production_rate_rub": {
+                    "type": "number"
+                },
+                "penalty_rate_percent": {
+                    "type": "number"
+                },
+                "notification_text": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "created_by": {
                     "type": "string"
                 }
             },
@@ -12260,8 +12823,31 @@
                 "standard": {
                     "type": "number"
                 },
+                "production_rate_rub": {
+                    "type": "number"
+                },
+                "penalty_rate_percent": {
+                    "type": "number"
+                },
                 "notification_text": {
                     "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "ShiftStandardAllResponse": {
+            "required": [
+                "msg"
+            ],
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "shift_standards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ShiftStandard"
+                    }
                 }
             },
             "type": "object"
@@ -13538,12 +14124,16 @@
             "type": "object"
         },
         "ShiftReportMaterialCreate": {
+            "required": [
+                "project_material"
+            ],
             "properties": {
                 "shift_report": {
                     "type": "string"
                 },
-                "material": {
-                    "type": "string"
+                "project_material": {
+                    "type": "string",
+                    "description": "Project material ID"
                 },
                 "quantity": {
                     "type": "number"
@@ -13590,7 +14180,7 @@
             "required": [
                 "created_at",
                 "created_by",
-                "material",
+                "project_material",
                 "quantity",
                 "shift_report",
                 "shift_report_material_id"
@@ -13604,9 +14194,9 @@
                     "type": "string",
                     "description": "Shift report ID"
                 },
-                "material": {
+                "project_material": {
                     "type": "string",
-                    "description": "Material ID"
+                    "description": "Project material ID"
                 },
                 "quantity": {
                     "type": "number",
@@ -13632,8 +14222,9 @@
                 "shift_report": {
                     "type": "string"
                 },
-                "material": {
-                    "type": "string"
+                "project_material": {
+                    "type": "string",
+                    "description": "Project material ID"
                 },
                 "quantity": {
                     "type": "number"
@@ -13913,22 +14504,213 @@
             },
             "type": "object"
         },
-        "templateCreate": {
+        "TemplateGenerationRequest": {
+            "required": [
+                "template_type"
+            ],
+            "properties": {
+                "template_type": {
+                    "type": "string",
+                    "example": "work_types",
+                    "enum": [
+                        "work_types",
+                        "shift_report",
+                        "shift_report_list",
+                        "payroll",
+                        "object_report"
+                    ]
+                },
+                "template_id": {
+                    "type": "string",
+                    "description": "\u0415\u0441\u043b\u0438 \u043d\u0435 \u043f\u0435\u0440\u0435\u0434\u0430\u043d \u2014 \u0448\u0430\u0431\u043b\u043e\u043d \u043f\u043e \u0443\u043c\u043e\u043b\u0447\u0430\u043d\u0438\u044e"
+                },
+                "is_pdf": {
+                    "type": "boolean",
+                    "description": "null \u0438\u043b\u0438 \u043e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u2014 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 \u0448\u0430\u0431\u043b\u043e\u043d\u0430"
+                },
+                "parameters": {
+                    "$ref": "#/definitions/TemplateGenerationParameters"
+                }
+            },
+            "type": "object"
+        },
+        "TemplateGenerationParameters": {
+            "properties": {
+                "shift_report_id": {
+                    "type": "string",
+                    "description": "\u041e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u0435\u043d \u0434\u043b\u044f shift_report"
+                },
+                "date_from": {
+                    "type": "string",
+                    "description": "\u041d\u0430\u0447\u0430\u043b\u043e \u043f\u0435\u0440\u0438\u043e\u0434\u0430 \u0432\u043a\u043b\u044e\u0447\u0438\u0442\u0435\u043b\u044c\u043d\u043e; \u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u044c\u043d\u043e \u0434\u043b\u044f payroll, object_report, shift_report_list"
+                },
+                "date_to": {
+                    "type": "string",
+                    "description": "\u041a\u043e\u043d\u0435\u0446 \u043f\u0435\u0440\u0438\u043e\u0434\u0430 \u0432\u043a\u043b\u044e\u0447\u0438\u0442\u0435\u043b\u044c\u043d\u043e; \u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u044c\u043d\u043e \u0434\u043b\u044f payroll, object_report, shift_report_list"
+                },
+                "user": {
+                    "type": "string",
+                    "description": "\u041e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u0435\u043d \u0434\u043b\u044f payroll"
+                },
+                "users": {
+                    "type": "array",
+                    "description": "\u0424\u0438\u043b\u044c\u0442\u0440 \u0438\u0441\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u0435\u0439 \u0434\u043b\u044f object_report \u0438 shift_report_list",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "projects": {
+                    "type": "array",
+                    "description": "\u0424\u0438\u043b\u044c\u0442\u0440 \u0441\u043f\u0435\u0446\u0438\u0444\u0438\u043a\u0430\u0446\u0438\u0439 \u0434\u043b\u044f object_report \u0438 shift_report_list",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "LegacyTemplateGenerationRequest": {
+            "required": [
+                "document_data",
+                "name"
+            ],
             "properties": {
                 "url": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "URL \u0448\u0430\u0431\u043b\u043e\u043d\u0430; \u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u0435\u043d url \u0438\u043b\u0438 file_name"
                 },
                 "file_name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "\u0418\u043c\u044f \u0448\u0430\u0431\u043b\u043e\u043d\u0430 \u0432 \u0441\u0442\u0430\u0440\u043e\u043c \u0433\u0435\u043d\u0435\u0440\u0430\u0442\u043e\u0440\u0435"
                 },
                 "name": {
                     "type": "string"
                 },
                 "is_pdf": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "default": false
                 },
                 "document_data": {
-                    "type": "object"
+                    "type": "object",
+                    "description": "\u0413\u043e\u0442\u043e\u0432\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 \u043a\u043b\u0438\u0435\u043d\u0442\u0430"
+                }
+            },
+            "type": "object"
+        },
+        "StoredTemplate": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "template_type": {
+                    "type": "string",
+                    "example": "work_types",
+                    "enum": [
+                        "work_types",
+                        "shift_report",
+                        "shift_report_list",
+                        "payroll",
+                        "object_report"
+                    ]
+                },
+                "template_type_label": {
+                    "type": "string"
+                },
+                "s3_key": {
+                    "type": "string"
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "output_file_name": {
+                    "type": "string"
+                },
+                "is_horizontal": {
+                    "type": "boolean"
+                },
+                "is_pdf": {
+                    "type": "boolean"
+                },
+                "is_default": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "StoredTemplateTypes": {
+            "required": [
+                "template_types"
+            ],
+            "properties": {
+                "template_types": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StoredTemplateType"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "StoredTemplateType": {
+            "required": [
+                "label",
+                "value"
+            ],
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "example": "work_types",
+                    "enum": [
+                        "work_types",
+                        "shift_report",
+                        "shift_report_list",
+                        "payroll",
+                        "object_report"
+                    ]
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "StoredTemplateParams": {
+            "required": [
+                "parameters",
+                "schema",
+                "template_type"
+            ],
+            "properties": {
+                "template_type": {
+                    "type": "string",
+                    "example": "work_types",
+                    "enum": [
+                        "work_types",
+                        "shift_report",
+                        "shift_report_list",
+                        "payroll",
+                        "object_report"
+                    ]
+                },
+                "parameters": {
+                    "type": "array",
+                    "description": "\u041f\u0443\u0442\u0438 \u043f\u043e\u043b\u0435\u0439; \u044d\u043b\u0435\u043c\u0435\u043d\u0442\u044b \u043c\u0430\u0441\u0441\u0438\u0432\u043e\u0432 \u043e\u0431\u043e\u0437\u043d\u0430\u0447\u0430\u044e\u0442\u0441\u044f [i]",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "schema": {
+                    "type": "object",
+                    "description": "\u0421\u0445\u0435\u043c\u0430 \u0434\u0430\u043d\u043d\u044b\u0445 \u0441 \u0440\u0443\u0441\u0441\u043a\u0438\u043c\u0438 title, example \u0438 alias-\u0441\u0432\u043e\u0439\u0441\u0442\u0432\u0430\u043c\u0438 \u043c\u0430\u0441\u0441\u0438\u0432\u043e\u0432"
                 }
             },
             "type": "object"

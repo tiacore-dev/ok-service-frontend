@@ -106,7 +106,7 @@ export const ShiftReport = () => {
     },
   );
   const { worksMap } = useWorksMap();
-  const stat = React.useMemo(() => projectStat ?? {}, [projectStat]);
+  const stat = React.useMemo(() => projectStat?.stats ?? {}, [projectStat]);
 
   const projectData = React.useMemo(
     () => (shiftReportData ? projectsMap[shiftReportData.project] : undefined),
@@ -572,6 +572,8 @@ export const ShiftReport = () => {
         <ShiftReportMaterialsTable
           shiftReportId={shiftReportData.shift_report_id}
           canManage={canEdit}
+          showCheck={currentRole !== RoleId.USER && !isSigned}
+          materialStats={projectStat?.material_stats}
         />
         {canViewAttachments && (
           <ShiftReportAttachments

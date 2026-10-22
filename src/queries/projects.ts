@@ -24,7 +24,7 @@ import {
 export type { EditableProjectPayload } from "../api/projects.api";
 import type { IProject } from "../interfaces/projects/IProject";
 import type { IProjectsList } from "../interfaces/projects/IProjectsList";
-import type { IProjectStat } from "../interfaces/projects/IProjectStat";
+import type { IProjectStatsResponse } from "../interfaces/projects/IProjectStat";
 import type { IProjectStatus } from "../interfaces/projects/IProjectStatus";
 import { createQueryKeys } from "../queryKeys";
 import { projectWorksKeys } from "./projectWorks";
@@ -79,10 +79,10 @@ export const useProjectQuery = <TData = IProject>(
 export const useProjectStatQuery = (
   projectId: string | undefined,
   options?: Omit<
-    UseQueryOptions<Record<string, IProjectStat>, Error>,
+    UseQueryOptions<IProjectStatsResponse, Error>,
     "queryKey" | "queryFn"
   >,
-): UseQueryResult<Record<string, IProjectStat>, Error> => {
+): UseQueryResult<IProjectStatsResponse, Error> => {
   const enabled = Boolean(projectId) && (options?.enabled ?? true);
 
   return useQuery({
