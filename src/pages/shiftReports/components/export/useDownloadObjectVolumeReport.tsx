@@ -10,6 +10,8 @@ import { fetchShiftReportDetails } from "../../../../api/shift-report-details.ap
 import { fetchShiftReportMaterials } from "../../../../api/shift-report-materials.api";
 import { generateObjectVolumeReport } from "../../../../api/object-volume-report.api";
 import { useMaterialsMap } from "../../../../queries/materials";
+import { fetchProjectMaterials } from "../../../../api/project-materials.api";
+import type { IProjectMaterialsList } from "../../../../interfaces/projectMaterials/IProjectMaterialsList";
 import type {
   IObjectVolumeReport,
   IObjectVolumeReportObject,
@@ -82,6 +84,7 @@ export const useDownloadObjectVolumeReport = ({
 
       let details: IPopulatedShiftReportDetail[] = [];
       let materials: IShiftReportMaterialsList[] = [];
+      let projectMaterialsMap: Record<string, IProjectMaterialsList> = {};
 
       try {
         const detailsResponse = await fetchShiftReportDetails(params);
@@ -96,6 +99,20 @@ export const useDownloadObjectVolumeReport = ({
         materials = materialsResponse.shift_report_materials || [];
       } catch (error) {
         console.error("Ошибка при загрузке материалов отчетов:", error);
+      }
+
+      try {
+        const projectMaterials = await fetchProjectMaterials();
+        projectMaterialsMap = projectMaterials.reduce<
+          Record<string, IProjectMaterialsList>
+        >((map, projectMaterial) => {
+          if (projectMaterial.project_material_id) {
+            map[projectMaterial.project_material_id] = projectMaterial;
+          }
+          return map;
+        }, {});
+      } catch (error) {
+        console.error("Ошибка при загрузке материалов спецификаций:", error);
       }
 
       if (details.length === 0 && materials.length === 0) {
@@ -225,8 +242,14 @@ export const useDownloadObjectVolumeReport = ({
         }
 
         for (const material of reportMaterials) {
+          const projectMaterial =
+            projectMaterialsMap[material.project_material];
           const materialName =
-            materialsMap[material.material]?.name || "Неизвестный материал";
+            projectMaterial?.project_material_name ||
+            (projectMaterial
+              ? materialsMap[projectMaterial.material]?.name
+              : undefined) ||
+            "Неизвестный материал";
           let materialDetail = accumulator.material.get(materialName);
 
           if (!materialDetail) {

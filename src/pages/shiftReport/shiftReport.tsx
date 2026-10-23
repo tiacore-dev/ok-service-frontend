@@ -571,6 +571,7 @@ export const ShiftReport = () => {
         </Title>
         <ShiftReportMaterialsTable
           shiftReportId={shiftReportData.shift_report_id}
+          projectId={shiftReportData.project}
           canManage={canEdit}
         />
         {canViewAttachments && (
