@@ -9,7 +9,7 @@ import {
 import {
   createProjectMaterial,
   deleteProjectMaterial,
-  fetchProjectMaterials,
+  fetchAllProjectMaterials,
   updateProjectMaterial,
   type EditableProjectMaterialPayload,
 } from "../api/project-materials.api";
@@ -38,7 +38,7 @@ export const useProjectMaterialsQuery = <TData = IProjectMaterialsList[]>(
   useQuery({
     queryKey: projectMaterialsKeys.listByProject(projectId),
     queryFn: () =>
-      fetchProjectMaterials(projectId ? { project: projectId } : {}),
+      fetchAllProjectMaterials(projectId ? { project: projectId } : {}),
     ...options,
   });
 

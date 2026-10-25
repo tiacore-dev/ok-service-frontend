@@ -19,6 +19,22 @@ export const fetchProjectMaterials = async (
   return data.project_materials;
 };
 
+export const fetchAllProjectMaterials = async (
+  params: Record<string, string> = {},
+): Promise<IProjectMaterialsList[]> => {
+  const pageSize = 1000;
+  const materials: IProjectMaterialsList[] = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const page = await fetchProjectMaterials({
+      ...params,
+      offset: String(offset),
+      limit: String(pageSize),
+    });
+    materials.push(...page);
+    if (page.length < pageSize) return materials;
+  }
+};
+
 export const createProjectMaterial = async (
   payload: EditableProjectMaterialPayload,
 ): Promise<IProjectMaterial> => {

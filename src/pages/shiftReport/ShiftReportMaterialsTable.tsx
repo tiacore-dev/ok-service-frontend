@@ -94,6 +94,19 @@ export const ShiftReportMaterialsTable = ({
     [projectMaterials],
   );
 
+  const reportQuantityByMaterial = React.useMemo(
+    () =>
+      shiftReportMaterials.reduce<Record<string, number>>((quantities, row) => {
+        const materialId = projectMaterialsMap[row.project_material]?.material;
+        if (materialId) {
+          quantities[materialId] =
+            (quantities[materialId] ?? 0) + Number(row.quantity);
+        }
+        return quantities;
+      }, {}),
+    [projectMaterialsMap, shiftReportMaterials],
+  );
+
   const projectMaterialsOptions = React.useMemo(
     () =>
       projectMaterials
@@ -260,14 +273,15 @@ export const ShiftReportMaterialsTable = ({
       key: "check",
       hidden: !showCheck,
       render: (_: unknown, record: IShiftReportMaterialsListColumn) => {
-        const stat = materialStats?.[record.material];
+        const materialId = projectMaterialsMap[record.project_material]?.material;
+        const stat = materialId ? materialStats?.[materialId] : undefined;
         if (!stat) return "—";
         const available =
           stat.project_material_quantity - stat.shift_report_material_quantity;
         return (
           <span
             className={
-              available < record.quantity
+              available < reportQuantityByMaterial[materialId]
                 ? "shift-report__blocked-text"
                 : undefined
             }

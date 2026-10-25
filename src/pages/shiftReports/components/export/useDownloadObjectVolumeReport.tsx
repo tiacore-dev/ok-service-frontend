@@ -10,7 +10,7 @@ import { fetchShiftReportDetails } from "../../../../api/shift-report-details.ap
 import { fetchShiftReportMaterials } from "../../../../api/shift-report-materials.api";
 import { generateObjectVolumeReport } from "../../../../api/object-volume-report.api";
 import { useMaterialsMap } from "../../../../queries/materials";
-import { fetchProjectMaterials } from "../../../../api/project-materials.api";
+import { fetchAllProjectMaterials } from "../../../../api/project-materials.api";
 import type { IProjectMaterialsList } from "../../../../interfaces/projectMaterials/IProjectMaterialsList";
 import type {
   IObjectVolumeReport,
@@ -102,7 +102,7 @@ export const useDownloadObjectVolumeReport = ({
       }
 
       try {
-        const projectMaterials = await fetchProjectMaterials();
+        const projectMaterials = await fetchAllProjectMaterials();
         projectMaterialsMap = projectMaterials.reduce<
           Record<string, IProjectMaterialsList>
         >((map, projectMaterial) => {
