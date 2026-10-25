@@ -23,16 +23,16 @@ import {
 } from "../../hooks/QueryActions/shift-reports/shift-reports-materials/shift-report-materials.mutations";
 import { useShiftReportMaterialsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-materials/shift-report-materials.query";
 import { useMaterialsMap } from "../../queries/materials";
-import { useShiftReportDetailsQuery } from "../../hooks/QueryActions/shift-reports/shift-reports-details/shift-report-details.query";
-import { useWorksMap } from "../../queries/works";
+import { useProjectMaterialsQuery } from "../../queries/projectMaterials";
+import { useProjectWorksMap } from "../../queries/projectWorks";
 import { NotificationContext } from "../../contexts/NotificationContext";
-import type { IShiftReportDetailsList } from "../../interfaces/shiftReportDetails/IShiftReportDetailsList";
 import { selectFilterHandler } from "../../utils/selectFilterHandler";
 import "./ShiftReportMaterialsTable.less";
 import type { IProjectMaterialStat } from "../../interfaces/projects/IProjectStat";
 
 interface ShiftReportMaterialsTableProps {
   shiftReportId: string;
+  projectId: string;
   canManage: boolean;
   showCheck: boolean;
   materialStats?: Record<string, IProjectMaterialStat>;
@@ -40,11 +40,15 @@ interface ShiftReportMaterialsTableProps {
 
 export const ShiftReportMaterialsTable = ({
   shiftReportId,
+  projectId,
   canManage,
   showCheck,
   materialStats,
 }: ShiftReportMaterialsTableProps) => {
-  const [form] = Form.useForm<{ material: string; quantity: number }>();
+  const [form] = Form.useForm<{
+    project_material: string;
+    quantity: number;
+  }>();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [editingRecord, setEditingRecord] =
@@ -53,10 +57,12 @@ export const ShiftReportMaterialsTable = ({
 
   const { data: shiftReportMaterials = [], isLoading } =
     useShiftReportMaterialsQuery(shiftReportId);
-  const { data: shiftReportDetails = [] } =
-    useShiftReportDetailsQuery(shiftReportId);
-  const { materials, materialsMap } = useMaterialsMap();
-  const { worksMap } = useWorksMap();
+  const { materialsMap } = useMaterialsMap();
+  const { data: projectMaterials = [], isPending: isProjectMaterialsPending } =
+    useProjectMaterialsQuery(projectId, { enabled: Boolean(projectId) });
+  const { projectWorksMap } = useProjectWorksMap(projectId, {
+    enabled: Boolean(projectId),
+  });
   const createShiftReportMaterialMutation =
     useCreateShiftReportMaterialMutation();
   const editShiftReportMaterialMutation = useEditShiftReportMaterialMutation();
@@ -70,39 +76,35 @@ export const ShiftReportMaterialsTable = ({
           ...doc,
           key:
             doc.shift_report_material_id ??
-            `${doc.shift_report}-${doc.material}-${doc.shift_report_detail ?? "manual"}`,
+            `${doc.shift_report}-${doc.project_material}-${doc.shift_report_detail ?? "manual"}`,
         })),
       [shiftReportMaterials],
     );
 
-  const detailsMap = React.useMemo(
+  const projectMaterialsMap = React.useMemo(
     () =>
-      (shiftReportDetails ?? []).reduce<
-        Record<string, IShiftReportDetailsList>
-      >((acc, detail) => {
-        if (detail.shift_report_detail_id) {
-          acc[detail.shift_report_detail_id] = detail;
+      projectMaterials.reduce<
+        Record<string, (typeof projectMaterials)[number]>
+      >((map, projectMaterial) => {
+        if (projectMaterial.project_material_id) {
+          map[projectMaterial.project_material_id] = projectMaterial;
         }
-        return acc;
+        return map;
       }, {}),
-    [shiftReportDetails],
+    [projectMaterials],
   );
 
-  const materialsOptions = React.useMemo(
+  const projectMaterialsOptions = React.useMemo(
     () =>
-      materials
-        .filter((material) => Boolean(material.material_id))
-        .map((material) => ({
-          label: material.name,
-          value: material.material_id as string,
-          deleted: material.deleted,
+      projectMaterials
+        .filter((projectMaterial) =>
+          Boolean(projectMaterial.project_material_id),
+        )
+        .map((projectMaterial) => ({
+          label: `${projectMaterial.project_material_name ?? "Без наименования"} — ${materialsMap[projectMaterial.material]?.name ?? projectMaterial.material}`,
+          value: projectMaterial.project_material_id as string,
         })),
-    [materials],
-  );
-
-  const selectableMaterialsOptions = React.useMemo(
-    () => materialsOptions.filter((option) => !option.deleted),
-    [materialsOptions],
+    [materialsMap, projectMaterials],
   );
 
   const openCreateModal = () => {
@@ -115,7 +117,7 @@ export const ShiftReportMaterialsTable = ({
   const openEditModal = (record: IShiftReportMaterialsListColumn) => {
     setEditingRecord(record);
     form.setFieldsValue({
-      material: record.material,
+      project_material: record.project_material,
       quantity: Number(record.quantity ?? 0),
     });
     setModalOpen(true);
@@ -133,7 +135,7 @@ export const ShiftReportMaterialsTable = ({
       if (!shiftReportId) {
         throw new Error("Не удалось определить отчет");
       }
-      if (!rowData.material) {
+      if (!rowData.project_material) {
         throw new Error("Не удалось определить материал");
       }
 
@@ -146,7 +148,7 @@ export const ShiftReportMaterialsTable = ({
           id: editingRecord.shift_report_material_id,
           data: {
             shift_report: shiftReportId,
-            material: rowData.material,
+            project_material: rowData.project_material,
             quantity: Number(rowData.quantity),
             shift_report_detail: editingRecord.shift_report_detail ?? null,
           },
@@ -160,7 +162,7 @@ export const ShiftReportMaterialsTable = ({
       } else {
         await createShiftReportMaterialMutation.mutateAsync({
           shift_report: shiftReportId,
-          material: rowData.material,
+          project_material: rowData.project_material,
           quantity: Number(rowData.quantity),
           shift_report_detail: null,
         });
@@ -215,33 +217,33 @@ export const ShiftReportMaterialsTable = ({
     }
   };
 
-  const renderSource = (value: string | null) => {
-    if (!value) {
-      return "—";
-    }
-    const detail = detailsMap[value];
-    if (!detail) {
-      return "—";
-    }
-    const projectWorkName = detail.project_work?.name ?? "";
-    const workName = worksMap[detail.work]?.name ?? "";
-    return [projectWorkName, workName].filter(Boolean).join(" / ") || "—";
+  const renderProjectWork = (projectMaterialId: string) => {
+    const projectWorkId = projectMaterialsMap[projectMaterialId]?.project_work;
+    return projectWorkId
+      ? projectWorksMap[projectWorkId]?.project_work_name ?? "—"
+      : "—";
   };
 
   const columns = [
     {
       title: "Материал",
-      dataIndex: "material",
-      key: "material",
-      render: (materialId: string) =>
-        materialsMap[materialId]?.name ?? materialId,
+      dataIndex: "project_material",
+      key: "project_material",
+      render: (projectMaterialId: string) => {
+        const projectMaterial = projectMaterialsMap[projectMaterialId];
+        return projectMaterial
+          ? materialsMap[projectMaterial.material]?.name ??
+              projectMaterial.material
+          : "—";
+      },
     },
-    // {
-    //   title: "Наименование в спецификации",
-    //   dataIndex: "project_material_name",
-    //   key: "project_material_name",
-    //   render: (value: string | undefined) => value ?? "—",
-    // },
+    {
+      title: "Наименование в спецификации",
+      dataIndex: "project_material",
+      key: "project_material_name",
+      render: (projectMaterialId: string) =>
+        projectMaterialsMap[projectMaterialId]?.project_material_name ?? "—",
+    },
     {
       title: "Количество",
       dataIndex: "quantity",
@@ -249,9 +251,9 @@ export const ShiftReportMaterialsTable = ({
     },
     {
       title: "Работа",
-      dataIndex: "shift_report_detail",
+      dataIndex: "project_material",
       key: "shift_report_detail",
-      render: renderSource,
+      render: renderProjectWork,
     },
     {
       title: "Проверка",
@@ -324,7 +326,7 @@ export const ShiftReportMaterialsTable = ({
         bordered={!isMobile()}
         dataSource={shiftReportMaterialsData}
         columns={tableColumns}
-        loading={isLoading}
+        loading={isLoading || isProjectMaterialsPending}
         className="shift-report__materials-table"
       />
       <Modal
@@ -340,14 +342,20 @@ export const ShiftReportMaterialsTable = ({
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            label="Материал"
-            name="material"
-            rules={[{ required: true, message: "Выберите материал" }]}
+            label="Материал из спецификации"
+            name="project_material"
+            rules={[
+              {
+                required: true,
+                message: "Выберите материал из спецификации",
+              },
+            ]}
           >
             <Select
               showSearch
               filterOption={selectFilterHandler}
-              options={selectableMaterialsOptions}
+              loading={isProjectMaterialsPending}
+              options={projectMaterialsOptions}
             />
           </Form.Item>
           <Form.Item
