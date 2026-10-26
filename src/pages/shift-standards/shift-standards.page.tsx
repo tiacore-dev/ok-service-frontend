@@ -39,6 +39,8 @@ import { RoleId } from "../../interfaces/roles/IRole";
 interface ShiftStandardFormValues {
   category: number;
   standard: number;
+  production_rate_rub?: number | null;
+  penalty_rate_percent?: number | null;
   notification_text?: string;
 }
 
@@ -117,6 +119,8 @@ export const ShiftStandards = () => {
     form.setFieldsValue({
       category: standard.category,
       standard: standard.standard,
+      production_rate_rub: standard.production_rate_rub,
+      penalty_rate_percent: standard.penalty_rate_percent,
       notification_text: standard.notification_text,
     });
     setCreateModalOpen(true);
@@ -211,6 +215,20 @@ export const ShiftStandards = () => {
       dataIndex: "standard",
       key: "standard",
       render: (value: number) => `${value} ч.`,
+    },
+    {
+      title: "Норматив руб.",
+      dataIndex: "production_rate_rub",
+      key: "production_rate_rub",
+      render: (value?: number | null) =>
+        typeof value === "number" ? `${value} руб.` : "—",
+    },
+    {
+      title: "Штраф %",
+      dataIndex: "penalty_rate_percent",
+      key: "penalty_rate_percent",
+      render: (value?: number | null) =>
+        typeof value === "number" ? `${value}%` : "—",
     },
     {
       title: "Текст уведомления",
@@ -388,6 +406,38 @@ export const ShiftStandards = () => {
               precision={0}
               onKeyDown={preventNonIntegerKey}
               onPaste={preventInvalidIntegerPaste}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Норматив руб."
+            name="production_rate_rub"
+            rules={[
+              {
+                type: "number",
+                min: 0,
+                message: "Укажите норматив не меньше 0 руб.",
+              },
+            ]}
+          >
+            <InputNumber min={0} precision={2} style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item
+            label="Штраф %"
+            name="penalty_rate_percent"
+            rules={[
+              {
+                type: "number",
+                min: 0,
+                max: 100,
+                message: "Укажите штраф от 0 до 100%",
+              },
+            ]}
+          >
+            <InputNumber
+              min={0}
+              max={100}
+              precision={2}
               style={{ width: "100%" }}
             />
           </Form.Item>

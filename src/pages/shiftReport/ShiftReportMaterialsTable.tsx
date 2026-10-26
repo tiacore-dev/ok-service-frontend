@@ -273,7 +273,8 @@ export const ShiftReportMaterialsTable = ({
       key: "check",
       hidden: !showCheck,
       render: (_: unknown, record: IShiftReportMaterialsListColumn) => {
-        const materialId = projectMaterialsMap[record.project_material]?.material;
+        const materialId =
+          projectMaterialsMap[record.project_material]?.material;
         const stat = materialId ? materialStats?.[materialId] : undefined;
         if (!stat) return "—";
         const available =

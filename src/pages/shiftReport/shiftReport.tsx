@@ -549,6 +549,7 @@ export const ShiftReport = () => {
             open={isCompletionModalOpen}
             shiftReport={shiftReportData}
             completedAt={completionTime}
+            totalSum={totalSum}
             shiftStandard={shiftStandard}
             loading={isCompletingShift}
             onConfirm={handleCompleteShift}

@@ -4,6 +4,8 @@ import type { IShiftStandard } from "../interfaces/shiftStandards/IShiftStandard
 export interface CreateShiftStandardPayload {
   category: number;
   standard: number;
+  production_rate_rub?: number | null;
+  penalty_rate_percent?: number | null;
   notification_text?: string;
 }
 
