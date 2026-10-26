@@ -8,6 +8,7 @@ interface ShiftCompletionModalProps {
   open: boolean;
   shiftReport: IShiftReport;
   completedAt: number;
+  totalSum: number;
   shiftStandard?: IShiftStandard;
   loading: boolean;
   onConfirm: () => void;
@@ -35,6 +36,7 @@ export const ShiftCompletionModal = ({
   open,
   shiftReport,
   completedAt,
+  totalSum,
   shiftStandard,
   loading,
   onConfirm,
@@ -47,8 +49,9 @@ export const ShiftCompletionModal = ({
   const isBelowStandard =
     !shiftReport.short_shift &&
     typeof durationInMinutes === "number" &&
-    Boolean(shiftStandard) &&
-    durationInMinutes < shiftStandard.standard * 60;
+    typeof shiftStandard?.production_rate_rub === "number" &&
+    durationInMinutes < shiftStandard.standard * 60 &&
+    totalSum < shiftStandard.production_rate_rub;
 
   return (
     <Modal
@@ -77,7 +80,7 @@ export const ShiftCompletionModal = ({
           showIcon
           message={
             shiftStandard.notification_text ||
-            "Продолжительность смены меньше установленного норматива."
+            "Продолжительность и сумма смены меньше установленных нормативов."
           }
         />
       )}
