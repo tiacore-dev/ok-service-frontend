@@ -88,25 +88,25 @@
         ]
       }
     },
-    "/acceptances/{acceptance_id}/attachments": {
+    "/acceptances/comments/{comment_id}": {
       "parameters": [
         {
-          "name": "acceptance_id",
+          "name": "comment_id",
           "in": "path",
           "required": true,
           "type": "string"
         }
       ],
-      "get": {
+      "delete": {
         "responses": {
           "200": {
             "description": "Success",
             "schema": {
-              "$ref": "#/definitions/AttachmentList"
+              "$ref": "#/definitions/AcceptanceCommentMessage"
             }
           }
         },
-        "operationId": "get_attachment_collection",
+        "operationId": "delete_acceptance_comment_item",
         "parameters": [
           {
             "name": "X-Fields",
@@ -117,9 +117,94 @@
           }
         ],
         "tags": [
-          "work_acceptance_attachments"
+          "acceptance_comments"
         ]
       },
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AcceptanceComment"
+            }
+          }
+        },
+        "operationId": "patch_acceptance_comment_item",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AcceptanceCommentCreate"
+            }
+          }
+        ],
+        "tags": [
+          "acceptance_comments"
+        ]
+      }
+    },
+    "/acceptances/comments/{comment_id}/attachments": {
+      "parameters": [
+        {
+          "name": "comment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/AcceptanceComment"
+            }
+          }
+        },
+        "operationId": "post_acceptance_comment_attachment_collection",
+        "tags": [
+          "acceptance_comments"
+        ]
+      }
+    },
+    "/acceptances/comments/{comment_id}/attachments/{attachment_id}/download": {
+      "parameters": [
+        {
+          "name": "comment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_acceptance_comment_attachment_download",
+        "tags": [
+          "acceptance_comments"
+        ]
+      }
+    },
+    "/acceptances/{acceptance_id}/attachments": {
+      "parameters": [
+        {
+          "name": "acceptance_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
       "post": {
         "responses": {
           "200": {
@@ -148,6 +233,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "work_acceptance_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "work_acceptance_attachments"
@@ -217,6 +325,54 @@
         "operationId": "get_attachment_download",
         "tags": [
           "work_acceptance_attachments"
+        ]
+      }
+    },
+    "/acceptances/{acceptance_id}/comments": {
+      "parameters": [
+        {
+          "name": "acceptance_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/AcceptanceComment"
+            }
+          }
+        },
+        "operationId": "post_acceptance_comment_collection",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AcceptanceCommentCreate"
+            }
+          }
+        ],
+        "tags": [
+          "acceptance_comments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AcceptanceCommentList"
+            }
+          }
+        },
+        "operationId": "get_acceptance_comment_collection",
+        "tags": [
+          "acceptance_comments"
         ]
       }
     },
@@ -870,6 +1026,25 @@
             "description": "An optional fields mask"
           }
         ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "Current server session and its bound push subscription revoked"
+          },
+          "401": {
+            "description": "JWT session is invalid or already revoked"
+          },
+          "503": {
+            "description": "Authentication storage is unavailable"
+          }
+        },
+        "operationId": "post_auth_logout",
         "tags": [
           "auth"
         ]
@@ -1865,6 +2040,32 @@
         ]
       }
     },
+    "/notifications/push/subscription": {
+      "put": {
+        "responses": {
+          "401": {
+            "description": "JWT session or browser binding is invalid"
+          },
+          "503": {
+            "description": "Storage unavailable"
+          }
+        },
+        "operationId": "put_current_browser_push_subscription",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/PushSubscription"
+            }
+          }
+        ],
+        "tags": [
+          "notifications/push"
+        ]
+      }
+    },
     "/object_statuses/all": {
       "get": {
         "responses": {
@@ -2162,29 +2363,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "object_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -2213,6 +2391,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "object_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "object_attachments"
@@ -2558,29 +2759,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "place_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -2609,6 +2787,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "place_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "place_attachments"
@@ -4333,29 +4534,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "project_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -4384,6 +4562,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "project_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "project_attachments"
@@ -5794,6 +5995,114 @@
         ]
       }
     },
+    "/shift_reports/comments/{comment_id}": {
+      "parameters": [
+        {
+          "name": "comment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportCommentMessage"
+            }
+          }
+        },
+        "operationId": "delete_shift_report_comment_item",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
+        ],
+        "tags": [
+          "shift_report_comments"
+        ]
+      },
+      "patch": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportComment"
+            }
+          }
+        },
+        "operationId": "patch_shift_report_comment_item",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportCommentCreate"
+            }
+          }
+        ],
+        "tags": [
+          "shift_report_comments"
+        ]
+      }
+    },
+    "/shift_reports/comments/{comment_id}/attachments": {
+      "parameters": [
+        {
+          "name": "comment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportComment"
+            }
+          }
+        },
+        "operationId": "post_shift_report_comment_attachment_collection",
+        "tags": [
+          "shift_report_comments"
+        ]
+      }
+    },
+    "/shift_reports/comments/{comment_id}/attachments/{attachment_id}/download": {
+      "parameters": [
+        {
+          "name": "comment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "attachment_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_shift_report_comment_attachment_download",
+        "tags": [
+          "shift_report_comments"
+        ]
+      }
+    },
     "/shift_reports/{report_id}/delete/hard": {
       "parameters": [
         {
@@ -6042,29 +6351,6 @@
           "type": "string"
         }
       ],
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/AttachmentList"
-            }
-          }
-        },
-        "operationId": "get_attachment_collection",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "shift_report_attachments"
-        ]
-      },
       "post": {
         "responses": {
           "200": {
@@ -6093,6 +6379,29 @@
         ],
         "consumes": [
           "multipart/form-data"
+        ],
+        "tags": [
+          "shift_report_attachments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/AttachmentList"
+            }
+          }
+        },
+        "operationId": "get_attachment_collection",
+        "parameters": [
+          {
+            "name": "X-Fields",
+            "in": "header",
+            "type": "string",
+            "format": "mask",
+            "description": "An optional fields mask"
+          }
         ],
         "tags": [
           "shift_report_attachments"
@@ -6162,6 +6471,54 @@
         "operationId": "get_attachment_download",
         "tags": [
           "shift_report_attachments"
+        ]
+      }
+    },
+    "/shift_reports/{shift_report_id}/comments": {
+      "parameters": [
+        {
+          "name": "shift_report_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportComment"
+            }
+          }
+        },
+        "operationId": "post_shift_report_comment_collection",
+        "parameters": [
+          {
+            "name": "payload",
+            "required": true,
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportCommentCreate"
+            }
+          }
+        ],
+        "tags": [
+          "shift_report_comments"
+        ]
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ShiftReportCommentList"
+            }
+          }
+        },
+        "operationId": "get_shift_report_comment_collection",
+        "tags": [
+          "shift_report_comments"
         ]
       }
     },
@@ -6296,178 +6653,6 @@
         "operationId": "get_shift_standard_view",
         "tags": [
           "shift_standards"
-        ]
-      }
-    },
-    "/subscriptions/all": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/SubscriptionAllResponse"
-            }
-          }
-        },
-        "operationId": "get_get_all_subscriptions",
-        "parameters": [
-          {
-            "name": "offset",
-            "in": "query",
-            "type": "integer",
-            "description": "Offset for pagination",
-            "default": 0
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "type": "integer",
-            "description": "Limit for pagination",
-            "default": 10
-          },
-          {
-            "name": "sort_by",
-            "in": "query",
-            "type": "string",
-            "description": "Field for sorting"
-          },
-          {
-            "name": "sort_order",
-            "in": "query",
-            "type": "string",
-            "description": "Sorting order",
-            "enum": [
-              "asc",
-              "desc"
-            ]
-          },
-          {
-            "name": "user",
-            "in": "query",
-            "type": "string",
-            "description": "Filter by user"
-          },
-          {
-            "name": "endpoint",
-            "in": "query",
-            "type": "string",
-            "description": "Filter by endpoint"
-          },
-          {
-            "name": "keys",
-            "in": "query",
-            "type": "string",
-            "description": "Filter by keys"
-          },
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "subscriptions"
-        ]
-      }
-    },
-    "/subscriptions/send_notification": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/SubscriptionMessage"
-            }
-          }
-        },
-        "operationId": "post_send_notification",
-        "parameters": [
-          {
-            "name": "payload",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/Notification"
-            }
-          },
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "subscriptions"
-        ]
-      }
-    },
-    "/subscriptions/subscribe": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/SubscriptionMessage"
-            }
-          }
-        },
-        "operationId": "post_subscribe",
-        "parameters": [
-          {
-            "name": "payload",
-            "required": true,
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/SubscriptionCreate"
-            }
-          },
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "subscriptions"
-        ]
-      }
-    },
-    "/subscriptions/{subscription_id}/unsubscribe": {
-      "parameters": [
-        {
-          "name": "subscription_id",
-          "in": "path",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "delete": {
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/SubscriptionMessage"
-            }
-          }
-        },
-        "operationId": "delete_unsubscribe",
-        "parameters": [
-          {
-            "name": "X-Fields",
-            "in": "header",
-            "type": "string",
-            "format": "mask",
-            "description": "An optional fields mask"
-          }
-        ],
-        "tags": [
-          "subscriptions"
         ]
       }
     },
@@ -8644,6 +8829,10 @@
       "description": "Authentication related operations"
     },
     {
+      "name": "notifications/push",
+      "description": "Current browser push subscription"
+    },
+    {
       "name": "project_attachments",
       "description": "Project attachments"
     },
@@ -8666,10 +8855,6 @@
     {
       "name": "roles",
       "description": "Role management operations"
-    },
-    {
-      "name": "subscriptions",
-      "description": "Subscription actions"
     },
     {
       "name": "api-key",
@@ -8766,6 +8951,14 @@
     {
       "name": "acceptances",
       "description": "Acceptances management operations"
+    },
+    {
+      "name": "shift_report_comments",
+      "description": "Shift report comment stream"
+    },
+    {
+      "name": "acceptance_comments",
+      "description": "Acceptance comment stream"
     },
     {
       "name": "work_acceptance_relations",
@@ -8900,6 +9093,26 @@
       },
       "type": "object"
     },
+    "PushSubscription": {
+      "required": [
+        "platform",
+        "token"
+      ],
+      "properties": {
+        "platform": {
+          "type": "string",
+          "example": "web",
+          "enum": [
+            "web"
+          ]
+        },
+        "token": {
+          "type": "string",
+          "description": "FCM token"
+        }
+      },
+      "type": "object"
+    },
     "AttachmentList": {
       "required": [
         "msg"
@@ -8995,90 +9208,6 @@
         "name": {
           "type": "string",
           "description": "Название роли."
-        }
-      },
-      "type": "object"
-    },
-    "SubscriptionCreate": {
-      "properties": {
-        "endpoint": {
-          "type": "string"
-        },
-        "keys": {
-          "type": "object"
-        }
-      },
-      "type": "object"
-    },
-    "SubscriptionMessage": {
-      "properties": {
-        "msg": {
-          "type": "string",
-          "description": "Response message"
-        },
-        "subscription_id": {
-          "type": "string",
-          "description": "ID of subscription"
-        }
-      },
-      "type": "object"
-    },
-    "Notification": {
-      "required": [
-        "message",
-        "subscription_id"
-      ],
-      "properties": {
-        "subscription_id": {
-          "type": "string",
-          "description": "Subscription ID"
-        },
-        "message": {
-          "type": "string",
-          "description": "Message that you want to send in web-push"
-        }
-      },
-      "type": "object"
-    },
-    "SubscriptionAllResponse": {
-      "properties": {
-        "msg": {
-          "type": "string",
-          "description": "Response message"
-        },
-        "subscriptions": {
-          "type": "array",
-          "description": "List of subscriptions",
-          "items": {
-            "$ref": "#/definitions/SubscriptionModel"
-          }
-        }
-      },
-      "type": "object"
-    },
-    "SubscriptionModel": {
-      "required": [
-        "endpoint",
-        "keys",
-        "subscription_id",
-        "user"
-      ],
-      "properties": {
-        "subscription_id": {
-          "type": "string",
-          "description": "Subscription ID"
-        },
-        "user": {
-          "type": "string",
-          "description": "Subscription ID"
-        },
-        "endpoint": {
-          "type": "string",
-          "description": "Subscription ID"
-        },
-        "keys": {
-          "type": "string",
-          "description": "Subscription ID"
         }
       },
       "type": "object"
@@ -13931,6 +14060,234 @@
             "accepted_on_site",
             "documents_signed"
           ]
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportCommentCreate": {
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportComment": {
+      "required": [
+        "attachments",
+        "created_at",
+        "created_by",
+        "shift_report_comment_id",
+        "text"
+      ],
+      "properties": {
+        "shift_report_comment_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "author_name": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer"
+        },
+        "updated_at": {
+          "type": "integer"
+        },
+        "browser_id": {
+          "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ShiftReportCommentAttachment"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportCommentAttachment": {
+      "required": [
+        "attachment_id",
+        "checksum",
+        "created_at",
+        "created_by",
+        "file_size",
+        "meta",
+        "name"
+      ],
+      "properties": {
+        "attachment_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "file_size": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string"
+        },
+        "meta": {
+          "type": "object"
+        },
+        "created_at": {
+          "type": "integer"
+        },
+        "created_by": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportCommentList": {
+      "required": [
+        "comments",
+        "total"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "comments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ShiftReportComment"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "ShiftReportCommentMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "AcceptanceCommentCreate": {
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "AcceptanceComment": {
+      "required": [
+        "acceptance_comment_id",
+        "attachments",
+        "created_at",
+        "created_by",
+        "text"
+      ],
+      "properties": {
+        "acceptance_comment_id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "author_name": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "integer"
+        },
+        "updated_at": {
+          "type": "integer"
+        },
+        "browser_id": {
+          "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcceptanceCommentAttachment"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "AcceptanceCommentAttachment": {
+      "required": [
+        "attachment_id",
+        "checksum",
+        "created_at",
+        "created_by",
+        "file_size",
+        "meta",
+        "name"
+      ],
+      "properties": {
+        "attachment_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "file_size": {
+          "type": "integer"
+        },
+        "checksum": {
+          "type": "string"
+        },
+        "meta": {
+          "type": "object"
+        },
+        "created_at": {
+          "type": "integer"
+        },
+        "created_by": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "AcceptanceCommentList": {
+      "required": [
+        "comments",
+        "total"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "comments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AcceptanceComment"
+          }
+        }
+      },
+      "type": "object"
+    },
+    "AcceptanceCommentMessage": {
+      "required": [
+        "msg"
+      ],
+      "properties": {
+        "msg": {
+          "type": "string"
         }
       },
       "type": "object"

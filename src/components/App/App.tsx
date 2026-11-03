@@ -152,6 +152,7 @@ export const useloadSourse = (): {
 export const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const authData = useSelector((state: IState) => state.auth);
   const isAuth = authData.isAuth;
   React.useEffect(() => {
@@ -163,6 +164,12 @@ export const App = () => {
       }
     }
   }, [isAuth, location]);
+
+  React.useEffect(() => {
+    if (!isAuth) {
+      queryClient.clear();
+    }
+  }, [isAuth, queryClient]);
 
   const mobile = isMobile();
 
