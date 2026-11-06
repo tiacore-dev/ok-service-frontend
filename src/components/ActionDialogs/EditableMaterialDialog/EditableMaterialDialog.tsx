@@ -113,7 +113,8 @@ export const EditableMaterialDialog = (props: IEditableMaterialDialogProps) => {
       dispatch(
         editMaterialAction.setMaterialData({
           name: material.name,
-          measurement_unit: material.measurement_unit?.measurement_unit_id ?? "",
+          measurement_unit:
+            material.measurement_unit?.measurement_unit_id ?? "",
           deleted: material.deleted,
           sent: false,
         }),
