@@ -40,14 +40,33 @@ export const NotificationBell = () => {
 
   React.useEffect(() => {
     let unsubscribe: (() => void) | undefined;
-    void subscribeToForegroundMessages(() => {
+    void subscribeToForegroundMessages((payload) => {
       void notificationsQuery.refetch();
       void countQuery.refetch();
+      const title = payload.data?.title || "Новое уведомление";
+      const text = payload.data?.body || "У вас появилось новое уведомление";
+      messageApi.open({
+        type: "info",
+        content: (
+          <span
+            style={{
+              display: "block",
+              maxWidth: 320,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {`${title}: ${text.split(/\r?\n/, 1)[0]}`}
+          </span>
+        ),
+        duration: 6,
+      });
     }).then((cleanup) => {
       unsubscribe = cleanup;
     });
     return () => unsubscribe?.();
-  }, [countQuery.refetch, notificationsQuery.refetch]);
+  }, [countQuery.refetch, messageApi, notificationsQuery.refetch]);
 
   const enablePush = async () => {
     try {
