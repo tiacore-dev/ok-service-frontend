@@ -16,7 +16,9 @@ import { subscribeToForegroundMessages } from "../../notifications/firebase";
 import {
   useMarkNotificationViewedMutation,
   useNotificationsQuery,
+  useNotificationSubscriptionsQuery,
   useRegisterNotificationSubscriptionMutation,
+  useRevokeNotificationSubscriptionMutation,
   useUnreadNotificationsCountQuery,
 } from "../../queries/notifications";
 
@@ -25,9 +27,16 @@ export const NotificationBell = () => {
   const [open, setOpen] = React.useState(false);
   const notificationsQuery = useNotificationsQuery({ offset: 0, limit: 8 });
   const countQuery = useUnreadNotificationsCountQuery();
+  const subscriptionsQuery = useNotificationSubscriptionsQuery();
   const markViewed = useMarkNotificationViewedMutation();
   const registerSubscription = useRegisterNotificationSubscriptionMutation();
+  const revokeSubscription = useRevokeNotificationSubscriptionMutation();
   const [messageApi, messageContextHolder] = message.useMessage();
+  const activeSubscription = subscriptionsQuery.data?.items.find(
+    (subscription) => subscription.platform === "web" && subscription.active,
+  );
+  const pushLoading =
+    registerSubscription.isPending || revokeSubscription.isPending;
 
   React.useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -42,6 +51,13 @@ export const NotificationBell = () => {
 
   const enablePush = async () => {
     try {
+      if (activeSubscription) {
+        await revokeSubscription.mutateAsync(
+          activeSubscription.subscription_id,
+        );
+        messageApi.success("Уведомления выключены");
+        return;
+      }
       const token = await requestWebPushToken();
       await registerSubscription.mutateAsync({ platform: "web", token });
       messageApi.success("Уведомления включены");
@@ -77,6 +93,7 @@ export const NotificationBell = () => {
           if (nextOpen) {
             void notificationsQuery.refetch();
             void countQuery.refetch();
+            void subscriptionsQuery.refetch();
           }
         }}
         trigger={["click"]}
@@ -94,10 +111,13 @@ export const NotificationBell = () => {
             <Typography.Text strong>Уведомления</Typography.Text>
             <Button
               type="link"
+              danger
               onClick={() => void enablePush()}
-              loading={registerSubscription.isPending}
+              loading={pushLoading}
             >
-              Включить уведомления
+              {activeSubscription
+                ? "Выключить уведомления"
+                : "Включить уведомления"}
             </Button>
             {notificationsQuery.isLoading ? (
               <Spin style={{ display: "block", margin: "24px auto" }} />
@@ -119,7 +139,19 @@ export const NotificationBell = () => {
                   >
                     <List.Item.Meta
                       title={item.title}
-                      description={item.text}
+                      description={
+                        <Typography.Text
+                          style={{
+                            display: "block",
+                            maxWidth: 280,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {item.text}
+                        </Typography.Text>
+                      }
                     />
                   </List.Item>
                 )}
