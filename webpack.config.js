@@ -92,6 +92,9 @@ module.exports = () => {
       new WorkboxWebpackPlugin.InjectManifest({
         swSrc: "./src/src-sw.js",
         swDest: "sw.js",
+        webpackCompilationPlugins: [
+          new webpack.DefinePlugin({ process: { env: envKeys } }),
+        ],
       }),
       new webpack.DefinePlugin({ process: { env: envKeys } }),
     ],
