@@ -41,11 +41,7 @@ export const NotificationBell = () => {
       if (error && typeof error === "object" && "response" in error) {
         return;
       }
-      setPushMessage(
-        error instanceof Error
-          ? error.message
-          : "Не удалось включить уведомления",
-      );
+      setPushMessage("Уведомления временно недоступны");
     }
   };
 
