@@ -24,6 +24,15 @@ ENV REACT_APP_API_URL=$REACT_APP_API_URL \
     CI=false \
     GENERATE_SOURCEMAP=false
 
+# Fail before installing dependencies if a Firebase build argument is missing.
+RUN : "${REACT_APP_FIREBASE_API_KEY:?Missing REACT_APP_FIREBASE_API_KEY}" \
+    && : "${REACT_APP_FIREBASE_AUTH_DOMAIN:?Missing REACT_APP_FIREBASE_AUTH_DOMAIN}" \
+    && : "${REACT_APP_FIREBASE_PROJECT_ID:?Missing REACT_APP_FIREBASE_PROJECT_ID}" \
+    && : "${REACT_APP_FIREBASE_STORAGE_BUCKET:?Missing REACT_APP_FIREBASE_STORAGE_BUCKET}" \
+    && : "${REACT_APP_FIREBASE_MESSAGING_SENDER_ID:?Missing REACT_APP_FIREBASE_MESSAGING_SENDER_ID}" \
+    && : "${REACT_APP_FIREBASE_APP_ID:?Missing REACT_APP_FIREBASE_APP_ID}" \
+    && : "${REACT_APP_FIREBASE_VAPID_KEY:?Missing REACT_APP_FIREBASE_VAPID_KEY}"
+
 # Copy only manifest files to leverage Docker layer caching.
 COPY package.json package-lock.json ./
 
