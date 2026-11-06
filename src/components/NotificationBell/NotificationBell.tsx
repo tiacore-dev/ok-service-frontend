@@ -48,7 +48,9 @@ export const NotificationBell = () => {
       void countQuery.refetch();
       const title = payload.data?.title || "Новое уведомление";
       const text = payload.data?.body || "У вас появилось новое уведомление";
+      const notificationId = payload.data?.notification_id;
       notificationApi.info({
+        key: notificationId,
         message: title,
         description: (
           <span
@@ -65,12 +67,28 @@ export const NotificationBell = () => {
         ),
         placement: "topRight",
         duration: 6,
+        onClick: notificationId
+          ? async () => {
+              try {
+                await markViewed.mutateAsync(notificationId);
+                navigate(`/notifications?notification_id=${notificationId}`);
+              } catch {
+                return;
+              }
+            }
+          : undefined,
       });
     }).then((cleanup) => {
       unsubscribe = cleanup;
     });
     return () => unsubscribe?.();
-  }, [countQuery.refetch, notificationApi, notificationsQuery.refetch]);
+  }, [
+    countQuery.refetch,
+    markViewed,
+    navigate,
+    notificationApi,
+    notificationsQuery.refetch,
+  ]);
 
   const enablePush = async () => {
     try {
