@@ -20,6 +20,9 @@ firebase.initializeApp({
 });
 
 firebase.messaging().onBackgroundMessage((payload) => {
+  // Firebase automatically displays notification payloads in the background.
+  // Avoid showing the same push a second time manually.
+  if (payload.notification) return;
   const data = payload.data || {};
   self.registration.showNotification(data.title || "Уведомление", {
     body: data.body || "",
