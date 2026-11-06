@@ -67,6 +67,7 @@ export const NotificationBell = () => {
         ),
         placement: "topRight",
         duration: 6,
+        style: { cursor: notificationId ? "pointer" : "default" },
         onClick: notificationId
           ? async () => {
               try {
