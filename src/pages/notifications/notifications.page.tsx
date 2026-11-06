@@ -12,7 +12,7 @@ import {
 } from "antd";
 import { LinkOutlined } from "@ant-design/icons";
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   useNotificationSubscriptionsQuery,
   useNotificationsQuery,
@@ -22,6 +22,7 @@ import {
 
 export const Notifications = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [offset, setOffset] = React.useState(0);
   const [selectedId, setSelectedId] = React.useState<string>();
   const [openingId, setOpeningId] = React.useState<string>();
@@ -33,6 +34,26 @@ export const Notifications = () => {
   const markViewed = useMarkNotificationViewedMutation();
   const items = notifications.data?.items ?? [];
   const selected = items.find((item) => item.notification_id === selectedId);
+
+  React.useEffect(() => {
+    const requestedId = searchParams.get("notification_id");
+    const requested = items.find(
+      (item) => item.notification_id === requestedId,
+    );
+    if (!requested || selectedId === requested.notification_id || openingId) {
+      return;
+    }
+    if (requested.viewed) {
+      setSelectedId(requested.notification_id);
+      return;
+    }
+    setOpeningId(requested.notification_id);
+    void markViewed
+      .mutateAsync(requested.notification_id)
+      .then(() => setSelectedId(requested.notification_id))
+      .catch(() => setOpenError("Не удалось открыть уведомление"))
+      .finally(() => setOpeningId(undefined));
+  }, [items, openingId, searchParams, selectedId, markViewed]);
 
   const formatDate = (value: number | null | undefined) => {
     if (!value) return "—";
