@@ -2040,6 +2040,74 @@
         ]
       }
     },
+    "/notifications": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_notification_history",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/admin/bulk": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "post_admin_bulk",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/admin/users/{user_id}": {
+      "parameters": [
+        {
+          "name": "user_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_admin_history",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/admin/users/{user_id}/push/subscriptions": {
+      "parameters": [
+        {
+          "name": "user_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_admin_devices",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/notifications/push/subscription": {
       "put": {
         "responses": {
@@ -2063,6 +2131,74 @@
         ],
         "tags": [
           "notifications/push"
+        ]
+      }
+    },
+    "/notifications/push/subscriptions": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_devices",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/push/subscriptions/{subscription_id}": {
+      "parameters": [
+        {
+          "name": "subscription_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "delete_device",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/unread-count": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "get_unread_count",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/notifications/{notification_id}/view": {
+      "parameters": [
+        {
+          "name": "notification_id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "operationId": "post_notification_viewed",
+        "tags": [
+          "notifications"
         ]
       }
     },
@@ -8831,6 +8967,10 @@
     {
       "name": "notifications/push",
       "description": "Current browser push subscription"
+    },
+    {
+      "name": "notifications",
+      "description": "Personal and administrative notifications"
     },
     {
       "name": "project_attachments",

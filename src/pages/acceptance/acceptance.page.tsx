@@ -23,6 +23,7 @@ import {
   acceptanceStatusOptions,
 } from "../../components/acceptances/AcceptanceFormModal";
 import { AcceptanceAttachments } from "./AcceptanceAttachments";
+import { ReportCommentsSection } from "../../components/ReportComments/ReportCommentsSection";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import type { IAcceptance } from "../../interfaces/acceptances/IAcceptance";
 import { RoleId } from "../../interfaces/roles/IRole";
@@ -408,7 +409,6 @@ export const Acceptance = () => {
           acceptanceId={acceptance.id}
           canManage={canManage}
         />
-
         <section className="acceptance__works">
           <div className="acceptance__section-header">
             <Title level={4} className="acceptance__section-title">
@@ -500,6 +500,16 @@ export const Acceptance = () => {
             ]}
           />
         </section>
+        <ReportCommentsSection
+          kind="acceptance"
+          parentId={acceptance.id}
+          canCreate={
+            role === RoleId.ADMIN ||
+            role === RoleId.MANAGER ||
+            role === RoleId.PROJECT_LEADER ||
+            role === RoleId.USER
+          }
+        />
       </main>
       {canManage && (
         <AcceptanceFormModal

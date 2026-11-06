@@ -46,6 +46,7 @@ import { ShiftReportPlaces } from "./ShiftReportPlaces";
 import { ShiftReportAttachments } from "./ShiftReportAttachments";
 import { ShiftCompletionModal } from "./ShiftCompletionModal";
 import { useShiftStandardsQuery } from "../../queries/shiftStandards";
+import { ReportCommentsSection } from "../../components/ReportComments/ReportCommentsSection";
 
 export const ShiftReport = () => {
   const currentRole = useSelector(getCurrentRole);
@@ -584,6 +585,16 @@ export const ShiftReport = () => {
             canDelete={canManageAttachments}
           />
         )}
+        <ReportCommentsSection
+          kind="shift"
+          parentId={shiftReportData.shift_report_id}
+          canCreate={
+            currentRole === RoleId.ADMIN ||
+            currentRole === RoleId.MANAGER ||
+            isProjectLeader ||
+            isShiftExecutor
+          }
+        />
 
         <EditableShiftReportDetailDialog
           visible={modalVisible}

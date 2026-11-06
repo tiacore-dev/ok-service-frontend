@@ -19,6 +19,7 @@ import {
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { useLogout } from "../../hooks/useLogout";
+import { NotificationBell } from "../NotificationBell/NotificationBell";
 
 const { Header } = Layout;
 
@@ -272,6 +273,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
         items={desktopItems}
       />
       <div className="header__user">
+        <NotificationBell />
         {screens.md && (
           <span className="header__user-name" title={userDisplayName}>
             {userDisplayName}

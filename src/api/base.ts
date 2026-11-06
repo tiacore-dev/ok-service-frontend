@@ -151,6 +151,14 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
     const originalRequest = error.config as RequestConfig | undefined;
 
+    const responseMessage =
+      error.response?.data && typeof error.response.data === "object"
+        ? (error.response.data as { msg?: unknown }).msg
+        : undefined;
+    if (status === 401 && responseMessage === "Browser identity is required") {
+      return Promise.reject(error);
+    }
+
     if (
       !originalRequest ||
       status !== 401 ||
