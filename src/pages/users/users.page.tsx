@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Breadcrumb, Button, Form, Input, Layout, Modal, Table } from "antd";
-import { SendOutlined } from "@ant-design/icons";
 import { usersDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
@@ -192,6 +191,8 @@ export const Users = () => {
           roleOptions={roleSelectOptions}
           cityOptions={citySelectOptions}
           categoryOptions={categoryOptions}
+          bulkDisabled={!selectedUserIds.length}
+          onBulkSend={() => setBulkOpen(true)}
         />
         <Table
           dataSource={filteredUsersData}
@@ -210,17 +211,6 @@ export const Users = () => {
             record.deleted ? "users__table__row--deleted" : ""
           }
         />
-        {currentRole === RoleId.ADMIN && (
-          <Button
-            type="primary"
-            icon={<SendOutlined />}
-            disabled={!selectedUserIds.length}
-            onClick={() => setBulkOpen(true)}
-            style={{ marginTop: 12 }}
-          >
-            Отправить уведомление
-          </Button>
-        )}
         <Modal
           title={`Новое уведомление (${selectedUserIds.length})`}
           open={bulkOpen}

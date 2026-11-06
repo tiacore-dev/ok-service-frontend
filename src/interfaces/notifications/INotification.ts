@@ -1,9 +1,12 @@
 export interface INotification {
   notification_id: string;
+  notification_type: string;
   title: string;
-  body: string;
-  route: string | null;
+  text: string;
   created_at: number;
+  link: string | null;
+  related_entity_type: string | null;
+  related_entity_id: string | null;
   viewed: boolean;
   viewed_at: number | null;
 }

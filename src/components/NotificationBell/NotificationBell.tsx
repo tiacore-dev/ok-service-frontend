@@ -53,10 +53,14 @@ export const NotificationBell = () => {
     notification: NonNullable<typeof notificationsQuery.data>["items"][number],
   ) => {
     if (!notification.viewed) {
-      await markViewed.mutateAsync(notification.notification_id);
+      try {
+        await markViewed.mutateAsync(notification.notification_id);
+      } catch {
+        return;
+      }
     }
     setOpen(false);
-    if (notification.route) navigate(notification.route);
+    if (notification.link) navigate(notification.link);
   };
 
   return (
@@ -105,12 +109,12 @@ export const NotificationBell = () => {
               renderItem={(item) => (
                 <List.Item
                   style={{
-                    cursor: item.route ? "pointer" : "default",
+                    cursor: item.link ? "pointer" : "default",
                     background: item.viewed ? undefined : "#fff5f5",
                   }}
                   onClick={() => void openNotification(item)}
                 >
-                  <List.Item.Meta title={item.title} description={item.body} />
+                  <List.Item.Meta title={item.title} description={item.text} />
                 </List.Item>
               )}
             />
