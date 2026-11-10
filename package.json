@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:work-tree": "node --test tests/work-category-tree.test.cjs tests/work-tree-moves.test.cjs tests/work-tree-select.test.cjs",
     "test:firebase-config": "node --test tests/firebase-config.test.cjs",
+    "test:work-price": "node --test tests/work-price.test.cjs",
+    "test:shift-work-availability": "node --test tests/shift-work-availability.test.cjs tests/work-prices-cache.test.cjs",
     "start": "webpack-dev-server --open --mode development --hot",
     "dev": "webpack --config webpack.config.js",
     "build": "webpack --mode production",
