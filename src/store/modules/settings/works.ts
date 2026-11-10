@@ -8,6 +8,7 @@ import {
 } from "../../../interfaces/works/IWorksFiltersState";
 
 export interface IWorksSettingsState {
+  viewMode: "list" | "tree";
   pagination: TablePaginationConfig;
   filters: Record<string, FilterValue | null>;
   sorter: SorterResult<IWorksListColumn>;
@@ -15,6 +16,7 @@ export interface IWorksSettingsState {
 }
 
 const initialState: IWorksSettingsState = {
+  viewMode: "list",
   pagination: {},
   filters: {},
   sorter: {},
@@ -25,6 +27,9 @@ const worksSettingsSlice = createSlice({
   name: "worksSettings",
   initialState,
   reducers: {
+    saveWorksViewMode: (state, action: { payload: "list" | "tree" }) => {
+      state.viewMode = action.payload;
+    },
     saveWorksTableState: (
       state: IWorksSettingsState,
       action: { payload: IWorksSettingsState },
@@ -49,6 +54,7 @@ const worksSettingsSlice = createSlice({
 });
 
 export const {
+  saveWorksViewMode,
   saveWorksTableState,
   saveWorksFiltersState,
   clearWorksTableState,

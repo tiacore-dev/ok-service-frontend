@@ -1,5 +1,6 @@
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import { Button, Input, Select, Space } from "antd";
+import { Button, Input, Select, Space, TreeSelect } from "antd";
+import type { WorkCategoryOption } from "../../../utils/workCategoryTree";
 import * as React from "react";
 import { isMobile } from "../../../utils/isMobile";
 import type {
@@ -11,13 +12,15 @@ import type {
 interface FiltersProps {
   filtersState: WorksFiltersState;
   onFiltersChange: (filters: WorksFiltersState) => void;
-  workCategoriesOptions: Array<{ label: string; value: string }>;
+  workCategoriesOptions: WorkCategoryOption[];
+  treeMode?: boolean;
 }
 
 export const WorksFilters: React.FC<FiltersProps> = ({
   filtersState,
   onFiltersChange,
   workCategoriesOptions,
+  treeMode,
 }) => {
   const sortButtonIcon =
     filtersState.sortOrder === "ascend" ? (
@@ -61,10 +64,12 @@ export const WorksFilters: React.FC<FiltersProps> = ({
         onChange={handleSearchChange}
         className="works_filters_input"
       />
-      <Select
+      <TreeSelect
         allowClear
+        showSearch
+        treeNodeFilterProp="title"
         className="works_filters_select"
-        options={workCategoriesOptions}
+        treeData={workCategoriesOptions}
         placeholder="Категория"
         value={filtersState.categoryId}
         onChange={handleCategoryChange}
@@ -79,23 +84,29 @@ export const WorksFilters: React.FC<FiltersProps> = ({
           { label: "Все", value: "all" },
         ]}
       />
-      <Select
-        className="works_filters_sort"
-        value={filtersState.sortField}
-        onChange={handleSortFieldChange}
-        options={[
-          { label: "Сортировка: по названию", value: "name" },
-          { label: "Сортировка: по категории", value: "category" },
-          { label: "Сортировка: по цене 1", value: "price1" },
-          { label: "Сортировка: по цене 2", value: "price2" },
-          { label: "Сортировка: по цене 3", value: "price3" },
-          { label: "Сортировка: по цене 4", value: "price4" },
-        ]}
-      />
+      {!treeMode && (
+        <Select
+          className="works_filters_sort"
+          value={filtersState.sortField}
+          onChange={handleSortFieldChange}
+          options={[
+            { label: "Сортировка: по названию", value: "name" },
+            { label: "Сортировка: по категории", value: "category" },
+            { label: "Сортировка: по цене 1", value: "price1" },
+            { label: "Сортировка: по цене 2", value: "price2" },
+            { label: "Сортировка: по цене 3", value: "price3" },
+            { label: "Сортировка: по цене 4", value: "price4" },
+          ]}
+        />
+      )}
 
-      <Button onClick={toggleSortOrder} icon={sortButtonIcon}>
-        {filtersState.sortOrder === "ascend" ? "По возрастанию" : "По убыванию"}
-      </Button>
+      {!treeMode && (
+        <Button onClick={toggleSortOrder} icon={sortButtonIcon}>
+          {filtersState.sortOrder === "ascend"
+            ? "По возрастанию"
+            : "По убыванию"}
+        </Button>
+      )}
     </Space>
   );
 };

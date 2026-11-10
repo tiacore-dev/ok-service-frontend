@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { Form, Input, InputNumber, Modal, Checkbox } from "antd";
 import type { IProjectWorksList } from "../../interfaces/projectWorks/IProjectWorksList";
 import { isMobile } from "../../utils/isMobile";
 import "./EditableProjectWorkDialog.less";
-import { EnhancedSelect } from "../../components/EnhancedSelect";
+import { WorkTreeSelect } from "../../components/WorkTreeSelect/WorkTreeSelect";
+import { useWorkTreeSelectData } from "../../hooks/useWorkTreeSelectData";
 import {
   useCreateProjectWorkMutation,
   useUpdateProjectWorkMutation,
   type EditableProjectWorkPayload,
 } from "../../queries/projectWorks";
 import { NotificationContext } from "../../contexts/NotificationContext";
-import { useWorksMap } from "../../queries/works";
 
 interface IEditableProjectWorkDialogProps {
   visible: boolean;
@@ -29,21 +29,8 @@ export const EditableProjectWorkDialog: React.FC<
   const [form] = Form.useForm();
   const createProjectWorkMutation = useCreateProjectWorkMutation();
   const updateProjectWorkMutation = useUpdateProjectWorkMutation();
-  const { works } = useWorksMap();
+  const { selectData } = useWorkTreeSelectData();
   const notificationApi = useContext(NotificationContext);
-
-  const customSelectFilterHandler = useCallback(
-    (
-      input: string,
-      option: {
-        title: string;
-        disabled: boolean;
-      },
-    ) =>
-      !option.disabled &&
-      (option?.title ?? "").toLowerCase().includes(input.toLowerCase()),
-    [],
-  );
 
   useEffect(() => {
     if (initialValues) {
@@ -56,27 +43,6 @@ export const EditableProjectWorkDialog: React.FC<
       form.resetFields();
     }
   }, [initialValues, form]);
-
-  // Создаем два варианта отображения для каждой работы
-  const worksOptions = useMemo(
-    () =>
-      works
-        .filter((el) => !el.deleted)
-        .map((el) => ({
-          // Для выпадающего списка - многострочный вариант
-          label: (
-            <span className="work-option-label">
-              {`${el.name} (${el.category.name})`}
-            </span>
-          ),
-          // Для отображения в поле - просто текст
-          value: el.work_id,
-          disabled: el.deleted,
-          // Добавляем текстовое представление для отображения в поле выбора
-          title: el.name,
-        })),
-    [works],
-  );
 
   const handleSubmit = useCallback(() => {
     form
@@ -171,15 +137,7 @@ export const EditableProjectWorkDialog: React.FC<
           label="Работа"
           rules={[{ required: true, message: "Пожалуйста, выберите работу" }]}
         >
-          <EnhancedSelect
-            filterOption={customSelectFilterHandler}
-            className="work-select"
-            options={worksOptions}
-            showSearch
-            optionFilterProp="title" // Используем title для поиска
-            optionLabelProp="title" // Используем title для отображения в поле
-            dropdownClassName="work-dropdown"
-          />
+          <WorkTreeSelect data={selectData} className="work-select" />
         </Form.Item>
 
         <Form.Item

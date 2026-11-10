@@ -3,7 +3,7 @@ import { Dropdown, Grid, Layout, Menu, Typography } from "antd";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import logo from "./logo.png";
 import { IState } from "../../store/modules";
 import {
@@ -16,8 +16,10 @@ import {
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { authlogout, getCurrentRole } from "../../store/modules/auth";
+import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
+import { useLogout } from "../../hooks/useLogout";
+import { NotificationBell } from "../NotificationBell/NotificationBell";
 
 const { Header } = Layout;
 
@@ -25,7 +27,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const desktopItems: ItemType[] = [];
   const role = useSelector(getCurrentRole);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { logout } = useLogout();
   const { Title } = Typography;
   const screens = Grid.useBreakpoint();
   const showBackButton = useSelector(
@@ -239,7 +241,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       return;
     }
     if (key === "logout") {
-      dispatch(authlogout());
+      void logout();
     }
   };
 
@@ -271,6 +273,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
         items={desktopItems}
       />
       <div className="header__user">
+        <NotificationBell />
         {screens.md && (
           <span className="header__user-name" title={userDisplayName}>
             {userDisplayName}

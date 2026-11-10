@@ -1,13 +1,12 @@
 import { Button, Descriptions, Space } from "antd";
 import * as React from "react";
-import { useDispatch } from "react-redux";
 import { useAuthData } from "../../../hooks/useAuth";
-import { authlogout } from "../../../store/modules/auth";
+import { useLogout } from "../../../hooks/useLogout";
 import { useloadSourse } from "../../../components/App/App";
 
 export const Account = () => {
   const data = useAuthData();
-  const dispatch = useDispatch();
+  const { logout, isLoggingOut } = useLogout();
 
   const { load, clearStates } = useloadSourse();
   const refresh = () => {
@@ -27,11 +26,7 @@ export const Account = () => {
       </Descriptions>
       <Space direction="vertical">
         <Button onClick={refresh}>Обновить данные</Button>
-        <Button
-          onClick={() => {
-            dispatch(authlogout());
-          }}
-        >
+        <Button onClick={logout} loading={isLoggingOut}>
           Выход
         </Button>
       </Space>

@@ -24,6 +24,7 @@ import { useRoles } from "../../queries/roles";
 import { useCitiesMap } from "../../queries/cities";
 import { usePositionsMap } from "../../queries/positions";
 import "./user.less";
+import { AdminUserNotifications } from "../../components/AdminUserNotifications/AdminUserNotifications";
 
 export const User = () => {
   const { Content } = Layout;
@@ -207,6 +208,9 @@ export const User = () => {
             <p>Активен: {userData.is_active ? "Да" : "Нет"}</p>
             {userData.deleted && <p>Удалён</p>}
           </Card>
+          {currentRole === RoleId.ADMIN && (
+            <AdminUserNotifications userId={userData.user_id} />
+          )}
         </Content>
       ) : (
         <Spin spinning={isLoading} />

@@ -3,6 +3,7 @@ import { Button, Form, Input, Space, message } from "antd";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../../hooks/useApi";
+import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import { ILoginData } from "../../../hooks/useAuth";
 import { authlogin } from "../../../store/modules/auth";
 import Title from "antd/es/typography/Title";
@@ -57,7 +58,10 @@ export const Login = () => {
         load(authLoginResponse.access_token);
         navigate("/home");
       } catch (err) {
-        const errorMessage = err?.message || String(err);
+        const errorMessage = getApiErrorMessage(
+          err,
+          "Не удалось выполнить вход",
+        );
         messageApi.error(errorMessage);
       }
     },

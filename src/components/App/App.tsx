@@ -57,6 +57,7 @@ import { SystemSettings } from "../../pages/system-settings/system-settings.page
 import { ShiftStandards } from "../../pages/shift-standards/shift-standards.page";
 import { Templates } from "../../pages/templates/templates.page";
 import { TemplateParameters } from "../../pages/templates/template-parameters.page";
+import { Notifications } from "../../pages/notifications/notifications.page";
 import { workPlansKeys } from "../../queries/workPlans";
 import { objectStatsKeys } from "../../queries/objectStats";
 import { projectLeaderStatsKeys } from "../../queries/projectLeaderStats";
@@ -152,6 +153,7 @@ export const useloadSourse = (): {
 export const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const authData = useSelector((state: IState) => state.auth);
   const isAuth = authData.isAuth;
   React.useEffect(() => {
@@ -164,7 +166,19 @@ export const App = () => {
     }
   }, [isAuth, location]);
 
+  React.useEffect(() => {
+    if (!isAuth) {
+      queryClient.clear();
+    }
+  }, [isAuth, queryClient]);
+
   const mobile = isMobile();
+
+  React.useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      void navigator.serviceWorker.register("/sw.js");
+    }
+  }, []);
 
   const [, contextHolder] = notification.useNotification();
 
@@ -193,6 +207,7 @@ export const App = () => {
               <Route index={true} element={<></>} />
               <Route path="home" element={<Main />} />
               <Route path="account" element={<Account />} />
+              <Route path="notifications" element={<Notifications />} />
               <Route path="manual" element={<Manual />} />
               <Route path="login" element={<Login />} />
               <Route path="objects">

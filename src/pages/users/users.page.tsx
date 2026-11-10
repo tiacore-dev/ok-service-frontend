@@ -1,5 +1,5 @@
-import { Breadcrumb, Layout, Table } from "antd";
 import * as React from "react";
+import { Breadcrumb, Button, Form, Input, Layout, Modal, Table } from "antd";
 import { usersDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
@@ -17,10 +17,22 @@ import { useCitiesMap } from "../../queries/cities";
 import { usePositionsMap } from "../../queries/positions";
 import { categoryMap } from "../../utils/categoryMap";
 import type { IUsersFiltersState } from "../../interfaces/users/IUsersFiltersState";
+import { getCurrentRole } from "../../store/modules/auth";
+import { RoleId } from "../../interfaces/roles/IRole";
+import { useSendBulkNotificationMutation } from "../../queries/notifications";
 
 export const Users = () => {
   const { Content } = Layout;
   const navigate = useNavigate();
+  const currentRole = useSelector(getCurrentRole);
+  const sendBulkNotification = useSendBulkNotificationMutation();
+  const [selectedUserIds, setSelectedUserIds] = React.useState<string[]>([]);
+  const [bulkOpen, setBulkOpen] = React.useState(false);
+  const [bulkForm] = Form.useForm<{
+    title: string;
+    text: string;
+    link?: string;
+  }>();
   const { data: usersList, isFetching } = useUsersQuery();
 
   const dispatch = useDispatch();
@@ -146,6 +158,23 @@ export const Users = () => {
     return sorted;
   }, [usersData, filtersState, rolesMap, citiesMap]);
 
+  const handleBulkSend = async (values: {
+    title: string;
+    text: string;
+    link?: string;
+  }) => {
+    await sendBulkNotification.mutateAsync({
+      recipient_user_ids: selectedUserIds,
+      title: values.title,
+      text: values.text,
+      ...(values.link?.trim() ? { link: values.link.trim() } : {}),
+      idempotency_key: crypto.randomUUID(),
+    });
+    setBulkOpen(false);
+    bulkForm.resetFields();
+    setSelectedUserIds([]);
+  };
+
   return (
     <>
       <Breadcrumb
@@ -162,16 +191,56 @@ export const Users = () => {
           roleOptions={roleSelectOptions}
           cityOptions={citySelectOptions}
           categoryOptions={categoryOptions}
+          bulkDisabled={!selectedUserIds.length}
+          onBulkSend={() => setBulkOpen(true)}
         />
         <Table
           dataSource={filteredUsersData}
           columns={columns}
+          rowSelection={
+            currentRole === RoleId.ADMIN
+              ? {
+                  selectedRowKeys: selectedUserIds,
+                  onChange: (keys) => setSelectedUserIds(keys as string[]),
+                }
+              : undefined
+          }
           loading={isFetching}
           pagination={false}
           rowClassName={(record) =>
             record.deleted ? "users__table__row--deleted" : ""
           }
         />
+        <Modal
+          title={`Новое уведомление (${selectedUserIds.length})`}
+          open={bulkOpen}
+          onCancel={() => setBulkOpen(false)}
+          footer={null}
+          destroyOnClose
+        >
+          <Form form={bulkForm} layout="vertical" onFinish={handleBulkSend}>
+            <Form.Item
+              name="title"
+              label="Заголовок"
+              rules={[{ required: true }]}
+            >
+              <Input maxLength={200} />
+            </Form.Item>
+            <Form.Item name="text" label="Текст" rules={[{ required: true }]}>
+              <Input.TextArea rows={4} maxLength={2000} />
+            </Form.Item>
+            <Form.Item name="link" label="Ссылка">
+              <Input placeholder="Необязательно" />
+            </Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={sendBulkNotification.isPending}
+            >
+              Отправить
+            </Button>
+          </Form>
+        </Modal>
       </Content>
     </>
   );

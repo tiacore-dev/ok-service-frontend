@@ -3,7 +3,7 @@ services:
     container_name: ok-service-frontend-${CONFIG_NAME}
     image: gloomylime/ok-service-frontend:${TAG}
     ports:
-      - "127.0.0.1:${PORT}:80"
+      - "127.0.0.1:${PORT}:3000"
     restart: always
     networks:
       - ok_network

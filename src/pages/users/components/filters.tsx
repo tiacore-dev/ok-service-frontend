@@ -1,4 +1,8 @@
-import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
+import {
+  ArrowDownOutlined,
+  ArrowUpOutlined,
+  SendOutlined,
+} from "@ant-design/icons";
 import { Button, Input, Select, Space } from "antd";
 import * as React from "react";
 import { useSelector } from "react-redux";
@@ -18,6 +22,8 @@ interface UsersFiltersProps {
   roleOptions: Array<{ label: string; value: string }>;
   cityOptions: Array<{ label: string; value: string }>;
   categoryOptions: Array<{ label: string; value: number }>;
+  bulkDisabled?: boolean;
+  onBulkSend?: () => void;
 }
 
 export const Filters: React.FC<UsersFiltersProps> = ({
@@ -26,6 +32,8 @@ export const Filters: React.FC<UsersFiltersProps> = ({
   roleOptions,
   cityOptions,
   categoryOptions,
+  bulkDisabled = true,
+  onBulkSend,
 }) => {
   const currentRole = useSelector(getCurrentRole);
   const changeFilters = (patch: Partial<IUsersFiltersState>) => {
@@ -120,6 +128,16 @@ export const Filters: React.FC<UsersFiltersProps> = ({
         {filtersState.sortOrder === "ascend" ? "По возрастанию" : "По убыванию"}
       </Button>
       {currentRole === RoleId.ADMIN && <EditableUserDialog />}
+      {currentRole === RoleId.ADMIN && onBulkSend && (
+        <Button
+          icon={<SendOutlined />}
+          disabled={bulkDisabled}
+          onClick={onBulkSend}
+          style={{ marginLeft: "auto" }}
+        >
+          Отправить уведомление
+        </Button>
+      )}
     </Space>
   );
 };

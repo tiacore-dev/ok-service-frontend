@@ -44,7 +44,8 @@ export const getObjectProgressStats = (
     completed_summ:
       (stats.shift_report_details_summ ?? 0) + completedMaterialSumm,
     completed_estimate_summ:
-      (stats.shift_report_details_summ_by_estimate ?? 0) + completedMaterialSumm,
+      (stats.shift_report_details_summ_by_estimate ?? 0) +
+      completedMaterialSumm,
     specification_summ:
       (stats.project_work_summ ?? 0) + specificationMaterialSumm,
   };
