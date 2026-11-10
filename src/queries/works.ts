@@ -91,7 +91,7 @@ export const useCreateWorkMutation = (): UseMutationResult<
 
 export interface UpdateWorkVariables {
   workId: string;
-  payload: EditableWorkPayload;
+  payload: Partial<EditableWorkPayload>;
 }
 
 export const useUpdateWorkMutation = (): UseMutationResult<
@@ -103,10 +103,12 @@ export const useUpdateWorkMutation = (): UseMutationResult<
   return useMutation({
     mutationFn: ({ workId, payload }) => updateWork(workId, payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: worksKeys.list() });
-      queryClient.invalidateQueries({
-        queryKey: worksKeys.detail(variables.workId),
-      });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: worksKeys.list() }),
+        queryClient.invalidateQueries({
+          queryKey: worksKeys.detail(variables.workId),
+        }),
+      ]);
     },
   });
 };

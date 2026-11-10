@@ -1,12 +1,13 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
-import { Button, Dropdown, Input, Menu, Space, Table } from "antd";
+import { Button, Space, Table } from "antd";
 import { useSelector } from "react-redux";
 import TextArea from "antd/es/input/TextArea";
 import { IProject } from "../../interfaces/projects/IProject";
 import { getCurrentRole } from "../../store/modules/auth";
 import { RoleId } from "../../interfaces/roles/IRole";
 import { NotificationContext } from "../../contexts/NotificationContext";
-import { useWorksMap } from "../../queries/works";
+import { WorkTreeSelect } from "../../components/WorkTreeSelect/WorkTreeSelect";
+import { useWorkTreeSelectData } from "../../hooks/useWorkTreeSelectData";
 import {
   useCreateProjectWorksMutation,
   type EditableProjectWorkPayload,
@@ -36,28 +37,20 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
   const [uploadString, setUploadString] = useState<string>("");
   const [workIdMap, setWorkIdMap] = useState<Record<string, string>>({});
   const { project, close } = props;
-  const [search, setSearch] = useState<string>("");
   const createProjectWorksMutation = useCreateProjectWorksMutation();
 
-  const { works } = useWorksMap();
-
-  const availableWorks = useMemo(
-    () => works.filter((w) => !w.deleted),
-    [works],
-  );
-
-  const workOptions = useMemo(() => {
-    return availableWorks.map((w) => ({
-      label: w.name,
-      value: w.work_id,
-    }));
-  }, [availableWorks]);
+  const { selectData, availableWorks } = useWorkTreeSelectData();
 
   const setWorkId = useCallback(
-    (workId: string, workString: string) => {
-      setWorkIdMap({ ...workIdMap, [workString]: workId });
+    (workId: string | undefined, workString: string) => {
+      setWorkIdMap((current) => {
+        const next = { ...current };
+        if (workId) next[workString] = workId;
+        else delete next[workString];
+        return next;
+      });
     },
-    [workIdMap],
+    [],
   );
 
   const columns = [
@@ -92,50 +85,14 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
       key: "workId",
       width: "650px",
       render: (text: string, record: IUploadData) => {
-        const menu = (
-          <Menu className="import-project-works__menu">
-            <Input
-              placeholder="Поиск"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            ></Input>
-
-            {workOptions
-              .filter(
-                (el) =>
-                  search === "" ||
-                  (el?.label ?? "")
-                    .toLowerCase()
-                    .includes(search.toLowerCase()),
-              )
-              .map((opt) => (
-                <Menu.Item
-                  key={opt.value}
-                  onClick={() => {
-                    setWorkId(opt.value, record.workString);
-                    setSearch("");
-                  }}
-                >
-                  <div className="import-project-works__menu-item">
-                    {opt.label}
-                  </div>
-                </Menu.Item>
-              ))}
-          </Menu>
-        );
-
-        const buttonText = record.workId
-          ? availableWorks.find((w) => w.work_id === record.workId)?.name
-          : "Выберите работу";
-
         return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <Button className="import-project-works__dropdown-button">
-              <span className="import-project-works__dropdown-text">
-                {buttonText}
-              </span>
-            </Button>
-          </Dropdown>
+          <WorkTreeSelect
+            data={selectData}
+            value={record.workId}
+            onChange={(workId) => setWorkId(workId, record.workString)}
+            allowClear
+            style={{ width: "100%" }}
+          />
         );
       },
     },
@@ -272,6 +229,7 @@ export const ImportProjectWorks = (props: IImportProjectWorksProps) => {
           />
           <Button
             onClick={handleAnalysis}
+            disabled={selectData.loading || selectData.error}
             className="import-project-works__analyze-button"
           >
             Анализировать наименования работ

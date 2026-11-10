@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import { ActionDialog } from "../ActionDialog";
 import { EditTwoTone, PlusCircleTwoTone } from "@ant-design/icons";
-import { Checkbox, Form, Input, Select, Space } from "antd";
+import { Checkbox, Form, Input, Select, Space, TreeSelect } from "antd";
 import { IWork } from "../../../interfaces/works/IWork";
 import {
   clearCreateWorkState,
@@ -20,6 +20,7 @@ import { useMeasurementUnitsQuery } from "../../../queries/measurementUnits";
 import { selectFilterHandler } from "../../../utils/selectFilterHandler";
 import { NotificationContext } from "../../../contexts/NotificationContext";
 import { useNavigate } from "react-router-dom";
+import { workCategoryOptions } from "../../../utils/workCategoryTree";
 
 interface IEditableWorkDialogProps {
   work?: IWork;
@@ -42,11 +43,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
   const { data: categoriesData = [] } = useWorkCategoriesQuery();
   const { data: measurementUnitsData = [] } = useMeasurementUnitsQuery();
   const categoriesMap = useMemo(
-    () =>
-      categoriesData.map((el) => ({
-        label: el.name,
-        value: el.work_category_id,
-      })),
+    () => workCategoryOptions(categoriesData),
     [categoriesData],
   );
   const measurementUnitsMap = useMemo(
@@ -72,6 +69,10 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
 
   const handleConfirm = useCallback(async () => {
     try {
+      if (!data.category) throw new Error("Выберите категорию работы");
+      if (!work && !data.measurement_unit) {
+        throw new Error("Выберите единицу измерения");
+      }
       if (work) {
         await updateWorkMutation.mutateAsync({
           workId: work.work_id,
@@ -152,6 +153,7 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
   return (
     <ActionDialog
       modalOkText="Сохранить"
+      modalOkDisabled={!data.category || (!work && !data.measurement_unit)}
       onConfirm={handleConfirm}
       onOpen={handeOpen}
       buttonText={iconOnly ? "" : buttonText}
@@ -175,12 +177,13 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
               wrapperCol={{ span: 18 }}
               label="Категория"
             >
-              <Select
+              <TreeSelect
                 showSearch
-                filterOption={selectFilterHandler}
-                value={data.category}
+                treeNodeFilterProp="title"
+                placeholder="Выберите категорию"
+                value={data.category || undefined}
                 onChange={handleCategoryChange}
-                options={categoriesMap}
+                treeData={categoriesMap}
               />
             </Form.Item>
 
@@ -188,11 +191,14 @@ export const EditableWorkDialog = (props: IEditableWorkDialogProps) => {
               labelCol={{ span: 6 }}
               wrapperCol={{ span: 18 }}
               label="Ед. измерения"
+              required={!work}
             >
               <Select
                 showSearch
                 filterOption={selectFilterHandler}
-                value={data.measurement_unit}
+                aria-required={!work}
+                placeholder="Выберите единицу измерения"
+                value={data.measurement_unit || undefined}
                 onChange={handleMeasurementUnitChange}
                 options={measurementUnitsMap}
               />

@@ -19,7 +19,8 @@ import type {
   IProjectSpecificationParseResult,
   IProjectSpecificationUnresolvedItem,
 } from "../../interfaces/projects/IProjectSpecificationImport";
-import { useWorksMap } from "../../queries/works";
+import { WorkTreeSelect } from "../../components/WorkTreeSelect/WorkTreeSelect";
+import { useWorkTreeSelectData } from "../../hooks/useWorkTreeSelectData";
 import { useMaterialsMap } from "../../queries/materials";
 import {
   useImportProjectWorksAndMaterialsMutation,
@@ -65,7 +66,7 @@ export const ImportProjectSpecification: React.FC<
   const [unresolvedDrafts, setUnresolvedDrafts] = React.useState<
     Record<string, UnresolvedItemDraft>
   >({});
-  const { works, worksMap } = useWorksMap();
+  const { selectData: workSelectData, worksMap } = useWorkTreeSelectData();
   const { materials } = useMaterialsMap();
   const parseMutation = useParseProjectSpecificationMutation();
   const importMutation = useImportProjectWorksAndMaterialsMutation();
@@ -333,14 +334,6 @@ export const ImportProjectSpecification: React.FC<
     },
   ];
 
-  const workOptions = React.useMemo(
-    () =>
-      works
-        .filter((work) => !work.deleted && Boolean(work.work_id))
-        .map((work) => ({ label: work.name, value: work.work_id! })),
-    [works],
-  );
-
   const materialOptions = React.useMemo(
     () =>
       materials
@@ -482,24 +475,35 @@ export const ImportProjectSpecification: React.FC<
                             </Typography.Text>
                           </div>
                           <div className="import-project-specification__unresolved-fields">
-                            <Select
-                              allowClear
-                              showSearch
-                              optionFilterProp="label"
-                              placeholder={
-                                isWork
-                                  ? "Выберите работу из справочника"
-                                  : "Выберите материал из справочника"
-                              }
-                              options={isWork ? workOptions : materialOptions}
-                              value={draft?.catalogId}
-                              onChange={(catalogId?: string) =>
-                                updateUnresolvedDraft(record.key, {
-                                  catalogId,
-                                })
-                              }
-                              className="import-project-specification__catalog-field"
-                            />
+                            {isWork ? (
+                              <WorkTreeSelect
+                                data={workSelectData}
+                                allowClear
+                                placeholder="Выберите работу из справочника"
+                                value={draft?.catalogId}
+                                onChange={(catalogId) =>
+                                  updateUnresolvedDraft(record.key, {
+                                    catalogId,
+                                  })
+                                }
+                                className="import-project-specification__catalog-field"
+                              />
+                            ) : (
+                              <Select
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                placeholder="Выберите материал из справочника"
+                                options={materialOptions}
+                                value={draft?.catalogId}
+                                onChange={(catalogId?: string) =>
+                                  updateUnresolvedDraft(record.key, {
+                                    catalogId,
+                                  })
+                                }
+                                className="import-project-specification__catalog-field"
+                              />
+                            )}
                             <InputNumber
                               min={0.0001}
                               precision={4}
