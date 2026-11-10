@@ -16,10 +16,24 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
+const hasFirebaseConfig = () =>
+  [
+    firebaseConfig.apiKey,
+    firebaseConfig.projectId,
+    firebaseConfig.messagingSenderId,
+    firebaseConfig.appId,
+  ].every((value) => typeof value === "string" && value.trim().length > 0);
+
 export const getFirebaseMessaging = async (): Promise<Messaging | null> => {
-  if (!(await isSupported())) return null;
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  return getMessaging(app);
+  if (!hasFirebaseConfig()) return null;
+  try {
+    if (!(await isSupported())) return null;
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    return getMessaging(app);
+  } catch {
+    // Push is optional: unavailable browser storage or SDK initialization must not break the app.
+    return null;
+  }
 };
 
 export const getFirebaseVapidKey = (): string =>
@@ -34,15 +48,18 @@ export const subscribeToForegroundMessages = async (
 };
 
 export const requestWebPushToken = async () => {
-  if (!(await isSupported()) || typeof Notification === "undefined") {
+  if (typeof Notification === "undefined") {
     throw new Error("Браузер не поддерживает Web Push");
   }
+  if (!hasFirebaseConfig() || !getFirebaseVapidKey().trim()) {
+    throw new Error("Push-уведомления не настроены");
+  }
+  const messaging = await getFirebaseMessaging();
+  if (!messaging) throw new Error("Firebase Messaging недоступен");
   const permission = await Notification.requestPermission();
   if (permission !== "granted") {
     throw new Error("Разрешение на уведомления не предоставлено");
   }
-  const messaging = await getFirebaseMessaging();
-  if (!messaging) throw new Error("Firebase Messaging недоступен");
   const registration = await navigator.serviceWorker.ready;
   const token = await getToken(messaging, {
     vapidKey: getFirebaseVapidKey(),
