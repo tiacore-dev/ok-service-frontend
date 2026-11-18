@@ -202,6 +202,7 @@ export const Users = () => {
           cityOptions={citySelectOptions}
           categoryOptions={categoryOptions}
           bulkDisabled={!selectedUserIds.length}
+          selectedCount={selectedUserIds.length}
           onBulkSend={() => setBulkOpen(true)}
         />
         {isMobile() ? (
@@ -275,6 +276,7 @@ export const Users = () => {
               currentRole === RoleId.ADMIN
                 ? {
                     selectedRowKeys: selectedUserIds,
+                    preserveSelectedRowKeys: true,
                     onChange: (keys) => setSelectedUserIds(keys as string[]),
                   }
                 : undefined
@@ -304,9 +306,9 @@ export const Users = () => {
             <Form.Item name="text" label="Текст" rules={[{ required: true }]}>
               <Input.TextArea rows={4} maxLength={2000} />
             </Form.Item>
-            <Form.Item name="link" label="Ссылка">
+            {/* <Form.Item name="link" label="Ссылка">
               <Input placeholder="Необязательно" />
-            </Form.Item>
+            </Form.Item> */}
             <Button
               type="primary"
               htmlType="submit"

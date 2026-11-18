@@ -23,6 +23,7 @@ interface UsersFiltersProps {
   cityOptions: Array<{ label: string; value: string }>;
   categoryOptions: Array<{ label: string; value: number }>;
   bulkDisabled?: boolean;
+  selectedCount?: number;
   onBulkSend?: () => void;
 }
 
@@ -33,6 +34,7 @@ export const Filters: React.FC<UsersFiltersProps> = ({
   cityOptions,
   categoryOptions,
   bulkDisabled = true,
+  selectedCount = 0,
   onBulkSend,
 }) => {
   const currentRole = useSelector(getCurrentRole);
@@ -137,6 +139,7 @@ export const Filters: React.FC<UsersFiltersProps> = ({
               onClick={onBulkSend}
             >
               Отправить уведомление
+              {selectedCount > 0 ? ` (${selectedCount})` : ""}
             </Button>
           )}
         </div>
