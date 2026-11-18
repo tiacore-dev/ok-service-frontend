@@ -127,16 +127,19 @@ export const Filters: React.FC<UsersFiltersProps> = ({
       >
         {filtersState.sortOrder === "ascend" ? "По возрастанию" : "По убыванию"}
       </Button>
-      {currentRole === RoleId.ADMIN && <EditableUserDialog />}
-      {currentRole === RoleId.ADMIN && onBulkSend && (
-        <Button
-          icon={<SendOutlined />}
-          disabled={bulkDisabled}
-          onClick={onBulkSend}
-          style={{ marginLeft: "auto" }}
-        >
-          Отправить уведомление
-        </Button>
+      {currentRole === RoleId.ADMIN && (
+        <div className="users_filters_actions">
+          <EditableUserDialog />
+          {onBulkSend && (
+            <Button
+              icon={<SendOutlined />}
+              disabled={bulkDisabled}
+              onClick={onBulkSend}
+            >
+              Отправить уведомление
+            </Button>
+          )}
+        </div>
       )}
     </Space>
   );

@@ -1,5 +1,15 @@
 import * as React from "react";
-import { Breadcrumb, Button, Form, Input, Layout, Modal, Table } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Card,
+  Checkbox,
+  Form,
+  Input,
+  Layout,
+  Modal,
+  Table,
+} from "antd";
 import { usersDesktopColumns } from "./components/desktop.columns";
 import { useDispatch, useSelector } from "react-redux";
 import { IState } from "../../store/modules";
@@ -194,23 +204,88 @@ export const Users = () => {
           bulkDisabled={!selectedUserIds.length}
           onBulkSend={() => setBulkOpen(true)}
         />
-        <Table
-          dataSource={filteredUsersData}
-          columns={columns}
-          rowSelection={
-            currentRole === RoleId.ADMIN
-              ? {
-                  selectedRowKeys: selectedUserIds,
-                  onChange: (keys) => setSelectedUserIds(keys as string[]),
-                }
-              : undefined
-          }
-          loading={isFetching}
-          pagination={false}
-          rowClassName={(record) =>
-            record.deleted ? "users__table__row--deleted" : ""
-          }
-        />
+        {isMobile() ? (
+          <div style={{ display: "grid", gap: 12 }}>
+            {isFetching && <Card loading size="small" />}
+            {!isFetching && filteredUsersData.length === 0 && (
+              <Card size="small">Пользователи не найдены</Card>
+            )}
+            {!isFetching &&
+              filteredUsersData.map((user) => {
+                const selected = selectedUserIds.includes(user.user_id);
+                return (
+                  <Card
+                    key={user.user_id}
+                    size="small"
+                    style={{
+                      borderColor: selected ? "#ff1616" : undefined,
+                      background: user.deleted ? "#f5f5f5" : undefined,
+                    }}
+                    styles={{ body: { padding: "12px 14px" } }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        gap: 8,
+                      }}
+                    >
+                      <a
+                        className="users__table__number"
+                        onClick={() => navigate(`/users/${user.user_id}`)}
+                      >
+                        {user.name}
+                      </a>
+                      {currentRole === RoleId.ADMIN && (
+                        <Checkbox
+                          checked={selected}
+                          onChange={(event) => {
+                            setSelectedUserIds((ids) =>
+                              event.target.checked
+                                ? [...ids, user.user_id]
+                                : ids.filter((id) => id !== user.user_id),
+                            );
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div>Разряд: {user.category?.toString() ?? "—"}</div>
+                    <div>Логин: {user.login}</div>
+                    <div>
+                      Город: {user.city ? citiesMap[user.city]?.name : "—"}
+                    </div>
+                    <div>Роль: {rolesMap[user.role]?.name ?? "—"}</div>
+                    <div>
+                      Должность:{" "}
+                      {user.position
+                        ? positionsMap[user.position]?.name ?? "—"
+                        : "—"}
+                    </div>
+                    <div>Активен: {user.is_active ? "Да" : "Нет"}</div>
+                  </Card>
+                );
+              })}
+          </div>
+        ) : (
+          <Table
+            dataSource={filteredUsersData}
+            columns={columns}
+            rowSelection={
+              currentRole === RoleId.ADMIN
+                ? {
+                    selectedRowKeys: selectedUserIds,
+                    onChange: (keys) => setSelectedUserIds(keys as string[]),
+                  }
+                : undefined
+            }
+            loading={isFetching}
+            pagination={false}
+            rowClassName={(record) =>
+              record.deleted ? "users__table__row--deleted" : ""
+            }
+          />
+        )}
         <Modal
           title={`Новое уведомление (${selectedUserIds.length})`}
           open={bulkOpen}
