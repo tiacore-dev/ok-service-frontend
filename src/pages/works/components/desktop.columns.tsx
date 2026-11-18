@@ -4,6 +4,7 @@ import type { NavigateFunction } from "react-router-dom";
 import type { IWorksListColumn } from "../../../interfaces/works/IWorksList";
 import { RoleId } from "../../../interfaces/roles/IRole";
 import { DeleteOutlined } from "@ant-design/icons";
+import { formatWorkPrice } from "../../../utils/workPrice";
 
 export const worksDesktopColumns = (
   navigate: NavigateFunction,
@@ -56,9 +57,9 @@ export const worksDesktopColumns = (
     width: "10%",
     render: (text: string, record: IWorksListColumn) => (
       <div>
-        {record.work_prices?.find((price) => price.category === 1)?.price
-          ? `${record.work_prices.find((price) => price.category === 1)!.price} руб.`
-          : "-"}
+        {formatWorkPrice(
+          record.work_prices?.find((price) => price.category === 1)?.price,
+        )}
       </div>
     ),
   },
@@ -68,9 +69,9 @@ export const worksDesktopColumns = (
     width: "10%",
     render: (text: string, record: IWorksListColumn) => (
       <div>
-        {record.work_prices?.find((price) => price.category === 2)?.price
-          ? `${record.work_prices.find((price) => price.category === 2)!.price} руб.`
-          : "-"}
+        {formatWorkPrice(
+          record.work_prices?.find((price) => price.category === 2)?.price,
+        )}
       </div>
     ),
   },
@@ -80,9 +81,9 @@ export const worksDesktopColumns = (
     width: "10%",
     render: (text: string, record: IWorksListColumn) => (
       <div>
-        {record.work_prices?.find((price) => price.category === 3)?.price
-          ? `${record.work_prices.find((price) => price.category === 3)!.price} руб.`
-          : "-"}
+        {formatWorkPrice(
+          record.work_prices?.find((price) => price.category === 3)?.price,
+        )}
       </div>
     ),
   },
@@ -92,9 +93,9 @@ export const worksDesktopColumns = (
     width: "10%",
     render: (text: string, record: IWorksListColumn) => (
       <div>
-        {record.work_prices?.find((price) => price.category === 4)?.price
-          ? `${record.work_prices.find((price) => price.category === 4)!.price} руб.`
-          : "-"}
+        {formatWorkPrice(
+          record.work_prices?.find((price) => price.category === 4)?.price,
+        )}
       </div>
     ),
   },

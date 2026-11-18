@@ -2,15 +2,27 @@ import { apiClient } from "./base";
 import type { IWork } from "../interfaces/works/IWork";
 import type { IWorksList } from "../interfaces/works/IWorksList";
 
-export interface EditableWorkPayload
-  extends Omit<IWork, "work_id" | "category" | "measurement_unit"> {
+export interface EditableWorkPayload extends Omit<
+  IWork,
+  "work_id" | "category" | "measurement_unit"
+> {
   category: string;
   measurement_unit: string;
 }
 
 export const fetchWorks = async (): Promise<IWorksList[]> => {
-  const { data } = await apiClient.get<{ works: IWorksList[] }>("/works/all");
-  return data.works;
+  const works: IWorksList[] = [];
+  const limit = 1000;
+  for (let offset = 0; ; offset += limit) {
+    const { data } = await apiClient.get<{ works: IWorksList[] }>(
+      "/works/all",
+      {
+        params: { offset, limit, sort_by: "work_id", sort_order: "asc" },
+      },
+    );
+    works.push(...data.works);
+    if (data.works.length < limit) return works;
+  }
 };
 
 export const fetchWork = async (workId: string): Promise<IWork> => {
@@ -29,7 +41,7 @@ export const createWork = async (
 
 export const updateWork = async (
   workId: string,
-  payload: EditableWorkPayload,
+  payload: Partial<EditableWorkPayload>,
 ): Promise<IWork> => {
   const { data } = await apiClient.patch<{ work: IWork }>(
     `/works/${workId}/edit`,

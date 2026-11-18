@@ -17,6 +17,7 @@ import {
 import type { IWorkPricesList } from "../interfaces/workPrices/IWorkPricesList";
 import type { IWorkPrice } from "../interfaces/workPrices/IWorkPrice";
 import { createQueryKeys } from "../queryKeys";
+import { cacheDeletedWorkPrice, cacheSavedWorkPrice } from "./workPricesCache";
 
 export const workPricesKeys = createQueryKeys("workPrices");
 
@@ -63,7 +64,8 @@ export const useCreateWorkPriceMutation = (): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createWorkPrice,
-    onSuccess: (_, variables) => {
+    onSuccess: async (price, variables) => {
+      await cacheSavedWorkPrice(queryClient, price);
       queryClient.invalidateQueries({
         queryKey: workPricesKeys.list({ work: variables.work }),
       });
@@ -85,7 +87,8 @@ export const useUpdateWorkPriceMutation = (): UseMutationResult<
   return useMutation({
     mutationFn: ({ workPriceId, payload }) =>
       updateWorkPrice(workPriceId, payload),
-    onSuccess: (_, variables) => {
+    onSuccess: async (price, variables) => {
+      await cacheSavedWorkPrice(queryClient, price);
       queryClient.invalidateQueries({
         queryKey: workPricesKeys.list({ work: variables.payload.work }),
       });
@@ -102,7 +105,8 @@ export const useDeleteWorkPriceMutation = (): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ workPriceId }) => deleteWorkPrice(workPriceId),
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
+      await cacheDeletedWorkPrice(queryClient, variables.workPriceId);
       queryClient.invalidateQueries({
         queryKey: workPricesKeys.list({ work: variables.workId }),
       });

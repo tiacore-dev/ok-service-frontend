@@ -2,37 +2,49 @@ import { apiClient } from "./base";
 import type { IWorkCategory } from "../interfaces/workCategories/IWorkCategory";
 import type { IWorkCategoriesList } from "../interfaces/workCategories/IWorkCategoriesList";
 
-export interface EditableWorkCategoryPayload
-  extends Omit<IWorkCategory, "work_category_id"> {}
+export interface EditableWorkCategoryPayload extends Omit<
+  IWorkCategory,
+  "work_category_id"
+> {}
+
+export interface WorkCategoryMutationResponse {
+  msg: string;
+  work_category_id: string;
+}
 
 export const fetchWorkCategories = async (): Promise<IWorkCategoriesList[]> => {
-  const { data } = await apiClient.get<{
-    work_categories: IWorkCategoriesList[];
-  }>("/work_categories/all", {
-    params: { sort_by: "created_at" },
-  });
-  return data.work_categories;
+  const categories: IWorkCategoriesList[] = [];
+  const limit = 1000;
+  for (let offset = 0; ; offset += limit) {
+    const { data } = await apiClient.get<{
+      work_categories: IWorkCategoriesList[];
+    }>("/work_categories/all", {
+      params: { offset, limit, sort_by: "work_category_id", sort_order: "asc" },
+    });
+    categories.push(...data.work_categories);
+    if (data.work_categories.length < limit) return categories;
+  }
 };
 
 export const createWorkCategory = async (
   payload: EditableWorkCategoryPayload,
-): Promise<IWorkCategory> => {
-  const { data } = await apiClient.post<{ work: IWorkCategory }>(
+): Promise<WorkCategoryMutationResponse> => {
+  const { data } = await apiClient.post<WorkCategoryMutationResponse>(
     "/work_categories/add",
     payload,
   );
-  return data.work;
+  return data;
 };
 
 export const updateWorkCategory = async (
   categoryId: string,
-  payload: EditableWorkCategoryPayload,
-): Promise<IWorkCategory> => {
-  const { data } = await apiClient.patch<{ work: IWorkCategory }>(
+  payload: Partial<EditableWorkCategoryPayload>,
+): Promise<WorkCategoryMutationResponse> => {
+  const { data } = await apiClient.patch<WorkCategoryMutationResponse>(
     `/work_categories/${categoryId}/edit`,
     payload,
   );
-  return data.work;
+  return data;
 };
 
 export const deleteWorkCategory = async (categoryId: string): Promise<void> => {

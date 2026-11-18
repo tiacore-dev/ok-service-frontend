@@ -8,6 +8,7 @@ import {
   editShiftReportDetailApi,
 } from "../../../../api/shift-report-details.api";
 import { objectStatsKeys } from "../../../../queries/objectStats";
+import { getShiftDetailSaveError } from "../../../../utils/shiftWorkAvailability";
 
 export type EditableShiftReportDetail = Omit<
   IShiftReportDetail,
@@ -38,7 +39,7 @@ export const useCreateShiftReportDetailMutation = () => {
     onError: (error: Error) => {
       notification.error({
         message: "Ошибка",
-        description: "Не удалось создать запись отчета по смене",
+        description: getShiftDetailSaveError(error),
         placement: "bottomRight",
         duration: 2,
       });
@@ -60,10 +61,13 @@ export const useEditShiftReportDetailMutation = () => {
     }) => editShiftReportDetailApi(id, data),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
+        queryKey: ["shiftReportDetails", variables.data.shift_report],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["shiftReports"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["shiftReport", variables.id], // Добавьте эту строку
+        queryKey: ["shiftReport", variables.data.shift_report],
       });
       queryClient.invalidateQueries({
         queryKey: ["shiftReportMaterials", variables.data.shift_report],
@@ -79,7 +83,7 @@ export const useEditShiftReportDetailMutation = () => {
     onError: (error: Error) => {
       notification.error({
         message: "Ошибка",
-        description: "Не удалось изменить запись отчета по смене",
+        description: getShiftDetailSaveError(error),
         placement: "bottomRight",
         duration: 2,
       });

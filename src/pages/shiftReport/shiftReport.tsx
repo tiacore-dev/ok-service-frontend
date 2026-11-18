@@ -47,6 +47,12 @@ import { ShiftReportAttachments } from "./ShiftReportAttachments";
 import { ShiftCompletionModal } from "./ShiftCompletionModal";
 import { useShiftStandardsQuery } from "../../queries/shiftStandards";
 import { ReportCommentsSection } from "../../components/ReportComments/ReportCommentsSection";
+import {
+  getShiftDetailSaveError,
+  getShiftDetailWorkError,
+  getShiftWorkAvailability,
+  getUnavailableShiftWorkIds,
+} from "../../utils/shiftWorkAvailability";
 
 export const ShiftReport = () => {
   const currentRole = useSelector(getCurrentRole);
@@ -75,8 +81,8 @@ export const ShiftReport = () => {
   const { mutate: restoreReportMutation } = useRestoreShiftReportMutation();
   const { mutate: hardDeleteReportMutation } =
     useHardDeleteShiftReportMutation();
-  const { mutate: createDetail } = useCreateShiftReportDetailMutation();
-  const { mutate: editDetail } = useEditShiftReportDetailMutation();
+  const { mutateAsync: createDetail } = useCreateShiftReportDetailMutation();
+  const { mutateAsync: editDetail } = useEditShiftReportDetailMutation();
   const { mutate: deleteDetail } = useDeleteShiftReportDetailMutation();
 
   // State for modal
@@ -84,11 +90,20 @@ export const ShiftReport = () => {
   const [currentRecord, setCurrentRecord] =
     React.useState<IShiftReportDetailsListColumn | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [saveError, setSaveError] = React.useState<string>();
+  const [serverBlockedWorkIds, setServerBlockedWorkIds] = React.useState<
+    Set<string>
+  >(new Set());
   const [isCompletionModalOpen, setCompletionModalOpen] = React.useState(false);
   const [completionTime, setCompletionTime] = React.useState<number>();
 
   // API actions
-  const { usersMap } = useUsersMap();
+  const {
+    usersMap,
+    isPending: usersPending,
+    isFetching: usersFetching,
+    isError: usersError,
+  } = useUsersMap();
   const { data: shiftStandards = [] } = useShiftStandardsQuery({
     enabled: isCompletionModalOpen,
   });
@@ -100,13 +115,42 @@ export const ShiftReport = () => {
     shiftReportData?.project ?? "",
     { enabled: Boolean(shiftReportData?.project) },
   );
-  const { projectWorks, projectWorksMap } = useProjectWorksMap(
-    shiftReportData?.project,
-    {
-      enabled: Boolean(shiftReportData?.project),
-    },
-  );
-  const { worksMap } = useWorksMap();
+  const {
+    projectWorks,
+    projectWorksMap,
+    isPending: projectWorksPending,
+    isFetching: projectWorksFetching,
+    isError: projectWorksError,
+  } = useProjectWorksMap(shiftReportData?.project, {
+    enabled: Boolean(shiftReportData?.project),
+  });
+  const {
+    data: worksData,
+    worksMap,
+    isPending: worksPending,
+    isFetching: worksFetching,
+    isError: worksError,
+  } = useWorksMap();
+  const performerCategory = shiftReportData
+    ? usersMap[shiftReportData.user]?.category
+    : undefined;
+  const optionsLoading =
+    usersPending ||
+    usersFetching ||
+    worksPending ||
+    worksFetching ||
+    projectWorksPending ||
+    projectWorksFetching;
+  const optionsError =
+    usersError || worksError || projectWorksError
+      ? "Не удалось загрузить данные для выбора работы"
+      : !optionsLoading && performerCategory == null
+        ? "Не удалось определить разряд сотрудника смены"
+        : undefined;
+  React.useEffect(() => {
+    setServerBlockedWorkIds(new Set());
+    setSaveError(undefined);
+  }, [routeParams.shiftId, performerCategory, worksData]);
   const stat = React.useMemo(() => projectStat?.stats ?? {}, [projectStat]);
 
   const projectData = React.useMemo(
@@ -191,7 +235,7 @@ export const ShiftReport = () => {
 
   const projectName = projectData?.name;
   const projectLeaderName = projectData
-    ? usersMap[projectData.project_leader]?.name ?? projectData.project_leader
+    ? (usersMap[projectData.project_leader]?.name ?? projectData.project_leader)
     : undefined;
 
   const objectName = React.useMemo(
@@ -208,12 +252,50 @@ export const ShiftReport = () => {
 
   const projectWorksOptions = React.useMemo(
     () =>
-      projectWorksData.map((el) => ({
-        label: el.project_work_name,
-        value: el.project_work_id,
-      })),
-    [projectWorksData],
+      projectWorksData.map((el) => {
+        const availability = getShiftWorkAvailability(
+          worksMap[el.work],
+          performerCategory,
+          serverBlockedWorkIds,
+        );
+        return {
+          label: availability.available
+            ? el.project_work_name
+            : `${el.project_work_name} — ${availability.reason}`,
+          value: el.project_work_id,
+          disabled: !availability.available,
+          title: availability.reason,
+        };
+      }),
+    [projectWorksData, worksMap, performerCategory, serverBlockedWorkIds],
   );
+  const validateSelection = React.useCallback(
+    (values: { project_work: string; quantity: number }) => {
+      if (optionsLoading) return "Подождите загрузки работ";
+      if (optionsError) return optionsError;
+      const projectWork = projectWorksMap[values.project_work];
+      if (!projectWork) return "Работа спецификации не найдена";
+      return getShiftDetailWorkError(
+        worksMap[projectWork.work],
+        performerCategory,
+        Number(values.quantity),
+        currentRecord ?? undefined,
+        serverBlockedWorkIds,
+      );
+    },
+    [
+      optionsLoading,
+      optionsError,
+      projectWorksMap,
+      worksMap,
+      performerCategory,
+      currentRecord,
+      serverBlockedWorkIds,
+    ],
+  );
+  React.useEffect(() => {
+    setSaveError(undefined);
+  }, [modalVisible, currentRecord]);
 
   const {
     mapStartCoordinates,
@@ -293,9 +375,14 @@ export const ShiftReport = () => {
 
   const handleSave = React.useCallback(
     async (values: any) => {
+      const validationError = validateSelection(values);
+      if (validationError) {
+        setSaveError(validationError);
+        return;
+      }
       try {
         setLoading(true);
-        setModalVisible(false);
+        setSaveError(undefined);
 
         if (shiftReportData) {
           const projectWork = projectWorksMap[values.project_work];
@@ -317,14 +404,31 @@ export const ShiftReport = () => {
           } else {
             await createDetail(row);
           }
+          setModalVisible(false);
+          setCurrentRecord(null);
         }
       } catch (error) {
-        console.error("Ошибка при сохранении:", error);
+        setSaveError(getShiftDetailSaveError(error));
+        const ids = getUnavailableShiftWorkIds(error);
+        if (ids) {
+          const workId = projectWorksMap[values.project_work]?.work;
+          setServerBlockedWorkIds(
+            (current) =>
+              new Set([...current, ...ids, ...(workId ? [workId] : [])]),
+          );
+        }
       } finally {
         setLoading(false);
       }
     },
-    [createDetail, currentRecord, editDetail, projectWorksMap, shiftReportData],
+    [
+      createDetail,
+      currentRecord,
+      editDetail,
+      projectWorksMap,
+      shiftReportData,
+      validateSelection,
+    ],
   );
 
   const handleDelete = React.useCallback(
@@ -603,6 +707,11 @@ export const ShiftReport = () => {
           initialValues={detailDialogInitialValues}
           projectWorksOptions={projectWorksOptions}
           loading={loading}
+          optionsLoading={optionsLoading}
+          optionsError={optionsError}
+          saveError={saveError}
+          onValuesChange={() => setSaveError(undefined)}
+          validateSelection={validateSelection}
         />
       </Content>
     </>

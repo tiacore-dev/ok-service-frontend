@@ -12,9 +12,10 @@ import {
   fetchWorkCategories,
   updateWorkCategory,
   type EditableWorkCategoryPayload,
+  type WorkCategoryMutationResponse,
 } from "../api/work-categories.api";
 import type { IWorkCategoriesList } from "../interfaces/workCategories/IWorkCategoriesList";
-import type { IWorkCategory } from "../interfaces/workCategories/IWorkCategory";
+import { worksKeys } from "./works";
 import { createQueryKeys } from "../queryKeys";
 
 export const workCategoriesKeys = createQueryKeys("workCategories");
@@ -34,7 +35,7 @@ export const useWorkCategoriesQuery = <TData = IWorkCategoriesList[]>(
   });
 
 export const useCreateWorkCategoryMutation = (): UseMutationResult<
-  IWorkCategory,
+  WorkCategoryMutationResponse,
   Error,
   EditableWorkCategoryPayload
 > => {
@@ -49,11 +50,11 @@ export const useCreateWorkCategoryMutation = (): UseMutationResult<
 
 export interface UpdateWorkCategoryVariables {
   categoryId: string;
-  payload: EditableWorkCategoryPayload;
+  payload: Partial<EditableWorkCategoryPayload>;
 }
 
 export const useUpdateWorkCategoryMutation = (): UseMutationResult<
-  IWorkCategory,
+  WorkCategoryMutationResponse,
   Error,
   UpdateWorkCategoryVariables
 > => {
@@ -62,7 +63,10 @@ export const useUpdateWorkCategoryMutation = (): UseMutationResult<
     mutationFn: ({ categoryId, payload }) =>
       updateWorkCategory(categoryId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: workCategoriesKeys.list() });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: workCategoriesKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: worksKeys.all() }),
+      ]);
     },
   });
 };

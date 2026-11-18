@@ -33,6 +33,7 @@ import {
   useWorkPricesQuery,
 } from "../../queries/workPrices";
 import "./work.less";
+import { isValidWorkPrice } from "../../utils/workPrice";
 
 export const Work = () => {
   const { Content } = Layout;
@@ -150,6 +151,8 @@ export const Work = () => {
       }
       closePriceModal();
     } catch (errInfo) {
+      if (errInfo && typeof errInfo === "object" && "errorFields" in errInfo)
+        return;
       const description =
         errInfo instanceof Error
           ? errInfo.message
@@ -344,9 +347,19 @@ export const Work = () => {
           <Form.Item
             label="Цена"
             name="price"
-            rules={[{ required: true, message: "Укажите цену" }]}
+            rules={[
+              { required: true, message: "Укажите цену" },
+              {
+                validator: (_, value) =>
+                  value == null || isValidWorkPrice(value)
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error("Цена должна быть не меньше 0 или равна -1"),
+                      ),
+              },
+            ]}
           >
-            <InputNumber min={0} style={{ width: "100%" }} />
+            <InputNumber min={-1} style={{ width: "100%" }} />
           </Form.Item>
         </Form>
       </Modal>

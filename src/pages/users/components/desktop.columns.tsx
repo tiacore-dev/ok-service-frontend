@@ -38,12 +38,12 @@ export const usersDesktopColumns = (
     ),
   },
   {
-    title: "Категория",
+    title: "Разряд",
     dataIndex: "category",
     key: "category",
     width: "15%",
     render: (text: string, record: IUsersListColumn) => (
-      <div>{record.category ?? "Не назначена"}</div>
+      <div>{record.category ?? "Не назначен"}</div>
     ),
   },
   {

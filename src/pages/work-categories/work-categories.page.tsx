@@ -9,6 +9,7 @@ import {
   Table,
   Form,
   Input,
+  TreeSelect,
 } from "antd";
 import * as React from "react";
 import { isMobile } from "../../utils/isMobile";
@@ -25,10 +26,16 @@ import {
 } from "../../queries/workCategories";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import "./work-categories.page.less";
+import {
+  buildWorkCategoryTree,
+  getDescendantCategoryIds,
+  workCategoryOptions,
+} from "../../utils/workCategoryTree";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 
 export const WorkCategories = () => {
   const { Content } = Layout;
-  const [form] = Form.useForm<{ name: string }>();
+  const [form] = Form.useForm<{ name: string; parent_id?: string | null }>();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [editingRecord, setEditingRecord] =
@@ -46,8 +53,21 @@ export const WorkCategories = () => {
   const deleteWorkCategoryMutation = useDeleteWorkCategoryMutation();
 
   const workCategoriesData: IWorkCategoriesListColumn[] = React.useMemo(
-    () => workCategories.map((doc) => ({ ...doc, key: doc.work_category_id })),
+    () => buildWorkCategoryTree(workCategories),
     [workCategories],
+  );
+  const parentOptions = React.useMemo(
+    () =>
+      workCategoryOptions(
+        workCategories,
+        editingRecord
+          ? getDescendantCategoryIds(
+              workCategories,
+              editingRecord.work_category_id,
+            )
+          : undefined,
+      ),
+    [workCategories, editingRecord],
   );
 
   const openCreateModal = () => {
@@ -58,7 +78,10 @@ export const WorkCategories = () => {
 
   const openEditModal = (record: IWorkCategoriesListColumn) => {
     setEditingRecord(record);
-    form.setFieldsValue({ name: record.name });
+    form.setFieldsValue({
+      name: record.name,
+      parent_id: record.parent_id ?? undefined,
+    });
     setModalOpen(true);
   };
 
@@ -71,11 +94,12 @@ export const WorkCategories = () => {
   const save = async () => {
     try {
       const row = await form.validateFields();
+      const payload = { ...row, parent_id: row.parent_id ?? null };
       setSaving(true);
       if (editingRecord) {
         await updateWorkCategoryMutation.mutateAsync({
           categoryId: editingRecord.work_category_id,
-          payload: row,
+          payload,
         });
         notificationApi?.success({
           message: "Успешно",
@@ -84,7 +108,7 @@ export const WorkCategories = () => {
           duration: 2,
         });
       } else {
-        await createWorkCategoryMutation.mutateAsync(row);
+        await createWorkCategoryMutation.mutateAsync(payload);
         notificationApi?.success({
           message: "Успешно",
           description: "Категория работ создана",
@@ -94,10 +118,12 @@ export const WorkCategories = () => {
       }
       closeModal();
     } catch (errInfo) {
-      const description =
-        errInfo instanceof Error
-          ? errInfo.message
-          : "Не удалось сохранить категорию работы";
+      if (errInfo && typeof errInfo === "object" && "errorFields" in errInfo)
+        return;
+      const description = getApiErrorMessage(
+        errInfo,
+        "Не удалось сохранить категорию работы",
+      );
       notificationApi?.error({
         message: "Ошибка",
         description,
@@ -120,8 +146,10 @@ export const WorkCategories = () => {
         duration: 2,
       });
     } catch (error) {
-      const description =
-        error instanceof Error ? error.message : "Не удалось удалить категорию";
+      const description = getApiErrorMessage(
+        error,
+        "Не удалось удалить категорию",
+      );
       notificationApi?.error({
         message: "Ошибка",
         description,
@@ -197,6 +225,7 @@ export const WorkCategories = () => {
           dataSource={workCategoriesData}
           columns={columns}
           loading={isLoading}
+          expandable={{ defaultExpandAllRows: false }}
         />
       </Content>
       <Modal
@@ -219,6 +248,16 @@ export const WorkCategories = () => {
             rules={[{ required: true, message: "Введите наименование" }]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item label="Родительская категория" name="parent_id">
+            <TreeSelect
+              allowClear
+              showSearch
+              treeNodeFilterProp="title"
+              placeholder="Верхний уровень"
+              treeData={parentOptions}
+              style={{ width: "100%" }}
+            />
           </Form.Item>
         </Form>
       </Modal>

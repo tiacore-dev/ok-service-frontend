@@ -3,9 +3,10 @@ import { ColumnsType } from "antd/es/table";
 import { NavigateFunction } from "react-router-dom";
 import { IWorksListColumn } from "../../../interfaces/works/IWorksList";
 import { RoleId } from "../../../interfaces/roles/IRole";
+import { formatWorkPrice } from "../../../utils/workPrice";
 const renderPrice = (record: IWorksListColumn, category: number) => {
   const price = record.work_prices?.find((p) => p.category === category)?.price;
-  return price ? `${price} руб.` : "-";
+  return formatWorkPrice(price);
 };
 export const worksMobileColumns = (
   navigate: NavigateFunction,
