@@ -26,7 +26,7 @@ import {
 export const NotificationBell = () => {
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
-  const notificationsQuery = useNotificationsQuery({ offset: 0, limit: 8 });
+  const notificationsQuery = useNotificationsQuery({ offset: 0, limit: 5 });
   const countQuery = useUnreadNotificationsCountQuery();
   const subscriptionsQuery = useNotificationSubscriptionsQuery();
   const markViewed = useMarkNotificationViewedMutation();
@@ -141,11 +141,15 @@ export const NotificationBell = () => {
         }}
         trigger={["click"]}
         placement="bottomRight"
+        getPopupContainer={() => document.body}
+        overlayClassName="notification-dropdown"
         dropdownRender={() => (
           <div
+            className="notification-dropdown__content"
             style={{
-              width: 360,
-              maxWidth: "calc(100vw - 32px)",
+              width: "min(360px, calc(100vw - 24px))",
+              maxWidth: "calc(100vw - 24px)",
+              boxSizing: "border-box",
               background: "#fff",
               padding: 12,
               boxShadow: "0 6px 16px rgba(0,0,0,.15)",
@@ -171,7 +175,7 @@ export const NotificationBell = () => {
             ) : notificationsQuery.data?.items.length ? (
               <List
                 size="small"
-                dataSource={notificationsQuery.data.items}
+                dataSource={notificationsQuery.data.items.slice(0, 5)}
                 renderItem={(item) => (
                   <List.Item
                     style={{
@@ -181,7 +185,16 @@ export const NotificationBell = () => {
                     onClick={() => void openNotification(item)}
                   >
                     <List.Item.Meta
-                      title={item.title}
+                      style={{ minWidth: 0 }}
+                      title={
+                        <Typography.Text
+                          strong
+                          ellipsis={{ tooltip: item.title }}
+                          style={{ display: "block", maxWidth: "100%" }}
+                        >
+                          {item.title}
+                        </Typography.Text>
+                      }
                       description={
                         <Typography.Text
                           style={{

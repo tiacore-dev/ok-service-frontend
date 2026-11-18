@@ -197,9 +197,7 @@ export const App = () => {
   return (
     <>
       <Layout>
-        {isAuth && !mobile && !fullScreenMode && (
-          <AppHeader isMobile={mobile} />
-        )}
+        {isAuth && !fullScreenMode && <AppHeader isMobile={mobile} />}
 
         <Layout className={layoutClassName}>
           <Routes>
