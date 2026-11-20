@@ -31,12 +31,26 @@ expect "no release tags + package.json 1.1.0 -> 1.0.0" 1.0.0 next
 commit "ci: add automatic production releases"
 expect "only the release-workflow commit is new -> still 1.0.0" 1.0.0 next
 
+base="$(git rev-parse HEAD)"
+git tag v4.0.0; git push -q origin v4.0.0
+commit "fix: one"
+expect "ancestral lightweight v4.0.0 + fix is refused" "<exit 1>" next
+case "$(next 2>&1)" in *"v4.0.0 is a lightweight tag"*) echo "ok   - refusal names v4.0.0" ;; *) echo "FAIL - refusal names v4.0.0"; fails=$((fails + 1)) ;; esac
+expect "lightweight tag error survives the workflow's pipeline" "<exit 1>" bash -c "set -euo pipefail; sh '$SCRIPT' next | tee /dev/null"
+expect "check-latest refuses with a lightweight release tag" "<exit 1>" sh "$SCRIPT" check-latest 9.9.9
+git push -q origin :refs/tags/v4.0.0; git tag -d v4.0.0 >/dev/null
+git tag v4.0.0-rc1; git tag release-4; git tag v4.0
+expect "unrelated lightweight tags are ignored" 1.0.0 next
+git tag -d v4.0.0-rc1 release-4 v4.0 >/dev/null
+git reset -q --hard "$base"
+
 tag 1.0.0
 expect "HEAD already released keeps its version" 1.0.0 next
 commit "docs: notes"
 commit "chore(deps): bump"
 expect "no release-worthy commits -> empty" "" next
 commit "fix: OK-1 bug"
+expect "annotated v1.0.0 + fix -> 1.0.1" 1.0.1 next
 commit "perf(api): faster"
 expect "fix + perf -> patch" 1.0.1 next
 commit "feat(shifts): OK-2 new screen"
@@ -106,7 +120,7 @@ cat > "$TMP/bin/docker" <<'EOF'
 echo "$*" >> "$STUB/log"
 key() { printf '%s' "$1" | sed 's#[/:@]#_#g'; }
 resolve() { case "$1" in *@sha256:*) [ -f "$STUB/blobs/${1##*@}" ] && echo "${1##*@}" ;; *) cat "$STUB/tags/$(key "$1")" 2>/dev/null ;; esac; }
-label() { sed -n "s/.*\"$2\":\"\([^\"]*\)\".*/\1/p" "$STUB/blobs/$(resolve "$1")" 2>/dev/null; }
+label() { jq -er --arg k "$2" '.["linux/amd64"].config.Labels[$k]' "$STUB/blobs/$(resolve "$1")" 2>/dev/null; }
 case "$1/$2/$3" in
   buildx/imagetools/inspect)
     [ -f "$STUB/registry-down" ] && { echo "ERROR: failed to do request: dial tcp: i/o timeout" >&2; exit 1; }
@@ -135,9 +149,18 @@ chmod +x "$TMP/bin/docker"
 IMG=t/ok-service-frontend
 planned() { p="$(sh "$SCRIPT" plan "$IMG")" && printf '%s\n' "$p" | paste -sd' ' -; }
 reg_tag() { printf '%s' "$STUB/tags/$(printf '%s' "$1" | sed 's#[/:@]#_#g')"; }
+image_json() { # <revision> <version> [<amd64 revision>]: formatted `{{json .Image}}` of a build-push-action index
+  jq -n --arg r "$1" --arg v "$2" --arg r2 "${3:-$1}" '
+    def cfg($arch; $rev): {architecture: $arch, os: "linux", created: "2026-11-20T00:00:00Z",
+      config: {Env: ["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"], ExposedPorts: {"80/tcp": {}},
+        Labels: {"org.opencontainers.image.revision": $rev, "org.opencontainers.image.source": "https://github.com/t/ok-service-frontend",
+          "org.opencontainers.image.version": $v}},
+      rootfs: {type: "layers", diff_ids: ["sha256:00"]}};
+    {"linux/amd64": cfg("amd64"; $r2)} + (if $r2 != $r then {"linux/arm64": cfg("arm64"; $r)} else {} end)'
+}
 build() { # <sha> <version> [salt]: pushes prod-<sha> like build-push-action and prints its digest
   d="sha256:$(printf '%s %s %s' "$1" "$2" "${3:-}" | sha256sum | cut -c1-64)"
-  printf '{"config":{"Labels":{"org.opencontainers.image.revision":"%s","org.opencontainers.image.version":"%s"}}}\n' "$1" "$2" > "$STUB/blobs/$d"
+  image_json "$1" "$2" > "$STUB/blobs/$d"
   echo "$d" > "$(reg_tag "$IMG:prod-$1")"; echo "$d"
 }
 deploy() { (cd "$TMP/srv" && bash "$DEPLOY" "$1" "$TMP/srv" "$IMG" "$2" "$3" ${4:+"$4"} >>"$TMP/deploy.log" 2>&1) || { echo "<exit 1>"; return 0; }; }
@@ -167,6 +190,20 @@ commit "fix: B"; git push -q origin master; B="$(git rev-parse HEAD)"
 expect "B before A is published: 1.0.0 belongs to A, refused" "<exit 1>" planned
 git checkout -q "$A"
 expect "A after master moved on resumes its promoted 1.0.0" "release_state=resume version=1.0.0 digest=$dA" planned
+# Label checks on the formatted, platform-keyed image config.
+blob="$STUB/blobs/$dA"; cp "$blob" "$TMP/blob.ok"
+jq 'del(.["linux/amd64"].config.Labels["org.opencontainers.image.version"])' "$TMP/blob.ok" > "$blob"
+expect "missing version label blocks deployment" "<exit 1>" planned
+case "$(sh "$SCRIPT" plan "$IMG" 2>&1)" in *"org.opencontainers.image.version is missing"*) echo "ok   - missing label is named" ;; *) echo "FAIL - missing label is named"; fails=$((fails + 1)) ;; esac
+image_json "$B" 1.0.0 > "$blob"
+expect "revision label of another commit blocks deployment" "<exit 1>" planned
+image_json "$A" 1.0.0 "$B" > "$blob"
+expect "revision label differing across platforms blocks deployment" "<exit 1>" planned
+echo '{"linux/amd64": {' > "$blob"
+expect "malformed image JSON blocks deployment" "<exit 1>" planned
+jq '.["linux/amd64"]' "$TMP/blob.ok" > "$blob"
+expect "single-platform image config is accepted" "release_state=resume version=1.0.0 digest=$dA" planned
+cp "$TMP/blob.ok" "$blob"
 touch "$STUB/registry-down"
 expect "registry error is not a missing tag" "<exit 1>" planned
 rm "$STUB/registry-down"

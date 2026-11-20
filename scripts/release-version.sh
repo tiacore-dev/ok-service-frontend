@@ -15,6 +15,14 @@ git fetch --quiet --force --tags "$REMOTE"
 
 semver_sort() { sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n; }
 release_tags() { git tag "$@" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; }
+fail() { echo "$*" >&2; exit 1; }
+
+# A lightweight vX.Y.Z would silently become a baseline. Checked here, at top level, because the
+# callers read tags inside pipelines and $(...), where an exit would be lost.
+for t in $(release_tags); do
+  [ "$(git cat-file -t "refs/tags/$t")" = tag ] \
+    || fail "$t is a lightweight tag; release tags vX.Y.Z must be annotated (git tag -a). Delete or replace $t."
+done
 
 # Highest vX.Y.Z tag reachable from HEAD (without "v"), optionally excluding one tag.
 last_version() {
@@ -69,8 +77,6 @@ next() {
   esac
 }
 
-fail() { echo "$*" >&2; exit 1; }
-
 # Manifest digest of <ref>. Exit 3 only when the registry says the tag does not exist; auth, transport
 # and manifest errors exit 1.
 digest_of() {
@@ -85,10 +91,20 @@ digest_of() {
   fi
 }
 
-# Value of OCI label <key> on <ref> (empty if absent).
+# Value of OCI label <key> on <ref>; fails if it is absent or differs between runtime platforms.
+# .Image is one image config, or a platform-keyed map when <ref> is an index (build-push-action
+# adds a provenance attestation, which is not a runtime platform).
 label_of() {
   json="$(docker buildx imagetools inspect "$1" --format '{{json .Image}}')" || fail "cannot read labels of $1"
-  printf '%s\n' "$json" | sed -n "s/.*\"$2\":\"\([^\"]*\)\".*/\1/p" | head -n1
+  printf '%s\n' "$json" | jq -r --arg key "$2" '
+    if type != "object" then error("image config is not a JSON object")
+    elif has("config") or has("os") then [.]
+    else [to_entries[] | select(.key != "unknown/unknown") | .value] end
+    | map(.config.Labels[$key])
+    | if length == 0 then error("no runtime platform")
+      elif any(.[]; type != "string" or . == "") then error("label \($key) is missing")
+      elif (unique | length) > 1 then error("label \($key) differs across platforms: \(unique | join(", "))")
+      else .[0] end' || fail "$1: cannot read label $2 from the image config"
 }
 
 # Annotated vX.Y.Z whose peeled commit is <sha>; anything else is refused.
