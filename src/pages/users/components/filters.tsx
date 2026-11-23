@@ -23,6 +23,7 @@ interface UsersFiltersProps {
   cityOptions: Array<{ label: string; value: string }>;
   categoryOptions: Array<{ label: string; value: number }>;
   bulkDisabled?: boolean;
+  selectedCount?: number;
   onBulkSend?: () => void;
 }
 
@@ -33,6 +34,7 @@ export const Filters: React.FC<UsersFiltersProps> = ({
   cityOptions,
   categoryOptions,
   bulkDisabled = true,
+  selectedCount = 0,
   onBulkSend,
 }) => {
   const currentRole = useSelector(getCurrentRole);
@@ -127,16 +129,20 @@ export const Filters: React.FC<UsersFiltersProps> = ({
       >
         {filtersState.sortOrder === "ascend" ? "По возрастанию" : "По убыванию"}
       </Button>
-      {currentRole === RoleId.ADMIN && <EditableUserDialog />}
-      {currentRole === RoleId.ADMIN && onBulkSend && (
-        <Button
-          icon={<SendOutlined />}
-          disabled={bulkDisabled}
-          onClick={onBulkSend}
-          style={{ marginLeft: "auto" }}
-        >
-          Отправить уведомление
-        </Button>
+      {currentRole === RoleId.ADMIN && (
+        <div className="users_filters_actions">
+          <EditableUserDialog />
+          {onBulkSend && (
+            <Button
+              icon={<SendOutlined />}
+              disabled={bulkDisabled}
+              onClick={onBulkSend}
+            >
+              Отправить уведомление
+              {selectedCount > 0 ? ` (${selectedCount})` : ""}
+            </Button>
+          )}
+        </div>
       )}
     </Space>
   );

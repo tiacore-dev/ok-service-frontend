@@ -4,9 +4,27 @@ on:
   push:
     branches: [ master, stage, dev ]
 
+# contents: write is granted only to the release job.
+permissions:
+  contents: read
+
+env:
+  PROD_DEPLOY_PATH: apps/ok-service-frontend
+
+# master: one production sequence at a time (version -> build -> deploy -> release), never cancelled
+# mid-way; a newer queued run supersedes an older queued one. dev/stage: unserialized, as before.
+concurrency:
+  group: ${{ github.ref_name == 'master' && 'ok-service-frontend-production' || format('deploy-{0}-{1}', github.ref_name, github.run_id) }}
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      # master only: outdated | none | released | resume | new (see docs/release-process.md)
+      release_state: ${{ steps.plan.outputs.release_state }}
+      version: ${{ steps.plan.outputs.version }}
+      digest: ${{ steps.promote.outputs.digest || steps.plan.outputs.digest }}
     env:
       API_URL_PROD: ${{ secrets.API_URL_PROD }}
       API_URL_DEV: ${{ secrets.API_URL_DEV }}
@@ -105,12 +123,29 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Select production version
+        id: plan
+        if: github.ref_name == 'master'
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend
+        run: |
+          set -euo pipefail
+          sh scripts/release-version.sh plan "$IMAGE" | tee -a "$GITHUB_OUTPUT"
+
+      # master builds a production-only candidate (prod-<sha>): the same SHA built for dev/stage
+      # bundles other API/Firebase settings and must never be promoted.
       - name: Build and push image
+        id: build
+        if: github.ref_name != 'master' || steps.plan.outputs.release_state == 'new'
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend:${{ github.sha }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend:${{ github.ref_name == 'master' && 'prod-' || '' }}${{ github.sha }}
+          labels: |
+            org.opencontainers.image.version=${{ steps.plan.outputs.version || github.sha }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend:cache
           cache-to: type=inline
           build-args: |
@@ -124,9 +159,25 @@ jobs:
             REACT_APP_FIREBASE_APP_ID=${{ env.REACT_APP_FIREBASE_APP_ID }}
             REACT_APP_FIREBASE_VAPID_KEY=${{ env.REACT_APP_FIREBASE_VAPID_KEY }}
 
+      - name: Promote production candidate to X.Y.Z
+        id: promote
+        if: steps.plan.outputs.release_state == 'new'
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend
+          VERSION: ${{ steps.plan.outputs.version }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          set -euo pipefail
+          : "${DIGEST:?build did not report a digest}"
+          sh scripts/release-version.sh promote "$IMAGE" "$VERSION" "$DIGEST" | tee -a "$GITHUB_OUTPUT"
+
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+    # master deploys only a new or resumed release; dev/stage always deploy, as before.
+    if: github.ref_name != 'master' || needs.build-and-push.outputs.release_state == 'new' || needs.build-and-push.outputs.release_state == 'resume'
+    outputs:
+      outcome: ${{ steps.prod.outputs.outcome }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -169,10 +220,18 @@ jobs:
           echo "SERVER_IP=${{ secrets.SERVER_IP_STAGE }}" >> $GITHUB_ENV
       # ============================================
 
+      # The production pre-check reads the registry.
+      - name: Login to DockerHub
+        if: github.ref_name == 'master'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Determine Deployment Path and Tag
         run: |
           if [[ "${{ github.ref_name }}" == "master" ]]; then
-            echo "DEPLOY_PATH=apps/ok-service-frontend" >> $GITHUB_ENV
+            echo "DEPLOY_PATH=${PROD_DEPLOY_PATH}" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "dev" ]]; then
             echo "DEPLOY_PATH=/opt/apps/ok-service-frontend-dev" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "stage" ]]; then
@@ -184,7 +243,34 @@ jobs:
           echo "DEPLOY_TAG=${{ github.sha }}" >> $GITHUB_ENV
           echo "DEPLOY_BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
 
+      - name: Deploy Frontend (production)
+        id: prod
+        if: github.ref_name == 'master'
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend
+          VERSION: ${{ needs.build-and-push.outputs.version }}
+          DIGEST: ${{ needs.build-and-push.outputs.digest }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          : "${VERSION:?}" "${DIGEST:?}"
+          # Recheck right before touching production: this commit must still own the promoted release
+          # (also when master has moved on) and nothing newer may be released.
+          PLAN="$(sh scripts/release-version.sh plan "$IMAGE")"
+          [ "$PLAN" = "$(printf 'release_state=resume\nversion=%s\ndigest=%s' "$VERSION" "$DIGEST")" ] \
+            || { printf 'Refusing to deploy %s@%s; current plan:\n%s\n' "$VERSION" "$DIGEST" "$PLAN"; exit 1; }
+
+          echo "🚀 Deploying ${IMAGE}:${VERSION}@${DIGEST} (${GITHUB_SHA}) to ${SERVER_IP}:${DEPLOY_PATH}"
+          # Credentials travel on stdin with the script, not on the remote command line.
+          { printf 'export DOCKERHUB_USERNAME=%q DOCKERHUB_TOKEN=%q\n' "$DOCKERHUB_USERNAME" "$DOCKERHUB_TOKEN"
+            cat scripts/deploy-production.sh; } \
+            | ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 "${SSH_USER}@${SERVER_IP}" \
+              bash -s -- deploy "$DEPLOY_PATH" "$IMAGE" "$VERSION" "$DIGEST" "$GITHUB_SHA"
+          echo "outcome=verified" >> "$GITHUB_OUTPUT"
+
       - name: Deploy Frontend
+        if: github.ref_name != 'master'
         env:
           SSH_USER: ${{ env.SSH_USER }}
           SERVER_IP: ${{ env.SERVER_IP }}
@@ -241,10 +327,99 @@ jobs:
             echo "✅ Деплой завершён"
           EOF
 
+  release:
+    name: 🏷️ Release
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy]
+    # Only after this run verified the deployment, or to finish publication of an already tagged release.
+    if: >-
+      always() && github.ref_name == 'master' && needs.build-and-push.result == 'success' &&
+      (needs.build-and-push.outputs.release_state == 'released' ||
+       (needs.deploy.result == 'success' && needs.deploy.outputs.outcome == 'verified'))
+    permissions:
+      contents: write
+    env:
+      IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/ok-service-frontend
+      VERSION: ${{ needs.build-and-push.outputs.version }}
+      DIGEST: ${{ needs.build-and-push.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Same identity checks as deploy: candidate, version digest, labels, annotated tag on this commit.
+      - name: Check release identity
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          : "${VERSION:?}" "${DIGEST:?}"
+          PLAN="$(sh scripts/release-version.sh plan "$IMAGE")"
+          case "$PLAN" in
+            "$(printf 'release_state=resume\nversion=%s\ndigest=%s' "$VERSION" "$DIGEST")" | \
+            "$(printf 'release_state=released\nversion=%s\ndigest=%s' "$VERSION" "$DIGEST")") ;;
+            *) printf 'Refusing to publish %s@%s; current plan:\n%s\n' "$VERSION" "$DIGEST" "$PLAN"; exit 1 ;;
+          esac
+          CODE="$(curl -sS -o /dev/null -w '%{http_code}' -H "Authorization: Bearer ${GH_TOKEN}" \
+            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases/tags/v${VERSION}")"
+          case "$CODE" in
+            200) echo "GitHub Release v${VERSION} already exists: nothing to publish, nothing redeployed."
+                 echo "published=true" >> "$GITHUB_OUTPUT" ;;
+            404) echo "published=false" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Cannot read releases (HTTP ${CODE})"; exit 1 ;;
+          esac
+
+      - name: Setup SSH for Master
+        if: steps.check.outputs.published == 'false'
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_MASTER }}
+
+      # Publication needs the live, healthy container of exactly this digest, also when only the
+      # Release is missing; it never redeploys.
+      - name: Verify live deployment
+        if: steps.check.outputs.published == 'false'
+        env:
+          SSH_USER: ${{ secrets.SSH_USER_MASTER }}
+          SERVER_IP: ${{ secrets.SERVER_IP_MASTER }}
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 "${SSH_USER}@${SERVER_IP}" \
+            bash -s -- verify "$PROD_DEPLOY_PATH" "$IMAGE" "$VERSION" "$DIGEST" < scripts/deploy-production.sh
+
+      - name: Create tag and GitHub Release
+        if: steps.check.outputs.published == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          TAG="v${VERSION}"
+          # An existing tag was verified above (annotated, on this commit); it is never moved.
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "${TAG} already exists on this commit"
+          else
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              tag -a "$TAG" "$GITHUB_SHA" -m "ok-service-frontend ${VERSION}"
+            git push origin "refs/tags/${TAG}"
+          fi
+
+          { sh scripts/release-version.sh notes "$VERSION"
+            printf '\n- Commit: `%s`\n- Image: `%s:%s`\n- Digest: `%s`\n- Actions run: %s\n' \
+              "$GITHUB_SHA" "$IMAGE" "$VERSION" "$DIGEST" "$RUN_URL"; } > release_notes.md
+          cat release_notes.md
+          gh release create "$TAG" --verify-tag --title "$TAG" --notes-file release_notes.md
+
   notify:
     name: 📬 Notifications
     runs-on: ubuntu-latest
-    needs: [build-and-push, deploy]
+    needs: [build-and-push, deploy, release]
     if: always()
 
     steps:
@@ -292,14 +467,33 @@ jobs:
 
           BUILD_STATUS="${{ needs['build-and-push'].result }}"
           DEPLOY_STATUS="${{ needs.deploy.result }}"
+          RELEASE_STATUS="${{ needs.release.result }}"
+          RELEASE_STATE="${{ needs['build-and-push'].outputs.release_state }}"
+          VERSION="${{ needs['build-and-push'].outputs.version }}"
+          DIGEST="${{ needs['build-and-push'].outputs.digest }}"
 
-          # агрегируем итог как у тебя было
-          if [ "${BUILD_STATUS}" = "success" ] && [ "${DEPLOY_STATUS}" = "success" ]; then
-            RESULT="success"
-          elif [ "${BUILD_STATUS}" = "failure" ] || [ "${DEPLOY_STATUS}" = "failure" ]; then
+          # Итог: success (dev/stage) | released | unpublished | skipped | failed
+          SKIP_REASON=""
+          if [ "${BUILD_STATUS}" != "success" ]; then
             RESULT="failed"
+          elif [ "${REF_NAME}" != "master" ]; then
+            if [ "${DEPLOY_STATUS}" = "success" ]; then RESULT="success"; else RESULT="failed"; fi
           else
-            RESULT="partial"
+            case "${RELEASE_STATE}" in
+              outdated) RESULT="skipped"; SKIP_REASON="в master уже более новый коммит — релиз выпустит его запуск" ;;
+              none)     RESULT="skipped"; SKIP_REASON="нет коммитов feat/fix/perf/breaking после последнего релиза" ;;
+              released)
+                if [ "${RELEASE_STATUS}" = "success" ]; then
+                  RESULT="skipped"; SKIP_REASON="v${VERSION} уже выпущена из этого коммита"
+                else
+                  RESULT="unpublished"
+                fi ;;
+              *)
+                if [ "${DEPLOY_STATUS}" != "success" ]; then RESULT="failed"
+                elif [ "${RELEASE_STATUS}" = "success" ]; then RESULT="released"
+                else RESULT="unpublished"
+                fi ;;
+            esac
           fi
 
           # commit message / author (фолбэк, чтобы не зависеть от head_commit.*)
@@ -343,10 +537,24 @@ jobs:
 
           # --- Telegram header
           case "${RESULT}" in
-            success) HEAD="✅ <b>Frontend deploy успешен</b>" ;;
-            failed)  HEAD="🛑 <b>Ошибка фронтового деплоя</b>" ;;
-            partial) HEAD="ℹ️ <b>Deploy partial</b> (build=${BUILD_STATUS}, deploy=${DEPLOY_STATUS})" ;;
-            *)       HEAD="ℹ️ <b>Deploy status:</b> ${RESULT}" ;;
+            success)     HEAD="✅ <b>Frontend deploy успешен</b>" ;;
+            released)    HEAD="🚀 <b>Frontend v${VERSION} выпущен в production</b>" ;;
+            unpublished) HEAD="⚠️ <b>Frontend v${VERSION} развёрнут в production, но релиз не опубликован</b> (release=${RELEASE_STATUS})" ;;
+            skipped)     HEAD="⏭️ <b>Деплой frontend не требуется:</b> ${SKIP_REASON}" ;;
+            *)           HEAD="🛑 <b>Ошибка фронтового деплоя</b> (build=${BUILD_STATUS}, deploy=${DEPLOY_STATUS})" ;;
+          esac
+
+          RELEASE_LINE=""
+          if [ -n "${VERSION}" ]; then
+            RELEASE_LINE="🏷️ <b>Версия:</b> <code>v${VERSION}</code> <code>${DIGEST:-—}</code>"
+          fi
+
+          case "${RESULT}" in
+            success)     COMMENT="Frontend deployed to ${ENV_NAME} via GitHub Actions run ${RUN_URL}" ;;
+            released)    COMMENT="Frontend v${VERSION} released to ${ENV_NAME} (image ${DIGEST}) via GitHub Actions run ${RUN_URL}" ;;
+            unpublished) COMMENT="Frontend v${VERSION} deployed to ${ENV_NAME}, but GitHub Release publication failed: ${RUN_URL}" ;;
+            skipped)     COMMENT="" ;;  # nothing changed, no task comments
+            *)           COMMENT="Frontend deployment to ${ENV_NAME} failed: ${RUN_URL}" ;;
           esac
 
           TASKS_BLOCK=""
@@ -387,7 +595,7 @@ jobs:
           fi
 
           EXTRA_LINK=""
-          if [ "${RESULT}" != "success" ]; then
+          if [ "${RESULT}" != "success" ] && [ "${RESULT}" != "released" ]; then
             EXTRA_LINK="<a href=\"${RUN_URL}\">🔍 Открыть GitHub Actions</a>"
           fi
 
@@ -398,6 +606,7 @@ jobs:
           🧩 <b>Env:</b> <code>${ENV_NAME}</code>
           📦 <b>Ветка:</b> <code>${REF_NAME}</code>
           🔖 <b>Коммит:</b> <code>${SHORT_SHA}</code>
+          ${RELEASE_LINE}
           👤 <b>Автор:</b> <a href="https://github.com/${AUTHOR_LOGIN}">${SAFE_AUTHOR}</a>
 
           📝 <b>Сообщение:</b>
@@ -424,8 +633,7 @@ jobs:
           fi
 
           # --- 2) Jira comments
-          if [ -n "${JIRA_URL:-}" ] && [ -n "${JIRA_USER:-}" ] && [ -n "${JIRA_API_TOKEN:-}" ] && [ -n "${JIRA_KEYS:-}" ]; then
-            COMMENT="Frontend deployed to ${ENV_NAME} via GitHub Actions run ${RUN_URL}"
+          if [ -n "${COMMENT}" ] && [ -n "${JIRA_URL:-}" ] && [ -n "${JIRA_USER:-}" ] && [ -n "${JIRA_API_TOKEN:-}" ] && [ -n "${JIRA_KEYS:-}" ]; then
             PAYLOAD="$(jq -n --arg body "$COMMENT" '{body:$body}')"
 
             for KEY in ${JIRA_KEYS}; do
@@ -449,12 +657,11 @@ jobs:
               fi
             done
           else
-            echo "Jira creds or keys missing, skip Jira comments"
+            echo "Skipped deploy, or Jira creds/keys missing: no Jira comments"
           fi
 
           # --- 3) OpenProject comments
-          if [ -n "${OPENPROJECT_URL:-}" ] && [ -n "${OPENPROJECT_API_TOKEN:-}" ] && [ -n "${OP_IDS:-}" ]; then
-            COMMENT="Frontend deployed to ${ENV_NAME} via GitHub Actions run ${RUN_URL}"
+          if [ -n "${COMMENT}" ] && [ -n "${OPENPROJECT_URL:-}" ] && [ -n "${OPENPROJECT_API_TOKEN:-}" ] && [ -n "${OP_IDS:-}" ]; then
             for ID in ${OP_IDS}; do
               echo "Post comment to OpenProject OP#${ID}"
               curl -sS -X POST \
@@ -465,5 +672,5 @@ jobs:
                 >/dev/null || echo "OpenProject comment failed for OP#${ID}"
             done
           else
-            echo "OpenProject creds or ids missing, skip OpenProject comments"
+            echo "Skipped deploy, or OpenProject creds/ids missing: no OpenProject comments"
           fi

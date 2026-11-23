@@ -34,7 +34,7 @@
 
   @media all and (max-width: 1000px) {
     &_filters {
-      margin-left: 12px;
+      margin-left: 0;
     }
   }
 
@@ -55,12 +55,19 @@
     &_sort {
       min-width: 220px;
     }
+
+    &_actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
   }
 }
 
 @media (max-width: 768px) {
   .users {
-    padding: 4px;
+    padding: 12px;
     min-height: calc(100vh - 110px);
 
     &_filters {
@@ -73,6 +80,15 @@
       &_sort {
         min-width: 0;
         width: 100%;
+      }
+
+      &_actions {
+        width: 100%;
+        margin-left: 0;
+
+        .ant-btn {
+          flex: 1;
+        }
       }
     }
   }

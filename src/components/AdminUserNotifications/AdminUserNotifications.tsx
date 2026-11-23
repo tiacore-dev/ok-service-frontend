@@ -1,4 +1,5 @@
 import { Card, Empty, List, Pagination, Spin, Tabs, Typography } from "antd";
+import { CheckOutlined } from "@ant-design/icons";
 import * as React from "react";
 import {
   useAdminNotificationsQuery,
@@ -9,8 +10,16 @@ interface AdminUserNotificationsProps {
   userId: string;
 }
 
-const formatDate = (value?: number | null) =>
-  value ? new Date(value * 1000).toLocaleString("ru-RU") : "—";
+const formatDate = (value?: number | null) => {
+  if (!value) return "—";
+  const timestamp =
+    value < 100_000_000_000
+      ? value * 1000
+      : value > 100_000_000_000_000
+        ? value / 1000
+        : value;
+  return new Date(timestamp).toLocaleString("ru-RU");
+};
 
 export const AdminUserNotifications = ({
   userId,
@@ -56,10 +65,27 @@ export const AdminUserNotifications = ({
                 description={
                   <>
                     <div>{item.text}</div>
-                    <Typography.Text type="secondary">
-                      {formatDate(item.created_at)} ·{" "}
-                      {item.viewed ? "Просмотрено" : "Не просмотрено"}
-                    </Typography.Text>
+                    <div
+                      style={{
+                        display: "grid",
+                        gap: 2,
+                        color: "#8a8a8a",
+                        fontSize: 12,
+                      }}
+                    >
+                      <span>Доставлено: {formatDate(item.created_at)}</span>
+                      {item.viewed && item.viewed_at ? (
+                        <span>
+                          <CheckOutlined
+                            style={{ color: "#e40808", marginRight: 4 }}
+                            aria-label="Прочитано"
+                          />
+                          Прочитано: {formatDate(item.viewed_at)}
+                        </span>
+                      ) : (
+                        <span>Не прочитано</span>
+                      )}
+                    </div>
                   </>
                 }
               />

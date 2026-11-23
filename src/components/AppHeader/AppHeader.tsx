@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Dropdown, Grid, Layout, Menu, Typography } from "antd";
+import { Dropdown, Grid, Layout, Menu } from "antd";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import type { MenuProps } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import logo from "./logo.png";
 import { IState } from "../../store/modules";
 import {
-  ArrowLeftOutlined,
   BarChartOutlined,
   BarsOutlined,
   FileDoneOutlined,
@@ -28,19 +27,9 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
   const role = useSelector(getCurrentRole);
   const navigate = useNavigate();
   const { logout } = useLogout();
-  const { Title } = Typography;
   const screens = Grid.useBreakpoint();
-  const showBackButton = useSelector(
-    (state: IState) => state.settings.generalSettings?.showBackButton,
-  );
   const userName = useSelector((state: IState) => state.auth.name);
   const userLogin = useSelector((state: IState) => state.auth.login);
-  const back = () => {
-    navigate(-1);
-  };
-  const appHeaderTitle = useSelector(
-    (state: IState) => state.settings.generalSettings?.appHeaderTitle,
-  );
   const userDisplayName = userName ?? userLogin ?? "Пользователь";
 
   desktopItems.push({
@@ -245,16 +234,7 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
     }
   };
 
-  return isMobile ? (
-    <Header className={"header"}>
-      {showBackButton && (
-        <ArrowLeftOutlined onClick={back} className="header__back" />
-      )}
-      <Title level={3} className="header__title">
-        {appHeaderTitle}
-      </Title>
-    </Header>
-  ) : (
+  return (
     <Header className={"header"}>
       <button
         type="button"
@@ -264,14 +244,16 @@ export const AppHeader = React.memo(({ isMobile }: { isMobile: boolean }) => {
       >
         <img className="header__logo" src={logo} />
       </button>
-      <Menu
-        className={"header__menu"}
-        theme="light"
-        mode="horizontal"
-        defaultSelectedKeys={["2"]}
-        _internalDisableMenuItemTitleTooltip
-        items={desktopItems}
-      />
+      {!isMobile && (
+        <Menu
+          className={"header__menu"}
+          theme="light"
+          mode="horizontal"
+          defaultSelectedKeys={["2"]}
+          _internalDisableMenuItemTitleTooltip
+          items={desktopItems}
+        />
+      )}
       <div className="header__user">
         <NotificationBell />
         {screens.md && (

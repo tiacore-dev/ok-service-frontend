@@ -13,6 +13,8 @@ import {
 import { LinkOutlined } from "@ant-design/icons";
 import * as React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { isMobile } from "../../utils/isMobile";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import {
   useNotificationSubscriptionsQuery,
   useNotificationsQuery,
@@ -32,6 +34,10 @@ export const Notifications = () => {
   const subscriptions = useNotificationSubscriptionsQuery();
   const revoke = useRevokeNotificationSubscriptionMutation();
   const markViewed = useMarkNotificationViewedMutation();
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
   const items = notifications.data?.items ?? [];
   const selected = items.find((item) => item.notification_id === selectedId);
 
@@ -57,17 +63,30 @@ export const Notifications = () => {
 
   const formatDate = (value: number | null | undefined) => {
     if (!value) return "—";
-    const timestamp = value < 1_000_000_000_000 ? value * 1000 : value;
-    return new Date(timestamp).toLocaleString("ru-RU");
+    const timestamp =
+      value < 100_000_000_000
+        ? value * 1000
+        : value > 100_000_000_000_000
+          ? value / 1000
+          : value;
+    return new Date(timestamp).toLocaleString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const history = (
     <div
+      className={`notifications-history${selected ? " notifications-history--selected" : ""}`}
       style={{
         display: "grid",
-        gridTemplateColumns: "minmax(280px, 380px) 1fr",
+        gridTemplateColumns: "minmax(280px, 380px) minmax(0, 1fr)",
         gap: 16,
         minHeight: "calc(100vh - 220px)",
+        minWidth: 0,
       }}
     >
       <Card
@@ -103,6 +122,10 @@ export const Notifications = () => {
                     setOpeningId(undefined);
                   }
                   setSelectedId(item.notification_id);
+                  navigate(
+                    `/notifications?notification_id=${item.notification_id}`,
+                    { replace: true },
+                  );
                 }}
                 style={{
                   cursor: "pointer",
@@ -159,20 +182,43 @@ export const Notifications = () => {
           <Alert type="error" message={openError} />
         ) : selected ? (
           <>
-            <Typography.Title level={4} style={{ marginTop: 0 }}>
-              {selected.title}
-            </Typography.Title>
-            <Typography.Text type="secondary">
-              {formatDate(selected.created_at)}
-              {selected.viewed_at
-                ? ` · Просмотрено ${formatDate(selected.viewed_at)}`
-                : ""}
-            </Typography.Text>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {isMobile() && (
+                <ArrowLeftOutlined
+                  aria-label="К списку уведомлений"
+                  onClick={() => {
+                    setSelectedId(undefined);
+                    navigate("/notifications", { replace: true });
+                  }}
+                  style={{ color: "#e40808", cursor: "pointer", fontSize: 18 }}
+                />
+              )}
+              <Typography.Title level={4} style={{ margin: 0 }}>
+                {selected.title}
+              </Typography.Title>
+            </div>
             <Typography.Paragraph
               style={{ whiteSpace: "pre-wrap", marginTop: 24 }}
             >
               {selected.text}
             </Typography.Paragraph>
+            <div
+              style={{
+                display: "grid",
+                gap: 4,
+                marginTop: 16,
+                fontSize: 12,
+              }}
+            >
+              <Typography.Text type="secondary">
+                Доставлено: {formatDate(selected.created_at)}
+              </Typography.Text>
+              {selected.viewed_at && (
+                <Typography.Text type="secondary">
+                  Прочитано: {formatDate(selected.viewed_at)}
+                </Typography.Text>
+              )}
+            </div>
             {selected.link && (
               <Button
                 type="primary"
@@ -223,7 +269,10 @@ export const Notifications = () => {
   );
 
   return (
-    <main style={{ padding: "0 20px 20px 20px" }}>
+    <main
+      className="notifications-page"
+      style={{ padding: "0 20px 20px 20px" }}
+    >
       <Tabs
         items={[
           {
